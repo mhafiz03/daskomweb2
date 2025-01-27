@@ -29,7 +29,11 @@ class ModulController extends BaseController
                     'resources.ppt_link'
                 )
                 ->get();
-            return redirect()->back()->with('success', 'Moduls retrieved successfully.');
+
+            return response()->json([
+                'success' => true,
+                'data' => $moduls,
+            ]);
         } catch (\Exception $e) {
             return response()->json([
                 'message' => 'An error occurred while retrieving moduls.',
