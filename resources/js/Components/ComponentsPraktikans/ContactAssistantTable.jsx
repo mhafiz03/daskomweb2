@@ -4,6 +4,7 @@ export default function ContactAssistantTable() {
     // Ambil data asisten dari props yang dikirim
     const { auth } = usePage().props;
     const asisten = auth?.asisten || []; // pastikan data asisten ada
+    console.log(usePage().props); // Cek apa yang ada di props
 
     const RowComponent = ({ nama, kode, nomor_telepon, id_line, instagram }) => (
         <div className="border-b border-transparent mb-1">

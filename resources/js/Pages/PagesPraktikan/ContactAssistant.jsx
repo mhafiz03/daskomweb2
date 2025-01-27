@@ -5,7 +5,9 @@ import ContactAssistantTable from "@/Components/ComponentsPraktikans/ContactAssi
 import Clock from "@/Components/ComponentsAssistants/Clock";
 import ModalSoftware from "@/Components/ComponentsAssistants/ModalSoftware";
 
-export default function ContactAssistant({ auth }) {
+export default function ContactAssistant() {
+    const { auth } = usePage().props; //data praktikan
+    const praktikan = auth.praktikan;
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
     const toggleSidebar = () => {
@@ -15,7 +17,7 @@ export default function ContactAssistant({ auth }) {
     return (
         <>
             <PraktikanAuthenticated
-                user={auth.user}
+                praktikan={praktikan}
                 customWidth="w-[80%]"
                 header={
                     <h2 className="font-semibold text-xl text-gray-800 leading-tight">

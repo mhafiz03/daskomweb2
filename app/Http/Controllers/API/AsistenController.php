@@ -58,6 +58,7 @@ class AsistenController extends Controller
             'id_line' => 'required|string',
             'instagram' => 'required|string',
             'deskripsi' => 'required|string',
+            'password' => 'required|string',
         ]);
         try {
             $asisten = Asisten::find(auth()->guard('asisten')->user()->id);
@@ -82,7 +83,7 @@ class AsistenController extends Controller
             ], 500);
         }
     }
-    
+
 
     /**
      * Remove the specified resource from storage.
@@ -112,5 +113,5 @@ class AsistenController extends Controller
             ], 500);
         }
     }
-    
+
 }

@@ -5,8 +5,8 @@ import failedIcon from "../../../assets/modal/failedSymbol.png";
 
 export default function ModalPasswordAssistant({ onClose }) {
     const [values, setValues] = useState({
+        current_password: "",
         password: "",
-        confirmPassword: "",
     });
     const [isSuccess, setIsSuccess] = useState(false);
     const [errorMessage, setErrorMessage] = useState("");
@@ -17,8 +17,8 @@ export default function ModalPasswordAssistant({ onClose }) {
     useEffect(() => {
         if (asisten) {
             setValues({
-                new_pass: "",
-                confirmPassword: "",
+                current_password: "",
+                password: "",
             });
         }
     }, [asisten]);
@@ -27,29 +27,31 @@ export default function ModalPasswordAssistant({ onClose }) {
         e.preventDefault();
 
         // Validasi input
-        if (!values.new_pass || !values.confirmPassword) {
+        if (!values.current_password || !values.password) {
             setErrorMessage("Semua kolom harus diisi.");
             return;
         }
-        if (values.new_pass !== values.confirmPassword) {
+        if (values.current_password !== values.password) {
             setErrorMessage("Password tidak cocok.");
             return;
         }
 
         // Kirim permintaan ke server
-        router.put("/api-v1/asisten", { password: values.new_pass }, {
-            onSuccess: () => {
-                setIsSuccess(true);
-                setTimeout(() => {
-                    setIsSuccess(false);
-                    onClose();
-                }, 3000);
-            },
-            onError: (errorResponse) => {
-                console.error("Error response:", errorResponse);
-                setErrorMessage("Gagal mengubah password. Silakan coba lagi.");
-            },
-        });
+        try {
+            await router.put("/asisten/password", {
+                current_password: values.current_password,
+                password: values.password,
+            });
+
+            setIsSuccess(true);
+            setTimeout(() => {
+                setIsSuccess(false);
+                onClose();
+            }, 3000);
+        } catch (error) {
+            console.error("Error response:", error);
+            setErrorMessage("Gagal mengubah password. Silakan coba lagi.");
+        }
     };
 
     const handleChange = (e) => {
@@ -87,10 +89,10 @@ export default function ModalPasswordAssistant({ onClose }) {
                     {/* Form untuk mengganti password */}
                     <div className="mb-4">
                         <input
-                            id="new_pass"
+                            id="current_password"
                             type="password"
                             placeholder="Password Baru"
-                            value={values.new_pass}
+                            value={values.current_password}
                             onChange={handleChange}
                             className="w-full p-2 border border-gray-300 rounded"
                         />
@@ -98,17 +100,17 @@ export default function ModalPasswordAssistant({ onClose }) {
 
                     <div className="mb-4">
                         <input
-                            id="confirmPassword"
+                            id="password"
                             type="password"
                             placeholder="Konfirmasi Password Baru"
-                            value={values.confirmPassword}
+                            value={values.password}
                             onChange={handleChange}
                             className="w-full p-2 border border-gray-300 rounded"
                         />
                     </div>
 
                     <button
-                        onClick={handleSave}
+                        type="submit" // Make sure the form submits properly
                         className="w-full p-2 bg-deepForestGreen text-white font-semibold rounded hover:bg-darkGreen"
                     >
                         Simpan
