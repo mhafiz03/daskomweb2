@@ -1,15 +1,8 @@
 import daskomIcon from "../../../../resources/assets/daskom.svg";
 import CircularImage from "../CircularImage";
 
-export default function CardPraktikan() {
-    //data variable
-    let name = "John Doe";
-    let nim = "1402214022";
-    let kelas = "TF-46-INT";
-    let notel = "14022";
-    let email = "Johndoe@gmail.com";
-    let major = "S3 Teknik Fisika";
-
+export default function CardPraktikan({praktikan}) {
+    console.log(praktikan)
     return (
         <>
             <div className="mt-[13vh] mx-auto font-poppins">
@@ -18,7 +11,7 @@ export default function CardPraktikan() {
 
                     <div className="flex justify-center mb-[10px] mt-[16px]">
                         <h1 className="font-poppins font-bold text-lg max-w-[320px] truncate">
-                            {name}
+                            {praktikan.nama}
                         </h1>
                     </div>
 
@@ -39,23 +32,23 @@ export default function CardPraktikan() {
                         </ul>
                         <ul className="mx-[17px] mb-[20px] font-poppins text-sm">
                             <li className="my-[4px] max-w-[320px] truncate">
-                                : {nim}
+                                : {praktikan.nim}
                             </li>
                             <li className="my-[4px] max-w-[230px] truncate">
-                                : {kelas}
+                                : {praktikan.kelas_id}
                             </li>
                             <li className="my-[4px] max-w-[230px] truncate">
-                                : {notel}
+                                : {praktikan.nomor_telepon}
                             </li>
                             <li className="my-[4px] max-w-[230px] truncate">
-                                : {email}
+                                : {praktikan.email}
                             </li>
                         </ul>
                     </div>
 
                     <div className="my-[20px] h-[27.5px] mx-[17px] bg-darkGreen rounded-md">
                         <h1 className="text-center text-white font-poppins font-bold text-lg">
-                            {major}
+                            Praktikan Daskom Laboratory
                         </h1>
                     </div>
                 </div>
