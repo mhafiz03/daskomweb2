@@ -63,7 +63,7 @@ export default function LoginFormPraktikan({ mode }) {
             <h1 className="font-bold text-3xl text-darkGreen text-shadow-md text-center">WELCOME!</h1>
             <p className="font-bold text-lg text-center">Please login to start practicum.</p>
 
-            <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
+            <form className="flex flex-col gap-2" onSubmit={handleSubmit}>
                 <input className="bg-lightGray py-1 px-4 mt-10 rounded-sm border-dustyBlue border-2 placeholder-dustyBlue" type="text" inputMode="numeric" pattern="[0-9]*" name="nim" id='nim' value={values.nim} placeholder="NIM" onChange={handleChange}/>
                 {errors.nim && (
                     <p className="text-red-500 text-sm mt-1">{errors.nim}</p>
@@ -88,14 +88,14 @@ export default function LoginFormPraktikan({ mode }) {
                         <p className="text-red-500 text-sm mt-1">{errors.password}</p>
                     )}
                 </div>
+                <ButtonOption order="login" mode={mode} />
             </form>
-            <div className="relative my-3 text-right">
+            <div className="relative my-1 text-right">
                 <p className="inline-block relative text-sm text-deepForestGreen font-semibold cursor-pointer group" onClick={openModal}>
                     Forgot Password?
                     <span className="absolute bottom-[-1px] left-0 right-0 h-0.5 bg-deepForestGreenDark transform scale-x-0 origin-left transition-transform duration-300 group-hover:scale-x-100" />
                 </p>
             </div>
-            <ButtonOption order="login" mode={mode} />
 
             {isModalOpen && (
                 <Modal isOpen={isModalOpen} onClose={closeModal} width="w-[370px]">

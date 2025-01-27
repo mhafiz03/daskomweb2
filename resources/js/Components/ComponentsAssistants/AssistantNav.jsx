@@ -33,8 +33,6 @@ export default function AssisstantNav({ asisten, permission_name }) {
     const [showOpenKJ, setShowOpenKJ] = useState(false);
     const [showOpenTP, setShowOpenTP] = useState(false);
 
-
-
     const openModal = () => setIsModalOpen(true);
     const closeModal = () => setIsModalOpen(false);
 

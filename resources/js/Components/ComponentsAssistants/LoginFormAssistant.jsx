@@ -86,7 +86,7 @@ export default function LoginFormAssistant({ mode }) {
             <p className="font-bold text-lg text-center">
                 Please login to start practicum.
             </p>
-            <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
+            <form className="flex flex-col gap-2" onSubmit={handleSubmit}>
                 <input
                     className="bg-lightGray py-1 px-4 mt-10 rounded-sm border-dustyBlue border-2 placeholder-dustyBlue uppercase w-full"
                     type="text"
@@ -121,7 +121,9 @@ export default function LoginFormAssistant({ mode }) {
                         <p className="text-red-500 text-sm mt-1">{errors.password}</p>
                     )}
                 </div>
-                <div className="relative my-3 text-right">
+                <ButtonOption order="login" mode={mode} />
+            </form>
+            <div className="relative my-1 text-right">
                     <p
                         className="inline-block relative text-sm text-deepForestGreen font-semibold cursor-pointer group"
                         onClick={openModal}
@@ -130,8 +132,6 @@ export default function LoginFormAssistant({ mode }) {
                         <span className="absolute bottom-[-1px] left-0 right-0 h-0.5 bg-deepForestGreenDark transform scale-x-0 origin-left transition-transform duration-300 group-hover:scale-x-100" />
                     </p>
                 </div>
-                <ButtonOption order="login" mode={mode} />
-            </form>
 
             {isModalOpen && (
                 <Modal isOpen={isModalOpen} onClose={closeModal} width="w-[370px]">

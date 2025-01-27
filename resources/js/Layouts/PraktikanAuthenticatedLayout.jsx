@@ -5,7 +5,7 @@ export default function PraktikanAuthenticated({ children, customWidth, praktika
         <>
             <div className="relative h-screen overflow-hidden">
                 <div id="template" className="flex">
-                    <PraktikanNav praktikan={praktikan} permission_name={permission_name} />
+                    <PraktikanNav praktikan={praktikan} />
                     <main
                         className={`mx-auto w-[30%] ${
                             customWidth || ""

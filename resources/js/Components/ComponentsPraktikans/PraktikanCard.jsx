@@ -48,7 +48,7 @@ export default function CardPraktikan({praktikan}) {
 
                     <div className="my-[20px] h-[27.5px] mx-[17px] bg-darkGreen rounded-md">
                         <h1 className="text-center text-white font-poppins font-bold text-lg">
-                            Praktikan Daskom Laboratory
+                            Daskom Laboratory
                         </h1>
                     </div>
                 </div>

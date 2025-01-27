@@ -1,22 +1,67 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { usePage, router } from "@inertiajs/react";
 import closeIcon from "../../../assets/modal/iconClose.svg";
-import failedIcon from "../../../assets/modal/failedSymbol.png"
+import failedIcon from "../../../assets/modal/failedSymbol.png";
 
 export default function ModalPasswordAssistant({ onClose }) {
-    const [newPassword, setNewPassword] = useState('');
-    const [confirmPassword, setConfirmPassword] = useState('');
+    const [values, setValues] = useState({
+        password: "",
+        confirmPassword: "",
+    });
     const [isSuccess, setIsSuccess] = useState(false);
-    const [errorMessage, setErrorMessage] = useState('');
+    const [errorMessage, setErrorMessage] = useState("");
 
-    const handleChangePassword = () => {
-        if (!newPassword || !confirmPassword) {
-            setErrorMessage('Semua kolom harus diisi.');
-        } else if (newPassword !== confirmPassword) {
-            setErrorMessage('Password tidak cocok.');
-        } else {
-            setErrorMessage('');
-            setIsSuccess(true);
+    const { auth, errors } = usePage().props; // Fetch shared props from Inertia
+    const asisten = auth?.asisten;
+
+    useEffect(() => {
+        if (asisten) {
+            setValues({
+                new_pass: "",
+                confirmPassword: "",
+            });
         }
+    }, [asisten]);
+
+    const handleSave = async (e) => {
+        e.preventDefault();
+
+        // Validasi input
+        if (!values.new_pass || !values.confirmPassword) {
+            setErrorMessage("Semua kolom harus diisi.");
+            return;
+        }
+        if (values.new_pass !== values.confirmPassword) {
+            setErrorMessage("Password tidak cocok.");
+            return;
+        }
+
+        // Kirim permintaan ke server
+        router.put("/api-v1/asisten", { password: values.new_pass }, {
+            onSuccess: () => {
+                setIsSuccess(true);
+                setTimeout(() => {
+                    setIsSuccess(false);
+                    onClose();
+                }, 3000);
+            },
+            onError: (errorResponse) => {
+                console.error("Error response:", errorResponse);
+                setErrorMessage("Gagal mengubah password. Silakan coba lagi.");
+            },
+        });
+    };
+
+    const handleChange = (e) => {
+        const { id, value } = e.target;
+        setValues((prevValues) => ({
+            ...prevValues,
+            [id]: value,
+        }));
+    };
+
+    const closeErrorModal = () => {
+        setErrorMessage("");
     };
 
     const closeSuccessModal = () => {
@@ -24,12 +69,8 @@ export default function ModalPasswordAssistant({ onClose }) {
         onClose();
     };
 
-    const closeErrorModal = () => {
-        setErrorMessage('');
-    };
-
     return (
-        <div>
+        <form onSubmit={handleSave}>
             {/* Modal utama untuk ganti password */}
             <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
                 <div className="bg-softGray p-8 rounded shadow-lg w-[30%] relative">
@@ -46,26 +87,28 @@ export default function ModalPasswordAssistant({ onClose }) {
                     {/* Form untuk mengganti password */}
                     <div className="mb-4">
                         <input
+                            id="new_pass"
                             type="password"
                             placeholder="Password Baru"
-                            value={newPassword}
-                            onChange={(e) => setNewPassword(e.target.value)}
+                            value={values.new_pass}
+                            onChange={handleChange}
                             className="w-full p-2 border border-gray-300 rounded"
                         />
                     </div>
 
                     <div className="mb-4">
                         <input
+                            id="confirmPassword"
                             type="password"
                             placeholder="Konfirmasi Password Baru"
-                            value={confirmPassword}
-                            onChange={(e) => setConfirmPassword(e.target.value)}
+                            value={values.confirmPassword}
+                            onChange={handleChange}
                             className="w-full p-2 border border-gray-300 rounded"
                         />
                     </div>
 
                     <button
-                        onClick={handleChangePassword}
+                        onClick={handleSave}
                         className="w-full p-2 bg-deepForestGreen text-white font-semibold rounded hover:bg-darkGreen"
                     >
                         Simpan
@@ -114,11 +157,9 @@ export default function ModalPasswordAssistant({ onClose }) {
 
                         {/* Pesan sukses */}
                         <p className="text-center mt-4 text-xl font-semibold text-darkGreen">Password Anda telah berhasil diganti.</p>
-
                     </div>
                 </div>
             )}
-
-        </div>
+        </form>
     );
 }

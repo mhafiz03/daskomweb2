@@ -1,25 +1,51 @@
-export default function ModalLogout({ onClose }) {
-    const handleLogout = () => {
-        localStorage.clear();
-        window.location.href = '/login'; 
+import { router } from '@inertiajs/react';
+import closeIcon from "../../../assets/modal/iconClose.svg";
+
+export default function ModalLogout({ onClose, onConfirm }) {
+    const handleConfirm = () => {
+        if (onConfirm) {
+            router.post('/praktikan/logout', {}, {
+                onSuccess: () => {
+                    // Redirect the user to the login page after a successful logout
+                    window.location.href = '/';
+                },
+                onError: (error) => {
+                    // Handle any errors during logout
+                    console.error('Logout failed:', error);
+                    alert('Something went wrong. Please try again.');
+                },
+            });
+        }
     };
 
     return (
-        <div className='flex flex-col items-center justify-center'>
-            <h1 className="mt-8 font-bold text-2xl">Apakah Kamu Yakin?</h1>
-            <div className="flex mt-4 mb-7 items-center justify-between">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
+            <div className="bg-softGray p-6 rounded shadow-lg w-1/4 relative">
+                {/* Close Button */}
                 <button
-                    className="mx-2 py-1 px-7 bg-deepForestGreen text-white text-lg font-bold rounded-sm shadow-sm shadow-black hover:bg-deepForestGreenDark hover:shadow-white"
-                    onClick={onClose} 
+                    onClick={onClose}
+                    className="absolute top-2 right-2 flex justify-center items-center"
                 >
-                    Tidak
+                    <img className="w-9" src={closeIcon} alt="Close Icon" />
                 </button>
-                <button
-                    className="mx-2 py-1 px-10 bg-softRed text-white text-lg font-bold rounded-sm shadow-sm shadow-black hover:bg-darkRed hover:shadow-white"
-                    onClick={handleLogout} 
-                >
-                    Ya
-                </button>
+
+                <h2 className="text-xl font-bold text-center mt-8 mb-5 text-black">Apakah Kamu Yakin?</h2>
+
+                {/* Yes and No Buttons */}
+                <div className="flex justify-center gap-2 mt-6">
+                    <button
+                        onClick={handleConfirm}
+                        className="w-1/3 p-2 bg-deepForestGreen text-white font-semibold rounded hover:bg-darkGreen"
+                    >
+                        Ya
+                    </button>
+                    <button
+                        onClick={onClose}
+                        className="w-1/3 p-2 bg-softRed text-white font-semibold rounded hover:bg-rustyRed"
+                    >
+                        Tidak
+                    </button>
+                </div>
             </div>
         </div>
     );

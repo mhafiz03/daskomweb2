@@ -8,8 +8,6 @@ import { usePage } from "@inertiajs/react";
 export default function ProfilePraktikan() {
     const { auth } = usePage().props; //data praktikan
     const praktikan = auth.praktikan;
-    const permission = praktikan.role.permissions;
-    const permission_name = permission.map(item => item.name);
 
     return (
         <>

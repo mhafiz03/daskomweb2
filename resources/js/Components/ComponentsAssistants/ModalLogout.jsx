@@ -1,4 +1,4 @@
-import React from 'react';
+
 import { router } from '@inertiajs/react';
 import closeIcon from "../../../assets/modal/iconClose.svg";
 
@@ -8,7 +8,7 @@ export default function ModalLogout({ onClose, onConfirm }) {
             router.post('/asisten/logout', {}, {
                 onSuccess: () => {
                     // Redirect the user to the login page after a successful logout
-                    window.location.href = '/login';
+                    window.location.href = '/';
                 },
                 onError: (error) => {
                     // Handle any errors during logout

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link } from "@inertiajs/react";
+import { Link, usePage, router } from "@inertiajs/react";
 import profileIcon from "../../../assets/nav/Icon-Profile.svg";
 import praktikumIcon from "../../../assets/nav/Icon-Praktikum.svg";
 import nilaiIcon from "../../../assets/nav/Icon-Nilai.svg";
@@ -20,14 +20,13 @@ export default function PraktikanNav() {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isChangePassSuccess, setIsChangePassSuccess] = useState(false);
     const [isChangePassFailed, setIsChangePassFailed] = useState(false);
-    const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
+    const [showLogoutModal, setShowLogoutModal] = useState(false);
 
-    const handleOpenLogoutModal = () => {
-        setIsLogoutModalOpen(true);
-    };
+    const openLogoutModal = () => setShowLogoutModal(true);
+    const closeLogoutModal = () => setShowLogoutModal(false);
 
-    const closeLogoutModal = () => {
-        setIsLogoutModalOpen(false);
+    const handleLogoutConfirm = () => {
+        closeLogoutModal();
     };
 
     const handleOpenModal = () => {
@@ -36,8 +35,8 @@ export default function PraktikanNav() {
 
     const closeModal = () => {
         setIsModalOpen(false);
-        setIsChangePassSuccess(false); 
-        setIsChangePassFailed(false); 
+        setIsChangePassSuccess(false);
+        setIsChangePassFailed(false);
     };
 
     const toggleSidebar = () => {
@@ -57,9 +56,8 @@ export default function PraktikanNav() {
     return (
         <nav className="h-screen flex items-center">
             <div
-                className={`flex flex-col h-[79vh] ${
-                    isCollapsed ? "w-12" : "w-[230px]"
-                } bg-forestGreen text-left text-white mx-[8px] font-poppins font-bold rounded-md transition-all duration-300`}
+                className={`flex flex-col h-[91vh] ${isCollapsed ? "w-12" : "w-[230px]"
+                    } bg-forestGreen text-left text-white mx-[8px] font-poppins font-bold rounded-md transition-all duration-300`}
             >
                 <div className="flex relative items-center">
                     <button
@@ -70,23 +68,20 @@ export default function PraktikanNav() {
                         }}
                     >
                         <div
-                            className={`${genericHamburgerLine} bg-white transform transition-all duration-300 ease-in-out ${
-                                isOpen
+                            className={`${genericHamburgerLine} bg-white transform transition-all duration-300 ease-in-out ${isOpen
                                     ? "rotate-45 translate-y-3"
                                     : "translate-y-1 group-hover:translate-y-0"
-                            }`}
+                                }`}
                         />
                         <div
-                            className={`${genericHamburgerLine} bg-white transform transition-all duration-300 ease-in-out ${
-                                isOpen ? "opacity-0" : "opacity-100"
-                            }`}
+                            className={`${genericHamburgerLine} bg-white transform transition-all duration-300 ease-in-out ${isOpen ? "opacity-0" : "opacity-100"
+                                }`}
                         />
                         <div
-                            className={`${genericHamburgerLine} bg-white transform transition-all duration-300 ease-in-out ${
-                                isOpen
+                            className={`${genericHamburgerLine} bg-white transform transition-all duration-300 ease-in-out ${isOpen
                                     ? "-rotate-45 -translate-y-3"
                                     : "-translate-y-1 group-hover:translate-y-0"
-                            }`}
+                                }`}
                         />
                     </button>
                 </div>
@@ -103,13 +98,12 @@ export default function PraktikanNav() {
                                     alt="profile"
                                 />
                                 <span
-                                    className={`self-center text-sm ml-3 transition-opacity duration-300 ${
-                                        isCollapsed
+                                    className={`self-center text-sm ml-3 transition-opacity duration-300 ${isCollapsed
                                             ? "opacity-0 delay-0"
                                             : isAnimating
-                                            ? "opacity-0"
-                                            : "opacity-100 delay-300"
-                                    }`}
+                                                ? "opacity-0"
+                                                : "opacity-100 delay-300"
+                                        }`}
                                 >
                                     Profile
                                 </span>
@@ -126,13 +120,12 @@ export default function PraktikanNav() {
                                     alt="praktikum"
                                 />
                                 <span
-                                    className={`self-center text-sm ml-3 transition-opacity duration-300 ${
-                                        isCollapsed
+                                    className={`self-center text-sm ml-3 transition-opacity duration-300 ${isCollapsed
                                             ? "opacity-0 delay-0"
                                             : isAnimating
-                                            ? "opacity-0"
-                                            : "opacity-100 delay-300"
-                                    }`}
+                                                ? "opacity-0"
+                                                : "opacity-100 delay-300"
+                                        }`}
                                 >
                                     Praktikum
                                 </span>
@@ -149,13 +142,12 @@ export default function PraktikanNav() {
                                     alt="nilai"
                                 />
                                 <span
-                                    className={`self-center text-sm ml-3 transition-opacity duration-300 ${
-                                        isCollapsed
+                                    className={`self-center text-sm ml-3 transition-opacity duration-300 ${isCollapsed
                                             ? "opacity-0 delay-0"
                                             : isAnimating
-                                            ? "opacity-0"
-                                            : "opacity-100 delay-300"
-                                    }`}
+                                                ? "opacity-0"
+                                                : "opacity-100 delay-300"
+                                        }`}
                                 >
                                     Nilai
                                 </span>
@@ -172,13 +164,12 @@ export default function PraktikanNav() {
                                     alt="leaderboard"
                                 />
                                 <span
-                                    className={`self-center text-sm ml-3 transition-opacity duration-300 ${
-                                        isCollapsed
+                                    className={`self-center text-sm ml-3 transition-opacity duration-300 ${isCollapsed
                                             ? "opacity-0 delay-0"
                                             : isAnimating
-                                            ? "opacity-0"
-                                            : "opacity-100 delay-300"
-                                    }`}
+                                                ? "opacity-0"
+                                                : "opacity-100 delay-300"
+                                        }`}
                                 >
                                     Leaderboard
                                 </span>
@@ -195,13 +186,12 @@ export default function PraktikanNav() {
                                     alt="asisten"
                                 />
                                 <span
-                                    className={`self-center text-sm ml-3 transition-opacity duration-300 ${
-                                        isCollapsed
+                                    className={`self-center text-sm ml-3 transition-opacity duration-300 ${isCollapsed
                                             ? "opacity-0 delay-0"
                                             : isAnimating
-                                            ? "opacity-0"
-                                            : "opacity-100 delay-300"
-                                    }`}
+                                                ? "opacity-0"
+                                                : "opacity-100 delay-300"
+                                        }`}
                                 >
                                     Asisten
                                 </span>
@@ -218,13 +208,12 @@ export default function PraktikanNav() {
                                     alt="polling"
                                 />
                                 <span
-                                    className={`self-center text-sm ml-3 transition-opacity duration-300 ${
-                                        isCollapsed
+                                    className={`self-center text-sm ml-3 transition-opacity duration-300 ${isCollapsed
                                             ? "opacity-0 delay-0"
                                             : isAnimating
-                                            ? "opacity-0"
-                                            : "opacity-100 delay-300"
-                                    }`}
+                                                ? "opacity-0"
+                                                : "opacity-100 delay-300"
+                                        }`}
                                 >
                                     Polling
                                 </span>
@@ -241,13 +230,12 @@ export default function PraktikanNav() {
                                     alt="change password"
                                 />
                                 <span
-                                    className={`self-center text-sm ml-3 text-nowrap transition-opacity duration-300 ${
-                                        isCollapsed
+                                    className={`self-center text-sm ml-3 text-nowrap transition-opacity duration-300 ${isCollapsed
                                             ? "opacity-0 delay-0"
                                             : isAnimating
-                                            ? "opacity-0"
-                                            : "opacity-100 delay-300"
-                                    }`}
+                                                ? "opacity-0"
+                                                : "opacity-100 delay-300"
+                                        }`}
                                 >
                                     Change Password
                                 </span>
@@ -258,11 +246,11 @@ export default function PraktikanNav() {
                                 <ModalChangePass
                                     onSuccess={() => {
                                         setIsChangePassSuccess(true);
-                                        setIsModalOpen(false); 
+                                        setIsModalOpen(false);
                                     }}
                                     onFailed={() => {
                                         setIsChangePassFailed(true);
-                                        setIsModalOpen(false); 
+                                        setIsModalOpen(false);
                                     }}
                                 />
                             </Modal>
@@ -277,7 +265,7 @@ export default function PraktikanNav() {
                                 <ModalChangePassFailed
                                     onRetry={() => {
                                         setIsChangePassFailed(false);
-                                        setIsModalOpen(true); 
+                                        setIsModalOpen(true);
                                     }}
                                 />
                             </Modal>
@@ -285,7 +273,7 @@ export default function PraktikanNav() {
                         <li>
                             <div
                                 className="flex py-3 px-3 hover:bg-darkGreen items-center cursor-pointer"
-                                onClick={handleOpenLogoutModal}
+                                onClick={openLogoutModal}
                             >
                                 <img
                                     className="w-6"
@@ -293,22 +281,19 @@ export default function PraktikanNav() {
                                     alt="logout"
                                 />
                                 <span
-                                    className={`self-center text-sm ml-3 transition-opacity duration-300 ${
-                                        isCollapsed
+                                    className={`self-center text-sm ml-3 transition-opacity duration-300 ${isCollapsed
                                             ? "opacity-0 delay-0"
                                             : isAnimating
-                                            ? "opacity-0"
-                                            : "opacity-100 delay-300"
-                                    }`}
+                                                ? "opacity-0"
+                                                : "opacity-100 delay-300"
+                                        }`}
                                 >
                                     Logout
                                 </span>
                             </div>
                         </li>
-                        {isLogoutModalOpen && (
-                            <Modal isOpen={isLogoutModalOpen} onClose={closeLogoutModal} width="w-[370px]">
-                                <ModalLogout onClose={closeLogoutModal} />
-                            </Modal>
+                        {showLogoutModal && (
+                            <ModalLogout onClose={closeLogoutModal} onConfirm={handleLogoutConfirm} />
                         )}
                     </ul>
                 </div>
