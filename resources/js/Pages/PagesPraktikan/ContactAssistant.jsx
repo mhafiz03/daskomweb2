@@ -1,4 +1,4 @@
-import { Head } from "@inertiajs/react";
+import { Head, usePage } from "@inertiajs/react";
 import { useState } from "react";
 import PraktikanAuthenticated from "@/Layouts/PraktikanAuthenticatedLayout";
 import ContactAssistantTable from "@/Components/ComponentsPraktikans/ContactAssistantTable";
@@ -26,7 +26,7 @@ export default function ContactAssistant({ auth }) {
                 <Head title="Contact Assistant" />
 
                 <div className="mt-[8vh] flex mx-auto h-screen">
-                    <div 
+                    <div
                         className={`transition-all duration-300 flex-1 ${isSidebarOpen ? 'ml-[240px]' : 'ml-14'}`}
                     >
                         <ContactAssistantTable />
