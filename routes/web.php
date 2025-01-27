@@ -146,8 +146,8 @@ Route::get('/contact-assistant', function () {
     return Inertia::render('PagesPraktikan/ContactAssistant');
 })->name('contact-assistant')->middleware(['auth:praktikan', 'can:lihat-asisten']);
 
-Route::get('/polling-assistant', function () { 
-    return Inertia::render('PagesPraktikan/PollingPage'); 
+Route::get('/polling-assistant', function () {
+    return Inertia::render('PagesPraktikan/PollingPage');
 })->name('polling-assistant');
 
 /////////////////////////////////////// Data Routes ///////////////////////////////////////
@@ -296,7 +296,7 @@ Route::prefix('api-v1')->group(function () {
     Route::post('/set-password', [PraktikanController::class, 'setPassword'])->name('set.password')->middleware(['auth:asisten', 'can:set-praktikan']);
 
 
-    ////////////////praktikan///////////////////////////////    
+    ////////////////praktikan///////////////////////////////
     // polling
     Route::post('/polling', [PollingsController::class, 'store'])->name('store.polling')->middleware(['auth:praktikan', 'can:isi-polling']);
 

@@ -21,7 +21,7 @@ class ModulController extends BaseController
                     'poin1',
                     'poin2',
                     'poin3',
-                    'isEnglish', 
+                    'isEnglish',
                     'isUnlocked',
                     'moduls.id as idM',
                     'resources.id as idR',
@@ -29,10 +29,7 @@ class ModulController extends BaseController
                     'resources.ppt_link'
                 )
                 ->get();
-            return response()->json([
-                'modul' => $moduls, 
-                'message' => 'Moduls retrieved successfully.'
-            ], 200);
+            return redirect()->back()->with('success', 'Moduls retrieved successfully.');
         } catch (\Exception $e) {
             return response()->json([
                 'message' => 'An error occurred while retrieving moduls.',
@@ -40,7 +37,6 @@ class ModulController extends BaseController
             ], 500);
         }
     }
-    
 
     public function show($id) {
         try {
@@ -52,15 +48,12 @@ class ModulController extends BaseController
             if (!$modul) {
                 return response()->json([
                     'message' => 'Modul tidak ditemukan.'
-                ], 404); 
+                ], 404);
             }
             $modul->resource_id = $modul->resource->id ?? null;
             $modul->modul_link = $modul->resource->modul_link ?? null;
             $modul->ppt_link = $modul->resource->ppt_link ?? null;
-            return response()->json([
-                'modul' => $modul,
-                'message' => 'Modul berhasil diambil.'
-            ], 200);
+            return redirect()->back()->with('success', 'Moduls retrieved successfully.');
         } catch (\Exception $e) {
             return response()->json([
                 'message' => 'Terjadi kesalahan saat mengambil modul.',
@@ -68,7 +61,6 @@ class ModulController extends BaseController
             ], 500);
         }
     }
-    
 
     public function store(Request $request)
     {
@@ -108,9 +100,7 @@ class ModulController extends BaseController
                 'pembahasan' => "empty",
                 'isActive' => 0,
             ]);
-            return response()->json([
-                'message' => 'Modul berhasil ditambah.',
-            ], 200);
+            return redirect()->back()->with('success', 'Modul added successfully.');
         } catch (\Exception $e) {
             return response()->json([
                 'message' => 'Terjadi kesalahan saat menambahkan modul.',
@@ -118,7 +108,7 @@ class ModulController extends BaseController
             ], 500);
         }
     }
-    
+
 
     public function update(Request $request, $id)
     {
@@ -165,7 +155,7 @@ class ModulController extends BaseController
             ], 500);
         }
     }
-    
+
 
     public function destroy($id){
         $modul = Modul::findOrFail($id);
@@ -179,7 +169,7 @@ class ModulController extends BaseController
     public function reset(){
         try {
             DB::statement('SET FOREIGN_KEY_CHECKS=0;');
-            Modul::query()->delete(); 
+            Modul::query()->delete();
             DB::table('history_jagas')->truncate();
             DB::table('jawaban_fitbs')->truncate();
             DB::table('jawaban_jurnals')->truncate();
@@ -210,7 +200,7 @@ class ModulController extends BaseController
             ], 500); // Server error
         }
     }
-    
+
 
     public function updateStatus(Request $request)
     {
@@ -218,14 +208,14 @@ class ModulController extends BaseController
         if (empty($data)) {
             return response()->json([
                 'message' => 'No data provided.',
-            ], 400); 
+            ], 400);
         }
-    
+
         foreach ($data as $item) {
             if (!isset($item['id']) || !isset($item['isUnlocked'])) {
                 return response()->json([
                     'message' => 'Missing required fields: id or isUnlocked.',
-                ], 400); 
+                ], 400);
             }
             $modul = Modul::find($item['id']);
             if (!$modul) {
@@ -240,7 +230,7 @@ class ModulController extends BaseController
         return response()->json([
             'status' => 'success',
             'data' => $data
-        ], 200); 
+        ], 200);
     }
-    
+
 }

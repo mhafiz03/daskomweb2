@@ -4,11 +4,12 @@ import iconWA from "../../../assets/contact/iconWhatsapp.svg";
 import iconLine from "../../../assets/contact/iconLine.svg";
 import iconIG from "../../../assets/contact/iconInstagram.svg";
 import editIcon from "../../../assets/nav/Icon-Edit.svg"
+import daskomIcon from "../../../../resources/assets/daskom.svg";
 
 export default function CardAssistant({ asisten }) {
     const [isModalOpen, setModalOpen] = useState(false);
     console.log(asisten);
-    
+
     const handleOpenModal = () => setModalOpen(true);
     const handleCloseModal = () => setModalOpen(false);
 
@@ -33,7 +34,7 @@ export default function CardAssistant({ asisten }) {
 
                     {/* Profile Picture */}
                     <img
-                        src="https://via.placeholder.com/300" //ini di kasih conditional aja 
+                        src={daskomIcon}
                         alt={asisten.nama}
                         className="w-40 h-40 mx-auto rounded-full object-cover border-2"
                     />

@@ -2,10 +2,10 @@ import AssisstantNav from "@/Components/ComponentsAssistants/AssistantNav";
 import CardAssistant from "@/Components/ComponentsAssistants/CardAssistant";
 import Clock from "@/Components/ComponentsAssistants/Clock";
 import ModalSoftware from "@/Components/ComponentsAssistants/ModalSoftware";
-import { usePage } from "@inertiajs/react";
-
+import { usePage } from "@inertiajs/react"; // harus di taro semua page
 
 export default function ProfileAssistant() {
+    // ini taro semua pages
     const { auth } = usePage().props; //data asisten
     const asisten = auth.asisten;
     const permission = asisten.role.permissions;

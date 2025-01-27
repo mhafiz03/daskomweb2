@@ -32,7 +32,7 @@ export default function AssisstantNav({ asisten, permission_name }) {
     const [showConfigModal, setShowConfigModal] = useState(false);
     const [showOpenKJ, setShowOpenKJ] = useState(false);
     const [showOpenTP, setShowOpenTP] = useState(false);
-    
+
 
 
     const openModal = () => setIsModalOpen(true);
@@ -97,7 +97,7 @@ export default function AssisstantNav({ asisten, permission_name }) {
                                 </a>
                             </li>
                             <li>
-                                <a href="/module" className="flex py-3 px-5 hover:bg-darkGreen">
+                                <a href="/modul" className="flex py-3 px-5 hover:bg-darkGreen">
                                     <img className="w-6" src={moduleIcon} alt="moduleIcon" />
                                     <span className="self-center text-sm ml-3">Modul</span>
                                 </a>
