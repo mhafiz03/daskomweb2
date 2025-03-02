@@ -38,6 +38,7 @@ use App\Http\Controllers\API\LaporanPraktikanController;
 use App\Http\Controllers\API\TugasPendahuluanController;
 use App\Http\Controllers\Auth\RegisteredAsistenController;
 use App\Http\Controllers\Auth\RegisteredPraktikanController;
+use Illuminate\Http\Request;
 
 Route::get('/', function () {
     return Inertia::render('LandingPage');
@@ -157,7 +158,7 @@ Route::prefix('api-v1')->group(function () {
     // i guess
     Route::post('/register/asisten', [RegisteredAsistenController::class, 'store'])->name('store.asisten')->middleware('guest');
     Route::post('/register/praktikan', [RegisteredPraktikanController::class, 'store'])->name('store.praktikan')->middleware('guest');
-
+    Route::get('/get-kelas', [RegisteredPraktikanController::class, 'getKelas'])->name('public-getkelas')->middleware('guest');
     // Asisten
     // Route::get('/asisten', [AsistenController::class, 'index'])->name('get.asisten')->middleware(['auth:asisten', 'can:see-plot,lihat-asisten']);
     // Route::put('/asisten', [AsistenController::class, 'update'])->name('update.asisten')->middleware(['auth:asisten', 'can:manage-profile']);
@@ -169,7 +170,7 @@ Route::prefix('api-v1')->group(function () {
     Route::put('/roles/{id}', [RoleController::class, 'update'])->name('update.roles')->middleware(['auth:asisten', 'can:manage-role']);
 
     // Modul
-    Route::get('/modul', [ModulController::class, 'index'])->name('get.modul')->middleware(['auth:asisten', 'can:lihat-modul,see-soal,see-praktikum']);
+    Route::get('/modul', [ModulController::class, 'index'])->name('get.modul')->middleware(['auth:asisten', 'can:manage-modul']);
     Route::post('/modul', [ModulController::class, 'store'])->name('store.modul')->middleware(['auth:asisten', 'can:manage-modul']);
     Route::put('/modul/{id}', [ModulController::class, 'update'])->name('update.modul')->middleware(['auth:asisten', 'can:manage-modul']);
     Route::delete('/modul/{id}', [ModulController::class, 'destroy'])->name('delete.modul')->middleware(['auth:asisten', 'can:manage-modul']);

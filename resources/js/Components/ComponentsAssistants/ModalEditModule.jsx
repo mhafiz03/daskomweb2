@@ -1,24 +1,77 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import closeIcon from "../../../assets/modal/iconClose.svg"
 import trashIcon from "../../../assets/nav/Icon-Delete.svg";
+import axios from "axios";
+import Cookies from "js-cookie";
 
-export default function ButtonEditModule({ onClose }) {
+export default function ButtonEditModule({ onClose,modules,selectedModuleId}) {
     const [showSuccessModal, setShowSuccessModal] = useState(false);
-    const [points, setPoints] = useState(["", "", ""]); // batas hanya 3 poin
-    const [link1, setLink1] = useState(""); // link ppt
-    const [link2, setLink2] = useState(""); // link ytb
-    const [link3, setLink3] = useState(""); // link modul
-    const [title, setTitle] = useState(""); // judul
+    const [points, setPoints] = useState(["", "", ""]);
+    const [link1, setLink1] = useState("");
+    const [link2, setLink2] = useState("");
+    const [link3, setLink3] = useState("");
+    const [title, setTitle] = useState(""); 
     const [isSwitchOn, setIsSwitchOn] = useState(false);
 
-    const handleSave = () => {
-        setShowSuccessModal(true);
+    useEffect(() => {
+        const selectedModule = modules.find(module => module.idM === selectedModuleId);
+        if (selectedModule) {
+            setTitle(selectedModule.judul);
+            setPoints([selectedModule.poin1, selectedModule.poin2, selectedModule.poin3]);
+            setLink1(selectedModule.ppt_link);
+            setLink2(selectedModule.video_link);
+            setLink3(selectedModule.modul_link);
+        }
+    }, [selectedModuleId, modules]);   
 
-        setTimeout(() => {
-            setShowSuccessModal(false);
-            onClose();
-        }, 3000);
+    const handleSave = async () => {
+        if (!selectedModuleId) {
+            console.error('Invalid ID:', selectedModuleId);
+            alert("ID tidak valid.");
+            return;
+        }
+    
+        const token = Cookies.get("XSRF-TOKEN");
+        
+        const payload = {
+            judul: title,
+            poin1: points[0] || "",
+            poin2: points[1] || "",
+            poin3: points[2] || "",
+            isEnglish: isSwitchOn ? 1 : 0,
+            isUnlocked: 1,
+            modul_link: link3,
+            ppt_link: link1,
+            video_link: link2,
+            oldJudul: modules.find(m => m.idM === selectedModuleId)?.judul
+        };
+    
+        try {
+            const response = await axios.put(
+                `/api-v1/modul/${selectedModuleId}`,
+                payload,
+                {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`,
+                    },
+                }
+            );
+    
+            console.log("Update berhasil:", response.data);
+            setShowSuccessModal(true);
+    
+            setTimeout(() => {
+                setShowSuccessModal(false);
+                onClose();
+            }, 3000);
+        } catch (error) {
+            console.error("Error updating module:", error.response?.data || error.message);
+            alert("Gagal mengedit modul. Periksa semua field required!");
+        }
     };
+    
+    
 
     const handlePointChange = (index, value) => {
         const newPoints = [...points];

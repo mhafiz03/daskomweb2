@@ -57,7 +57,10 @@ class ModulController extends BaseController
             $modul->resource_id = $modul->resource->id ?? null;
             $modul->modul_link = $modul->resource->modul_link ?? null;
             $modul->ppt_link = $modul->resource->ppt_link ?? null;
-            return redirect()->back()->with('success', 'Moduls retrieved successfully.');
+            return response()->json([
+                'success' => true,
+                'data' => $modul,
+            ]);            
         } catch (\Exception $e) {
             return response()->json([
                 'message' => 'Terjadi kesalahan saat mengambil modul.',
@@ -138,6 +141,13 @@ class ModulController extends BaseController
             }
             $modul = Modul::findOrFail($id);
             $resource = Resource::where('modul_id', $modul->id)->first();
+
+            if (!$resource) {
+                return response()->json([
+                    'message' => 'Resource tidak ditemukan untuk modul ini.',
+                ], 400);
+            }
+
             $modul->judul = $request->judul;
             $modul->poin1 = $request->poin1;
             $modul->poin2 = $request->poin2;
@@ -145,6 +155,7 @@ class ModulController extends BaseController
             $modul->isEnglish = $request->isEnglish;
             $modul->isUnlocked = $request->isUnlocked;
             $modul->save();
+
             $resource->modul_link = $request->modul_link;
             $resource->ppt_link = $request->ppt_link;
             $resource->video_link = $request->video_link;
@@ -160,13 +171,16 @@ class ModulController extends BaseController
         }
     }
 
-
     public function destroy($id){
+        if (!Modul::where('id', $id)->exists()) {
+            return response()->json(['message' => 'Modul tidak ditemukan'], 404);
+        }
         $modul = Modul::findOrFail($id);
         $modul->delete();
 
         return response()->json([
             'message' => 'modul berhasil dihapus'
+            
         ], 200);
     }
 

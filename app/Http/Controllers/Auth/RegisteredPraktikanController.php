@@ -9,6 +9,7 @@ use App\Models\Praktikan;
 use Illuminate\Http\Request;
 use Spatie\Permission\Models\Role;
 use App\Http\Controllers\Controller;
+use App\Models\Kelas;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Http\RedirectResponse;
@@ -19,6 +20,25 @@ class RegisteredPraktikanController extends Controller
     /**
      * Display the registration view.
      */
+
+     public function getKelas()
+     {
+        try {
+            $kelas = Kelas::all();
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Kelas retrieved successfully.',
+                'kelas' => $kelas,
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to retrieve kelas.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+     }     
+
     public function create(): Response
     {
         return Inertia::render('Auth/Register');//ini pake path yg bener

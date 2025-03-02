@@ -14,7 +14,7 @@ export default function RegistFormPraktikan() {
         nomor_telepon: '',
         password: '',
     });
-
+    const [kelas, setKelas] = useState([]);
     const [passwordVisible, setPasswordVisible] = useState(false);
     const [localErrors, setLocalErrors] = useState({});
     const { errors: serverErrors } = usePage().props;
@@ -65,6 +65,21 @@ export default function RegistFormPraktikan() {
         }
     };
 
+    useEffect(() => {
+        async function fetchKelas() {
+            try {
+                const response = await fetch('/api-v1/get-kelas'); // Sesuaikan dengan route di backend
+                const result = await response.json();
+                console.log("Data kelas:", result); // Cek data yang diterima
+                setKelas(result.kelas || []);
+            } catch (error) {
+                console.error('Error fetching kelas:', error);
+            }
+        }
+
+        fetchKelas();
+    }, []);
+
     return (
         <div className="w-1/2 my-1 px-10">
             <p className="font-bold text-lg text-center">Let’s Get Started..</p>
@@ -96,14 +111,21 @@ export default function RegistFormPraktikan() {
                     onChange={handleChange}
                 />
                 {localErrors.nim && <p className="text-red-500 text-sm mt-1">{localErrors.nim}</p>}
-                <input
-                    className="bg-lightGray py-1 px-4 mt-[-10px] rounded-sm border-dustyBlue border-2 placeholder-dustyBlue"
-                    type="number"
+                <select
+                    className="bg-lightGray py-1 px-4 mt-[-10px] rounded-sm border-dustyBlue border-2 placeholder-dustyBlue w-full"
                     id="kelas_id"
-                    placeholder="Kelas"
                     value={values.kelas_id}
                     onChange={handleChange}
-                />
+                 >
+                    <option value="" disabled>
+                        Pilih Kelas
+                    </option>
+                    {kelas.map((k) => (
+                        <option key={k.id} value={k.id}>
+                            {k.kelas}
+                        </option>
+                    ))}
+                </select>
                 {localErrors.kelas_id && <p className="text-red-500 text-sm mt-1">{localErrors.kelas_id}</p>}
                 <input
                     className="bg-lightGray py-1 px-4 mt-[-10px] rounded-sm border-dustyBlue border-2 placeholder-dustyBlue"

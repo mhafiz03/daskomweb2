@@ -1,70 +1,83 @@
 import { useState, useEffect } from "react";
-import { router } from "@inertiajs/react";
+import axios from "axios";
 import ButtonEditModule from "./ModalEditModule";
-import ButtonDeleteModule from "./ButtonDelateModule";
 import editIcon from "../../../assets/nav/Icon-Edit.svg";
 import trashIcon from "../../../assets/nav/Icon-Delete.svg";
 import iconPPT from "../../../assets/practicum/iconPPT.svg";
 import iconVideo from "../../../assets/practicum/iconVideo.svg";
 import iconModule from "../../../assets/practicum/iconModule.svg";
+import Cookies from "js-cookie";
 
 export default function TabelModulePraktikum() {
     const [isModalOpenEdit, setIsModalOpenEdit] = useState(false);
-    const [isModalOpenDelete, setIsModalOpenDelete] = useState(false);
+    const [isModalOpenDelete, setIsModalOpenDelete] = useState(false)
+    const [values, setValues] = useState([]);
+    const [selectedModuleId, setSelectedModuleId] = useState(null);
     const [message, setMessage] = useState("");
     const [openIndex, setOpenIndex] = useState(null);
-    const [modules, setModules] = useState([]); // State for storing modules data
-    const [loading, setLoading] = useState(false); // Loading state
-
+    const [modules, setModules] = useState([]);
+    const [loading, setLoading] = useState(false);
+    
     const fetchModules = async () => {
-        setLoading(true);  // Menandakan data sedang dimuat
+        setLoading(true);
         try {
-            const response = await router.get("/api-v1/modul");
-            console.log(response.props);  // Cek format data yang diterima
-            setModules(response.props.module || []);  // Pastikan data diakses dengan benar
+            const response = await fetch("/api-v1/modul");
+            if (response.ok) {
+                const data = await response.json();
+                setModules(data.data || []);
+            } else {
+                console.error('Failed to fetch modules:', response.statusText);
+            }
         } catch (error) {
             console.error("Error fetching modules:", error);
         } finally {
-            setLoading(false);  // Set loading selesai setelah mendapatkan data
+            setLoading(false);
         }
-    };
+    };    
 
     const handleOpenModalEdit = (module) => {
-        // Set the form values to the selected module's data
-        setValues({
-            judul: module.judul,
-            poin1: module.poin1 || '',
-            poin2: module.poin2 || '',
-            poin3: module.poin3 || '',
-            isEnglish: module.isEnglish || 0,
-            isUnlocked: module.isUnlocked || 0,
-            modul_link: module.modul_link || '',
-            ppt_link: module.ppt_link || '',
-            video_link: module.video_link || '',
-        });
+        setSelectedModuleId(module.idM);  // Set the selected module ID
         setIsModalOpenEdit(true);
     };
+     
 
     const handleCloseModalEdit = () => {
         setIsModalOpenEdit(false);
     };
 
-    const handleOpenModalDelete = () => {
-        setIsModalOpenDelete(true);
-    };
-
-    const handleCloseModalDelete = () => {
-        setIsModalOpenDelete(false);
-    };
-
-    const handleConfirmDelete = () => {
-        setMessage("Modul berhasil dihapus");
-    };
-
+    const handleConfirmDelete = async (id) => {
+        console.log('Attempting to delete module with ID:', id); // Log the ID to check if it's passed correctly
+    
+        if (!id) {
+            console.error('Invalid ID:', id);
+            setMessage("ID tidak valid.");
+            return;
+        }
+    
+        const token = Cookies.get("XSRF-TOKEN");
+    
+        try {
+            const response = await axios.delete(`/api-v1/modul/${id}`, {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`,
+                }
+            });
+            fetchModules();
+        } catch (error) {
+            console.error('Error deleting module:', error.response?.data || error.message);
+            setMessage("Gagal menghapus modul.");
+        }
+    };      
+    
     const toggleAccordion = (index) => {
         setOpenIndex(openIndex === index ? null : index);
     };
 
+    useEffect(() => {
+        fetchModules();
+    }, []);
+    
     return (
         <div className="mt-5 px-4">
             {/* Header */}
@@ -84,7 +97,7 @@ export default function TabelModulePraktikum() {
                 ) : (
                     // Map through modules and display them
                     modules.map((module, index) => (
-                        <div key={module.id} className="border border-black rounded-lg mb-2">
+                        <div key={module.id || index} className="border border-black rounded-lg mb-2">
                             {/* Accordion header */}
                             <button
                                 onClick={() => toggleAccordion(index)}
@@ -122,8 +135,8 @@ export default function TabelModulePraktikum() {
                                         </div>
 
                                         <span className="flex justify-end pr-3">
-                                            <button onClick={handleOpenModalDelete} className="flex justify-center items-center p-2 text-fireRed font-semibold hover:underline transition-all">
-                                                <img className="w-5" src={trashIcon} alt="delete icon" />
+                                            <button onClick={() => handleConfirmDelete(module.idM)} className="flex justify-center items-center p-2 text-darkBrown font-semibold hover:underline transition-all">
+                                                <img className="w-5" src={trashIcon} alt="Delete" />
                                                 Delete
                                             </button>
                                             <button onClick={() => handleOpenModalEdit(module)} className="flex justify-center items-center p-2 text-darkBrown font-semibold hover:underline transition-all">
@@ -140,8 +153,13 @@ export default function TabelModulePraktikum() {
             </div>
 
             {/* Modals */}
-            {isModalOpenDelete && <ButtonDeleteModule onClose={handleCloseModalDelete} onConfirm={handleConfirmDelete} message={message} />}
-            {isModalOpenEdit && <ButtonEditModule onClose={handleCloseModalEdit} values={values} setValues={setValues} />}
-        </div>
+            {/* {isModalOpenDelete && <ButtonDeleteModule onClose={handleCloseModalDelete} onClick={handleConfirmDelete} message={message} />} */}
+            {isModalOpenEdit && (
+    <ButtonEditModule 
+        onClose={handleCloseModalEdit} 
+        modules={modules} 
+        selectedModuleId={selectedModuleId}
+    />
+)}        </div>
     );
 }

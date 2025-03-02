@@ -10,6 +10,7 @@ enum PermissionGroupEnum: string
     const MANAGE_PLOT = 'manage-plot';
     const MANAGE_PELANGGARAN = 'manage-pelanggaran';
     const MANAGE_MODUL = 'manage-modul';
+    const SEE_MODUL = 'see-modul';
     const MANAGE_SOAL = 'manage-soal';
     const UNLOCK_JAWABAN = 'unlock-jawaban';
     const TUGAS_PENDAHULUAN = 'tugas-pendahuluan';
@@ -61,6 +62,7 @@ enum PermissionGroupEnum: string
         self::MANAGE_PROFILE,
         self::SEE_PRAKTIKUM,
         self::SEE_HISTORY,
+        self::SEE_MODUL,
         self::SEE_SOAL,
         self::NILAI_PRAKTIKAN,
         self::SEE_PLOT,
