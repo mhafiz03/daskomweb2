@@ -8,15 +8,24 @@ import iconVideo from "../../../assets/practicum/iconVideo.svg";
 import iconModule from "../../../assets/practicum/iconModule.svg";
 import Cookies from "js-cookie";
 
+
 export default function TabelModulePraktikum() {
     const [isModalOpenEdit, setIsModalOpenEdit] = useState(false);
-    const [isModalOpenDelete, setIsModalOpenDelete] = useState(false)
-    const [values, setValues] = useState([]);
     const [selectedModuleId, setSelectedModuleId] = useState(null);
-    const [message, setMessage] = useState("");
+    const [ setMessage] = useState("");
     const [openIndex, setOpenIndex] = useState(null);
     const [modules, setModules] = useState([]);
     const [loading, setLoading] = useState(false);
+    const [initialOpen, setInitialOpen] = useState(false);
+
+
+    const handleModuleUpdate = (updatedModule) => {
+        console.log("Updating module:", updatedModule);
+        // Update the modules list without reloading
+        setModules(prevModules => prevModules.map(module => 
+            module.idM === updatedModule.idM ? updatedModule : module
+        ));
+    };
     
     const fetchModules = async () => {
         setLoading(true);
@@ -24,6 +33,7 @@ export default function TabelModulePraktikum() {
             const response = await fetch("/api-v1/modul");
             if (response.ok) {
                 const data = await response.json();
+                console.log("Fetched modules:", data.data);
                 setModules(data.data || []);
             } else {
                 console.error('Failed to fetch modules:', response.statusText);
@@ -36,17 +46,21 @@ export default function TabelModulePraktikum() {
     };    
 
     const handleOpenModalEdit = (module) => {
-        setSelectedModuleId(module.idM);  // Set the selected module ID
+        console.log("Opening edit modal for module:", module);
+        setSelectedModuleId(module.idM);
+        setInitialOpen(true);
         setIsModalOpenEdit(true);
-    };
-     
 
+        setIsModalOpenEdit(true);
+
+    };
     const handleCloseModalEdit = () => {
         setIsModalOpenEdit(false);
+        setSelectedModuleId(null); // Clear the selected module ID when closing modal
     };
 
     const handleConfirmDelete = async (id) => {
-        console.log('Attempting to delete module with ID:', id); // Log the ID to check if it's passed correctly
+        console.log('Attempting to delete module with ID:', id);
     
         if (!id) {
             console.error('Invalid ID:', id);
@@ -63,7 +77,8 @@ export default function TabelModulePraktikum() {
                     'Authorization': `Bearer ${token}`,
                 }
             });
-            fetchModules();
+            // Update modules state to remove the deleted module
+            setModules(prevModules => prevModules.filter(module => module.idM !== id));
         } catch (error) {
             console.error('Error deleting module:', error.response?.data || error.message);
             setMessage("Gagal menghapus modul.");
@@ -97,7 +112,7 @@ export default function TabelModulePraktikum() {
                 ) : (
                     // Map through modules and display them
                     modules.map((module, index) => (
-                        <div key={module.id || index} className="border border-black rounded-lg mb-2">
+                        <div key={`module-${module.idM}-${index}`} className="border border-black rounded-lg mb-2">
                             {/* Accordion header */}
                             <button
                                 onClick={() => toggleAccordion(index)}
@@ -113,9 +128,9 @@ export default function TabelModulePraktikum() {
                                     <div>
                                         <h4 className="text-lg font-semibold text-black mt-2">Pencapaian Pembelajaran: </h4>
                                         <div className="px-5 py-3 text-md text-black">
-                                            <div>{module.poin1}</div>
-                                            <div>{module.poin2}</div>
-                                            <div>{module.poin3}</div>
+                                            {module.poin1 && <div>{module.poin1}</div>}
+                                            {module.poin2 && <div>{module.poin2}</div>}
+                                            {module.poin3 && <div>{module.poin3}</div>}
                                         </div>
 
                                         <h6 className="text-md text-black mt-4">Untuk tutorial lebih lanjut, Anda dapat menonton video berikut:</h6>
@@ -152,14 +167,16 @@ export default function TabelModulePraktikum() {
                 )}
             </div>
 
-            {/* Modals */}
-            {/* {isModalOpenDelete && <ButtonDeleteModule onClose={handleCloseModalDelete} onClick={handleConfirmDelete} message={message} />} */}
+            {/* Edit Module Modal */}
             {isModalOpenEdit && (
-    <ButtonEditModule 
-        onClose={handleCloseModalEdit} 
-        modules={modules} 
-        selectedModuleId={selectedModuleId}
+                <ButtonEditModule 
+                    onClose={handleCloseModalEdit} 
+                    modules={modules} 
+                    selectedModuleId={selectedModuleId}
+                    onUpdate={handleModuleUpdate}
+                    initialOpen={initialOpen} // Pass this flag
     />
-)}        </div>
+            )}        
+        </div>
     );
 }

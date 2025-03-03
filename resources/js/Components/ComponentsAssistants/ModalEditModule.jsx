@@ -1,10 +1,9 @@
 import { useState, useEffect } from "react";
 import closeIcon from "../../../assets/modal/iconClose.svg"
 import trashIcon from "../../../assets/nav/Icon-Delete.svg";
-import axios from "axios";
-import Cookies from "js-cookie";
+import { router, usePage } from "@inertiajs/react";
 
-export default function ButtonEditModule({ onClose,modules,selectedModuleId}) {
+export default function ButtonEditModule({ onClose, modules, selectedModuleId, onUpdate, initialOpen }) {
     const [showSuccessModal, setShowSuccessModal] = useState(false);
     const [points, setPoints] = useState(["", "", ""]);
     const [link1, setLink1] = useState("");
@@ -13,25 +12,59 @@ export default function ButtonEditModule({ onClose,modules,selectedModuleId}) {
     const [title, setTitle] = useState(""); 
     const [isSwitchOn, setIsSwitchOn] = useState(false);
 
+    const { flash, errors } = usePage().props;
+
     useEffect(() => {
+        setShowSuccessModal(false);
+    }, [selectedModuleId]);
+
+    useEffect(() => {
+        if (flash.success && !initialOpen) {
+            setShowSuccessModal(true);
+            setTimeout(() => {
+                setShowSuccessModal(false);
+                onClose();
+            }, 3000);
+        }
+    }, [flash, onClose, initialOpen]);
+
+    useEffect(() => {
+        if (initialOpen) {
+            const timer = setTimeout(() => {
+                initialOpen = false;
+            }, 100);
+            return () => clearTimeout(timer);
+        }
+    }, [initialOpen]);
+
+
+    useEffect(() => {
+        // Reset form fields when selectedModuleId changes
         const selectedModule = modules.find(module => module.idM === selectedModuleId);
+        console.log("Selected module:", selectedModule);
+        console.log("Selected module ID:", selectedModuleId);
+        console.log("All modules:", modules);
+        
         if (selectedModule) {
-            setTitle(selectedModule.judul);
-            setPoints([selectedModule.poin1, selectedModule.poin2, selectedModule.poin3]);
-            setLink1(selectedModule.ppt_link);
-            setLink2(selectedModule.video_link);
-            setLink3(selectedModule.modul_link);
+            setTitle(selectedModule.judul || "");
+            setPoints([
+                selectedModule.poin1 || "", 
+                selectedModule.poin2 || "", 
+                selectedModule.poin3 || ""
+            ]);
+            setLink1(selectedModule.ppt_link || "");
+            setLink2(selectedModule.video_link || "");
+            setLink3(selectedModule.modul_link || "");
+            setIsSwitchOn(selectedModule.isEnglish === 1);
         }
     }, [selectedModuleId, modules]);   
 
-    const handleSave = async () => {
+    const handleSave = () => {
         if (!selectedModuleId) {
             console.error('Invalid ID:', selectedModuleId);
             alert("ID tidak valid.");
             return;
         }
-    
-        const token = Cookies.get("XSRF-TOKEN");
         
         const payload = {
             judul: title,
@@ -45,33 +78,41 @@ export default function ButtonEditModule({ onClose,modules,selectedModuleId}) {
             video_link: link2,
             oldJudul: modules.find(m => m.idM === selectedModuleId)?.judul
         };
-    
-        try {
-            const response = await axios.put(
-                `/api-v1/modul/${selectedModuleId}`,
-                payload,
-                {
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`,
-                    },
+
+        router.patch(`/api-v1/modul/${selectedModuleId}`, payload, {
+            preserveScroll: true,
+
+            onSuccess: (page) => {
+                // Create the updated module object
+                const updatedModule = {
+                    ...modules.find(m => m.idM === selectedModuleId),
+                    idM: selectedModuleId, // Ensure the ID is correctly set
+                    judul: title,
+                    poin1: points[0] || "",
+                    poin2: points[1] || "",
+                    poin3: points[2] || "",
+                    isEnglish: isSwitchOn ? 1 : 0,
+                    modul_link: link3,
+                    ppt_link: link1,
+                    video_link: link2
+                };
+
+                // Call the onUpdate prop with the updated module
+                if (typeof onUpdate === 'function') {
+                    onUpdate(updatedModule);
                 }
-            );
-    
-            console.log("Update berhasil:", response.data);
-            setShowSuccessModal(true);
-    
-            setTimeout(() => {
-                setShowSuccessModal(false);
-                onClose();
-            }, 3000);
-        } catch (error) {
-            console.error("Error updating module:", error.response?.data || error.message);
-            alert("Gagal mengedit modul. Periksa semua field required!");
-        }
+
+                setShowSuccessModal(true);
+                setTimeout(() => {
+                    setShowSuccessModal(false);
+                    onClose();
+                }, 3000);
+            },
+            onError: (errors) => {
+                console.error("Error updating module:", errors);
+            },
+        });  
     };
-    
-    
 
     const handlePointChange = (index, value) => {
         const newPoints = [...points];
@@ -96,6 +137,12 @@ export default function ButtonEditModule({ onClose,modules,selectedModuleId}) {
         setIsSwitchOn(!isSwitchOn);
     };
 
+    // Function to close success modal manually
+    const closeSuccessModal = () => {
+        setShowSuccessModal(false);
+        onClose();
+    };
+
     return (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
             {/* Modal Utama */}
@@ -112,6 +159,13 @@ export default function ButtonEditModule({ onClose,modules,selectedModuleId}) {
                     </button>
                 </div>
 
+
+                {errors.general && (
+                    <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
+                        {errors.general}
+                    </div>
+                )}
+
                 {/* Input Judul Modul */}
                 <div className="mb-4">
                     <label htmlFor="judul" className="block text-darkGreen text-md font-medium">
@@ -125,6 +179,7 @@ export default function ButtonEditModule({ onClose,modules,selectedModuleId}) {
                         value={title}
                         onChange={(e) => setTitle(e.target.value)}
                     />
+                    {errors.judul && <p className="text-fireRed text-sm mt-1">{errors.judul}</p>}
                 </div>
 
                 {/* Input Poin-poin Pembelajaran */}
@@ -153,6 +208,7 @@ export default function ButtonEditModule({ onClose,modules,selectedModuleId}) {
                             )}
                         </div>
                     ))}
+                    {errors.poin1 && <p className="text-fireRed text-sm mt-1">{errors.poin1}</p>}
                     {points.length < 3 && (
                         <button
                             type="button"
@@ -177,6 +233,7 @@ export default function ButtonEditModule({ onClose,modules,selectedModuleId}) {
                         value={link1}
                         onChange={(e) => setLink1(e.target.value)}
                     />
+                    {errors.ppt_link && <p className="text-fireRed text-sm mt-1">{errors.ppt_link}</p>}
                 </div>
 
                 {/* Input Link 2 */}
@@ -192,6 +249,7 @@ export default function ButtonEditModule({ onClose,modules,selectedModuleId}) {
                         value={link2}
                         onChange={(e) => setLink2(e.target.value)}
                     />
+                    {errors.video_link && <p className="text-fireRed text-sm mt-1">{errors.video_link}</p>}
                 </div>
 
                 {/* Input Link 3 */}
@@ -207,6 +265,7 @@ export default function ButtonEditModule({ onClose,modules,selectedModuleId}) {
                         value={link3}
                         onChange={(e) => setLink3(e.target.value)}
                     />
+                    {errors.modul_link && <p className="text-fireRed text-sm mt-1">{errors.modul_link}</p>}
                 </div>
 
                 <div className="flex justify-between">
@@ -252,6 +311,12 @@ export default function ButtonEditModule({ onClose,modules,selectedModuleId}) {
                         <h2 className="text-xl font-bold text-darkGreen text-center p-3">
                             Modul berhasil diedit!
                         </h2>
+                        <button
+                            onClick={closeSuccessModal}
+                            className="mt-4 px-6 py-2 bg-deepForestGreen text-white font-semibold rounded-md shadow hover:bg-darkGreen transition duration-300"
+                        >
+                            Tutup
+                        </button>
                     </div>
                 </div>
             )}

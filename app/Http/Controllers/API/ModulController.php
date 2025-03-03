@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\DB;
 use App\Http\Resources\ModulResource;
 use App\Http\Controllers\API\BaseController as BaseController;
 use PhpParser\Node\Expr\AssignOp\Mod;
+use Illuminate\Support\Facades\Validator;
 
 class ModulController extends BaseController
 {
@@ -119,7 +120,7 @@ class ModulController extends BaseController
 
     public function update(Request $request, $id)
     {
-        $request->validate([
+        $validator = Validator::make($request->all(), [
             'judul' => 'required|string',
             'poin1' => 'required|string',
             'poin2' => 'nullable|string',
@@ -129,45 +130,60 @@ class ModulController extends BaseController
             'modul_link' => 'required|string',
             'ppt_link' => 'required|string',
             'video_link' => 'required|string',
+            'oldJudul' => 'required|string',
         ]);
+    
+        if ($validator->fails()) {
+            return redirect()->back()->withErrors($validator)->withInput();
+        }
+    
         try {
+            // Check if title is being changed and if new title already exists
             if ($request->judul !== $request->oldJudul) {
                 $existingModul = Modul::where('judul', $request->judul)->first();
                 if ($existingModul) {
-                    return response()->json([
-                        'message' => 'Judul "' . $request->judul . '" sudah terdaftar.',
-                    ], 400);
+                    return redirect()->back()->withErrors([
+                        'judul' => 'Judul "' . $request->judul . '" sudah terdaftar.'
+                    ])->withInput();
                 }
             }
+    
             $modul = Modul::findOrFail($id);
             $resource = Resource::where('modul_id', $modul->id)->first();
 
             if (!$resource) {
-                return response()->json([
-                    'message' => 'Resource tidak ditemukan untuk modul ini.',
-                ], 400);
+                // Create a new resource if one doesn't exist
+                $resource = new Resource();
+                $resource->modul_id = $modul->id;
+                // Set other required fields
             }
-
+    
+//            if (!$resource) {
+//                return redirect()->back()->withErrors([
+//                    'general' => 'Resource tidak ditemukan untuk modul ini.'
+//                ])->withInput();
+//            }
+    
+            // Update modul
             $modul->judul = $request->judul;
             $modul->poin1 = $request->poin1;
-            $modul->poin2 = $request->poin2;
-            $modul->poin3 = $request->poin3;
+            $modul->poin2 = $request->poin2 ?? '';
+            $modul->poin3 = $request->poin3 ?? '';
             $modul->isEnglish = $request->isEnglish;
             $modul->isUnlocked = $request->isUnlocked;
             $modul->save();
-
+    
+            // Update resource
             $resource->modul_link = $request->modul_link;
             $resource->ppt_link = $request->ppt_link;
             $resource->video_link = $request->video_link;
             $resource->save();
-            return response()->json([
-                'message' => 'Modul berhasil diupdate.',
-            ], 200);
+    
+            return redirect()->back()->with('success', 'Modul berhasil diupdate.');
         } catch (\Exception $e) {
-            return response()->json([
-                'message' => 'Terjadi kesalahan saat mengupdate modul.',
-                'error' => $e->getMessage(),
-            ], 500);
+            return redirect()->back()->withErrors([
+                'general' => 'Terjadi kesalahan saat mengupdate modul: ' . $e->getMessage()
+            ])->withInput();
         }
     }
 
