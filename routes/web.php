@@ -160,6 +160,7 @@ Route::prefix('api-v1')->group(function () {
     Route::post('/register/praktikan', [RegisteredPraktikanController::class, 'store'])->name('store.praktikan')->middleware('guest');
     Route::get('/get-kelas', [RegisteredPraktikanController::class, 'getKelas'])->name('public-getkelas')->middleware('guest');
     // Asisten
+    Route::put('/asisten/password', [AsistenController::class, 'updatePassword'])->middleware('auth:asisten');
     // Route::get('/asisten', [AsistenController::class, 'index'])->name('get.asisten')->middleware(['auth:asisten', 'can:see-plot,lihat-asisten']);
     // Route::put('/asisten', [AsistenController::class, 'update'])->name('update.asisten')->middleware(['auth:asisten', 'can:manage-profile']);
     Route::delete('/asisten/{idAsisten}', [AsistenController::class, 'destroy'])->name('destroy.asisten')->middleware(['auth:asisten', 'can:manage-role']);
@@ -172,11 +173,12 @@ Route::prefix('api-v1')->group(function () {
     // Modul
     Route::get('/modul', [ModulController::class, 'index'])->name('get.modul')->middleware(['auth:asisten', 'can:manage-modul']);
     Route::post('/modul', [ModulController::class, 'store'])->name('store.modul')->middleware(['auth:asisten', 'can:manage-modul']);
-    Route::put('/modul/{id}', [ModulController::class, 'update'])->name('update.modul')->middleware(['auth:asisten', 'can:manage-modul']);
+    //Route::put('/modul/{id}', [ModulController::class, 'update'])->name('update.modul')->middleware(['auth:asisten', 'can:manage-modul']);
+    Route::patch('/modul/{id}', [ModulController::class, 'update'])->name('modul.update')->middleware(['auth:asisten', 'can:manage-modul']);    
     Route::delete('/modul/{id}', [ModulController::class, 'destroy'])->name('delete.modul')->middleware(['auth:asisten', 'can:manage-modul']);
     Route::post('/modul/reset', [ModulController::class, 'reset'])->name('reset.modul')->middleware(['auth:asisten', 'can:lms-configuration']);
-    Route::patch('/modul/update-status', [ModulController::class, 'updateStatus'])->name('update.status')->middleware(['auth:asisten', 'can:manage-modul']);
-
+    Route::delete('/moduls/reset-all', [ModulController::class, 'resetAll'])->name('moduls.reset-all');
+    Route::patch('/api-v1/modul/{id}', [ModulController::class, 'update'])->name('modul.update')->middleware(['auth:asisten', 'can:manage-modul']);
     // Kelas
     Route::get('/kelas', [KelasController::class, 'index'])->name('get.kelas')->middleware(['auth:asisten', 'can:manage-plot,see-plot']);
     Route::post('/kelas', [KelasController::class, 'store'])->name('store.kelas')->middleware(['auth:asisten', 'can:manage-plot']);
@@ -285,7 +287,7 @@ Route::prefix('api-v1')->group(function () {
     // Route::get('/jawaban-jurnal/praktikan/{idPraktikan}/modul/{idModul}', [JawabanJurnalController::class, 'showAsisten'])->name('showAsisten.jawaban.jurnal')->middleware(['auth:asisten', 'can:nilai-praktikan']);
 
     // Jawaban TP asisten
-    Route::get('/jawaban-tp/praktikan/{idPraktikan}/modul/{idModul}', [JawabanTMController::class, 'showAsisten'])->name('showAsisten.jawaban.tp')->middleware(['auth:asisten', 'can:nilai-praktikan']);
+    Route::get('/jawaban-tp/praktikan/{idPraktikan}/modul/{idModul}', [JawabanTPController::class, 'showAsisten'])->name('showAsisten.jawaban.tp')->middleware(['auth:asisten', 'can:nilai-praktikan']);
 
     // lapran praktikan ini buat asisten
     Route::get('/laporan-praktikan/{id}', [LaporanPraktikanController::class, 'show'])->name('show.laporan-praktikan')->middleware(['auth:asisten', 'can:nilai-praktikan']);
@@ -294,9 +296,8 @@ Route::prefix('api-v1')->group(function () {
     Route::post('/set-praktikan', [PraktikanController::class, 'setPraktikan'])->name('set.praktikan')->middleware(['auth:asisten', 'can:set-praktikan']);
 
     //set praktikan
-    Route::post('/set-password', [PraktikanController::class, 'setPassword'])->name('set.password')->middleware(['auth:asisten', 'can:set-praktikan']);
-
-
+    //Route::post('/set-password', [PraktikanController::class, 'setPassword'])->name('set.password')->middleware(['auth:asisten', 'can:set-praktikan']);
+    Route::patch('/set-password', [PraktikanController::class, 'setPassword'])->name('set-password')->middleware(['auth:asisten', 'can:set-praktikan']);        
     ////////////////praktikan///////////////////////////////
     // polling
     Route::post('/polling', [PollingsController::class, 'store'])->name('store.polling')->middleware(['auth:praktikan', 'can:isi-polling']);

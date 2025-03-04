@@ -1,6 +1,6 @@
 import { useState } from "react";
 import ButtonAddModule from "./ModalAddModule";
-import ButtonResetModule from "./ModalResetModule";
+//import ButtonResetModule from "./ModalResetModule";
 import TabelModulePraktikum from "./TabelModulePraktikum";
 
 export default function ContentModulePraktikum() {
@@ -10,8 +10,8 @@ export default function ContentModulePraktikum() {
     const handleOpenModal = () => setShowModal(true);
     const handleCloseModal = () => setShowModal(false);
 
-    const handleOpenModalReset = () => setShowModalReset(true);
-    const handleCloseModalReset = () => setShowModalReset(false);
+//    const handleOpenModalReset = () => setShowModalReset(true);
+//    const handleCloseModalReset = () => setShowModalReset(false);
 
     return (
         <section>
@@ -31,13 +31,15 @@ export default function ContentModulePraktikum() {
                     + Modul
                 </button>
 
-                {/* Button Reset modul */}
-                <button
+                {/* Button Reset modul... it works but we need to make it dissable for now*/}
+{/*                <button
                     onClick={handleOpenModalReset}
                     className="text-white text-md font-semibold px-4 py-1 rounded-md shadow-md bg-redredDark hover:bg-rustyRed transition mt-[2px]"
                 >
                     Reset Modul
                 </button>
+            </div>
+*/}
             </div>
 
             {/* List per module */}
@@ -47,7 +49,7 @@ export default function ContentModulePraktikum() {
 
             {/* per modalan */}
             {showModal && <ButtonAddModule onClose={handleCloseModal} />}
-            {showModalReset && <ButtonResetModule onClose={handleCloseModalReset} />}
+           {/* {showModalReset && <ButtonResetModule onClose={handleCloseModalReset} />} */}
         </section>
     );
 }

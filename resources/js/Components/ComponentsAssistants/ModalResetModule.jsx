@@ -1,15 +1,25 @@
 import { useState } from "react";
 import closeIcon from "../../../assets/modal/iconClose.svg"
+import axios from "axios";
+import { Inertia } from "@inertiajs/inertia";
+
 
 export default function ButtonResetModule({ onClose }) {
     const [showSuccessModal, setShowSuccessModal] = useState(false);
 
     const handleSave = () => {
-        setShowSuccessModal(true);
-        setTimeout(() => {
-            setShowSuccessModal(false);
-            onClose();
-        }, 3000);
+        axios.delete(route('moduls.reset-all'))
+            .then(response => {
+                setShowSuccessModal(true);
+                Inertia.reload();
+                setTimeout(() => {
+                    setShowSuccessModal(false);
+                    onClose();
+                }, 3000);
+            })
+            .catch(error => {
+                console.error('Error mereset modul : ',error);
+            });
     };
 
     return (

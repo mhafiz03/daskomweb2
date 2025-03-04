@@ -84,6 +84,41 @@ class AsistenController extends Controller
         }
     }
 
+    /**
+     * change password of asisten
+     */
+    public function updatePassword(Request $request)
+    {
+        try {
+            $request->validate([
+                'current_password' => 'required|string',
+                'password' => 'required|string|min:8',
+            ]);
+
+            $asisten = Auth::guard('asisten')->user();
+
+            if (!$asisten) {
+                return response()->json(['message' => 'Asisten tidak ditemukan'], 404);
+            }
+
+            if ($request->current_password === $request->password) {
+                // Update the password
+                $asisten->password = Hash::make($request->password);
+                $asisten->save();
+
+                return response()->json(['message' => 'Password berhasil diubah'], 200);
+            } else {
+                return response()->json(['message' => 'Password tidak cocok'], 400);
+            }
+        } catch (ValidationException $e) {
+            return response()->json([
+                'message' => 'Validasi gagal',
+                'errors' => $e->errors(),
+            ], 422);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Gagal mengubah password: ' . $e->getMessage()], 500);
+        }
+    }
 
     /**
      * Remove the specified resource from storage.
