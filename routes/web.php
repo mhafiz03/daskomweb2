@@ -177,6 +177,7 @@ Route::prefix('api-v1')->group(function () {
     Route::patch('/modul/{id}', [ModulController::class, 'update'])->name('modul.update')->middleware(['auth:asisten', 'can:manage-modul']);    
     Route::delete('/modul/{id}', [ModulController::class, 'destroy'])->name('delete.modul')->middleware(['auth:asisten', 'can:manage-modul']);
     Route::post('/modul/reset', [ModulController::class, 'reset'])->name('reset.modul')->middleware(['auth:asisten', 'can:lms-configuration']);
+    Route::delete('/moduls/reset-all', [ModulController::class, 'resetAll'])->name('moduls.reset-all');
     Route::patch('/api-v1/modul/{id}', [ModulController::class, 'update'])->name('modul.update')->middleware(['auth:asisten', 'can:manage-modul']);
     // Kelas
     Route::get('/kelas', [KelasController::class, 'index'])->name('get.kelas')->middleware(['auth:asisten', 'can:manage-plot,see-plot']);

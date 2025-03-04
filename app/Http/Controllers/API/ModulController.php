@@ -200,6 +200,27 @@ class ModulController extends BaseController
         ], 200);
     }
 
+//  =====================Template for resetAll()=====================
+//    di disable but still can be used
+//
+//
+//    public function resetAll()
+//    {
+//        try {
+//            // This deletes all records but respects foreign keys
+//            Modul::query()->delete();
+//            
+//            return response()->json([
+//                'message' => 'Semua data modul berhasil dihapus'
+//            ], 200);
+//        } catch (\Exception $e) {
+//            return response()->json([
+//                'message' => 'Gagal menghapus data modul: ' . $e->getMessage()
+//            ], 500);
+//        }
+//    }
+
+
     public function reset(){
         try {
             DB::statement('SET FOREIGN_KEY_CHECKS=0;');
