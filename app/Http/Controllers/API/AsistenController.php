@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Spatie\Permission\Models\Role;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Hash;
 
 class AsistenController extends Controller
@@ -55,6 +56,7 @@ class AsistenController extends Controller
      */
     public function update(Request $request)
     {
+        
         $request->validate([
             'nomor_telepon' => 'required|string',
             'id_line' => 'required|string',
@@ -89,110 +91,43 @@ class AsistenController extends Controller
 
 
     /**
- * change password of asisten
+ * change password of asisten fixed
  */
-
-//public function updatePassword(Request $request)
-//{
-//    try {
-//        $request->validate([
-//            'current_password' => 'required|string',
-//            'password' => 'required|string|min:8',
-//        ]);
-//
-//
-//        if (!$asisten) {
-//            return response()->json(['message' => 'Asisten tidak ditemukan'], 404);
-//        }
-//
-//        if (!Hash::check($request->current_password, $asisten->password)) {
-//            return back()->withErrors([
-//                'current_password' => 'Password saat ini tidak sesuai'
-//            ]);
-//        }
-//
-//        $asisten->password = Hash::make($request->password);
-//        $asisten->save();
-//
-//        return back()->with('success', 'Password berhasil diubah');
-//    } catch (ValidationException $e) {
-//        return back()->withErrors($e->errors());
-//    } catch (\Exception $e) {
-//        return back()->withErrors([
-//            'error' => 'Gagal mengubah password: ' . $e->getMessage()
-//        ]);
-//    }
-//}
-
-
 
 public function updatePassword(Request $request)
 {
-    $validator = Validator::make($request->all(), [
+    $request->validate([
         'current_password' => 'required|string',
         'password' => 'required|string|min:8',
     ]);
 
-    if ($validator->fails()) {
-        if ($request->expectsJson()) {
-            return response()->json([
-                'message' => 'Validasi gagal',
-                'errors' => $validator->errors()
-            ], 422);
-        }
+    try{
 
-        return back()->withErrors($validator)->withInput();
-    }
+        $asisten = Asisten::find(auth()->guard('asisten')->user()->id);
 
-    try {
-        $asisten = Asisten::where('id', $request->id)->first();
         if (!$asisten) {
-            if ($request ->expectsJson()){
-                return response()->json([
-                    'message' => 'Asisten tidak ditemukan'
-                ], 404);
-            }
-            return back()->with('error', 'Asisten tidak ditemukan');
+            return redirect()->back()->withErrors([
+                'error' => 'Asisten not found.'
+            ]);
         }
 
         if (!Hash::check($request->current_password, $asisten->password)) {
-            if ($request->expectsJson()) {
-                return response()->json([
-                    'message' => 'Password saat ini tidak sesuai'
-                ], 422);
-            }
-
-            return back()->withErrors([
-                'current_password' => 'Password saat ini tidak sesuai'
+            return redirect()->back()->withErrors([
+                'current_password' => 'Password Sebelunmnya tidak sesuai'
             ]);
         }
 
         $asisten->password = Hash::make($request->password);
         $asisten->save();
 
-        if ($request->expectsJson()) {
-            return response()->json([
-                'message' => 'Password berhasil diubah'
-            ], 200);
-        }
+        return redirect()->back()->with('success', 'Password berhasil diubah');
 
-        return back()->with('success', 'Password berhasil diubah');
-    } catch (ValidationException $e) {
-        if ($request->expectsJson()) {
-            return response()->json([
-                'message' => 'Validasi gagal',
-                'errors' => $e->errors()
-            ], 422);
-        }
-
-        return back()->withErrors($e->errors());
     } catch (\Exception $e) {
-        if ($request->expectsJson()) {
-            return response()->json([
-                'message' => 'Terjadi kesalahan saat mengubah password',
-                'error' => $e->getMessage()
-            ], 500);
-        }
+        return response()->json([
+            'success' => false,
+            'message' => 'gagal mengubah password',
+            'error' => $e->getMessage(),
+        ], 500);
     }
         
 }
