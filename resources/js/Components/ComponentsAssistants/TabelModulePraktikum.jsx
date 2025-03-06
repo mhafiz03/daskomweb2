@@ -26,11 +26,11 @@ export default function TabelModulePraktikum() {
     const handleModuleUpdate = (updatedModule) => {
         console.log("Updating module:", updatedModule);
         // Update the modules list without reloading
-        setModules(prevModules => prevModules.map(module => 
+        setModules(prevModules => prevModules.map(module =>
             module.idM === updatedModule.idM ? updatedModule : module
         ));
     };
-    
+
     const fetchModules = async () => {
         setLoading(true);
         try {
@@ -47,7 +47,7 @@ export default function TabelModulePraktikum() {
         } finally {
             setLoading(false);
         }
-    };    
+    };
 
     const handleOpenModalEdit = (module) => {
         console.log("Opening edit modal for module:", module);
@@ -66,27 +66,27 @@ export default function TabelModulePraktikum() {
         setModuleToDelete(id);
         setIsDeleteModalOpen(true);
     };
-    
+
     // Cancel delete
     const handleCancelDelete = () => {
         setIsDeleteModalOpen(false);
         setModuleToDelete(null);
     };
-    
+
     // Confirm delete
     const handleConfirmDelete = async () => {
         const id = moduleToDelete;
         console.log('Attempting to delete module with ID:', id);
-    
+
         if (!id) {
             console.error('Invalid ID:', id);
             setMessage("ID tidak valid.");
             setIsDeleteModalOpen(false);
             return;
         }
-    
+
         const token = Cookies.get("XSRF-TOKEN");
-    
+
         try {
             const response = await axios.delete(`/api-v1/modul/${id}`, {
                 headers: {
@@ -94,33 +94,33 @@ export default function TabelModulePraktikum() {
                     'Authorization': `Bearer ${token}`,
                 }
             });
-            
+
             // Update modules state to remove the deleted module
             setModules(prevModules => prevModules.filter(module => module.idM !== id));
-            
+
             // Show success message
             setSuccessMessage("Modul berhasil dihapus!");
             setShowSuccessModal(true);
             setTimeout(() => {
                 setShowSuccessModal(false);
             }, 3000);
-            
+
             // Close the delete confirmation modal
             setIsDeleteModalOpen(false);
             setModuleToDelete(null);
-            
+
         } catch (error) {
             console.error('Error deleting module:', error.response?.data || error.message);
             setMessage("Gagal menghapus modul.");
             setIsDeleteModalOpen(false);
         }
     };
-    
+
     // Close success modal
     const closeSuccessModal = () => {
         setShowSuccessModal(false);
     };
-    
+
     const toggleAccordion = (index) => {
         setOpenIndex(openIndex === index ? null : index);
     };
@@ -128,7 +128,7 @@ export default function TabelModulePraktikum() {
     useEffect(() => {
         fetchModules();
     }, []);
-    
+
     return (
         <div className="mt-5 px-4">
             {/* Header */}
@@ -164,9 +164,11 @@ export default function TabelModulePraktikum() {
                                     <div>
                                         <h4 className="text-lg font-semibold text-black mt-2">Pencapaian Pembelajaran: </h4>
                                         <div className="px-5 py-3 text-md text-black">
-                                            {module.poin1 && <div>{module.poin1}</div>}
-                                            {module.poin2 && <div>{module.poin2}</div>}
-                                            {module.poin3 && <div>{module.poin3}</div>}
+                                            <ol className="list-decimal pl-5">
+                                                {module.poin1 && <li>{module.poin1}</li>}
+                                                {module.poin2 && <li>{module.poin2}</li>}
+                                                {module.poin3 && <li>{module.poin3}</li>}
+                                            </ol>
                                         </div>
 
                                         <h6 className="text-md text-black mt-4">Untuk tutorial lebih lanjut, Anda dapat menonton video berikut:</h6>
@@ -186,15 +188,15 @@ export default function TabelModulePraktikum() {
                                         </div>
 
                                         <span className="flex justify-end pr-3">
-                                            <button 
-                                                onClick={() => handleDeleteClick(module.idM)} 
-                                                className="flex justify-center items-center p-2 text-darkBrown font-semibold hover:underline transition-all"
+                                            <button
+                                                onClick={() => handleDeleteClick(module.idM)}
+                                                className="flex justify-center items-center p-2 text-fireRed font-semibold hover:underline transition-all"
                                             >
                                                 <img className="w-5" src={trashIcon} alt="Delete" />
                                                 Delete
                                             </button>
-                                            <button 
-                                                onClick={() => handleOpenModalEdit(module)} 
+                                            <button
+                                                onClick={() => handleOpenModalEdit(module)}
                                                 className="flex justify-center items-center p-2 text-darkBrown font-semibold hover:underline transition-all"
                                             >
                                                 <img className="w-5" src={editIcon} alt="edit icon" />
@@ -211,15 +213,15 @@ export default function TabelModulePraktikum() {
 
             {/* Edit Module Modal */}
             {isModalOpenEdit && (
-                <ButtonEditModule 
-                    onClose={handleCloseModalEdit} 
-                    modules={modules} 
+                <ButtonEditModule
+                    onClose={handleCloseModalEdit}
+                    modules={modules}
                     selectedModuleId={selectedModuleId}
                     onUpdate={handleModuleUpdate}
                     initialOpen={initialOpen} // Pass this flag
                 />
             )}
-            
+
             {/* Delete Confirmation Modal */}
             {isDeleteModalOpen && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
@@ -234,9 +236,9 @@ export default function TabelModulePraktikum() {
                                 <img className="w-9" src={closeIcon} alt="closeIcon" />
                             </button>
                         </div>
-                        
+
                         <p className="mb-6 text-center">Apakah Anda yakin ingin menghapus modul ini?</p>
-                        
+
                         <div className="flex justify-center gap-4">
                             <button
                                 onClick={handleCancelDelete}
@@ -254,7 +256,7 @@ export default function TabelModulePraktikum() {
                     </div>
                 </div>
             )}
-            
+
             {/* Success Modal */}
             {showSuccessModal && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">

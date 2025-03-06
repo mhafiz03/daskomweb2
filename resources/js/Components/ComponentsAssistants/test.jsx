@@ -10,7 +10,6 @@ export default function ModalEditProfile({ isOpen, onClose }) {
         id_line: "",
         instagram: "",
         deskripsi: "",
-
     });
 
     const { auth, errors } = usePage().props; // Fetch shared props from Inertia

@@ -18,7 +18,7 @@ class AsistenController extends Controller
     {
         try {
             $asisten = Asisten::leftJoin('roles', 'roles.id', '=', 'asistens.role_id')
-                ->select('nama', 'kode', 'roles.name as role', 'role_id', 'nomor_telepon', 'id_line', 'instagram', 'deskripsi')
+                ->select('nama', 'kode', 'roles.name as role', 'role_id', 'nomor_telepon', 'id_line', 'instagram', 'deskripsi', )
                 ->get();
             return response()->json([
                 'success' => true,
@@ -60,7 +60,7 @@ class AsistenController extends Controller
             'id_line' => 'required|string',
             'instagram' => 'required|string',
             'deskripsi' => 'required|string',
-            'password' => 'required|string',
+            // 'password' => 'required|string',
         ]);
         try {
             $asisten = Asisten::find(auth()->guard('asisten')->user()->id);
