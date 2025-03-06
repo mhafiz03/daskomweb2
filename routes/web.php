@@ -159,7 +159,10 @@ Route::prefix('api-v1')->group(function () {
     Route::post('/register/asisten', [RegisteredAsistenController::class, 'store'])->name('store.asisten')->middleware('guest');
     Route::post('/register/praktikan', [RegisteredPraktikanController::class, 'store'])->name('store.praktikan')->middleware('guest');
     Route::get('/get-kelas', [RegisteredPraktikanController::class, 'getKelas'])->name('public-getkelas')->middleware('guest');
-    Route::patch('/lupa-password', [RegisteredPraktikanController::class, 'lupaPassword'])->name('lupa-password')->middleware('guest');
+
+    // Praktikan
+    Route::patch('/praktikan/password', [PraktikanController::class, 'updatePassword'])->middleware('auth:praktikan');
+
     // Asisten
     Route::patch('/asisten/password', [AsistenController::class, 'updatePassword'])->middleware('auth:asisten');
     // Route::get('/asisten', [AsistenController::class, 'index'])->name('get.asisten')->middleware(['auth:asisten', 'can:see-plot,lihat-asisten']);

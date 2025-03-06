@@ -9,10 +9,11 @@ import pollingIcon from "../../../assets/nav/Icon-Polling.svg";
 import changePassIcon from "../../../assets/nav/Icon-GantiPassword.svg";
 import logoutIcon from "../../../assets/nav/Icon-Logout.svg";
 import Modal from '../ComponentsPraktikans/Modal';
-import ModalChangePass from '../ComponentsPraktikans/ModalChangePass';
+import ModalChangePass from './ModalPasswordPraktikan';
 import ModalChangePassSuccess from '../ComponentsPraktikans/ModalChangePassSuccess';
 import ModalChangePassFailed from '../ComponentsPraktikans/ModalChangePassFailed';
 import ModalLogout from '../ComponentsPraktikans/ModalLogout';
+import ModalPasswordPraktikan from './ModalPasswordPraktikan';
 
 export default function PraktikanNav() {
     const [isCollapsed, setIsCollapsed] = useState(true);
@@ -241,35 +242,7 @@ export default function PraktikanNav() {
                                 </span>
                             </div>
                         </li>
-                        {isModalOpen && !isChangePassSuccess && !isChangePassFailed && (
-                            <Modal isOpen={isModalOpen} onClose={closeModal} width="w-[370px]">
-                                <ModalChangePass
-                                    onSuccess={() => {
-                                        setIsChangePassSuccess(true);
-                                        setIsModalOpen(false);
-                                    }}
-                                    onFailed={() => {
-                                        setIsChangePassFailed(true);
-                                        setIsModalOpen(false);
-                                    }}
-                                />
-                            </Modal>
-                        )}
-                        {isChangePassSuccess && (
-                            <Modal isOpen={true} onClose={closeModal} width="w-[370px]">
-                                <ModalChangePassSuccess />
-                            </Modal>
-                        )}
-                        {isChangePassFailed && (
-                            <Modal isOpen={true} onClose={closeModal} width="w-[370px]">
-                                <ModalChangePassFailed
-                                    onRetry={() => {
-                                        setIsChangePassFailed(false);
-                                        setIsModalOpen(true);
-                                    }}
-                                />
-                            </Modal>
-                        )}
+                        {isModalOpen && <ModalPasswordPraktikan onClose={closeModal} />}
                         <li>
                             <div
                                 className="flex py-3 px-3 hover:bg-darkGreen items-center cursor-pointer"

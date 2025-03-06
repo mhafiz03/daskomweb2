@@ -233,4 +233,45 @@ class PraktikanController extends Controller
         return back()->with('error', 'Terjadi kesalahan saat memperbarui password');
     }
 }
+
+
+
+
+/**
+ * Change password of praktikan by themself
+ */
+public function updatePassword(Request $request)
+{
+    $request->validate([
+        'current_password' => 'required|string',
+        'password' => 'required|string|min:8',
+    ]);
+
+    try {
+        $praktikan = Praktikan::find(auth()->guard('praktikan')->user()->id);
+        
+        if (!$praktikan) {
+            return redirect()->back()->withErrors([
+                'error' => 'Praktikan not found.'
+            ]);
+        }
+        
+        if (!Hash::check($request->current_password, $praktikan->password)) {
+            return redirect()->back()->withErrors([
+                'current_password' => 'Password saat ini tidak sesuai'
+            ]);
+        }
+        
+        $praktikan->password = Hash::make($request->password);
+        $praktikan->save();
+        
+        return redirect()->back()->with('success', 'Password berhasil diubah');
+    } catch (\Exception $e) {
+        // Since we're using Inertia, return a redirect with errors instead of JSON
+        return redirect()->back()->withErrors([
+            'error' => 'Gagal mengubah password: ' . $e->getMessage()
+        ]);
+    }
+}
+    
 }
