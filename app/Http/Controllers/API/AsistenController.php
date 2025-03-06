@@ -86,46 +86,119 @@ class AsistenController extends Controller
         }
     }
 
+
+
     /**
  * change password of asisten
  */
 
+//public function updatePassword(Request $request)
+//{
+//    try {
+//        $request->validate([
+//            'current_password' => 'required|string',
+//            'password' => 'required|string|min:8',
+//        ]);
+//
+//
+//        if (!$asisten) {
+//            return response()->json(['message' => 'Asisten tidak ditemukan'], 404);
+//        }
+//
+//        if (!Hash::check($request->current_password, $asisten->password)) {
+//            return back()->withErrors([
+//                'current_password' => 'Password saat ini tidak sesuai'
+//            ]);
+//        }
+//
+//        $asisten->password = Hash::make($request->password);
+//        $asisten->save();
+//
+//        return back()->with('success', 'Password berhasil diubah');
+//    } catch (ValidationException $e) {
+//        return back()->withErrors($e->errors());
+//    } catch (\Exception $e) {
+//        return back()->withErrors([
+//            'error' => 'Gagal mengubah password: ' . $e->getMessage()
+//        ]);
+//    }
+//}
+
+
+
 public function updatePassword(Request $request)
 {
-    try {
-        $request->validate([
-            'current_password' => 'required|string',
-            'password' => 'required|string|min:8',
-        ]);
+    $validator = Validator::make($request->all(), [
+        'current_password' => 'required|string',
+        'password' => 'required|string|min:8',
+    ]);
 
-
-        if (!$asisten) {
-            return response()->json(['message' => 'Asisten tidak ditemukan'], 404);
+    if ($validator->fails()) {
+        if ($request->expectsJson()) {
+            return response()->json([
+                'message' => 'Validasi gagal',
+                'errors' => $validator->errors()
+            ], 422);
         }
 
-        // Check if the current password is correct
+        return back()->withErrors($validator)->withInput();
+    }
+
+    try {
+        $asisten = Asisten::where('id', $request->id)->first();
+        if (!$asisten) {
+            if ($request ->expectsJson()){
+                return response()->json([
+                    'message' => 'Asisten tidak ditemukan'
+                ], 404);
+            }
+            return back()->with('error', 'Asisten tidak ditemukan');
+        }
+
         if (!Hash::check($request->current_password, $asisten->password)) {
-            // Return error in a format Inertia can handle
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'message' => 'Password saat ini tidak sesuai'
+                ], 422);
+            }
+
             return back()->withErrors([
                 'current_password' => 'Password saat ini tidak sesuai'
             ]);
         }
 
-        // Update the password
         $asisten->password = Hash::make($request->password);
         $asisten->save();
 
-        // Return success with Inertia
+        if ($request->expectsJson()) {
+            return response()->json([
+                'message' => 'Password berhasil diubah'
+            ], 200);
+        }
+
         return back()->with('success', 'Password berhasil diubah');
     } catch (ValidationException $e) {
-        // Validation errors are automatically handled by Inertia
+        if ($request->expectsJson()) {
+            return response()->json([
+                'message' => 'Validasi gagal',
+                'errors' => $e->errors()
+            ], 422);
+        }
+
         return back()->withErrors($e->errors());
     } catch (\Exception $e) {
-        return back()->withErrors([
-            'error' => 'Gagal mengubah password: ' . $e->getMessage()
-        ]);
+        if ($request->expectsJson()) {
+            return response()->json([
+                'message' => 'Terjadi kesalahan saat mengubah password',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
+        
 }
+
+
+
 
     /**
      * Remove the specified resource from storage.
