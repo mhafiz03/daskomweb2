@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import closeIcon from "../../../assets/modal/iconClose.svg"
+import closeIcon from "../../../assets/modal/iconClose.svg";
 import trashIcon from "../../../assets/nav/Icon-Delete.svg";
 import { router, usePage } from "@inertiajs/react";
 
@@ -9,69 +9,73 @@ export default function ButtonEditModule({ onClose, modules, selectedModuleId, o
     const [link1, setLink1] = useState("");
     const [link2, setLink2] = useState("");
     const [link3, setLink3] = useState("");
-    const [title, setTitle] = useState(""); 
+    const [title, setTitle] = useState("");
     const [isSwitchOn, setIsSwitchOn] = useState(false);
 
     const { flash, errors } = usePage().props;
 
+    // Reset success modal when selectedModuleId changes
     useEffect(() => {
         setShowSuccessModal(false);
     }, [selectedModuleId]);
 
+    // Show success modal and close after 3 seconds if flash.success is true
     useEffect(() => {
         if (flash.success && !initialOpen) {
             setShowSuccessModal(true);
-            setTimeout(() => {
+            const timer = setTimeout(() => {
                 setShowSuccessModal(false);
                 onClose();
             }, 3000);
+            return () => clearTimeout(timer); // Cleanup timer
         }
     }, [flash, onClose, initialOpen]);
 
+    // Reset initialOpen after 100ms
     useEffect(() => {
         if (initialOpen) {
             const timer = setTimeout(() => {
                 initialOpen = false;
             }, 100);
-            return () => clearTimeout(timer);
+            return () => clearTimeout(timer); // Cleanup timer
         }
     }, [initialOpen]);
 
-
+    // Reset form fields when selectedModuleId changes
     useEffect(() => {
-        // Reset form fields when selectedModuleId changes
         const selectedModule = modules.find(module => module.idM === selectedModuleId);
         console.log("Selected module:", selectedModule);
         console.log("Selected module ID:", selectedModuleId);
         console.log("All modules:", modules);
-        
+
         if (selectedModule) {
             setTitle(selectedModule.judul || "");
             setPoints([
-                selectedModule.poin1 || "", 
-                selectedModule.poin2 || "", 
+                selectedModule.poin1 || "",
+                selectedModule.poin2 || "",
                 selectedModule.poin3 || ""
             ]);
             setLink1(selectedModule.ppt_link || "");
             setLink2(selectedModule.video_link || "");
             setLink3(selectedModule.modul_link || "");
-            setIsSwitchOn(selectedModule.isEnglish === 1);
+            setIsSwitchOn(selectedModule.isEnglish === 1); // Ensure boolean conversion
         }
-    }, [selectedModuleId, modules]);   
+    }, [selectedModuleId, modules]);
 
+    // Handle save button click
     const handleSave = () => {
         if (!selectedModuleId) {
             console.error('Invalid ID:', selectedModuleId);
             alert("ID tidak valid.");
             return;
         }
-        
+
         const payload = {
             judul: title,
             poin1: points[0] || "",
             poin2: points[1] || "",
             poin3: points[2] || "",
-            isEnglish: isSwitchOn ? 1 : 0,
+            isEnglish: isSwitchOn ? 1 : 0, // Ensure correct value is sent
             isUnlocked: 1,
             modul_link: link3,
             ppt_link: link1,
@@ -81,25 +85,22 @@ export default function ButtonEditModule({ onClose, modules, selectedModuleId, o
 
         router.patch(`/api-v1/modul/${selectedModuleId}`, payload, {
             preserveScroll: true,
-
             onSuccess: (page) => {
-                // Create the updated module object
                 const updatedModule = {
                     ...modules.find(m => m.idM === selectedModuleId),
-                    idM: selectedModuleId, // Ensure the ID is correctly set
+                    idM: selectedModuleId,
                     judul: title,
                     poin1: points[0] || "",
                     poin2: points[1] || "",
                     poin3: points[2] || "",
-                    isEnglish: isSwitchOn ? 1 : 0,
+                    isEnglish: isSwitchOn ? 1 : 0, // Ensure correct value is updated
                     modul_link: link3,
                     ppt_link: link1,
                     video_link: link2
                 };
 
-                // Call the onUpdate prop with the updated module
                 if (typeof onUpdate === 'function') {
-                    onUpdate(updatedModule);
+                    onUpdate(updatedModule); // Pass updated module to parent
                 }
 
                 setShowSuccessModal(true);
@@ -111,21 +112,24 @@ export default function ButtonEditModule({ onClose, modules, selectedModuleId, o
             onError: (errors) => {
                 console.error("Error updating module:", errors);
             },
-        });  
+        });
     };
 
+    // Handle point input change
     const handlePointChange = (index, value) => {
         const newPoints = [...points];
         newPoints[index] = value;
         setPoints(newPoints);
     };
 
+    // Add a new point
     const handleAddPoint = () => {
         if (points.length < 3) {
             setPoints([...points, ""]);
         }
     };
 
+    // Remove a point
     const handleRemovePoint = (index) => {
         if (points.length > 1) {
             const newPoints = points.filter((_, i) => i !== index);
@@ -133,11 +137,12 @@ export default function ButtonEditModule({ onClose, modules, selectedModuleId, o
         }
     };
 
+    // Toggle isEnglish switch
     const toggleSwitch = () => {
-        setIsSwitchOn(!isSwitchOn);
+        setIsSwitchOn(prev => !prev); // Use functional update to ensure correct state
     };
 
-    // Function to close success modal manually
+    // Close success modal manually
     const closeSuccessModal = () => {
         setShowSuccessModal(false);
         onClose();
@@ -145,12 +150,12 @@ export default function ButtonEditModule({ onClose, modules, selectedModuleId, o
 
     return (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-            {/* Modal Utama */}
+            {/* Main Modal */}
             <div className="bg-white rounded-lg p-6 w-[700px] shadow-lg relative overflow-y-auto max-h-[80vh]">
                 {/* Header */}
                 <div className="flex justify-between items-center mb-6 border-b border-deepForestGreen">
                     <h2 className="text-2xl font-bold text-deepForestGreen">Edit Modul</h2>
-                    {/* Tombol X untuk tutup */}
+                    {/* Close Button */}
                     <button
                         onClick={onClose}
                         className="absolute top-2 right-2 flex justify-center items-center"
@@ -159,14 +164,14 @@ export default function ButtonEditModule({ onClose, modules, selectedModuleId, o
                     </button>
                 </div>
 
-
+                {/* General Errors */}
                 {errors.general && (
                     <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
                         {errors.general}
                     </div>
                 )}
 
-                {/* Input Judul Modul */}
+                {/* Title Input */}
                 <div className="mb-4">
                     <label htmlFor="judul" className="block text-darkGreen text-md font-medium">
                         Judul Modul
@@ -182,7 +187,7 @@ export default function ButtonEditModule({ onClose, modules, selectedModuleId, o
                     {errors.judul && <p className="text-fireRed text-sm mt-1">{errors.judul}</p>}
                 </div>
 
-                {/* Input Poin-poin Pembelajaran */}
+                {/* Learning Points Input */}
                 <div className="mb-4">
                     <label className="block text-darkGreen text-md font-medium">Poin-poin Pembelajaran</label>
                     {points.map((point, index) => (
@@ -220,9 +225,9 @@ export default function ButtonEditModule({ onClose, modules, selectedModuleId, o
                     )}
                 </div>
 
-                {/* Input Link 1 */}
+                {/* Link Inputs */}
                 <div className="mb-4">
-                    <label htmlFor="link1" className="block text-green-700  text-md font-medium">
+                    <label htmlFor="link1" className="block text-green-700 text-md font-medium">
                         Link PPT
                     </label>
                     <input
@@ -236,7 +241,6 @@ export default function ButtonEditModule({ onClose, modules, selectedModuleId, o
                     {errors.ppt_link && <p className="text-fireRed text-sm mt-1">{errors.ppt_link}</p>}
                 </div>
 
-                {/* Input Link 2 */}
                 <div className="mb-4">
                     <label htmlFor="link2" className="block text-red-700 text-md font-medium">
                         Link Video Youtube
@@ -252,7 +256,6 @@ export default function ButtonEditModule({ onClose, modules, selectedModuleId, o
                     {errors.video_link && <p className="text-fireRed text-sm mt-1">{errors.video_link}</p>}
                 </div>
 
-                {/* Input Link 3 */}
                 <div className="mb-4">
                     <label htmlFor="link3" className="block text-blue-700 text-md font-medium">
                         Link Modul
@@ -268,8 +271,9 @@ export default function ButtonEditModule({ onClose, modules, selectedModuleId, o
                     {errors.modul_link && <p className="text-fireRed text-sm mt-1">{errors.modul_link}</p>}
                 </div>
 
+                {/* Switch and Save Button */}
                 <div className="flex justify-between">
-                    {/* switch isEnglish */}
+                    {/* isEnglish Switch */}
                     <div className="flex items-center gap-2">
                         <label className="text-sm font-medium text-gray-700">
                             isEnglish
@@ -286,7 +290,7 @@ export default function ButtonEditModule({ onClose, modules, selectedModuleId, o
                         </div>
                     </div>
 
-                    {/* Tombol Simpan */}
+                    {/* Save and Cancel Buttons */}
                     <div className="mt-4 text-right">
                         <button
                             onClick={onClose}
@@ -304,7 +308,7 @@ export default function ButtonEditModule({ onClose, modules, selectedModuleId, o
                 </div>
             </div>
 
-            {/* Modal Notifikasi */}
+            {/* Success Modal */}
             {showSuccessModal && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
                     <div className="bg-white rounded-lg p-6 w-[400px] shadow-lg text-center">

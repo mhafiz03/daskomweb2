@@ -42,7 +42,7 @@ export default function ModalOpenKJ({ onClose }) {
         }));
 
         try {
-            const response = await fetch(`/modul/${idM}/update`, { // @dhiya , aku ga tau ini kudu ke mana, hehe, controller juga blm ada ;)
+            const response = await fetch(`/modul/${idM}/update`, { // @dhiya , aku ga tau ini kudu ke mana, hehe, controller juga blm ada ;). lup
                 method: "PUT",
                 headers: {
                     "Content-Type": "application/json",
