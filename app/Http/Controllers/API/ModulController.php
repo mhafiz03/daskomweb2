@@ -61,7 +61,7 @@ class ModulController extends BaseController
             return response()->json([
                 'success' => true,
                 'data' => $modul,
-            ]);            
+            ]);
         } catch (\Exception $e) {
             return response()->json([
                 'message' => 'Terjadi kesalahan saat mengambil modul.',
@@ -132,11 +132,11 @@ class ModulController extends BaseController
             'video_link' => 'required|string',
             'oldJudul' => 'required|string',
         ]);
-    
+
         if ($validator->fails()) {
             return redirect()->back()->withErrors($validator)->withInput();
         }
-    
+
         try {
             // Check if title is being changed and if new title already exists
             if ($request->judul !== $request->oldJudul) {
@@ -147,7 +147,7 @@ class ModulController extends BaseController
                     ])->withInput();
                 }
             }
-    
+
             $modul = Modul::findOrFail($id);
             $resource = Resource::where('modul_id', $modul->id)->first();
 
@@ -157,13 +157,13 @@ class ModulController extends BaseController
                 $resource->modul_id = $modul->id;
                 // Set other required fields
             }
-    
+
 //            if (!$resource) {
 //                return redirect()->back()->withErrors([
 //                    'general' => 'Resource tidak ditemukan untuk modul ini.'
 //                ])->withInput();
 //            }
-    
+
             // Update modul
             $modul->judul = $request->judul;
             $modul->poin1 = $request->poin1;
@@ -172,13 +172,13 @@ class ModulController extends BaseController
             $modul->isEnglish = $request->isEnglish;
             $modul->isUnlocked = $request->isUnlocked;
             $modul->save();
-    
+
             // Update resource
             $resource->modul_link = $request->modul_link;
             $resource->ppt_link = $request->ppt_link;
             $resource->video_link = $request->video_link;
             $resource->save();
-    
+
             return redirect()->back()->with('success', 'Modul berhasil diupdate.');
         } catch (\Exception $e) {
             return redirect()->back()->withErrors([
@@ -196,7 +196,7 @@ class ModulController extends BaseController
 
         return response()->json([
             'message' => 'modul berhasil dihapus'
-            
+
         ], 200);
     }
 
@@ -209,7 +209,7 @@ class ModulController extends BaseController
 //        try {
 //            // This deletes all records but respects foreign keys
 //            Modul::query()->delete();
-//            
+//
 //            return response()->json([
 //                'message' => 'Semua data modul berhasil dihapus'
 //            ], 200);

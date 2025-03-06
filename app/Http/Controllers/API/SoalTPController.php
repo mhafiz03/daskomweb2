@@ -24,22 +24,22 @@ class SoalTPController extends Controller
         try {
             // Validasi input
             $request->validate([
-                "modul_id" => "required|integer|exists:moduls,id", 
+                "modul_id" => "required|integer|exists:moduls,id",
                 "soal" => "required|string|max:1000",
-                "isEssay" => "required|boolean", 
-                "isProgram" => "required|boolean", 
+                // "isEssay" => "required|boolean",
+                // "isProgram" => "required|boolean",
             ]);
-    
+
             // Menyimpan soal baru
             $soal = SoalTp::create([
                 "modul_id" => $id,
                 "soal" => $request->soal,
-                "isEssay" => $request->isEssay,
-                "isProgram" => $request->isProgram,
+                // "isEssay" => $request->isEssay,
+                // "isProgram" => $request->isProgram,
                 "created_at" => now(),
                 "updated_at" => now(),
             ]);
-    
+
             return response()->json([
                 "message" => "Soal berhasil ditambahkan",
                 "data" => $soal,
@@ -51,7 +51,7 @@ class SoalTPController extends Controller
             ], 500);
         }
     }
-    
+
     public function show($id)
     {
         try {
@@ -73,16 +73,16 @@ class SoalTPController extends Controller
             ], 500);
         }
     }
-    
+
     public function update(Request $request, $id)
     {
         try {
             // Validasi input
             $request->validate([
                 "modul_id" => "required|integer|exists:moduls,id",
-                "isEssay" => "required|boolean", 
-                "isProgram" => "required|boolean", 
-                "soal" => "required|string|max:1000", 
+                // "isEssay" => "required|boolean",
+                // "isProgram" => "required|boolean",
+                "soal" => "required|string|max:1000",
             ]);
             $soal = SoalTp::find($id);
             if (!$soal) {
@@ -100,12 +100,12 @@ class SoalTPController extends Controller
             }
             // Update soal
             $soal->modul_id = $request->modul_id;
-            $soal->isEssay = $request->isEssay;
-            $soal->isProgram = $request->isProgram;
+            // $soal->isEssay = $request->isEssay;
+            // $soal->isProgram = $request->isProgram;
             $soal->soal = $request->soal;
             $soal->updated_at = now();
             $soal->save();
-    
+
             return response()->json([
                 "message" => "Soal berhasil diupdate",
                 "data" => $soal,
@@ -139,7 +139,7 @@ class SoalTPController extends Controller
             ], 500);
         }
     }
-    
+
     public function reset()
     {
         try {
@@ -151,8 +151,8 @@ class SoalTPController extends Controller
             return response()->json([
                 "message" => "Terjadi kesalahan saat mereset soal.",
                 "error" => $e->getMessage(),
-            ], 500); 
+            ], 500);
         }
     }
-    
+
 }

@@ -1,38 +1,64 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import closeIcon from "../../../assets/modal/iconClose.svg";
 import editIcon from "../../../assets/nav/Icon-Edit.svg";
 
 export default function ModalOpenKJ({ onClose }) {
-    const [config, setConfig] = useState({
-        PengenalanAlgoritmanDanPemrograman: false,
-        SintaksDasarDanStrukturProgramC: false,
-        KontrolAlurProgram: false,
-        LoopingDanIterasi: false,
-        Fungsi: false,
-        Modul06: false,
-        Modul07: false,
-        Modul08: false,
-        Modul09: false,
-        Modul10: false,
-        Modul01Eng: false,
-        Modul02Eng: false,
-        Modul03Eng: false,
-        Modul04Eng: false,
-        Modul05Eng: false,
-        Modul06Eng: false,
-        Modul07Eng: false,
-        Modul08Eng: false,
-        Modul09Eng: false,
-        Modul10Eng: false,
-    });
-
+    const [config, setConfig] = useState({});
+    const [modul, setModul] = useState([]);
+    const [loading, setLoading] = useState(false);
     const [showSuccess, setShowSuccess] = useState(false);
 
-    const toggleSwitch = (key) => {
+    useEffect(() => {
+        const fetchModules = async () => {
+            setLoading(true);
+            try {
+                const response = await fetch("/api-v1/modul");
+                if (!response.ok) throw new Error("Failed to fetch modules");
+                const data = await response.json();
+                const modules = Array.isArray(data.data) ? data.data : [];
+                setModul(modules);
+
+                const initialConfig = modules.reduce((acc, mod) => {
+                    acc[mod.idM] = false;
+                    return acc;
+                }, {});
+                setConfig(initialConfig);
+            } catch (error) {
+                console.error("Error fetching modules:", error);
+                setModul([]);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchModules();
+    }, []);
+
+    const toggleSwitch = async (idM) => {
+        const newStatus = !config[idM];
+
         setConfig((prevConfig) => ({
             ...prevConfig,
-            [key]: !prevConfig[key],
+            [idM]: newStatus,
         }));
+
+        try {
+            const response = await fetch(`/modul/${idM}/update`, { // @dhiya , aku ga tau ini kudu ke mana, hehe, controller juga blm ada ;)
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ isActive: newStatus ? 1 : 0 }),
+            });
+
+            if (!response.ok) throw new Error("Gagal update status");
+            console.log(`Modul ${idM} status diupdate ke ${newStatus ? "ON" : "OFF"}`);
+        } catch (error) {
+            console.error("Error updating module:", error);
+            setConfig((prevConfig) => ({
+                ...prevConfig,
+                [idM]: !newStatus,
+            }));
+        }
     };
 
     const handleSave = () => {
@@ -43,15 +69,11 @@ export default function ModalOpenKJ({ onClose }) {
         }, 3000);
     };
 
-    const configKeys = Object.keys(config);
-    const group1 = configKeys.filter((_, index) => index % 2 === 0);
-    const group2 = configKeys.filter((_, index) => index % 2 === 1);
-
     return (
         <>
             {/* Modal Utama */}
             <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-                <div className="bg-white rounded-lg p-6 w-[1000px] shadow-lg relative">
+                <div className="bg-white rounded-lg p-6 w-[800px] shadow-lg relative">
                     {/* Header */}
                     <div className="flex justify-between items-center mb-4 border-b border-gray-300">
                         <h2 className="text-xl font-semibold flex items-center gap-2">
@@ -67,80 +89,45 @@ export default function ModalOpenKJ({ onClose }) {
                     </div>
 
                     {/* Switch Options - Scrollable Table */}
-                    <div className="max-h-[300px] overflow-y-auto">
+                    <div className="max-h-[350px] overflow-y-auto">
                         <table className="w-full border-collapse">
                             <thead>
                                 <tr>
                                     <th className="text-left py-2 px-4 border-b">Module</th>
                                     <th className="text-left py-2 px-4 border-b">Status</th>
-                                    <th className="text-left py-2 px-4 border-b">Module</th>
-                                    <th className="text-left py-2 px-4 border-b">Status</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {group1.map((key, index) => (
-                                    <tr key={key} className="even:bg-gray-100">
-                                        {/* Group 1 */}
-                                        <td className="py-2 px-4 capitalize">
-                                            {key.replace(/([A-Z])/g, " $1")}
-                                        </td>
-                                        <td className="py-2 px-4">
-                                            <label className="inline-flex items-center cursor-pointer">
-                                                <span className="text-xs font-bold text-gray-700 mr-2">
-                                                    {config[key] ? "ON" : "OFF"}
-                                                </span>
-                                                <input
-                                                    type="checkbox"
-                                                    checked={config[key]}
-                                                    onChange={() => toggleSwitch(key)}
-                                                    className="hidden"
-                                                />
-                                                <div
-                                                    className={`w-20 h-8 flex items-center rounded-full px-2 transition-all duration-300 ${config[key] ? "bg-deepForestGreen" : "bg-fireRed"
-                                                        }`}
-                                                >
-                                                    <div
-                                                        className={`w-6 h-6 bg-white rounded-full shadow-md transform transition-transform ${config[key] ? "translate-x-10" : "translate-x-0"
-                                                            }`}
-                                                    ></div>
-                                                </div>
-                                            </label>
-                                        </td>
-
-                                        {/* Group 2 */}
-                                        <td className="py-2 px-4 capitalize">
-                                            {group2[index]
-                                                ? group2[index].replace(/([A-Z])/g, " $1")
-                                                : "-"}
-                                        </td>
-                                        <td className="py-2 px-4">
-                                            {group2[index] && (
+                                {loading ? (
+                                    <tr>
+                                        <td colSpan="2" className="text-center py-4">Loading...</td>
+                                    </tr>
+                                ) : (
+                                    modul.map((m) => (
+                                        <tr key={m.idM} className="even:bg-gray-100">
+                                            <td className="py-2 px-4">{m.judul}</td>
+                                            <td className="py-2 px-4">
                                                 <label className="inline-flex items-center cursor-pointer">
-                                                    <span className="text-xs font-bold text-gray-700 mr-2">
-                                                        {config[group2[index]] ? "ON" : "OFF"}
-                                                    </span>
                                                     <input
                                                         type="checkbox"
-                                                        checked={config[group2[index]]}
-                                                        onChange={() => toggleSwitch(group2[index])}
+                                                        checked={config[m.idM]}
+                                                        onChange={() => toggleSwitch(m.idM)}
                                                         className="hidden"
                                                     />
                                                     <div
-                                                        className={`w-20 h-8 flex items-center rounded-full px-2 transition-all duration-300 ${config[group2[index]] ? "bg-deepForestGreen" : "bg-fireRed"
+                                                        className={`w-20 h-8 flex items-center rounded-full px-2 transition-all duration-300 ${config[m.idM] ? "bg-deepForestGreen" : "bg-fireRed"
                                                             }`}
                                                     >
                                                         <div
-                                                            className={`w-6 h-6 bg-white rounded-full shadow-md transform transition-transform ${config[group2[index]]
-                                                                    ? "translate-x-10"
-                                                                    : "translate-x-0"
+                                                            className={`w-6 h-6 bg-white rounded-full shadow-md transform transition-transform ${config[m.idM] ? "translate-x-10" : "translate-x-0"
                                                                 }`}
                                                         ></div>
                                                     </div>
                                                 </label>
-                                            )}
-                                        </td>
-                                    </tr>
-                                ))}
+                                            </td>
+                                        </tr>
+                                    ))
+                                )}
                             </tbody>
                         </table>
                     </div>

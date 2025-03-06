@@ -37,7 +37,7 @@ class RegisteredPraktikanController extends Controller
                 'error' => $e->getMessage(),
             ], 500);
         }
-     }     
+     }
 
     public function create(): Response
     {
@@ -60,7 +60,7 @@ class RegisteredPraktikanController extends Controller
             'alamat' => 'required|string',
             'password' =>'required|string',
         ]);
-        
+
         $praktikan = Praktikan::create([
             'nama' => $request->nama,
             'nim' => $request->nim,
@@ -72,10 +72,10 @@ class RegisteredPraktikanController extends Controller
             'created_at' => now(),
             'updated_at' => now(),
         ]);
-        
+
         $praktikan->assignRole('PRAKTIKAN');
 
-        return Redirect::route('login');   
+        return Redirect::route('login');
     }
 
     public function lupaPassword(Request $request): RedirectResponse
@@ -84,30 +84,30 @@ class RegisteredPraktikanController extends Controller
             'new_password' => 'required|min:8',
             'confirm_password' => 'required|same:new_password',
         ]);
-    
+
         try {
             // For a password reset, we might need to find the user by other identifiers
             // like email or username if we don't have a reliable ID
             $user = null;
-            
+
             if ($request->has('id') && $request->id) {
                 $user = Praktikan::find($request->id);
             }
-            
+
             if ($request->has('email') && $request->email) {
                 $user = Praktikan::where('email', $request->email)->first();
             }
-            
+
             if (!$user) {
                 return back()->withErrors([
                     'error' => 'User tidak ditemukan. Silakan periksa kembali data yang dimasukkan.',
                 ]);
             }
-            
+
             // Update the password
             $user->password = Hash::make($request->new_password);
             $user->save();
-            
+
             return back()->with('success', 'Password berhasil diubah.');
         } catch (\Exception $e) {
             return back()->withErrors([

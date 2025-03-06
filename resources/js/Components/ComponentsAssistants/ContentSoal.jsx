@@ -19,12 +19,12 @@ export default function ContentSoal() {
                 </div>
 
                 {/* Button Reset Plottingan */}
-                <button
+                {/* <button
                     onClick={handleOpenModalReset}
                     className="text-white text-md font-semibold px-4 py-1 rounded-md shadow-md bg-redredDark hover:bg-rustyRed transition mt-[2px]"
                 >
                     Reset Soal
-                </button>
+                </button> */}
             </div>
 
             {/* all dropdown input soal */}
@@ -36,7 +36,7 @@ export default function ContentSoal() {
             </div>
 
             {/* Modal Reset input soal */}
-                        {showModalReset && <ButtonResetInputSoal onClose={handleCloseModalReset} />} 
+            {/* {showModalReset && <ButtonResetInputSoal onClose={handleCloseModalReset} />} */}
         </section>
     );
 }

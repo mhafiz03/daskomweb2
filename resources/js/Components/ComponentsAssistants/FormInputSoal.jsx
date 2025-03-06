@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from 'react';
 import SoalInputPG from "./SoalInputPilihanGanda";
 import SoalInputEssay from "./SoalInputEsai";
 import ModalSaveSoal from "./ModalSaveSoal";
@@ -9,22 +9,60 @@ export default function SoalInputForm() {
     const [isModalSaveOpen, setIsModalSaveOpen] = useState(false);
     const [isModalValidationOpen, setIsModalValidationOpen] = useState(false);
     const [isModalSuccesOpenAddSoal, setIsModalSuccesOpenAddSoal] = useState(false);
-    const [kategoriSoal, setKategoriSoal] = useState("");  
-    const [modul, setModul] = useState("");
+    const [kategoriSoal, setKategoriSoal] = useState("");
+    const [values, setValues] = useState({
+        modul_id: '',
+    });
+    const [modul, setModul] = useState([]);
+    const [loading, setLoading] = useState(false);
     const [soalList, setSoalList] = useState([]);
+
+    const fetchModules = async () => {
+        setLoading(true);
+        try {
+            const response = await fetch("/api-v1/modul");
+            if (response.ok) {
+                const data = await response.json();
+                console.log("Fetched modules:", data.data);
+                setModul(Array.isArray(data.data) ? data.data : []); // ini kudu array gaes tong di ubah
+            } else {
+                console.error('Failed to fetch modules:', response.statusText);
+                setModul([]);
+            }
+        } catch (error) {
+            console.error("Error fetching modules:", error);
+            setModul([]);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+
+    useEffect(() => {
+        fetchModules();
+    }, []);
+
+    const handleChange = (e) => {
+        const key = e.target.id;
+        const value = e.target.value;
+        setValues((prevValues) => ({
+            ...prevValues,
+            [key]: value,
+        }));
+    };
 
     const handleOpenModalSave = () => {
         // Validasi apakah soal sudah lengkap
         if (!soalList.some(soal => !soal.soal || soal.pilihan?.some(p => p === ""))) {
             setIsModalSaveOpen(true);
         } else {
-            setIsModalValidationOpen(true); 
+            setIsModalValidationOpen(true);
         }
     };
 
     const handleCloseModalSave = () => {
         setIsModalSaveOpen(false);
-        // Reset dropdown ke default 
+        // Reset dropdown ke default
         setKategoriSoal("");
         setModul("");
     };
@@ -66,15 +104,24 @@ export default function SoalInputForm() {
                 <div className="w-2/3">
                     <select
                         className="w-full border-2 border-darkBrown rounded-md shadow-md"
-                        value={modul}
-                        onChange={(e) => setModul(e.target.value)}
+                        value={values.modul_id}
+                        id="modul_id"
+                        onChange={handleChange}
                     >
                         <option value="">- Pilih Modul -</option>
-                        <option value="Modul1">Modul 1</option>
-                        <option value="Modul2">Modul 2</option>
-                        <option value="Modul3">Modul 3</option>
+                        {console.log("Modul data:", modul)}
+                        {modul.length > 0 ? (
+                            modul.map((k, index) => (
+                                <option key={k.idM ?? `modul-${index}`} value={k.idM}>
+                                    {k.judul}
+                                </option>
+                            ))
+                        ) : (
+                            <option disabled>Loading...</option>
+                        )}
                     </select>
                 </div>
+
             </div>
 
             {/* Input soal berdasarkan kategori soal */}
