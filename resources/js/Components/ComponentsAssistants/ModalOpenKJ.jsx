@@ -1,59 +1,84 @@
 import { useState, useEffect } from "react";
 import closeIcon from "../../../assets/modal/iconClose.svg";
 import editIcon from "../../../assets/nav/Icon-Edit.svg";
+import { usePage } from "@inertiajs/react";
 
-export default function ModalOpenKJ({ onClose }) {
-    const [config, setConfig] = useState({});
-    const [modul, setModul] = useState([]);
-    const [loading, setLoading] = useState(false);
+export default function ModalOpenKJ({ onClose, modules}) {
     const [showSuccess, setShowSuccess] = useState(false);
+    const [modul, setModul] = useState(modules || []);
+    const [loading, setLoading] = useState(false);
+    const [config, setConfig] = useState({}); // State untuk menyimpan status isUnlocked setiap modul
+    const { flash, errors } = usePage().props;
 
+    // Inisialisasi config saat modul berubah
     useEffect(() => {
-        const fetchModules = async () => {
-            setLoading(true);
-            try {
-                const response = await fetch("/api-v1/modul");
-                if (!response.ok) throw new Error("Failed to fetch modules");
-                const data = await response.json();
-                const modules = Array.isArray(data.data) ? data.data : [];
-                setModul(modules);
+        if (modul.length > 0) {
+            const initialConfig = modul.reduce((acc, mod) => {
+                acc[mod.idM] = mod.isUnlocked === 1; // Konversi ke boolean
+                return acc;
+            }, {});
+            setConfig(initialConfig);
+        }
+    }, [modul]);
 
-                const initialConfig = modules.reduce((acc, mod) => {
-                    acc[mod.idM] = false;
-                    return acc;
-                }, {});
-                setConfig(initialConfig);
-            } catch (error) {
-                console.error("Error fetching modules:", error);
-                setModul([]);
-            } finally {
-                setLoading(false);
-            }
-        };
-        fetchModules();
-    }, []);
+    // Fetch data modul jika prop modules tidak disediakan
+    useEffect(() => {
+        if (!modules || modules.length === 0) {
+            const fetchModules = async () => {
+                setLoading(true);
+                try {
+                    const response = await fetch("/api-v1/modul");
+                    if (!response.ok) throw new Error("Gagal mengambil data modul");
+                    const data = await response.json();
+                    const modules = Array.isArray(data.data) ? data.data : [];
+                    setModul(modules);
+                } catch (error) {
+                    console.error("Error fetching modules:", error);
+                    setModul([]); // Reset modul jika terjadi error
+                } finally {
+                    setLoading(false); // Matikan loading state
+                }
+            };
+            fetchModules();
+        }
+    }, [modules]);
 
+    // Fungsi untuk toggle status isUnlocked
     const toggleSwitch = async (idM) => {
-        const newStatus = !config[idM];
+        const newStatus = !config[idM]; // Toggle status
 
+        // Update config state secara lokal
         setConfig((prevConfig) => ({
             ...prevConfig,
             [idM]: newStatus,
         }));
 
         try {
-            const response = await fetch(`/modul/${idM}/update`, { // @dhiya , aku ga tau ini kudu ke mana, hehe, controller juga blm ada ;). lup
-                method: "PUT",
+            // Ambil CSRF token dari meta tag
+            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+            // Kirim request ke backend
+            const response = await fetch(`/api-v1/modul/update-status`, {
+                method: "PATCH",
                 headers: {
                     "Content-Type": "application/json",
+                    "X-CSRF-TOKEN": csrfToken,
                 },
-                body: JSON.stringify({ isActive: newStatus ? 1 : 0 }),
+                body: JSON.stringify([{ id: idM, isUnlocked: newStatus ? 1 : 0 }]), // Format payload sesuai dengan controller
             });
 
             if (!response.ok) throw new Error("Gagal update status");
-            console.log(`Modul ${idM} status diupdate ke ${newStatus ? "ON" : "OFF"}`);
+            console.log(`Modul ${idM} status diupdate ke ${newStatus ? "UNLOCKED" : "LOCKED"}`);
+
+            // Update modul di state lokal
+            setModul((prevModul) =>
+                prevModul.map((mod) =>
+                    mod.idM === idM ? { ...mod, isUnlocked: newStatus ? 1 : 0 } : mod
+                )
+            );
         } catch (error) {
             console.error("Error updating module:", error);
+            // Rollback perubahan jika terjadi error
             setConfig((prevConfig) => ({
                 ...prevConfig,
                 [idM]: !newStatus,
@@ -61,11 +86,12 @@ export default function ModalOpenKJ({ onClose }) {
         }
     };
 
+    // Fungsi untuk menangani simpan dan tampilkan modal sukses
     const handleSave = () => {
         setShowSuccess(true);
         setTimeout(() => {
             setShowSuccess(false);
-            onClose();
+            onClose(); // Tutup modal setelah 3 detik
         }, 3000);
     };
 
@@ -88,7 +114,7 @@ export default function ModalOpenKJ({ onClose }) {
                         </button>
                     </div>
 
-                    {/* Switch Options - Scrollable Table */}
+                    {/* Tabel Daftar Modul */}
                     <div className="max-h-[350px] overflow-y-auto">
                         <table className="w-full border-collapse">
                             <thead>
@@ -107,10 +133,11 @@ export default function ModalOpenKJ({ onClose }) {
                                         <tr key={m.idM} className="even:bg-gray-100">
                                             <td className="py-2 px-4">{m.judul}</td>
                                             <td className="py-2 px-4">
+                                                {/* Switch untuk toggle status */}
                                                 <label className="inline-flex items-center cursor-pointer">
                                                     <input
                                                         type="checkbox"
-                                                        checked={config[m.idM]}
+                                                        checked={config[m.idM] || false}
                                                         onChange={() => toggleSwitch(m.idM)}
                                                         className="hidden"
                                                     />
@@ -132,7 +159,7 @@ export default function ModalOpenKJ({ onClose }) {
                         </table>
                     </div>
 
-                    {/* Save Button */}
+                    {/* Tombol Simpan */}
                     <div className="flex justify-center mt-5">
                         <button
                             onClick={handleSave}
@@ -141,7 +168,6 @@ export default function ModalOpenKJ({ onClose }) {
                             Simpan
                         </button>
                     </div>
-
                 </div>
             </div>
 

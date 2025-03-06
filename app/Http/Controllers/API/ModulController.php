@@ -258,34 +258,44 @@ class ModulController extends BaseController
 
 
     public function updateStatus(Request $request)
-    {
-        $data = $request->all();
-        if (empty($data)) {
-            return response()->json([
-                'message' => 'No data provided.',
-            ], 400);
-        }
+{
+    $data = $request->all();
+    if (empty($data)) {
+        return response()->json([
+            'message' => 'No data provided.',
+        ], 400);
+    }
 
+    try {
         foreach ($data as $item) {
             if (!isset($item['id']) || !isset($item['isUnlocked'])) {
                 return response()->json([
                     'message' => 'Missing required fields: id or isUnlocked.',
                 ], 400);
             }
+
             $modul = Modul::find($item['id']);
             if (!$modul) {
                 return response()->json([
                     'message' => "Modul with ID {$item['id']} not found.",
                 ], 404);
             }
+
             $modul->isUnlocked = $item['isUnlocked'];
             $modul->updated_at = now();
             $modul->save();
         }
+
         return response()->json([
             'status' => 'success',
-            'data' => $data
+            'data' => $data,
         ], 200);
+    } catch (\Exception $e) {
+        return response()->json([
+            'status' => 'error',
+            'message' => 'Terjadi kesalahan saat mengupdate status: ' . $e->getMessage(),
+        ], 500);
     }
+}
 
 }
