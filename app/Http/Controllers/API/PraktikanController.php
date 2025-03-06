@@ -2,11 +2,15 @@
 
 namespace App\Http\Controllers\API;
 
+use App\Models\Asisten;
+use App\Models\LaporanPraktikan;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
 use App\Models\Praktikan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use App\Http\Controllers\API\BaseController as BaseController;
 
 class PraktikanController extends Controller
 {
@@ -49,7 +53,122 @@ class PraktikanController extends Controller
     {
         //
     }
-    
+
+    public function setPraktikan(Request $request)
+    {
+        // Validate the request
+        $validator = Validator::make($request->all(), [
+            'nim' => 'required|exists:praktikans,nim',
+            'modul_id' => 'required|exists:moduls,id',
+        ]);
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation Error',
+                'errors' => $validator->errors()
+            ], 400);
+        }
+        
+        try {
+            // Get the current logged in asisten (full user model)
+            $asisten = Auth::user();
+            $asisten_id = Auth::id();
+            
+            if (!$asisten) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Asisten not found for this user',
+                ], 404);
+            }
+            
+            // Get the praktikan by NIM
+            $praktikan = Praktikan::where('nim', $request->nim)->first();
+            
+            if (!$praktikan) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Praktikan with this NIM not found',
+                ], 404);
+            }
+            
+            $laporanPraktikan = LaporanPraktikan::where('praktikan_id', $praktikan->id)
+                ->where('modul_id', $request->modul_id)
+                ->first();
+                
+            if (!$laporanPraktikan) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'No record found for this praktikan and modul combination',
+                ], 404);
+            }
+            
+            $nilai = \App\Models\Nilai::where('praktikan_id', $praktikan->id)
+                ->where('modul_id', $request->modul_id)
+                ->first();
+                
+            if ($nilai) {
+                $nilai->asisten_id = $asisten->id;
+                $nilai->updated_at = now();
+                $nilai->save();
+            }
+            $laporanPraktikan->asisten_id = $asisten->id;
+            $laporanPraktikan->pesan = "pulled by " . $asisten->kode;
+            $laporanPraktikan->updated_at = now();
+            $laporanPraktikan->save();
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Praktikan successfully assigned to asisten',
+                'data' => [
+                    'laporan_praktikan' => $laporanPraktikan,
+                    'nilai' => $nilai ?? null
+                ],
+            ], 200);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'An error occurred while assigning praktikan',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+
+
+//    public function getAssignedPraktikan(Request $request) {
+//        try {
+//            // Get the current logged in asisten
+//            $asisten = Asisten::where('user_id', Auth::id())->first();
+//            
+//            if (!$asisten) {
+//                return response()->json([
+//                    'success' => false,
+//                    'message' => 'Asisten not found for this user'
+//                ], 404);
+//            }
+//
+//            // Get all assigned praktikan
+//            $praktikans = LaporanPraktikan::with(['praktikan', 'modul'])
+//                ->where('asisten_id', $asisten->id)
+//                ->get();
+//
+//            return response()->json([
+//                'success' => true,
+//                'data' => $praktikans
+//            ], 200);
+//            
+//        } catch (\Exception $e) {
+//            return response()->json([
+//                'success' => false,
+//                'message' => 'An error occurred while retrieving assigned praktikan',
+//                'error' => $e->getMessage()
+//            ], 500);
+//        }
+//    }
+
+
+
 
     /**
      * Update the praktikan's password.

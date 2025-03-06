@@ -5,7 +5,7 @@ import TabelModulePraktikum from "./TabelModulePraktikum";
 
 export default function ContentModulePraktikum() {
     const [showModal, setShowModal] = useState(false);
-    const [showModalReset, setShowModalReset] = useState(false);
+    //const [showModalReset, setShowModalReset] = useState(false);
 
     const handleOpenModal = () => setShowModal(true);
     const handleCloseModal = () => setShowModal(false);

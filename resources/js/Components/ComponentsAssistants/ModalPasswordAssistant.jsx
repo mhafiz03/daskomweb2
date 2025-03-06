@@ -8,11 +8,29 @@ export default function ModalPasswordAssistant({ onClose }) {
         current_password: "",
         password: "",
     });
+    const [isLoading, setIsLoading] = useState(false);
     const [isSuccess, setIsSuccess] = useState(false);
     const [errorMessage, setErrorMessage] = useState("");
-
-    const { auth, errors } = usePage().props; // Fetch shared props from Inertia
+    
+    const { auth, errors, flash } = usePage().props;
     const asisten = auth?.asisten;
+    
+    // Check for flash messages or errors from Inertia response
+    useEffect(() => {
+        if (flash?.success) {
+            setIsSuccess(true);
+            setTimeout(() => {
+                setIsSuccess(false);
+                onClose();
+            }, 1500);
+        }
+        
+        if (errors && Object.keys(errors).length > 0) {
+            // Convert errors object to string message
+            const errorMessages = Object.values(errors).flat().join('\n');
+            setErrorMessage(errorMessages);
+        }
+    }, [flash, errors]);
 
     useEffect(() => {
         if (asisten) {
@@ -23,35 +41,32 @@ export default function ModalPasswordAssistant({ onClose }) {
         }
     }, [asisten]);
 
-    const handleSave = async (e) => {
+    const handleSave = (e) => {
         e.preventDefault();
-
-        // Validasi input
+        setIsLoading(true);
+        setErrorMessage("");
+    
+        // Client-side validation
         if (!values.current_password || !values.password) {
             setErrorMessage("Semua kolom harus diisi.");
+            setIsLoading(false);
             return;
         }
-        if (values.current_password !== values.password) {
-            setErrorMessage("Password tidak cocok.");
+        
+        // Check if new password meets minimum length
+        if (values.password.length < 8) {
+            setErrorMessage("Password baru harus minimal 8 karakter.");
+            setIsLoading(false);
             return;
         }
-
-        // Kirim permintaan ke server
-        try {
-            await router.put("/asisten/password", {
-                current_password: values.current_password,
-                password: values.password,
-            });
-
-            setIsSuccess(true);
-            setTimeout(() => {
-                setIsSuccess(false);
-                onClose();
-            }, 3000);
-        } catch (error) {
-            console.error("Error response:", error);
-            setErrorMessage("Gagal mengubah password. Silakan coba lagi.");
-        }
+        
+        // Send request to server - using patch as per the route definition
+        router.patch("/api-v1/asisten/password", values, {
+            preserveScroll: true,
+            onFinish: () => {
+                setIsLoading(false);
+            }
+        });
     };
 
     const handleChange = (e) => {
@@ -78,6 +93,7 @@ export default function ModalPasswordAssistant({ onClose }) {
                 <div className="bg-softGray p-8 rounded shadow-lg w-[30%] relative">
                     {/* Tombol X untuk tutup */}
                     <button
+                        type="button"
                         onClick={onClose}
                         className="absolute top-2 right-2 flex justify-center items-center"
                     >
@@ -91,7 +107,7 @@ export default function ModalPasswordAssistant({ onClose }) {
                         <input
                             id="current_password"
                             type="password"
-                            placeholder="Password Baru"
+                            placeholder="Password Saat Ini"
                             value={values.current_password}
                             onChange={handleChange}
                             className="w-full p-2 border border-gray-300 rounded"
@@ -102,27 +118,30 @@ export default function ModalPasswordAssistant({ onClose }) {
                         <input
                             id="password"
                             type="password"
-                            placeholder="Konfirmasi Password Baru"
+                            placeholder="Password Baru"
                             value={values.password}
                             onChange={handleChange}
                             className="w-full p-2 border border-gray-300 rounded"
                         />
+                        <p className="text-xs text-gray-500 mt-1">Password minimal 8 karakter</p>
                     </div>
 
                     <button
-                        type="submit" // Make sure the form submits properly
-                        className="w-full p-2 bg-deepForestGreen text-white font-semibold rounded hover:bg-darkGreen"
+                        type="submit"
+                        disabled={isLoading}
+                        className="w-full p-2 bg-deepForestGreen text-white font-semibold rounded hover:bg-darkGreen disabled:bg-gray-400"
                     >
-                        Simpan
+                        {isLoading ? "Menyimpan..." : "Simpan"}
                     </button>
                 </div>
             </div>
 
             {errorMessage && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
                     <div className="bg-softGray p-8 rounded shadow-lg w-[30%] relative flex flex-col items-center">
                         {/* Tombol X untuk tutup */}
                         <button
+                            type="button"
                             onClick={closeErrorModal}
                             className="absolute top-2 right-2 flex justify-center items-center"
                         >
@@ -137,6 +156,7 @@ export default function ModalPasswordAssistant({ onClose }) {
 
                         {/* Tombol OK */}
                         <button
+                            type="button"
                             onClick={closeErrorModal}
                             className="w-full p-2 bg-deepForestGreen text-white font-semibold rounded hover:bg-darkGreen"
                         >
@@ -147,10 +167,11 @@ export default function ModalPasswordAssistant({ onClose }) {
             )}
 
             {isSuccess && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
                     <div className="bg-softGray p-8 rounded shadow-lg w-[30%] relative flex flex-col items-center">
                         {/* Tombol X untuk tutup */}
                         <button
+                            type="button"
                             onClick={closeSuccessModal}
                             className="absolute top-2 right-2 flex justify-center items-center"
                         >

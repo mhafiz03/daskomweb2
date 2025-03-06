@@ -1,4 +1,5 @@
-import { useState } from "react";
+import React, { useState, useEffect } from "react";
+import axios from 'axios';
 
 export default function FormTarikPraktikan() {
     const [nim, setNim] = useState('');
@@ -6,8 +7,29 @@ export default function FormTarikPraktikan() {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [modalMessage, setModalMessage] = useState('');
     const [isSuccess, setIsSuccess] = useState(false);
+    const [modules, setModules] = useState([]);
+    const [loading, setLoading] = useState(false);
 
-    const handleSubmit = () => {
+    // Fetch modules on component mount
+    useEffect(() => {
+        const fetchModules = async () => {
+            try {
+                const response = await axios.get('/api-v1/modul');
+                if (response.data.success) {
+                    setModules(response.data.data);
+                }
+            } catch (error) {
+                console.error('Error fetching modules:', error);
+                setModalMessage('Gagal memuat daftar modul');
+                setIsSuccess(false);
+                setIsModalOpen(true);
+            }
+        };
+
+        fetchModules();
+    }, []);
+
+    const handleSubmit = async () => {
         if (!nim || !module) {
             setModalMessage('Harap isi semua kolom, jangan tertinggal!');
             setIsSuccess(false);
@@ -15,10 +37,46 @@ export default function FormTarikPraktikan() {
             return;
         }
 
-        setModalMessage('Data praktikan berhasil ditarik');
-        setIsSuccess(true);
-        setIsModalOpen(true);
+        setLoading(true);
+        try {
+            const response = await axios.post('/api-v1/tarik-praktikan', {
+                nim: nim,
+                modul_id: module
+            });
 
+            if (response.data.success) {
+                setModalMessage('Data praktikan berhasil ditarik');
+                setIsSuccess(true);
+                setNim('');
+                setModule('');
+            } else {
+                setModalMessage(response.data.message || 'Gagal menarik data praktikan');
+                setIsSuccess(false);
+            }
+        } catch (error) {
+            console.error('Error assigning praktikan:', error);
+            
+            if (error.response) {
+                if (error.response.status === 404) {
+                    if (error.response.data.message.includes('No record found')) {
+                        setModalMessage('Tidak ada data untuk praktikan dan modul ini. Praktikan mungkin belum terdaftar untuk modul ini.');
+                    } else {
+                        setModalMessage(error.response.data.message || 'Data tidak ditemukan');
+                    }
+                } else if (error.response.data.errors) {
+                    const errorMessages = Object.values(error.response.data.errors).flat();
+                    setModalMessage(errorMessages.join(', '));
+                } else {
+                    setModalMessage(error.response.data.message || 'Terjadi kesalahan');
+                }
+            } else {
+                setModalMessage('Gagal terhubung ke server');
+            }
+            setIsSuccess(false);
+        } finally {
+            setLoading(false);
+            setIsModalOpen(true);
+        }
     };
 
     const closeModal = () => {
@@ -57,21 +115,21 @@ export default function FormTarikPraktikan() {
                         <option value="" disabled>
                             Pilih Modul
                         </option>
-                        <option value="Modul 1">Modul 1</option>
-                        <option value="Modul 2">Modul 2</option>
-                        <option value="Modul 3">Modul 3</option>
-                        <option value="Modul 4">Modul 4</option>
-                        <option value="Modul 5">Modul 5</option>
-                        <option value="Modul 6">Modul 6</option>
+                        {modules.map((modul) => (
+                            <option key={modul.idM} value={modul.idM}>
+                                {modul.judul}
+                            </option>
+                        ))}
                     </select>
                 </div>
                 {/* Tombol Tarik */}
                 <div className="flex-shrink-0 mt-6">
                     <button
                         onClick={handleSubmit}
+                        disabled={loading}
                         className="h-10 px-6 bg-deepForestGreen text-white font-semibold rounded hover:bg-darkGreen transition duration-200"
                     >
-                        Tarik
+                        {loading ? 'Menark...' : 'Tarik'}
                     </button>
                 </div>
             </div>

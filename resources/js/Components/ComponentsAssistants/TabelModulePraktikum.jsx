@@ -6,18 +6,22 @@ import trashIcon from "../../../assets/nav/Icon-Delete.svg";
 import iconPPT from "../../../assets/practicum/iconPPT.svg";
 import iconVideo from "../../../assets/practicum/iconVideo.svg";
 import iconModule from "../../../assets/practicum/iconModule.svg";
+import closeIcon from "../../../assets/modal/iconClose.svg"; // Make sure this import exists
 import Cookies from "js-cookie";
 
 
 export default function TabelModulePraktikum() {
     const [isModalOpenEdit, setIsModalOpenEdit] = useState(false);
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+    const [moduleToDelete, setModuleToDelete] = useState(null);
     const [selectedModuleId, setSelectedModuleId] = useState(null);
-    const [ setMessage] = useState("");
+    const [message, setMessage] = useState("");
     const [openIndex, setOpenIndex] = useState(null);
     const [modules, setModules] = useState([]);
     const [loading, setLoading] = useState(false);
     const [initialOpen, setInitialOpen] = useState(false);
-
+    const [showSuccessModal, setShowSuccessModal] = useState(false);
+    const [successMessage, setSuccessMessage] = useState("");
 
     const handleModuleUpdate = (updatedModule) => {
         console.log("Updating module:", updatedModule);
@@ -50,21 +54,34 @@ export default function TabelModulePraktikum() {
         setSelectedModuleId(module.idM);
         setInitialOpen(true);
         setIsModalOpenEdit(true);
-
-        setIsModalOpenEdit(true);
-
     };
+
     const handleCloseModalEdit = () => {
         setIsModalOpenEdit(false);
         setSelectedModuleId(null); // Clear the selected module ID when closing modal
     };
 
-    const handleConfirmDelete = async (id) => {
+    // Updated delete handler to show confirmation modal
+    const handleDeleteClick = (id) => {
+        setModuleToDelete(id);
+        setIsDeleteModalOpen(true);
+    };
+    
+    // Cancel delete
+    const handleCancelDelete = () => {
+        setIsDeleteModalOpen(false);
+        setModuleToDelete(null);
+    };
+    
+    // Confirm delete
+    const handleConfirmDelete = async () => {
+        const id = moduleToDelete;
         console.log('Attempting to delete module with ID:', id);
     
         if (!id) {
             console.error('Invalid ID:', id);
             setMessage("ID tidak valid.");
+            setIsDeleteModalOpen(false);
             return;
         }
     
@@ -77,13 +94,32 @@ export default function TabelModulePraktikum() {
                     'Authorization': `Bearer ${token}`,
                 }
             });
+            
             // Update modules state to remove the deleted module
             setModules(prevModules => prevModules.filter(module => module.idM !== id));
+            
+            // Show success message
+            setSuccessMessage("Modul berhasil dihapus!");
+            setShowSuccessModal(true);
+            setTimeout(() => {
+                setShowSuccessModal(false);
+            }, 3000);
+            
+            // Close the delete confirmation modal
+            setIsDeleteModalOpen(false);
+            setModuleToDelete(null);
+            
         } catch (error) {
             console.error('Error deleting module:', error.response?.data || error.message);
             setMessage("Gagal menghapus modul.");
+            setIsDeleteModalOpen(false);
         }
-    };      
+    };
+    
+    // Close success modal
+    const closeSuccessModal = () => {
+        setShowSuccessModal(false);
+    };
     
     const toggleAccordion = (index) => {
         setOpenIndex(openIndex === index ? null : index);
@@ -150,11 +186,17 @@ export default function TabelModulePraktikum() {
                                         </div>
 
                                         <span className="flex justify-end pr-3">
-                                            <button onClick={() => handleConfirmDelete(module.idM)} className="flex justify-center items-center p-2 text-darkBrown font-semibold hover:underline transition-all">
+                                            <button 
+                                                onClick={() => handleDeleteClick(module.idM)} 
+                                                className="flex justify-center items-center p-2 text-darkBrown font-semibold hover:underline transition-all"
+                                            >
                                                 <img className="w-5" src={trashIcon} alt="Delete" />
                                                 Delete
                                             </button>
-                                            <button onClick={() => handleOpenModalEdit(module)} className="flex justify-center items-center p-2 text-darkBrown font-semibold hover:underline transition-all">
+                                            <button 
+                                                onClick={() => handleOpenModalEdit(module)} 
+                                                className="flex justify-center items-center p-2 text-darkBrown font-semibold hover:underline transition-all"
+                                            >
                                                 <img className="w-5" src={editIcon} alt="edit icon" />
                                                 Edit
                                             </button>
@@ -175,8 +217,60 @@ export default function TabelModulePraktikum() {
                     selectedModuleId={selectedModuleId}
                     onUpdate={handleModuleUpdate}
                     initialOpen={initialOpen} // Pass this flag
-    />
-            )}        
+                />
+            )}
+            
+            {/* Delete Confirmation Modal */}
+            {isDeleteModalOpen && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+                    <div className="bg-white rounded-lg p-6 w-[400px] shadow-lg relative">
+                        {/* Header */}
+                        <div className="flex justify-between items-center mb-6 border-b border-deepForestGreen">
+                            <h2 className="text-2xl font-bold text-deepForestGreen">Konfirmasi Hapus</h2>
+                            <button
+                                onClick={handleCancelDelete}
+                                className="absolute top-2 right-2 flex justify-center items-center"
+                            >
+                                <img className="w-9" src={closeIcon} alt="closeIcon" />
+                            </button>
+                        </div>
+                        
+                        <p className="mb-6 text-center">Apakah Anda yakin ingin menghapus modul ini?</p>
+                        
+                        <div className="flex justify-center gap-4">
+                            <button
+                                onClick={handleCancelDelete}
+                                className="px-6 py-2 bg-gray-300 text-darkBrown font-semibold rounded-md shadow hover:bg-gray-400 transition duration-300"
+                            >
+                                Batal
+                            </button>
+                            <button
+                                onClick={handleConfirmDelete}
+                                className="px-6 py-2 bg-fireRed text-white font-semibold rounded-md shadow hover:bg-red-700 transition duration-300"
+                            >
+                                Hapus
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+            
+            {/* Success Modal */}
+            {showSuccessModal && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+                    <div className="bg-white rounded-lg p-6 w-[400px] shadow-lg text-center">
+                        <h2 className="text-xl font-bold text-darkGreen text-center p-3">
+                            {successMessage}
+                        </h2>
+                        <button
+                            onClick={closeSuccessModal}
+                            className="mt-4 px-6 py-2 bg-deepForestGreen text-white font-semibold rounded-md shadow hover:bg-darkGreen transition duration-300"
+                        >
+                            Tutup
+                        </button>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
