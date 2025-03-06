@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Spatie\Permission\Models\Role;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Hash;
 
 class AsistenController extends Controller
@@ -55,6 +56,7 @@ class AsistenController extends Controller
      */
     public function update(Request $request)
     {
+        
         $request->validate([
             'nomor_telepon' => 'required|string',
             'id_line' => 'required|string',
@@ -86,46 +88,52 @@ class AsistenController extends Controller
         }
     }
 
+
+
     /**
- * change password of asisten
+ * change password of asisten fixed
  */
 
 public function updatePassword(Request $request)
 {
-    try {
-        $request->validate([
-            'current_password' => 'required|string',
-            'password' => 'required|string|min:8',
-        ]);
+    $request->validate([
+        'current_password' => 'required|string',
+        'password' => 'required|string|min:8',
+    ]);
 
+    try{
+
+        $asisten = Asisten::find(auth()->guard('asisten')->user()->id);
 
         if (!$asisten) {
-            return response()->json(['message' => 'Asisten tidak ditemukan'], 404);
-        }
-
-        // Check if the current password is correct
-        if (!Hash::check($request->current_password, $asisten->password)) {
-            // Return error in a format Inertia can handle
-            return back()->withErrors([
-                'current_password' => 'Password saat ini tidak sesuai'
+            return redirect()->back()->withErrors([
+                'error' => 'Asisten not found.'
             ]);
         }
 
-        // Update the password
+        if (!Hash::check($request->current_password, $asisten->password)) {
+            return redirect()->back()->withErrors([
+                'current_password' => 'Password Sebelunmnya tidak sesuai'
+            ]);
+        }
+
         $asisten->password = Hash::make($request->password);
         $asisten->save();
 
-        // Return success with Inertia
-        return back()->with('success', 'Password berhasil diubah');
-    } catch (ValidationException $e) {
-        // Validation errors are automatically handled by Inertia
-        return back()->withErrors($e->errors());
+        return redirect()->back()->with('success', 'Password berhasil diubah');
+
     } catch (\Exception $e) {
-        return back()->withErrors([
-            'error' => 'Gagal mengubah password: ' . $e->getMessage()
-        ]);
+        return response()->json([
+            'success' => false,
+            'message' => 'gagal mengubah password',
+            'error' => $e->getMessage(),
+        ], 500);
     }
+        
 }
+
+
+
 
     /**
      * Remove the specified resource from storage.
