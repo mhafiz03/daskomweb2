@@ -1,14 +1,18 @@
 import { useState } from 'react';
 import eyeClose from '../../../assets/form/eyeClose.png';
 import eyeOpen from '../../../assets/form/eyeOpen.png';
+import { router } from '@inertiajs/react';
 
-export default function ModalChangePass({ onSuccess, onFailed }) {
+export default function ModalChangePass({ onSuccess, onFailed, userId, userEmail }) {
     const [passwordVisible, setPasswordVisible] = useState(false);
     const [formData, setFormData] = useState({
+        id: userId || '',
+        email: userEmail || '',  // Add email as fallback identification
         new_password: '',
         confirm_password: '',
     });
     const [error, setError] = useState('');
+    const [loading, setLoading] = useState(false);
 
     const togglePasswordVisibility = () => {
         setPasswordVisible(!passwordVisible);
@@ -24,29 +28,48 @@ export default function ModalChangePass({ onSuccess, onFailed }) {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-
-        if (!formData.new_password && !formData.confirm_password) {
-            onFailed();
-            return;
-        }
-
-        if (!formData.new_password) {
-            onFailed();
-            return;
-        }
-
-        if (!formData.confirm_password) {
-            onFailed();
-            return;
-        }
-
-        if (formData.new_password !== formData.confirm_password) {
-            onFailed();
-            return;
-        }
-
         setError('');
-        onSuccess();
+
+        // Validation
+        if (!formData.new_password || !formData.confirm_password) {
+            setError('Semua field harus diisi');
+            onFailed();
+            return;
+        }
+
+        if (formData.new_password.length < 8) {
+            setError('Password minimal 8 karakter');
+            onFailed();
+            return;
+        }
+
+        setLoading(true);
+        
+        // Use Inertia router for the PATCH request
+        router.patch(route('lupa-password'), formData, {
+            onSuccess: () => {
+                onSuccess();
+            },
+            onError: (errors) => {
+                console.error('Validation errors:', errors);
+                
+                if (errors.error) {
+                    setError(errors.error);
+                } else if (errors.confirm_password) {
+                    setError('Password baru dan konfirmasi password tidak sesuai.');
+                } else if (errors.new_password) {
+                    setError(errors.new_password);
+                } else {
+                    // Get first error message
+                    const firstError = Object.values(errors)[0];
+                    setError(firstError);
+                }
+                onFailed();
+            },
+            onFinish: () => {
+                setLoading(false);
+            }
+        });
     };
 
     return (
@@ -86,8 +109,12 @@ export default function ModalChangePass({ onSuccess, onFailed }) {
                     />
                 </div>
                 {error && <p className="text-red-500 text-sm mb-2">{error}</p>}
-                <button className="w-[270px] mt-5 p-1 bg-deepForestGreen text-lg text-white font-bold rounded-sm mb-3 hover:bg-deepForestGreenDark duration-300" type="submit">
-                    Simpan
+                <button 
+                    className="w-[270px] mt-5 p-1 bg-deepForestGreen text-lg text-white font-bold rounded-sm mb-3 hover:bg-deepForestGreenDark duration-300" 
+                    type="submit"
+                    disabled={loading}
+                >
+                    {loading ? 'Menyimpan...' : 'Simpan'}
                 </button>
             </form>
         </div>

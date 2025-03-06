@@ -13,7 +13,7 @@ export default function ModalChangePassFailed({ onRetry }) {
                 Password baru dan konfirmasi password tidak sesuai.
             </p>
             <button
-                className="w-[270px] mt-5 p-1 bg-deepForestGreen text-lg text-white font-bold rounded-sm mb-3 hover:bg-deepForestGreenDark duration-300"
+                className="w-[270px] mt -5 p-1 bg-deepForestGreen text-lg text-white font-bold rounded-sm mb-3 hover:bg-deepForestGreenDark duration-300"
                 onClick={onRetry}
             >
                 Coba Kembali
