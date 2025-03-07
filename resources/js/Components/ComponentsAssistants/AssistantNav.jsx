@@ -154,12 +154,12 @@ export default function AssisstantNav({ asisten, permission_name }) {
                                     <span className="self-center text-sm ml-3">Lihat TP</span>
                                 </a>
                             </li>
-                            <li>
+                            {/* <li>
                                 <a onClick={openOpenKJModal} className="flex py-3 px-5 hover:bg-darkGreen">
                                     <img className="w-6" src={announcementIcon} alt="open-jawaban" />
                                     <span className="self-center text-sm ml-3">Open Jawaban</span>
                                 </a>
-                            </li>
+                            </li> */}
                             <li>
                                 <a onClick={openOpenTPModal} className="flex py-3 px-5 hover:bg-darkGreen cursor-pointer">
                                     <img className="w-6" src={tpModuleIcon} alt="konfigurasi" />

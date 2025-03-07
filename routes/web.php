@@ -62,7 +62,8 @@ Route::get('/about', function () {
 
 //Authenticated pages
 
-Route::get('/assistant',
+Route::get(
+    '/assistant',
     function () {
         return Inertia::render('PagesAssistants/ProfileAssistant');
     }
@@ -118,7 +119,7 @@ Route::get('/start-praktikum', function () {
 
 Route::get('/modul', function () {
     return Inertia::render('PagesAssistants/ModulePraktikum');
-})->name('modul')->middleware(['auth:asisten', 'can:manage-modul']);//sesuaikan kalo emng asisten biasa bisa lihat
+})->name('modul')->middleware(['auth:asisten', 'can:manage-modul']); //sesuaikan kalo emng asisten biasa bisa lihat
 
 Route::get('/soal', function () {
     return Inertia::render('PagesAssistants/SoalPraktikum');
@@ -182,8 +183,17 @@ Route::prefix('api-v1')->group(function () {
     Route::delete('/modul/{id}', [ModulController::class, 'destroy'])->name('delete.modul')->middleware(['auth:asisten', 'can:manage-modul']);
     //Route::post('/modul/reset', [ModulController::class, 'reset'])->name('reset.modul')->middleware(['auth:asisten', 'can:lms-configuration']);
     //Route::delete('/moduls/reset-all', [ModulController::class, 'resetAll'])->name('moduls.reset-all');
-    Route::patch('/api-v1/modul/{id}', [ModulController::class, 'update'])->name('modul.update')->middleware(['auth:asisten', 'can:manage-modul']);
-    Route::patch('/api-v1/modul/update-status', [ModulController::class, 'updateStatus']) ->name('modul.updateStatus')->middleware(['auth:asisten', 'can:manage-modul']);
+    // Route untuk update status isUnlocked
+    // Route::patch('/modul/update-status', [ModulController::class, 'updateStatus'])
+    //     ->name('modul.updateStatus')
+    //     ->middleware(['auth:asisten', 'can:manage-modul']);
+
+    // // Route untuk bulk update
+    // Route::patch('/api-v1/modul/bulk-update', [ModulController::class, 'bulkUpdate'])
+    //     ->name('modul.bulkUpdate')
+    //     ->middleware(['auth:asisten', 'can:manage-modul']);
+    // Route::patch('/api-v1/modul/{id}', [ModulController::class, 'update'])->name('modul.update')->middleware(['auth:asisten', 'can:manage-modul']);
+
     // Kelas
     Route::get('/kelas', [KelasController::class, 'index'])->name('get.kelas')->middleware(['auth:asisten', 'can:manage-plot,see-plot']);
     Route::post('/kelas', [KelasController::class, 'store'])->name('store.kelas')->middleware(['auth:asisten', 'can:manage-plot']);
@@ -338,7 +348,6 @@ Route::prefix('api-v1')->group(function () {
 
     //laporan Praktikan
     Route::post('/laporan-praktikan', [LaporanPraktikanController::class, 'store'])->name('store.laporan-praktikan')->middleware(['auth:praktikan', 'can:praktikum-lms']);
-
 });
 
 Route::fallback(function () {
@@ -347,4 +356,3 @@ Route::fallback(function () {
 
 
 require __DIR__ . '/auth.php';
-

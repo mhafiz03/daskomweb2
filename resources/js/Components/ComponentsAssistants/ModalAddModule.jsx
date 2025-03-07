@@ -17,6 +17,7 @@ export default function ButtonAddModule({ onClose }) {
     });
 
     const [isSwitchOn, setIsSwitchOn] = useState(false);
+    const [isUnlockedSwitchOn, setIsUnlockedSwitchOn] = useState(false);
     const [localErrors, setLocalErrors] = useState({});
 
     const validateFields = () => {
@@ -68,6 +69,11 @@ export default function ButtonAddModule({ onClose }) {
         setValues({ ...values, isEnglish: newSwitchState ? 1 : 0 });
     };
 
+    const toggleUnlockedSwitch = () => {
+        const newSwitchState = !isUnlockedSwitchOn;
+        setIsUnlockedSwitchOn(newSwitchState);
+        setValues({ ...values, isUnlocked: newSwitchState ? 1 : 0 });
+    };
 
     return (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
@@ -127,13 +133,12 @@ export default function ButtonAddModule({ onClose }) {
                         <div key={link} className="mb-4">
                             <label
                                 htmlFor={link}
-                                className={`block text-md font-medium ${
-                                    link === "ppt_link"
+                                className={`block text-md font-medium ${link === "ppt_link"
                                         ? "text-green-700"
                                         : link === "video_link"
-                                        ? "text-red-700"
-                                        : "text-blue-700"
-                                }`}
+                                            ? "text-red-700"
+                                            : "text-blue-700"
+                                    }`}
                             >
                                 {`Link ${index === 0 ? "PPT" : index === 1 ? "Video Youtube" : "Modul"}`}
                             </label>
@@ -152,16 +157,31 @@ export default function ButtonAddModule({ onClose }) {
                     ))}
 
                     <div className="flex justify-between">
-                        {/* switch isEnglish */}
-                        <div className="flex items-center gap-2">
-                            <label className="text-sm font-medium text-gray-700">isEnglish</label>
-                            <div
-                                onClick={toggleSwitch}
-                                className={`w-10 h-5 flex items-center rounded-full p-1 cursor-pointer transition ${isSwitchOn ? "bg-deepForestGreen" : "bg-fireRed"}`}
-                            >
+                        <div className="flex justify-start gap-3">
+                            {/* Switch isEnglish */}
+                            <div className="flex items-center gap-2">
+                                <label className="text-sm font-medium text-gray-700">isEnglish</label>
                                 <div
-                                    className={`w-4 h-4 bg-white rounded-full shadow-md transform transition ${isSwitchOn ? "translate-x-5" : "translate-x-0"}`}
-                                />
+                                    onClick={toggleSwitch}
+                                    className={`w-10 h-5 flex items-center rounded-full p-1 cursor-pointer transition ${isSwitchOn ? "bg-deepForestGreen" : "bg-fireRed"}`}
+                                >
+                                    <div
+                                        className={`w-4 h-4 bg-white rounded-full shadow-md transform transition ${isSwitchOn ? "translate-x-5" : "translate-x-0"}`}
+                                    />
+                                </div>
+                            </div>
+
+                            {/* Switch isUnlocked */}
+                            <div className="flex items-center gap-2">
+                                <label className="text-sm font-medium text-gray-700">isUnlocked</label>
+                                <div
+                                    onClick={toggleUnlockedSwitch}
+                                    className={`w-10 h-5 flex items-center rounded-full p-1 cursor-pointer transition ${isUnlockedSwitchOn ? "bg-deepForestGreen" : "bg-fireRed"}`}
+                                >
+                                    <div
+                                        className={`w-4 h-4 bg-white rounded-full shadow-md transform transition ${isUnlockedSwitchOn ? "translate-x-5" : "translate-x-0"}`}
+                                    />
+                                </div>
                             </div>
                         </div>
 

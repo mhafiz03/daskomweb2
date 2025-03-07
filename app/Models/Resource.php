@@ -11,14 +11,15 @@ use Illuminate\Database\Eloquent\Model;
 
 /**
  * Class Resource
- * 
+ *
  * @property int $id
  * @property int $modul_id
  * @property string $modul_link
  * @property string $ppt_link
+ * @property string $video_link
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
- * 
+ *
  * @property Modul $modul
  *
  * @package App\Models
