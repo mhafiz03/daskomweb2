@@ -10,7 +10,8 @@ export default function ButtonEditModule({ onClose, modules, selectedModuleId, o
     const [link2, setLink2] = useState("");
     const [link3, setLink3] = useState("");
     const [title, setTitle] = useState("");
-    const [isSwitchOn, setIsSwitchOn] = useState(false);
+    const [isEnglishOn, setIsEnglishOn] = useState(false);
+    const [isUnlockedOn, setIsUnlockedOn] = useState(false);
 
     const { flash, errors } = usePage().props;
 
@@ -58,7 +59,8 @@ export default function ButtonEditModule({ onClose, modules, selectedModuleId, o
             setLink1(selectedModule.ppt_link || "");
             setLink2(selectedModule.video_link || "");
             setLink3(selectedModule.modul_link || "");
-            setIsSwitchOn(selectedModule.isEnglish === 1); // Ensure boolean conversion
+            setIsEnglishOn(selectedModule.isEnglish === 1); // Ensure boolean conversion
+            setIsUnlockedOn(selectedModule.isUnlocked === 1); // Ensure boolean conversion
         }
     }, [selectedModuleId, modules]);
 
@@ -75,8 +77,8 @@ export default function ButtonEditModule({ onClose, modules, selectedModuleId, o
             poin1: points[0] || "",
             poin2: points[1] || "",
             poin3: points[2] || "",
-            isEnglish: isSwitchOn ? 1 : 0, // Ensure correct value is sent
-            isUnlocked: 1,
+            isEnglish: isEnglishOn ? 1 : 0, // Ensure correct value is sent
+            isUnlocked: isUnlockedOn ? 1 : 0, // Ensure correct value is sent
             modul_link: link3,
             ppt_link: link1,
             video_link: link2,
@@ -93,7 +95,8 @@ export default function ButtonEditModule({ onClose, modules, selectedModuleId, o
                     poin1: points[0] || "",
                     poin2: points[1] || "",
                     poin3: points[2] || "",
-                    isEnglish: isSwitchOn ? 1 : 0, // Ensure correct value is updated
+                    isEnglish: isEnglishOn ? 1 : 0, // Ensure correct value is updated
+                    isUnlocked: isUnlockedOn ? 1 : 0, // Ensure correct value is updated
                     modul_link: link3,
                     ppt_link: link1,
                     video_link: link2
@@ -138,8 +141,13 @@ export default function ButtonEditModule({ onClose, modules, selectedModuleId, o
     };
 
     // Toggle isEnglish switch
-    const toggleSwitch = () => {
-        setIsSwitchOn(prev => !prev); // Use functional update to ensure correct state
+    const toggleEnglishSwitch = () => {
+        setIsEnglishOn(prev => !prev); // Use functional update to ensure correct state
+    };
+
+    // Toggle isUnlocked switch
+    const toggleUnlockedSwitch = () => {
+        setIsUnlockedOn(prev => !prev); // Use functional update to ensure correct state
     };
 
     // Close success modal manually
@@ -273,20 +281,39 @@ export default function ButtonEditModule({ onClose, modules, selectedModuleId, o
 
                 {/* Switch and Save Button */}
                 <div className="flex justify-between">
-                    {/* isEnglish Switch */}
-                    <div className="flex items-center gap-2">
-                        <label className="text-sm font-medium text-gray-700">
-                            isEnglish
-                        </label>
-                        <div
-                            onClick={toggleSwitch}
-                            className={`w-10 h-5 flex items-center rounded-full p-1 cursor-pointer transition ${isSwitchOn ? "bg-deepForestGreen" : "bg-fireRed"
-                                }`}
-                        >
+                    <div className="flex justify-start gap-3">
+                        {/* isEnglish Switch */}
+                        <div className="flex items-center gap-2">
+                            <label className="text-sm font-medium text-gray-700">
+                                isEnglish
+                            </label>
                             <div
-                                className={`w-4 h-4 bg-white rounded-full shadow-md transform transition ${isSwitchOn ? "translate-x-5" : "translate-x-0"
+                                onClick={toggleEnglishSwitch}
+                                className={`w-10 h-5 flex items-center rounded-full p-1 cursor-pointer transition ${isEnglishOn ? "bg-deepForestGreen" : "bg-fireRed"
                                     }`}
-                            />
+                            >
+                                <div
+                                    className={`w-4 h-4 bg-white rounded-full shadow-md transform transition ${isEnglishOn ? "translate-x-5" : "translate-x-0"
+                                        }`}
+                                />
+                            </div>
+                        </div>
+
+                        {/* isUnlocked Switch */}
+                        <div className="flex items-center gap-2">
+                            <label className="text-sm font-medium text-gray-700">
+                                isUnlocked
+                            </label>
+                            <div
+                                onClick={toggleUnlockedSwitch}
+                                className={`w-10 h-5 flex items-center rounded-full p-1 cursor-pointer transition ${isUnlockedOn ? "bg-deepForestGreen" : "bg-fireRed"
+                                    }`}
+                            >
+                                <div
+                                    className={`w-4 h-4 bg-white rounded-full shadow-md transform transition ${isUnlockedOn ? "translate-x-5" : "translate-x-0"
+                                        }`}
+                                />
+                            </div>
                         </div>
                     </div>
 

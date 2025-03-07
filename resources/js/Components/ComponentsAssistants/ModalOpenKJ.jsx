@@ -1,111 +1,106 @@
 import { useState, useEffect } from "react";
 import closeIcon from "../../../assets/modal/iconClose.svg";
 import editIcon from "../../../assets/nav/Icon-Edit.svg";
-import { usePage } from "@inertiajs/react";
+import { router, usePage } from "@inertiajs/react";
 
-export default function ModalOpenKJ({ onClose, modules}) {
+export default function ModalOpenKJ({ onClose, modules }) {
     const [showSuccess, setShowSuccess] = useState(false);
     const [modul, setModul] = useState(modules || []);
     const [loading, setLoading] = useState(false);
-    const [config, setConfig] = useState({}); // State untuk menyimpan status isUnlocked setiap modul
+    const [config, setConfig] = useState({});
     const { flash, errors } = usePage().props;
 
-    // Inisialisasi config saat modul berubah
+    // Ambil data modul saat komponen dimuat
     useEffect(() => {
-        if (modul.length > 0) {
-            const initialConfig = modul.reduce((acc, mod) => {
-                acc[mod.idM] = mod.isUnlocked === 1; // Konversi ke boolean
-                return acc;
-            }, {});
-            setConfig(initialConfig);
-        }
-    }, [modul]);
-
-    // Fetch data modul jika prop modules tidak disediakan
-    useEffect(() => {
-        if (!modules || modules.length === 0) {
+        if (!modules || modules.length === 0 || modul.length === 0) {
             const fetchModules = async () => {
                 setLoading(true);
                 try {
                     const response = await fetch("/api-v1/modul");
                     if (!response.ok) throw new Error("Gagal mengambil data modul");
                     const data = await response.json();
-                    const modules = Array.isArray(data.data) ? data.data : [];
-                    setModul(modules);
+                    const fetchedModules = Array.isArray(data.data) ? data.data : [];
+                    setModul(fetchedModules);
                 } catch (error) {
                     console.error("Error fetching modules:", error);
-                    setModul([]); // Reset modul jika terjadi error
+                    setModul([]);
                 } finally {
-                    setLoading(false); // Matikan loading state
+                    setLoading(false);
                 }
             };
             fetchModules();
         }
-    }, [modules]);
+    }, [modules, modul.length]);
 
-    // Fungsi untuk toggle status isUnlocked
-    const toggleSwitch = async (idM) => {
-        const newStatus = !config[idM]; // Toggle status
+    // Inisialisasi config saat modul berubah
+    useEffect(() => {
+        if (modul.length > 0) {
+            const initialConfig = modul.reduce((acc, mod) => {
+                acc[mod.idM] = !!mod.isUnlocked; // Set nilai awal isUnlocked
+                return acc;
+            }, {});
+            setConfig(initialConfig);
+        }
+    }, [modul]);
 
-        // Update config state secara lokal
+    // Toggle status isUnlocked
+    const toggleSwitch = (idM) => {
         setConfig((prevConfig) => ({
             ...prevConfig,
-            [idM]: newStatus,
+            [idM]: !prevConfig[idM], // Toggle nilai isUnlocked
         }));
-
-        try {
-            // Ambil CSRF token dari meta tag
-            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-
-            // Kirim request ke backend
-            const response = await fetch(`/api-v1/modul/update-status`, {
-                method: "PATCH",
-                headers: {
-                    "Content-Type": "application/json",
-                    "X-CSRF-TOKEN": csrfToken,
-                },
-                body: JSON.stringify([{ id: idM, isUnlocked: newStatus ? 1 : 0 }]), // Format payload sesuai dengan controller
-            });
-
-            if (!response.ok) throw new Error("Gagal update status");
-            console.log(`Modul ${idM} status diupdate ke ${newStatus ? "UNLOCKED" : "LOCKED"}`);
-
-            // Update modul di state lokal
-            setModul((prevModul) =>
-                prevModul.map((mod) =>
-                    mod.idM === idM ? { ...mod, isUnlocked: newStatus ? 1 : 0 } : mod
-                )
-            );
-        } catch (error) {
-            console.error("Error updating module:", error);
-            // Rollback perubahan jika terjadi error
-            setConfig((prevConfig) => ({
-                ...prevConfig,
-                [idM]: !newStatus,
-            }));
-        }
     };
 
-    // Fungsi untuk menangani simpan dan tampilkan modal sukses
-    const handleSave = () => {
-        setShowSuccess(true);
-        setTimeout(() => {
-            setShowSuccess(false);
-            onClose(); // Tutup modal setelah 3 detik
-        }, 3000);
+    // Simpan perubahan
+    const handleSave = async () => {
+        if (modul.length === 0) {
+            console.error("Data modul belum diambil");
+            return;
+        }
+
+        const updatePromises = modul.map((mod) => {
+            const payload = {
+                id: parseInt(mod.idM, 10),
+                judul: mod.judul,
+                poin1: mod.poin1,
+                poin2: mod.poin2 || "",
+                poin3: mod.poin3 || "",
+                isEnglish: mod.isEnglish,
+                isUnlocked: config[mod.idM] ? 1 : 0, // Pastikan nilai isUnlocked sesuai toggle
+                modul_link: mod.modul_link,
+                ppt_link: mod.ppt_link,
+                video_link: mod.video_link,
+                oldJudul: mod.judul,
+            };
+
+            console.log("Payload untuk modul ID", mod.idM, ":", payload);
+
+            return router.patch(`/api-v1/modul/${mod.idM}`, payload);
+        });
+
+        try {
+            await Promise.all(updatePromises);
+            setShowSuccess(true);
+            setTimeout(() => {
+                setShowSuccess(false);
+                onClose?.();
+            }, 3000);
+        } catch (error) {
+            console.error("Error saving configuration:", error);
+            if (error.response) {
+                console.error("Response error:", error.response.data);
+            }
+        }
     };
 
     return (
         <>
-            {/* Modal Utama */}
             <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
                 <div className="bg-white rounded-lg p-6 w-[800px] shadow-lg relative">
-                    {/* Header */}
                     <div className="flex justify-between items-center mb-4 border-b border-gray-300">
                         <h2 className="text-xl font-semibold flex items-center gap-2">
                             <img className="w-8" src={editIcon} alt="praktikum" /> LOCK / UNLOCK
                         </h2>
-                        {/* Tombol X untuk tutup */}
                         <button
                             onClick={onClose}
                             className="absolute top-2 right-2 flex justify-center items-center"
@@ -114,7 +109,6 @@ export default function ModalOpenKJ({ onClose, modules}) {
                         </button>
                     </div>
 
-                    {/* Tabel Daftar Modul */}
                     <div className="max-h-[350px] overflow-y-auto">
                         <table className="w-full border-collapse">
                             <thead>
@@ -133,7 +127,6 @@ export default function ModalOpenKJ({ onClose, modules}) {
                                         <tr key={m.idM} className="even:bg-gray-100">
                                             <td className="py-2 px-4">{m.judul}</td>
                                             <td className="py-2 px-4">
-                                                {/* Switch untuk toggle status */}
                                                 <label className="inline-flex items-center cursor-pointer">
                                                     <input
                                                         type="checkbox"
@@ -159,7 +152,6 @@ export default function ModalOpenKJ({ onClose, modules}) {
                         </table>
                     </div>
 
-                    {/* Tombol Simpan */}
                     <div className="flex justify-center mt-5">
                         <button
                             onClick={handleSave}
@@ -171,7 +163,6 @@ export default function ModalOpenKJ({ onClose, modules}) {
                 </div>
             </div>
 
-            {/* Modal Notifikasi Berhasil */}
             {showSuccess && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
                     <div className="bg-white rounded-lg p-4 w-80 shadow-lg text-center">

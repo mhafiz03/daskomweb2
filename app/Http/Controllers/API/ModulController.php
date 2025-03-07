@@ -14,7 +14,8 @@ use Illuminate\Support\Facades\Validator;
 
 class ModulController extends BaseController
 {
-    public function index() {
+    public function index()
+    {
         try {
             $moduls = Modul::leftJoin('resources', 'resources.modul_id', '=', 'moduls.id')
                 ->select(
@@ -43,7 +44,8 @@ class ModulController extends BaseController
         }
     }
 
-    public function show($id) {
+    public function show($id)
+    {
         try {
             // Mengambil modul dengan eager loading relasi 'resource'
             $modul = Modul::with('resource')
@@ -117,7 +119,6 @@ class ModulController extends BaseController
         }
     }
 
-
     public function update(Request $request, $id)
     {
         $validator = Validator::make($request->all(), [
@@ -158,11 +159,11 @@ class ModulController extends BaseController
                 // Set other required fields
             }
 
-//            if (!$resource) {
-//                return redirect()->back()->withErrors([
-//                    'general' => 'Resource tidak ditemukan untuk modul ini.'
-//                ])->withInput();
-//            }
+            //            if (!$resource) {
+            //                return redirect()->back()->withErrors([
+            //                    'general' => 'Resource tidak ditemukan untuk modul ini.'
+            //                ])->withInput();
+            //            }
 
             // Update modul
             $modul->judul = $request->judul;
@@ -187,7 +188,8 @@ class ModulController extends BaseController
         }
     }
 
-    public function destroy($id){
+    public function destroy($id)
+    {
         if (!Modul::where('id', $id)->exists()) {
             return response()->json(['message' => 'Modul tidak ditemukan'], 404);
         }
@@ -200,28 +202,29 @@ class ModulController extends BaseController
         ], 200);
     }
 
-//  =====================Template for resetAll()=====================
-//    di disable but still can be used
-//
-//
-//    public function resetAll()
-//    {
-//        try {
-//            // This deletes all records but respects foreign keys
-//            Modul::query()->delete();
-//
-//            return response()->json([
-//                'message' => 'Semua data modul berhasil dihapus'
-//            ], 200);
-//        } catch (\Exception $e) {
-//            return response()->json([
-//                'message' => 'Gagal menghapus data modul: ' . $e->getMessage()
-//            ], 500);
-//        }
-//    }
+    //  =====================Template for resetAll()=====================
+    //    di disable but still can be used
+    //
+    //
+    //    public function resetAll()
+    //    {
+    //        try {
+    //            // This deletes all records but respects foreign keys
+    //            Modul::query()->delete();
+    //
+    //            return response()->json([
+    //                'message' => 'Semua data modul berhasil dihapus'
+    //            ], 200);
+    //        } catch (\Exception $e) {
+    //            return response()->json([
+    //                'message' => 'Gagal menghapus data modul: ' . $e->getMessage()
+    //            ], 500);
+    //        }
+    //    }
 
 
-    public function reset(){
+    public function reset()
+    {
         try {
             DB::statement('SET FOREIGN_KEY_CHECKS=0;');
             Modul::query()->delete();
@@ -256,46 +259,71 @@ class ModulController extends BaseController
         }
     }
 
-
     public function updateStatus(Request $request)
-{
-    $data = $request->all();
-    if (empty($data)) {
-        return response()->json([
-            'message' => 'No data provided.',
-        ], 400);
+    {
+        $data = $request->all();
+
+        if (empty($data)) {
+            return response()->json([
+                'message' => 'No data provided.',
+            ], 400);
+        }
+
+        try {
+            // Validasi input
+            $validatedData = $request->validate([
+                '*.id' => 'required|exists:moduls,id',
+                '*.isUnlocked' => 'required|boolean',
+            ]);
+
+            // Ambil semua ID yang diberikan dalam request
+            $ids = collect($validatedData)->pluck('id');
+
+            // Ambil semua modul yang sesuai dengan ID yang diberikan
+            $moduls = Modul::whereIn('id', $ids)->get();
+
+            // Update status modul
+            foreach ($moduls as $modul) {
+                $item = collect($validatedData)->firstWhere('id', $modul->id);
+                $modul->update([
+                    'isUnlocked' => $item['isUnlocked'],
+                    'updated_at' => now(),
+                ]);
+            }
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Status modul berhasil diupdate.',
+                'data' => $validatedData,
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Terjadi kesalahan saat mengupdate status: ' . $e->getMessage(),
+            ], 500);
+        }
     }
 
-    try {
-        foreach ($data as $item) {
-            if (!isset($item['id']) || !isset($item['isUnlocked'])) {
-                return response()->json([
-                    'message' => 'Missing required fields: id or isUnlocked.',
-                ], 400);
-            }
+    public function bulkUpdate(Request $request)
+    {
+        // Validasi request
+        $request->validate([
+            '*.id' => 'required|integer',
+            '*.isUnlocked' => 'required|integer|in:0,1',
+        ]);
 
-            $modul = Modul::find($item['id']);
-            if (!$modul) {
-                return response()->json([
-                    'message' => "Modul with ID {$item['id']} not found.",
-                ], 404);
+        // Update setiap modul
+        foreach ($request->all() as $data) {
+            $modul = Modul::find($data['id']);
+            if ($modul) {
+                $modul->update([
+                    'isUnlocked' => $data['isUnlocked'],
+                ]);
             }
-
-            $modul->isUnlocked = $item['isUnlocked'];
-            $modul->updated_at = now();
-            $modul->save();
         }
 
         return response()->json([
-            'status' => 'success',
-            'data' => $data,
+            'message' => 'Bulk update berhasil',
         ], 200);
-    } catch (\Exception $e) {
-        return response()->json([
-            'status' => 'error',
-            'message' => 'Terjadi kesalahan saat mengupdate status: ' . $e->getMessage(),
-        ], 500);
     }
-}
-
 }
