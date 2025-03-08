@@ -1,7 +1,13 @@
+import { useState } from "react";
 import DropdownPolling from "./DropdownPolling";
 import TablePolling from "./TablePolling";
 
 export default function ContentPolling() {
+    const [pollingData, setPollingData] = useState([]);
+    const handleSelectPolling = (data) => {
+        setPollingData(data);
+    };
+
     return (
         <section>
             {/* button praktikan - kelas */}
@@ -11,12 +17,12 @@ export default function ContentPolling() {
                 </div>
 
                 {/* Panggil komponen dropdown */}
-                <DropdownPolling />
+                <DropdownPolling onSelectPolling={handleSelectPolling}/>
             </div>
 
             {/* Table data polling */}
             <div className="">
-                <TablePolling />
+                <TablePolling data={pollingData} />
             </div>
         </section>
     );
