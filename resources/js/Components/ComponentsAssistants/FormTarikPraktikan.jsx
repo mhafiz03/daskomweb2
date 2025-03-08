@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import axios from 'axios';
 
 export default function FormTarikPraktikan() {
@@ -55,7 +55,7 @@ export default function FormTarikPraktikan() {
             }
         } catch (error) {
             console.error('Error assigning praktikan:', error);
-            
+
             if (error.response) {
                 if (error.response.status === 404) {
                     if (error.response.data.message.includes('No record found')) {
