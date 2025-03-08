@@ -15,14 +15,17 @@ class TugasPendahuluanController extends Controller
     public function index()
     {
         try {
+            // Ambil data tugas pendahuluan dengan join ke tabel modul
             $tugas = Tugaspendahuluan::leftJoin('moduls', 'moduls.id', '=', 'tugaspendahuluans.modul_id')
-                ->select('tugaspendahuluans.*', 'moduls.nama_modul')
+                ->select('tugaspendahuluans.*', 'moduls.judul as nama_modul') // Ambil judul modul sebagai nama_modul
                 ->get();
+
             if ($tugas->isEmpty()) {
                 return response()->json([
                     "message" => "Tidak ada tugas ditemukan.",
                 ], 404);
             }
+
             return response()->json([
                 "status" => "success",
                 "data" => $tugas,
@@ -33,23 +36,6 @@ class TugasPendahuluanController extends Controller
                 "error" => $e->getMessage(),
             ], 500);
         }
-    }
-    
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
     }
 
     /**
@@ -63,22 +49,26 @@ class TugasPendahuluanController extends Controller
             'data.*.id' => 'required|integer|exists:tugaspendahuluans,id',
             'data.*.isActive' => 'required|integer|in:0,1',
         ]);
+
         try {
-            $updatedTugas = []; 
+            $updatedTugas = [];
             foreach ($request->data as $item) {
                 $tugas = Tugaspendahuluan::find($item['id']);
-                
+
                 if (!$tugas) {
                     return response()->json([
                         'message' => "Tugas dengan ID {$item['id']} tidak ditemukan.",
-                    ], 404); 
+                    ], 404);
                 }
+
+                // Update status isActive
                 $tugas->isActive = $item['isActive'];
                 $tugas->updated_at = now();
                 $tugas->save();
+
                 $updatedTugas[] = $tugas;
             }
-    
+
             return response()->json([
                 'status' => 'success',
                 'data' => $updatedTugas,
@@ -89,14 +79,5 @@ class TugasPendahuluanController extends Controller
                 'error' => $e->getMessage(),
             ], 500);
         }
-    }
-    
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
     }
 }

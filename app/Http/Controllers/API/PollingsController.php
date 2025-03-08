@@ -60,33 +60,35 @@ class PollingsController extends Controller
         }
     }
 
-    public function show(string $id)
+    public function show(string $id) // $id adalah pollingId (ID jenis polling)
     {
         try {
             $asisten = DB::table('pollings')
                 ->leftJoin('jenis_pollings', 'jenis_pollings.id', '=', 'pollings.polling_id')
                 ->leftJoin('asistens', 'asistens.id', '=', 'pollings.asisten_id')
-                ->where('pollings.praktikan_id', $id)
-                ->select('asistens.kode', DB::raw('count(pollings.id) as total'))
-                ->groupBy('asistens.kode')
+                ->where('pollings.polling_id', $id) // Gunakan polling_id, bukan praktikan_id
+                ->select('asistens.id', 'asistens.nama', 'asistens.kode', DB::raw('count(pollings.id) as total'))
+                ->groupBy('asistens.id', 'asistens.nama', 'asistens.kode')
                 ->get();
+
             return response()->json([
-                'asisten' => $asisten,
+                'status' => 'success',
+                'polling' => $asisten,
                 'message' => 'Poll count by assistant code retrieved successfully.'
             ], 200);
         } catch (\Exception $e) {
             return response()->json([
+                'status' => 'error',
                 'message' => 'An error occurred while retrieving the data.',
                 'error' => $e->getMessage(),
             ], 500);
         }
     }
-    
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request)//praktikan
+    public function update(Request $request) //praktikan
     {
         //
     }
@@ -98,5 +100,4 @@ class PollingsController extends Controller
     {
         //
     }
-
 }
