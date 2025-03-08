@@ -152,7 +152,7 @@ export default function ModalKonfigurasi({ onClose }) {
                                         />
                                         <div
                                             className={`w-20 h-8 flex items-center rounded-full px-2 transition-all duration-300 ${
-                                                item.value ? "bg-green-500" : "bg-redredDark"
+                                                item.value ? "bg-deepForestGreen" : "bg-fireRed"
                                             }`}
                                         >
                                             <div
