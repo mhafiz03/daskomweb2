@@ -15,12 +15,14 @@ class AsistenController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index() //buat card asistens & foto polling
+    public function index()
     {
         try {
+            // Ambil data asisten dari database
             $asisten = Asisten::leftJoin('roles', 'roles.id', '=', 'asistens.role_id')
-                ->select('nama', 'kode', 'roles.name as role', 'role_id', 'nomor_telepon', 'id_line', 'instagram', 'deskripsi', )
+                ->select('nama', 'kode', 'roles.name as role', 'role_id', 'nomor_telepon', 'id_line', 'instagram', 'deskripsi')
                 ->get();
+
             return response()->json([
                 'success' => true,
                 'asisten' => $asisten,
@@ -56,7 +58,7 @@ class AsistenController extends Controller
      */
     public function update(Request $request)
     {
-        
+
         $request->validate([
             'nomor_telepon' => 'required|string',
             'id_line' => 'required|string',
@@ -91,46 +93,44 @@ class AsistenController extends Controller
 
 
     /**
- * change password of asisten fixed
- */
+     * change password of asisten fixed
+     */
 
-public function updatePassword(Request $request)
-{
-    $request->validate([
-        'current_password' => 'required|string',
-        'password' => 'required|string|min:8',
-    ]);
+    public function updatePassword(Request $request)
+    {
+        $request->validate([
+            'current_password' => 'required|string',
+            'password' => 'required|string|min:8',
+        ]);
 
-    try{
+        try {
 
-        $asisten = Asisten::find(auth()->guard('asisten')->user()->id);
+            $asisten = Asisten::find(auth()->guard('asisten')->user()->id);
 
-        if (!$asisten) {
-            return redirect()->back()->withErrors([
-                'error' => 'Asisten not found.'
-            ]);
+            if (!$asisten) {
+                return redirect()->back()->withErrors([
+                    'error' => 'Asisten not found.'
+                ]);
+            }
+
+            if (!Hash::check($request->current_password, $asisten->password)) {
+                return redirect()->back()->withErrors([
+                    'current_password' => 'Password Sebelunmnya tidak sesuai'
+                ]);
+            }
+
+            $asisten->password = Hash::make($request->password);
+            $asisten->save();
+
+            return redirect()->back()->with('success', 'Password berhasil diubah');
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'gagal mengubah password',
+                'error' => $e->getMessage(),
+            ], 500);
         }
-
-        if (!Hash::check($request->current_password, $asisten->password)) {
-            return redirect()->back()->withErrors([
-                'current_password' => 'Password Sebelunmnya tidak sesuai'
-            ]);
-        }
-
-        $asisten->password = Hash::make($request->password);
-        $asisten->save();
-
-        return redirect()->back()->with('success', 'Password berhasil diubah');
-
-    } catch (\Exception $e) {
-        return response()->json([
-            'success' => false,
-            'message' => 'gagal mengubah password',
-            'error' => $e->getMessage(),
-        ], 500);
     }
-        
-}
 
 
 
@@ -163,5 +163,4 @@ public function updatePassword(Request $request)
             ], 500);
         }
     }
-
 }
