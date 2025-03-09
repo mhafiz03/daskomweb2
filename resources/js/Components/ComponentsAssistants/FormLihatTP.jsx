@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
-import { usePage, router } from "@inertiajs/react";
+import { router } from "@inertiajs/react";
 import axios from "axios";
+import ContentLihatTP from "./ContentLihatTP"; // Import the ContentLihatTP component
 
 export default function FormLihatTp() {
     const [nim, setNim] = useState("");
@@ -11,6 +12,14 @@ export default function FormLihatTp() {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [modalMessage, setModalMessage] = useState("");
     const [isSuccess, setIsSuccess] = useState(true);
+    
+    // Add state to handle display of results
+    const [showResults, setShowResults] = useState(false);
+    const [resultData, setResultData] = useState({
+        jawabanData: [],
+        praktikan: null,
+        modul: null
+    });
 
     // Fetch modules for dropdown
     useEffect(() => {
@@ -54,24 +63,62 @@ export default function FormLihatTp() {
         setLoading(true);
         setError("");
         try {
-            const response = await axios.get(`/api-v1/tp/${nim}/${selectedModulId}`);
+            const response = await axios.get(`/api-v1/jawaban-tp/${nim}/${selectedModulId}`);
+            console.log("Response dari backend:", response.data);
+
             if (response.data.success) {
-                router.visit(`/jawaban-tp/${nim}/${selectedModulId}`);
+                // Instead of navigating, store the data and show the results
+                setResultData({
+                    jawabanData: response.data.data.jawabanData,
+                    praktikan: response.data.data.praktikan,
+                    modul: response.data.data.modul
+                });
+                setShowResults(true);
             } else {
-                setError(response.data.message || "Gagal menampilkan jawaban TPS");
+                setError(response.data.message || "Gagal menampilkan jawaban TP");
             }
+
         } catch (error) {
-            console.error('Error fetching TPS:', error);
-            setError("Gagal menampilkan jawaban TPS");
+            console.error('Error fetching TP:', error);
+            setError(error.response?.data?.message || "Gagal menampilkan jawaban TP");
         } finally {
             setLoading(false);
         }
     };
 
+    // Function to go back to the form
+    const handleBackToForm = () => {
+        setShowResults(false);
+        setNim("");
+        setSelectedModulId("");
+    };
+
+    // If showing results, render ContentLihatTP component
+    if (showResults) {
+        return (
+            <div>
+                <ContentLihatTP 
+                    jawabanData={resultData.jawabanData}
+                    praktikan={resultData.praktikan}
+                    modul={resultData.modul}
+                />
+                <div className="container mx-auto p-4 text-center">
+                    <button
+                        onClick={handleBackToForm}
+                        className="px-4 py-2 bg-deepForestGreen text-white rounded hover:bg-darkGreen"
+                    >
+                        Kembali ke Pencarian
+                    </button>
+                </div>
+            </div>
+        );
+    }
+
+    // Otherwise, render the form
     return (
         <div className="container mx-auto p-4">
             <div className="bg-white shadow-md rounded-lg p-6">
-                <h1 className="text-2xl font-bold mb-6 text-center text-deepForestGreen">Lihat Jawaban TPS</h1>
+                <h1 className="text-2xl font-bold mb-6 text-center text-deepForestGreen">Lihat Jawaban TP</h1>
                 
                 {/* Search Form */}
                 <form onSubmit={handleSubmit} className="mb-6">
@@ -104,7 +151,7 @@ export default function FormLihatTp() {
                                     Pilih Modul
                                 </option>
                                 {modules.map((modul) => (
-                                    <option key={modul.idM} value={modul.idM}>
+                                    <option key={modul.id} value={modul.id}>
                                         {modul.judul}
                                     </option>
                                 ))}
@@ -126,110 +173,6 @@ export default function FormLihatTp() {
                     <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
                         {error}
                     </div>
-                )}
-            </div>
-        </div>
-    );
-}
-
-// JawabanTPSResult component
-export function JawabanTPSResult() {
-    const { params } = usePage().props;
-    const [combinedData, setCombinedData] = useState([]);
-    const [modul, setModul] = useState(null);
-    const [praktikan, setPraktikan] = useState(null);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState("");
-
-    // Fetch TPS data similar to fetchModules
-    useEffect(() => {
-        const fetchTPSData = async () => {
-            try {
-                // Extract nim and modulId from the URL params
-                const nim = params?.nim;
-                const modulId = params?.modulId;
-                
-                if (!nim || !modulId) {
-                    setError("Parameter NIM atau Modul tidak ditemukan");
-                    setLoading(false);
-                    return;
-                }
-                
-                const response = await axios.get(`/api-v1/tp/${nim}/${modulId}`);
-                if (response.data.success) {
-                    setCombinedData(response.data.data.jawabanData || []);
-                    setModul(response.data.data.modul);
-                    setPraktikan(response.data.data.praktikan);
-                } else {
-                    setError(response.data.message || "Gagal memuat data jawaban TPS");
-                }
-            } catch (error) {
-                console.error('Error fetching TPS data:', error);
-                setError("Gagal memuat data jawaban TPS");
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchTPSData();
-    }, [params]);
-    
-    return (
-        <div className="container mx-auto p-4">
-            <div className="bg-white shadow-md rounded-lg p-6">
-                <div className="flex justify-between items-center mb-6">
-                    <h1 className="text-2xl font-bold text-deepForestGreen">Jawaban TPS</h1>
-                    <button 
-                        onClick={() => router.visit('/jawaban-tp')}
-                        className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300 text-gray-700"
-                    >
-                        Kembali
-                    </button>
-                </div>
-                
-                {/* Error message */}
-                {error && (
-                    <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-                        {error}
-                    </div>
-                )}
-                
-                {/* Loading indicator */}
-                {loading ? (
-                    <div className="flex justify-center py-8">
-                        <p className="text-gray-600">Memuat data jawaban...</p>
-                    </div>
-                ) : (
-                    <>
-                        {praktikan && modul && (
-                            <div className="bg-gray-50 p-4 rounded mb-6">
-                                <p className="font-medium">Praktikan: {praktikan.nim}</p>
-                                <p className="font-medium">Modul: {modul.judul}</p>
-                            </div>
-                        )}
-                        
-                        {/* Results Display */}
-                        {combinedData && combinedData.length > 0 ? (
-                            <div className="space-y-6">
-                                {combinedData.map((item, index) => (
-                                    <div key={item.soal_id} className={`p-4 rounded ${index % 2 === 0 ? "bg-gray-50" : "bg-white border border-gray-200"}`}>
-                                        <div className="mb-3">
-                                            <h3 className="font-semibold text-lg">Soal {index + 1}</h3>
-                                            <p className="text-gray-800 whitespace-pre-line">{item.soal_text}</p>
-                                        </div>
-                                        <div>
-                                            <h3 className="font-semibold text-lg">Jawaban</h3>
-                                            <p className="bg-blue-50 p-3 rounded border border-blue-100 whitespace-pre-line">{item.jawaban}</p>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        ) : (
-                            <div className="text-center py-4">
-                                <p className="text-gray-600">Tidak ada jawaban untuk kriteria yang dipilih</p>
-                            </div>
-                        )}
-                    </>
                 )}
             </div>
         </div>
