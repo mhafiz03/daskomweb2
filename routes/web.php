@@ -151,7 +151,7 @@ Route::get('/contact-assistant', function () {
 Route::get('/polling-assistant', function () {
     return Inertia::render('PagesPraktikan/PollingPage');
 })->name('polling-assistant');
-
+    
 /////////////////////////////////////// Data Routes ///////////////////////////////////////
 Route::prefix('api-v1')->group(function () {
     Route::put('/asisten', [AsistenController::class, 'update'])->name('update.asisten')->middleware(['auth:asisten', 'can:manage-profile']);
