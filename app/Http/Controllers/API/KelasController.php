@@ -107,6 +107,47 @@ class KelasController extends Controller
         }
     }
 
+    // public function update(Request $request, $id)
+    // {
+    //     $request->validate([
+    //         'kelas' => 'required|min:8|max:10|string',
+    //         'hari' => 'required|string',
+    //         'shift' => 'required|integer',
+    //         'totalGroup' => 'required|min:1|max:20|integer',
+    //     ]);
+    //     try {
+    //         $kelas = Kelas::findOrFail($id);
+    //         $shiftConflict = Kelas::where('shift', $request->shift)
+    //             ->where('hari', $request->hari)
+    //             ->where('id', '!=', $id)
+    //             ->exists();
+    //         if ($shiftConflict) {
+    //             return response()->json([
+    //                 'status' => 'error',
+    //                 'message' => 'Shift ini sudah digunakan.',
+    //             ], 400);
+    //         }
+    //         $kelas->update([
+    //             'kelas' => Str::upper($request->kelas),
+    //             'hari' => Str::upper($request->hari),
+    //             'shift' => $request->shift,
+    //             'totalGroup' => $request->totalGroup,
+    //             'updated_at' => now(),
+    //         ]);
+    //         return response()->json([
+    //             'status' => 'success',
+    //             'message' => 'Kelas berhasil diupdate.',
+    //             'kelas' => $kelas,
+    //         ], 200);
+    //     } catch (\Exception $e) {
+    //         return response()->json([
+    //             'status' => 'error',
+    //             'message' => 'Failed to update kelas.',
+    //             'error' => $e->getMessage(),
+    //         ], 500);
+    //     }
+    // }
+
     public function update(Request $request, $id)
     {
         $request->validate([
@@ -114,26 +155,32 @@ class KelasController extends Controller
             'hari' => 'required|string',
             'shift' => 'required|integer',
             'totalGroup' => 'required|min:1|max:20|integer',
+            'isEnglish' => 'required|boolean', // Tambahkan validasi untuk isEnglish
         ]);
+
         try {
             $kelas = Kelas::findOrFail($id);
             $shiftConflict = Kelas::where('shift', $request->shift)
                 ->where('hari', $request->hari)
                 ->where('id', '!=', $id)
                 ->exists();
+
             if ($shiftConflict) {
                 return response()->json([
                     'status' => 'error',
                     'message' => 'Shift ini sudah digunakan.',
                 ], 400);
             }
+
             $kelas->update([
                 'kelas' => Str::upper($request->kelas),
                 'hari' => Str::upper($request->hari),
                 'shift' => $request->shift,
                 'totalGroup' => $request->totalGroup,
+                'isEnglish' => $request->isEnglish, // Simpan isEnglish
                 'updated_at' => now(),
             ]);
+
             return response()->json([
                 'status' => 'success',
                 'message' => 'Kelas berhasil diupdate.',
@@ -147,6 +194,29 @@ class KelasController extends Controller
             ], 500);
         }
     }
+
+    // public function destroy($id)
+    // {
+    //     try {
+    //         $kelas = Kelas::findOrFail($id);
+    //         DB::transaction(function () use ($kelas) {
+    //             $praktikums = Praktikum::where('kelas_id', $kelas->id);
+    //             Deadline::whereIn('praktikums_id', $praktikums->pluck('id'))->delete();
+    //             $praktikums->delete();
+    //             $kelas->delete();
+    //         });
+    //         return response()->json([
+    //             'status' => 'success',
+    //             'message' => 'Kelas berhasil dihapus.',
+    //         ], 200);
+    //     } catch (\Exception $e) {
+    //         return response()->json([
+    //             'status' => 'error',
+    //             'message' => 'Failed to delete kelas.',
+    //             'error' => $e->getMessage(),
+    //         ], 500);
+    //     }
+    // }
 
     public function destroy($id)
     {

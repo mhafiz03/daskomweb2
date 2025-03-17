@@ -1,21 +1,79 @@
-import { useState } from "react";
-import closeIcon from "../../../assets/modal/iconClose.svg"
+import { useState, useEffect } from "react";
+import axios from "axios";
+import closeIcon from "../../../assets/modal/iconClose.svg";
 
-export default function ModalEditPlotting({ onClose }) {
+export default function ModalEditPlotting({ onClose, kelas }) {
     const [showSuccessModal, setShowSuccessModal] = useState(false);
     const [isSwitchOn, setIsSwitchOn] = useState(false);
+    const [formData, setFormData] = useState({
+        kelas: "",
+        hari: "",
+        shift: "",
+        totalGroup: "",
+    });
 
-    const handleSave = () => {
-        setShowSuccessModal(true);
+    useEffect(() => {
+        if (kelas) {
+            setFormData({
+                kelas: kelas.kelas || "",
+                hari: kelas.hari || "",
+                shift: kelas.shift || "",
+                totalGroup: kelas.totalGroup || "",
+            });
+            setIsSwitchOn(kelas.isEnglish || false); // Set nilai isEnglish dari data kelas
+        }
+    }, [kelas]);
 
-        setTimeout(() => {
-            setShowSuccessModal(false);
-            onClose();
-        }, 3000);
+    const handleSave = async () => {
+        try {
+            const token = localStorage.getItem("token");
+            const dataToSend = {
+                kelas: formData.kelas,
+                hari: formData.hari,
+                shift: parseInt(formData.shift),
+                totalGroup: parseInt(formData.totalGroup),
+                isEnglish: isSwitchOn, // Kirim nilai isEnglish
+            };
+
+            console.log("Data yang dikirim:", dataToSend); // Debugging
+
+            const response = await axios.put(
+                `/api-v1/kelas/${kelas.id}`,
+                dataToSend,
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
+            );
+
+            if (response.data.status === "success") {
+                setShowSuccessModal(true);
+                setTimeout(() => {
+                    setShowSuccessModal(false);
+                    onClose(); // Tutup modal setelah berhasil
+                }, 3000);
+            } else {
+                console.error("Gagal mengupdate data:", response.data.message);
+            }
+        } catch (error) {
+            console.error("Error updating data:", error);
+            if (error.response) {
+                console.error("Response error:", error.response.data);
+            }
+        }
     };
 
     const toggleSwitch = () => {
         setIsSwitchOn(!isSwitchOn);
+    };
+
+    const handleInputChange = (e) => {
+        const { id, value } = e.target;
+        setFormData((prevData) => ({
+            ...prevData,
+            [id]: value,
+        }));
     };
 
     return (
@@ -43,6 +101,8 @@ export default function ModalEditPlotting({ onClose }) {
                         <input
                             id="kelas"
                             type="text"
+                            value={formData.kelas}
+                            onChange={handleInputChange}
                             className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-darkBrown focus:border-darkBrown"
                             placeholder="Kelas"
                         />
@@ -54,6 +114,8 @@ export default function ModalEditPlotting({ onClose }) {
                         <input
                             id="hari"
                             type="text"
+                            value={formData.hari}
+                            onChange={handleInputChange}
                             className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-darkBrown focus:border-darkBrown"
                             placeholder="Hari"
                         />
@@ -65,43 +127,42 @@ export default function ModalEditPlotting({ onClose }) {
                         <input
                             id="shift"
                             type="number"
+                            value={formData.shift}
+                            onChange={handleInputChange}
                             className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-darkBrown focus:border-darkBrown"
                             placeholder="Shift"
                         />
                     </div>
                     <div>
-                        <label htmlFor="kelompok" className="block text-black text-sm font-medium">
+                        <label htmlFor="totalGroup" className="block text-black text-sm font-medium">
                             Kelompok
                         </label>
                         <input
-                            id="kelompok"
+                            id="totalGroup"
                             type="number"
+                            value={formData.totalGroup}
+                            onChange={handleInputChange}
                             className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-darkBrown focus:border-darkBrown"
                             placeholder="Kelompok"
                         />
                     </div>
                 </div>
 
-                {/* Daftar Checkbox */}
-                <div className="max-h-60 overflow-y-auto border-t border-gray-300 pt-4">
-                    {Array.from({ length: 12 }).map((_, index) => (
+                {/* Switch isEnglish */}
+                <div className="absolute bottom-4 left-4 flex items-center gap-2">
+                    <label className="text-sm font-medium text-gray-700">
+                        isEnglish
+                    </label>
+                    <div
+                        onClick={toggleSwitch}
+                        className={`w-10 h-5 flex items-center rounded-full p-1 cursor-pointer transition ${isSwitchOn ? "bg-deepForestGreen" : "bg-fireRed"
+                            }`}
+                    >
                         <div
-                            key={index}
-                            className="flex items-center gap-2 p-2 border rounded-md mb-2"
-                        >
-                            <input
-                                type="checkbox"
-                                id={`checkbox-${index}`}
-                                className="w-4 h-4"
-                            />
-                            <label
-                                htmlFor={`checkbox-${index}`}
-                                className="text-gray-700"
-                            >
-                                DEY | Dhea Aisyah Putri
-                            </label>
-                        </div>
-                    ))}
+                            className={`w-4 h-4 bg-white rounded-full shadow-md transform transition ${isSwitchOn ? "translate-x-5" : "translate-x-0"
+                                }`}
+                        />
+                    </div>
                 </div>
 
                 {/* Tombol Simpan */}
@@ -118,23 +179,6 @@ export default function ModalEditPlotting({ onClose }) {
                     >
                         Simpan
                     </button>
-                </div>
-
-                {/* Switch On/Off */}
-                <div className="absolute bottom-4 left-4 flex items-center gap-2">
-                    <label className="text-sm font-medium text-gray-700">
-                        isEnglish
-                    </label>
-                    <div
-                        onClick={toggleSwitch}
-                        className={`w-10 h-5 flex items-center rounded-full p-1 cursor-pointer transition ${isSwitchOn ? "bg-deepForestGreen" : "bg-fireRed"
-                            }`}
-                    >
-                        <div
-                            className={`w-4 h-4 bg-white rounded-full shadow-md transform transition ${isSwitchOn ? "translate-x-5" : "translate-x-0"
-                                }`}
-                        />
-                    </div>
                 </div>
             </div>
 

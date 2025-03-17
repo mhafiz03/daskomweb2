@@ -1,21 +1,109 @@
-import { useState } from "react";
-import closeIcon from "../../../assets/modal/iconClose.svg"
+import { useState, useEffect } from "react";
+import axios from "axios";
+import closeIcon from "../../../assets/modal/iconClose.svg";
 
-export default function ButtonAddPlotting({ onClose }) {
+export default function ButtonAddPlotting({ onClose, fetchKelas }) {
     const [showSuccessModal, setShowSuccessModal] = useState(false);
-    const [isSwitchOn, setIsSwitchOn] = useState(false);
+    const [isSwitchOn, setIsSwitchOn] = useState(0); // 0 untuk false, 1 untuk true
+    const [asisten, setAsisten] = useState([]); // State untuk data asisten
+    const [loading, setLoading] = useState(false); // State untuk loading
+    const [error, setError] = useState(null); // State untuk error
 
-    const handleSave = () => {
-        setShowSuccessModal(true);
+    // State untuk menyimpan data input
+    const [formData, setFormData] = useState({
+        kelas: "",
+        hari: "",
+        shift: "",
+        totalGroup: "",
+        isEnglish: 0, // Default 0 (false)
+    });
 
-        setTimeout(() => {
-            setShowSuccessModal(false);
-            onClose();
-        }, 3000);
+    // Fetch data asisten saat komponen dimount
+    useEffect(() => {
+        const fetchData = async () => {
+            setLoading(true);
+            try {
+                const token = localStorage.getItem("token"); // Ambil token dari localStorage
+                const response = await axios.get("/api-v1/asisten", {
+                    headers: {
+                        Authorization: `Bearer ${token}`, // Sertakan token di header
+                    },
+                });
+                console.log("Response dari backend:", response.data);
+
+                if (response.data.success) {
+                    setAsisten(response.data.asisten);
+                    console.log("Data asisten di state:", response.data.asisten);
+                } else {
+                    setError(response.data.message || "Gagal mengambil data asisten.");
+                }
+            } catch (error) {
+                console.error("Error fetching data:", error);
+                if (error.response && error.response.status === 403) {
+                    setError("Akses ditolak. Pastikan Anda memiliki izin yang diperlukan.");
+                } else {
+                    setError("Terjadi kesalahan saat mengambil data.");
+                }
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchData();
+    }, []);
+
+    // Handle perubahan input
+    const handleInputChange = (e) => {
+        const { id, value } = e.target;
+        setFormData({
+            ...formData,
+            [id]: value,
+        });
     };
 
+    // Handle toggle switch
     const toggleSwitch = () => {
-        setIsSwitchOn(!isSwitchOn);
+        const newValue = isSwitchOn === 0 ? 1 : 0; // Toggle antara 0 dan 1
+        setIsSwitchOn(newValue);
+        setFormData({
+            ...formData,
+            isEnglish: newValue,
+        });
+    };
+
+    // Handle submit data
+    const handleSave = async () => {
+        // Validasi input
+        if (!formData.kelas || !formData.hari || !formData.shift || !formData.totalGroup) {
+            alert("Harap isi semua field yang diperlukan.");
+            return;
+        }
+
+        try {
+            // Kirim data ke backend
+            const response = await axios.post("/api-v1/kelas", formData, {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem("token")}`, // Kirim token
+                },
+            });
+
+            if (response.data.status === 'success') {
+                // Tampilkan modal sukses
+                setShowSuccessModal(true);
+
+                // Tutup modal setelah 3 detik
+                setTimeout(() => {
+                    setShowSuccessModal(false);
+                    onClose(); // Tutup modal tambah data
+                    fetchKelas(); // Refresh data kelas
+                }, 3000);
+            } else {
+                alert("Gagal menyimpan data kelas: " + response.data.message);
+            }
+        } catch (error) {
+            console.error("Failed to save kelas:", error);
+            alert("Gagal menyimpan data kelas. Silakan coba lagi.");
+        }
     };
 
     return (
@@ -45,6 +133,8 @@ export default function ButtonAddPlotting({ onClose }) {
                             type="text"
                             className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-darkBrown focus:border-darkBrown"
                             placeholder="Kelas"
+                            value={formData.kelas}
+                            onChange={handleInputChange}
                         />
                     </div>
                     <div>
@@ -56,6 +146,8 @@ export default function ButtonAddPlotting({ onClose }) {
                             type="text"
                             className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-darkBrown focus:border-darkBrown"
                             placeholder="Hari"
+                            value={formData.hari}
+                            onChange={handleInputChange}
                         />
                     </div>
                     <div>
@@ -67,41 +159,53 @@ export default function ButtonAddPlotting({ onClose }) {
                             type="number"
                             className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-darkBrown focus:border-darkBrown"
                             placeholder="Shift"
+                            value={formData.shift}
+                            onChange={handleInputChange}
                         />
                     </div>
                     <div>
-                        <label htmlFor="kelompok" className="block text-black text-sm font-medium">
+                        <label htmlFor="totalGroup" className="block text-black text-sm font-medium">
                             Kelompok
                         </label>
                         <input
-                            id="kelompok"
+                            id="totalGroup"
                             type="number"
                             className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-darkBrown focus:border-darkBrown"
                             placeholder="Kelompok"
+                            value={formData.totalGroup}
+                            onChange={handleInputChange}
                         />
                     </div>
                 </div>
 
-                {/* Daftar Checkbox */}
+                {/* Daftar Checkbox (Hanya Nama dan Kode Asisten) */}
                 <div className="max-h-60 overflow-y-auto border-t border-gray-300 pt-4">
-                    {Array.from({ length: 12 }).map((_, index) => (
-                        <div
-                            key={index}
-                            className="flex items-center gap-2 p-2 border rounded-md mb-2"
-                        >
-                            <input
-                                type="checkbox"
-                                id={`checkbox-${index}`}
-                                className="w-4 h-4"
-                            />
-                            <label
-                                htmlFor={`checkbox-${index}`}
-                                className="text-gray-700"
+                    {loading ? (
+                        <p>Loading...</p>
+                    ) : error ? (
+                        <p className="text-red-500">{error}</p>
+                    ) : asisten.length > 0 ? (
+                        asisten.map((asisten) => (
+                            <div
+                                key={asisten.id} // Gunakan id asisten sebagai key
+                                className="flex items-center gap-2 p-2 border rounded-md mb-2"
                             >
-                                DEY | Dhea Aisyah Putri
-                            </label>
-                        </div>
-                    ))}
+                                <input
+                                    type="checkbox"
+                                    id={`checkbox-${asisten.id}`} // Gunakan id asisten untuk id checkbox
+                                    className="w-4 h-4"
+                                />
+                                <label
+                                    htmlFor={`checkbox-${asisten.id}`} // Gunakan id asisten untuk htmlFor
+                                    className="text-gray-700"
+                                >
+                                    {asisten.nama} | {asisten.kode}
+                                </label>
+                            </div>
+                        ))
+                    ) : (
+                        <p className="text-gray-500">Tidak ada data asisten yang tersedia.</p>
+                    )}
                 </div>
 
                 {/* Tombol Simpan */}
@@ -127,11 +231,11 @@ export default function ButtonAddPlotting({ onClose }) {
                     </label>
                     <div
                         onClick={toggleSwitch}
-                        className={`w-10 h-5 flex items-center rounded-full p-1 cursor-pointer transition ${isSwitchOn ? "bg-deepForestGreen" : "bg-fireRed"
+                        className={`w-10 h-5 flex items-center rounded-full p-1 cursor-pointer transition ${isSwitchOn === 1 ? "bg-deepForestGreen" : "bg-fireRed"
                             }`}
                     >
                         <div
-                            className={`w-4 h-4 bg-white rounded-full shadow-md transform transition ${isSwitchOn ? "translate-x-5" : "translate-x-0"
+                            className={`w-4 h-4 bg-white rounded-full shadow-md transform transition ${isSwitchOn === 1 ? "translate-x-5" : "translate-x-0"
                                 }`}
                         />
                     </div>
