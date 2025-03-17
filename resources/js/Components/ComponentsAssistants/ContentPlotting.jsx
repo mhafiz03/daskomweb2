@@ -1,11 +1,11 @@
 import { useState } from "react";
 import ButtonAddPlotting from "./ModalAddPlotting";
-import ButtonResetPlotting from "./ModalResetPlottingan";
+// import ButtonResetPlotting from "./ModalResetPlottingan";
 import TablePlottingan from "./TablePlottingan";
 
 export default function ContentPlottingan() {
     const [showModal, setShowModal] = useState(false);
-    const [showModalReset, setShowModalReset] = useState(false); 
+    const [showModalReset, setShowModalReset] = useState(false);
 
     const handleOpenModal = () => setShowModal(true);
     const handleCloseModal = () => setShowModal(false);
@@ -32,12 +32,12 @@ export default function ContentPlottingan() {
                 </button>
 
                 {/* Button Reset Plottingan */}
-                <button
+                {/* <button
                     onClick={handleOpenModalReset}
                     className="text-white text-md font-semibold px-4 py-1 rounded-md shadow-md bg-redredDark hover:bg-rustyRed transition mt-[2px]"
                 >
                     Reset Plottingan
-                </button>
+                </button> */}
             </div>
 
             {/* Table Data Plottingan */}
@@ -49,7 +49,7 @@ export default function ContentPlottingan() {
             {showModal && <ButtonAddPlotting onClose={handleCloseModal} />}
 
             {/* Modal Reset Plottingan */}
-            {showModalReset && <ButtonResetPlotting onClose={handleCloseModalReset} />} 
+            {showModalReset && <ButtonResetPlotting onClose={handleCloseModalReset} />}
         </section>
     );
 }

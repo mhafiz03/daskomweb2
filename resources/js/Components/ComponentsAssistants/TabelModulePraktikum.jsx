@@ -248,7 +248,7 @@ export default function TabelModulePraktikum() {
                             </button>
                             <button
                                 onClick={handleConfirmDelete}
-                                className="px-6 py-2 bg-fireRed text-white font-semibold rounded-md shadow hover:bg-red-700 transition duration-300"
+                                className="px-6 py-2 bg-fireRed text-white font-semibold rounded-md shadow hover:bg-softRed transition duration-300"
                             >
                                 Hapus
                             </button>
