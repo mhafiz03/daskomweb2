@@ -46,15 +46,15 @@ class SoalTp extends Model
 		'isProgram'
 	];
 
-	public function modul()
-	{
-		return $this->belongsTo(Modul::class);
-	}
+    public function modul()
+    {
+        return $this->belongsTo(Modul::class, 'modul_id');
+    }
 
-	public function jawaban_tps()
-	{
-		return $this->hasMany(JawabanTp::class, 'soal_id');
-	}
+    public function jawaban()
+    {
+        return $this->hasMany(JawabanTps::class, 'soal_id');
+    }
 
 	public function temp_jawabantps()
 	{

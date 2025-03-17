@@ -305,11 +305,10 @@ Route::prefix('api-v1')->group(function () {
     // Route::get('/jawaban-jurnal/praktikan/{idPraktikan}/modul/{idModul}', [JawabanJurnalController::class, 'showAsisten'])->name('showAsisten.jawaban.jurnal')->middleware(['auth:asisten', 'can:nilai-praktikan']);
 
     // Jawaban TP asisten
-    Route::get('/jawaban-tp/praktikan/{idPraktikan}/modul/{idModul}', [JawabanTPController::class, 'showAsisten'])->name('showAsisten.jawaban.tp')->middleware(['auth:asisten', 'can:nilai-praktikan']);
-
-    // lapran praktikan ini buat asisten
-    Route::get('/laporan-praktikan/{id}', [LaporanPraktikanController::class, 'show'])->name('show.laporan-praktikan')->middleware(['auth:asisten', 'can:nilai-praktikan']);
-
+    Route::get('/modul', [JawabanTPController::class, 'getModules']);
+    //Route::get('/jawaban-tp/{nim}/{modulId}', [JawabanTPController::class, 'show'])->name('jawaban-tp.show')->middleware(['auth:asisten', 'can:nilai-praktikan']);
+    Route::get('/jawaban-tp/{nim}/{modulId}', [JawabanTPController::class, 'getJawabanTP'])->name('jawaban-tp.show')->middleware(['auth:asisten', 'can:nilai-praktikan']);
+    // For Inertia.js page rendering
     //set praktikan
     //Route::post('/set-praktikan', [PraktikanController::class, 'setPraktikan'])->name('set.praktikan')->middleware(['auth:asisten', 'can:set-praktikan']);
 

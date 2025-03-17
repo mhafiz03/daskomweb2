@@ -2,10 +2,14 @@
 
 namespace App\Http\Controllers\API;
 
-use App\Models\JawabanTp;
+use App\Models\JawabanTp as JawabanTps;
+use App\Models\Modul;
+use App\Models\Praktikan;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
+use App\Models\SoalTp as SoalTps;
+
 
 class JawabanTPController extends Controller
 {
@@ -29,11 +33,13 @@ class JawabanTPController extends Controller
                 'praktikan_id' => 'required',
                 'modul_id' => 'required',
             ]);
-            JawabanTp::where('praktikan_id', $validateData['praktikan_id'])
+            
+            JawabanTps::where('praktikan_id', $validateData['praktikan_id'])
                 ->where('modul_id', $validateData['modul_id'])
                 ->where('soal_id', $validateData['soal_id'])
                 ->delete();
-            JawabanTp::create([
+                
+            JawabanTps::create([
                 'jawaban' => $validateData['jawaban'],
                 'soal_id' => $validateData['soal_id'],
                 'praktikan_id' => $validateData['praktikan_id'],
@@ -41,6 +47,7 @@ class JawabanTPController extends Controller
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);
+            
             return response()->json([
                 "status" => "success",
                 "message" => "Jawaban berhasil disimpan.",
@@ -60,15 +67,17 @@ class JawabanTPController extends Controller
     public function show($idModul)
     {
         try {
-            $jawaban = JawabanTp::where('praktikan_id', auth('sanctum')->user()->id)
+            $jawaban = JawabanTps::where('praktikan_id', auth('sanctum')->user()->id)
                 ->where('modul_id', $idModul)
                 ->get();
+                
             if ($jawaban->isEmpty()) {
                 return response()->json([
                     "status" => "success",
                     "message" => "Tidak ada jawaban",
                 ]);
             }
+            
             return response()->json([
                 "status" => "success",
                 "jawaban_tp" => $jawaban,
@@ -82,31 +91,87 @@ class JawabanTPController extends Controller
         }
     }
 
-    public function showAsisten($idPraktikan, $idModul)
+    // Get all modules for the dropdown
+    public function getModules()
     {
         try {
-            $jawaban = JawabanTp::where('praktikan_id', $idPraktikan)
-                ->where('modul_id', $idModul)
-                ->get();
-            if ($jawaban->isEmpty()) {
-                return response()->json([
-                    "status" => "success",
-                    "message" => "Tidak ada jawaban",
-                ]);
-            }
+            $modules = Modul::select('id', 'judul')->get();
             return response()->json([
-                "status" => "success",
-                "jawaban_tp" => $jawaban,
+                'success' => true,
+                'data' => $modules
             ]);
         } catch (\Exception $e) {
             return response()->json([
-                "status" => "error",
-                "message" => "Terjadi kesalahan saat mengambil data jawaban.",
-                "error" => $e->getMessage(),
+                'success' => false,
+                'message' => 'Gagal memuat data modul',
+                'error' => $e->getMessage()
             ], 500);
         }
     }
 
+    public function getJawabanTP($nim, $modulId) {
+        try {
+            // Existing logic from showJawabanTP
+            $praktikan = Praktikan::where('nim', $nim)->first();
+            if (!$praktikan) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Praktikan tidak ditemukan',
+                ], 404);
+            }
+    
+            $modul = Modul::find($modulId);
+            if (!$modul) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Modul tidak ditemukan',
+                ], 404);
+            }
+    
+            $soalList = SoalTps::where('modul_id', $modulId)->get();
+            if ($soalList->isEmpty()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Tidak ada soal untuk modul ini',
+                ], 404);
+            }
+    
+            $jawabanList = JawabanTps::where('praktikan_id', $praktikan->id)
+                ->where('modul_id', $modulId)
+                ->get()
+                ->keyBy('soal_id');
+    
+            $jawabanData = [];
+            
+            foreach ($soalList as $soal) {
+                $jawaban = isset($jawabanList[$soal->id]) ? $jawabanList[$soal->id]->jawaban : '-';
+                
+                $jawabanData[] = [
+                    'soal_id' => $soal->id,
+                    'soal_text' => $soal->soal,
+                    'jawaban' => $jawaban,
+                ];
+            }
+    
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'jawabanData' => $jawabanData,
+                    'praktikan' => $praktikan,
+                    'modul' => $modul
+                ]
+            ]);
+            
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+    
+    // Show jawaban for asisten 
+ 
     /**
      * Update the specified resource in storage.
      */
