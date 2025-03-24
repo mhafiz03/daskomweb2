@@ -3,6 +3,8 @@
 Halo para Software Developer Daskom! 🎉
 Selamat datang di **Daskom App 2.0**, tempat di mana inovasi dan kreativitas bertemu untuk menciptakan sesuatu yang lebih baik. Ini adalah langkah awal kalian untuk mengeksplorasi dan mengembangkan kemampuan dalam dunia pengembangan perangkat lunak.
 
+**Daskom App 2.0** merupakan perkembangan dari [**Daskom App 1.0**](https://github.com/daskomdev/daskomweb), yang telah menjadi fondasi awal dalam pengelolaan dan pengembangan praktikum Daskom. Dengan adanya versi terbaru ini, kami berharap aplikasi dapat semakin optimal dan bermanfaat.
+
 ```C
 #include<stdio.h>
 char alphabet[] = "abcdefghijklmnopqrstuvwxyz ";
@@ -18,7 +20,7 @@ int main() {
 
 Saya juga ingin mengucapkan terima kasih kepada teman-teman yang telah berkontribusi dalam pembuatan website ini. Tanpa kalian, proyek ini tidak akan terwujud! 🙌
 
-![happy-gif](https://media.giphy.com/media/11sBLVxNs7v6WA/giphy.gif)
+![happy-gif](https://media1.giphy.com/media/v1.Y2lkPTc5MGI3NjExa3p0NDJ2N3ZnZzVraGlheDl4OXQwOWtnYTN4OXF3OHV2dmlybW14dCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/l3fQffw0vQ9p91apy/giphy.gif)
 
 📖 Berikut dokumentasi lengkapnya:
 [Daskom 2.0 Gitbook]()
