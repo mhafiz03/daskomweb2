@@ -22,7 +22,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 /**
  * Class Asisten
- * 
+ *
  * @property int $id
  * @property string $nama
  * @property string $kode
@@ -36,7 +36,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
  * @property string|null $remember_token
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
- * 
+ *
  * @property Role $role
  * @property Collection|Feedback[] $feedback
  * @property Collection|FotoAsisten[] $foto_asistens

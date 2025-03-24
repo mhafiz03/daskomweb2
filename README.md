@@ -25,13 +25,13 @@ Saya juga ingin mengucapkan terima kasih kepada teman-teman yang telah berkontri
 
 ## Developers
 
-- [Aliza Nurfitrian Meizahra [ALL]](https://allzanrv3.vercel.app/) - Full-Stack Developer
-- [Dhiya Isnavisa [DHY]](https://github.com/DiyArc-350) - Backend Developer
-- [Dhea Aisyah Putri [DEY]](https://github.com/dheaaisyah) - UI/UX Designer
-- [Muh Zaidan Fauzan [FYN]](https://github.com/Zaidanfzn) - Frontend Developer
-- [Mohammad Fiqri Firmansyah [RYU]](https://github.com/TakanashaTaryu) - QA Engineer
-- [Junaidi Rahmat [JIN]](https://github.com/Junaidirah) - Backend Developer
-- [Muhamad Al Fitra Zulfikhar Akbar [MAI]](https://github.com/Raphaeline) - Frontend Developer
+- [Aliza Nurfitrian Meizahra [ALL]](https://allzanrv3.vercel.app/)
+- [Dhiya Isnavisa [DHY]](https://github.com/DiyArc-350)
+- [Dhea Aisyah Putri [DEY]](https://github.com/dheaaisyah) 
+- [Muh Zaidan Fauzan [FYN]](https://github.com/Zaidanfzn) 
+- [Mohammad Fiqri Firmansyah [RYU]](https://github.com/TakanashaTaryu) 
+- [Junaidi Rahmat [JIN]](https://github.com/Junaidirah) 
+- [Muhamad Al Fitra Zulfikhar Akbar [MAI]](https://github.com/Raphaeline) 
 
 ## Contributors
 - 
