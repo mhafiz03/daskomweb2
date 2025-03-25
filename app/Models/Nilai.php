@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Model;
 
 /**
  * Class Nilai
- * 
+ *
  * @property int $id
  * @property float $tp
  * @property float $ta
@@ -27,7 +27,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property int $praktikan_id
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
- * 
+ *
  * @property Asisten $asisten
  * @property Kelas $kelas
  * @property Modul $modul
@@ -91,3 +91,4 @@ class Nilai extends Model
 		return $this->belongsTo(Praktikan::class);
 	}
 }
+

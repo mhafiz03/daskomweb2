@@ -73,7 +73,7 @@ class NilaiController extends Controller
             ], 500);
         }
     }
-    
+
 
     /**
      * Display the specified resource.
@@ -122,7 +122,7 @@ class NilaiController extends Controller
             ], 500);
         }
     }
-    
+
 
     /**
      * Update the specified resource in storage.
