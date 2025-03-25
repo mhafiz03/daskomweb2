@@ -155,9 +155,7 @@ Route::get('/polling-assistant', function () {
 /////////////////////////////////////// Data Routes ///////////////////////////////////////
 Route::prefix('api-v1')->group(function () {
     Route::put('/asisten', [AsistenController::class, 'update'])->name('update.asisten')->middleware(['auth:asisten', 'can:manage-profile']);
-    Route::get('/asisten', [AsistenController::class, 'index'])
-        ->name('get.asisten')
-        ->middleware(['auth:praktikan,asisten', 'can:lihat-asisten']);
+    Route::get('/asisten', [AsistenController::class, 'index'])->name('get.asisten')->middleware(['auth:praktikan,asisten', 'can:see-plot,lihat-asisten']);
 
     // i guess
     Route::post('/register/asisten', [RegisteredAsistenController::class, 'store'])->name('store.asisten')->middleware('guest');
