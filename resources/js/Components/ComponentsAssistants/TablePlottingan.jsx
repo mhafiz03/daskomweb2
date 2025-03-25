@@ -2,35 +2,52 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import ModalDeletePlottingan from "./ModalDelatePlottingan";
 import ModalEditPlotting from "./ModalEditPlottingan";
-import ModalPlotTeam from "./ModalPlotTeam";
 import trashIcon from "../../../assets/nav/Icon-Delete.svg";
 import editIcon from "../../../assets/nav/Icon-Edit.svg";
 
 export default function TablePlottingan() {
     const [isModalOpenDelate, setIsModalOpenDelate] = useState(false);
     const [isModalOpenEdit, setIsModalOpenEdit] = useState(false);
-    const [isModalOpenPlot, setIsModalOpenPlot] = useState(false);
     const [message, setMessage] = useState("");
     const [kelas, setKelas] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const [selectedKelas, setSelectedKelas] = useState(null);
 
+    // Urutan hari untuk sorting
+    const dayOrder = ['SENIN', 'SELASA', 'RABU', 'KAMIS', 'JUMAT', 'SABTU'];
+
+    // Fungsi untuk sorting data kelas
+    const sortKelas = (data) => {
+        return [...data].sort((a, b) => {
+            // Urutkan berdasarkan hari
+            const dayA = dayOrder.indexOf(a.hari);
+            const dayB = dayOrder.indexOf(b.hari);
+
+            if (dayA !== dayB) {
+                return dayA - dayB;
+            }
+
+            // Jika hari sama, urutkan berdasarkan shift
+            return a.shift - b.shift;
+        });
+    };
+
     // Fetch data dari backend
     const fetchData = async () => {
         setLoading(true);
         try {
-            const token = localStorage.getItem("token"); // Ambil token dari localStorage
+            const token = localStorage.getItem("token");
             const response = await axios.get("/api-v1/kelas", {
                 headers: {
-                    Authorization: `Bearer ${token}`, // Sertakan token di header
+                    Authorization: `Bearer ${token}`,
                 },
             });
-            console.log("Response dari backend:", response.data);
 
             if (response.data.status === 'success') {
-                setKelas(response.data.kelas);
-                console.log("Data kelas di state:", response.data.kelas);
+                // Sort data setelah diterima dari API
+                const sortedData = sortKelas(response.data.kelas);
+                setKelas(sortedData);
             } else {
                 setError(response.data.message || "Gagal mengambil data kelas.");
             }
@@ -82,14 +99,14 @@ export default function TablePlottingan() {
         fetchData(); // Refresh data setelah modal ditutup
     };
 
-    const handleOpenModalPlot = (kelas) => {
-        setSelectedKelas(kelas);
-        setIsModalOpenPlot(true);
-    };
+    // const handleOpenModalPlot = (kelas) => {
+    //     setSelectedKelas(kelas);
+    //     setIsModalOpenPlot(true);
+    // };
 
-    const handleCloseModalPlot = () => {
-        setIsModalOpenPlot(false);
-    };
+    // const handleCloseModalPlot = () => {
+    //     setIsModalOpenPlot(false);
+    // };
 
     return (
         <div className="mt-5">
@@ -149,30 +166,6 @@ export default function TablePlottingan() {
                                     >
                                         <img className="w-4" src={editIcon} alt="edit icon" />
                                     </button>
-                                    <button
-                                        onClick={() => handleOpenModalPlot(kelasItem)}
-                                        className="flex justify-center items-center p-1 border-2 border-deepForestGreen text-deepForestGreen font-semibold rounded"
-                                    >
-                                        <svg
-                                            xmlns="http://www.w3.org/2000/svg"
-                                            fill="none"
-                                            viewBox="0 0 24 24"
-                                            strokeWidth="2"
-                                            stroke="currentColor"
-                                            className="w-4"
-                                        >
-                                            <path
-                                                strokeLinecap="round"
-                                                strokeLinejoin="round"
-                                                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                                            />
-                                            <path
-                                                strokeLinecap="round"
-                                                strokeLinejoin="round"
-                                                d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                                            />
-                                        </svg>
-                                    </button>
                                 </div>
                             </React.Fragment>
                         ))}
@@ -186,7 +179,7 @@ export default function TablePlottingan() {
             {isModalOpenDelate && (
                 <ModalDeletePlottingan
                     onClose={handleCloseModalDelate}
-                    onConfirm={handleConfirmDelete} // Teruskan fungsi handleConfirmDelete
+                    onConfirm={handleConfirmDelete}
                     message={message}
                     isError={message.includes("Gagal")}
                 />
@@ -194,9 +187,6 @@ export default function TablePlottingan() {
 
             {isModalOpenEdit && (
                 <ModalEditPlotting onClose={handleCloseModalEdit} kelas={selectedKelas} />
-            )}
-            {isModalOpenPlot && (
-                <ModalPlotTeam onClose={handleCloseModalPlot} kelas={selectedKelas} />
             )}
         </div>
     );

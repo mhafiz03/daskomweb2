@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { router } from "@inertiajs/react";
 import axios from "axios";
-import ContentLihatTP from "./ContentLihatTP"; // Import the ContentLihatTP component
+import ContentLihatTP from "./ContentLihatTP";
 
 export default function FormLihatTp() {
     const [nim, setNim] = useState("");
@@ -12,7 +12,7 @@ export default function FormLihatTp() {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [modalMessage, setModalMessage] = useState("");
     const [isSuccess, setIsSuccess] = useState(true);
-    
+
     // Add state to handle display of results
     const [showResults, setShowResults] = useState(false);
     const [resultData, setResultData] = useState({
@@ -54,7 +54,7 @@ export default function FormLihatTp() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        
+
         if (!nim || !selectedModulId) {
             setError("NIM dan Modul harus diisi");
             return;
@@ -97,7 +97,7 @@ export default function FormLihatTp() {
     if (showResults) {
         return (
             <div>
-                <ContentLihatTP 
+                <ContentLihatTP
                     jawabanData={resultData.jawabanData}
                     praktikan={resultData.praktikan}
                     modul={resultData.modul}
@@ -117,9 +117,9 @@ export default function FormLihatTp() {
     // Otherwise, render the form
     return (
         <div className="container mx-auto p-4">
-            <div className="bg-white shadow-md rounded-lg p-6">
+            <div className="bg-white shadow-md border-2 border-deepForestGreen rounded-lg p-6">
                 <h1 className="text-2xl font-bold mb-6 text-center text-deepForestGreen">Lihat Jawaban TP</h1>
-                
+
                 {/* Search Form */}
                 <form onSubmit={handleSubmit} className="mb-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -136,7 +136,7 @@ export default function FormLihatTp() {
                                 placeholder="Masukkan NIM"
                             />
                         </div>
-                        
+
                         <div>
                             <label htmlFor="modul" className="block text-sm font-medium text-gray-700 mb-1">
                                 Modul
@@ -158,7 +158,7 @@ export default function FormLihatTp() {
                             </select>
                         </div>
                     </div>
-                    
+
                     <button
                         type="submit"
                         disabled={loading}
@@ -167,7 +167,7 @@ export default function FormLihatTp() {
                         {loading ? "Memuat..." : "Lihat Jawaban"}
                     </button>
                 </form>
-                
+
                 {/* Error message */}
                 {error && (
                     <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
