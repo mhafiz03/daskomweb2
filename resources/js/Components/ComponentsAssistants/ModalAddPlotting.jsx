@@ -23,12 +23,7 @@ export default function ButtonAddPlotting({ onClose, fetchKelas }) {
         const fetchData = async () => {
             setLoading(true);
             try {
-                const token = localStorage.getItem("token"); // Ambil token dari localStorage
-                const response = await axios.get("/api-v1/asisten", {
-                    headers: {
-                        Authorization: `Bearer ${token}`, // Sertakan token di header
-                    },
-                });
+                const response = await axios.get("/api-v1/asisten");
                 console.log("Response dari backend:", response.data);
 
                 if (response.data.success) {
