@@ -167,7 +167,7 @@ Route::prefix('api-v1')->group(function () {
 
     // Asisten
     Route::patch('/asisten/password', [AsistenController::class, 'updatePassword'])->middleware('auth:asisten');
-    // Route::get('/asisten', [AsistenController::class, 'index'])->name('get.asisten')->middleware(['auth:asisten', 'can:see-plot,lihat-asisten']);
+    Route::get('/asisten', [AsistenController::class, 'index'])->name('get.asisten')->middleware(['auth:asisten', 'can:see-plot,lihat-asisten']);
     // Route::put('/asisten', [AsistenController::class, 'update'])->name('update.asisten')->middleware(['auth:asisten', 'can:manage-profile']);
     Route::delete('/asisten/{idAsisten}', [AsistenController::class, 'destroy'])->name('destroy.asisten')->middleware(['auth:asisten', 'can:manage-role']);
 
