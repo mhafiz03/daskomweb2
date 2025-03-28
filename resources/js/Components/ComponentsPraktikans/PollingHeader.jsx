@@ -1,24 +1,31 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import axios from "axios";
 import iconSwipeLeft from "../../../assets/polling/iconSwipeLeft.svg";
 import iconSwipeLeftHover from "../../../assets/polling/iconSwipeLeftHover.svg";
 import iconSwipeRight from "../../../assets/polling/iconSwipeRight.svg";
 import iconSwipeRightHover from "../../../assets/polling/iconSwipeRightHover.svg";
 
-export default function PollingHeader({ onCategoryClick }) {
-    const categories = [
-        "Tercantik",
-        "Terganteng",
-        "Tergalak",
-        "Terjaim",
-        "Terimut",
-        "Tercool",
-        "Terpelit",
-        "Terasik",
-    ];
-
+export default function PollingHeader({ onCategoryClick, activeCategory }) {
+    const [categories, setCategories] = useState([]);
+    const [loading, setLoading] = useState(true);
     const [startIndex, setStartIndex] = useState(0);
     const [isHoverLeft, setIsHoverLeft] = useState(false);
     const [isHoverRight, setIsHoverRight] = useState(false);
+
+    useEffect(() => {
+        const fetchCategories = async () => {
+            try {
+                const response = await axios.get('/api-v1/jenis-polling');
+                setCategories(response.data.categories);
+                setLoading(false);
+            } catch (error) {
+                console.error('Error fetching categories:', error);
+                setLoading(false);
+            }
+        };
+
+        fetchCategories();
+    }, []);
 
     const handleScrollLeft = () => {
         if (startIndex > 0) {
@@ -31,6 +38,8 @@ export default function PollingHeader({ onCategoryClick }) {
             setStartIndex((prev) => prev + 1);
         }
     };
+
+    if (loading) return <div>Loading categories...</div>;
 
     return (
         <div className="bg-deepForestGreen rounded-lg py-3 px-4 flex items-center max-w-full overflow-hidden">
@@ -64,14 +73,18 @@ export default function PollingHeader({ onCategoryClick }) {
                 >
                     {categories.map((category, index) => (
                         <div
-                            key={index}
-                            className="flex-none cursor-pointer text-center group"
+                            key={category.id}
+                            className={`flex-none cursor-pointer text-center group ${
+                                activeCategory === category.id ? 'text-yellow-300' : 'text-white'
+                            }`}
                             style={{ width: "20%" }}
-                            onClick={() => onCategoryClick(category)}
+                            onClick={() => onCategoryClick(category.id)}
                         >
-                            <h1 className="font-bold text-white text-lg relative">
-                                {category}
-                                <span className="absolute left-1/2 bottom-0 h-[2px] bg-white w-[70%] scale-x-0 group-hover:scale-x-100 origin-center transition-transform duration-300 -translate-x-1/2"></span>
+                            <h1 className="font-bold text-lg relative">
+                                {category.judul}
+                                <span className={`absolute left-1/2 bottom-0 h-[2px] ${
+                                    activeCategory === category.id ? 'bg-yellow-300' : 'bg-white'
+                                } w-[70%] scale-x-0 group-hover:scale-x-100 origin-center transition-transform duration-300 -translate-x-1/2`}></span>
                             </h1>
                         </div>
                     ))}

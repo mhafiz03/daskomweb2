@@ -156,7 +156,8 @@ Route::get('/polling-assistant', function () {
 Route::prefix('api-v1')->group(function () {
     Route::put('/asisten', [AsistenController::class, 'update'])->name('update.asisten')->middleware(['auth:asisten', 'can:manage-profile']);
     Route::get('/asisten', [AsistenController::class, 'index'])->name('get.asisten')->middleware(['auth:praktikan,asisten', 'can:see-plot,lihat-asisten']);
-
+    Route::get('/asisten', [AsistenController::class, 'index'])->name('get.asisten')->middleware(['auth:praktikan', 'can:ihat-asisten']);
+    
     // i guess
     Route::post('/register/asisten', [RegisteredAsistenController::class, 'store'])->name('store.asisten')->middleware('guest');
     Route::post('/register/praktikan', [RegisteredPraktikanController::class, 'store'])->name('store.praktikan')->middleware('guest');
@@ -167,7 +168,7 @@ Route::prefix('api-v1')->group(function () {
 
     // Asisten
     Route::patch('/asisten/password', [AsistenController::class, 'updatePassword'])->middleware('auth:asisten');
-    Route::get('/asisten', [AsistenController::class, 'index'])->name('get.asisten')->middleware(['auth:asisten', 'can:see-plot,lihat-asisten']);
+    Route::get('/asisten', [AsistenController::class, 'index'])->name('get.asisten')->middleware(['auth:asisten,praktikan', 'can:see-plot,lihat-asisten']);
     // Route::put('/asisten', [AsistenController::class, 'update'])->name('update.asisten')->middleware(['auth:asisten', 'can:manage-profile']);
     Route::delete('/asisten/{idAsisten}', [AsistenController::class, 'destroy'])->name('destroy.asisten')->middleware(['auth:asisten', 'can:manage-role']);
 
@@ -317,8 +318,20 @@ Route::prefix('api-v1')->group(function () {
     //set praktikan
     Route::patch('/set-password', [PraktikanController::class, 'setPassword'])->name('set-password')->middleware(['auth:asisten', 'can:set-praktikan']);
     ////////////////praktikan///////////////////////////////
+    
     // polling
-    Route::post('/polling', [PollingsController::class, 'store'])->name('store.polling')->middleware(['auth:praktikan', 'can:isi-polling']);
+    //Route::post('/pollings', [PollingsController::class, 'store'])->name('store.polling')->middleware(['auth:praktikan', 'can:isi-polling']);
+    //Route::post('/pollings/asistens', [PollingsController::class, 'getAllAsistens'])->middleware(['auth:praktikan', 'can:isi-polling']);
+    //Route::get('/pollings/{id}', [PollingsController::class, 'show'])->name('show.polling')->middleware(['auth:praktikan', 'can:isi-polling']);
+    //ini gatau anomali knp klw pakai group bisa, klw gak pakai group ga bisa
+    Route::group(['prefix' => 'pollings'], function () {
+        Route::get('/asistens', [PollingsController::class, 'getAllAsistens'])->middleware(['auth:praktikan', 'can:isi-polling']);
+        Route::post('/submit-all', [PollingsController::class, 'submitAll'])->name('pollings.submit-all')->middleware(['auth:praktikan', 'can:isi-polling']);
+        Route::get('/{id}', [PollingsController::class, 'show'])->name('show.polling')->middleware(['auth:praktikan', 'can:isi-polling']);
+        Route::post('/', [PollingsController::class, 'store'])->name('store.polling')->middleware(['auth:praktikan', 'can:isi-polling']);
+    });
+
+    Route::get('/jenis-polling', [JenisPollingController::class, 'index'])->name('get.jenis.poling')->middleware(['auth:praktikan', 'can:isi-polling']);
 
     Route::get('/nilai', [NilaiController::class, 'show'])->name('show.nilais')->middleware(['auth:praktikan', 'can:lihat-nilai']);
 
