@@ -95,7 +95,7 @@ Route::get('/set-praktikan', function () {
 
 Route::get('/pelanggaran', function () {
     return Inertia::render('PagesAssistants/PelanggaranAssistant');
-})->name('pelanggaran')->middleware(['auth:asisten', 'can:manage-pelanggran,see-pelanggaran']);
+})->name('pelanggaran')->middleware(['auth:asisten', 'can:see-pelanggaran, manage-pelanggaran']);
 
 Route::get('/history', function () {
     return Inertia::render('PagesAssistants/HistoryPraktikum');
