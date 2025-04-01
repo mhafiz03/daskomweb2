@@ -1,24 +1,55 @@
-import { useState } from "react";
-import closeIcon from "../../../assets/modal/iconClose.svg"
+import { useState, useEffect } from "react";
+import { router, usePage } from "@inertiajs/react";
+import toast from "react-hot-toast";
+import closeIcon from "../../../assets/modal/iconClose.svg";
 
-export default function ModalEditRole({ onClose }) {
-    const roles = ["Aslab(SK)", "Aslab(R)", "ATC", "HRD", "DDC", "MLC", "CMD", "RDC"];
+export default function ModalEditRole({ onClose, asistenId }) {
     const [selectedRole, setSelectedRole] = useState("");
+    const [roles, setRoles] = useState([]);
     const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
+    const [errorMessage, setErrorMessage] = useState("");
+
+    useEffect(() => {
+        async function fetchRoles() {
+            try {
+                const response = await fetch('/api-v1/roles');
+                if (response.ok) {
+                    const data = await response.json();
+                    setRoles(data.roles || []);
+                } else {
+                    toast.error("Whoops terjadi kesalahan");
+                }
+            } catch (error) {
+                toast.error("Whoops terjadi kesalahan");
+            }
+        }
+        fetchRoles();
+    }, []);
 
     const handleRoleChange = (event) => {
-        setSelectedRole(event.target.value);
+        setSelectedRole(Number(event.target.value)); // Convert value to number
     };
 
-    const handleSave = () => {
-        if (selectedRole) {
-            setIsSuccessModalOpen(true);
-
-            setTimeout(() => {
-                setIsSuccessModalOpen(false);
-                onClose();
-            }, 3000);
+    const handleSave = (e) => {
+        e.preventDefault();
+        
+        if (!selectedRole) {
+            setErrorMessage("Pilih role terlebih dahulu.");
+            return;
         }
+
+        router.put(`/api-v1/roles/${asistenId}`, { role_id: selectedRole }, {
+            preserveScroll: true,
+            onSuccess: () => {
+                toast.success("Role berhasil diperbarui.");
+                setTimeout(() => {
+                    onClose();
+                }, 1000);
+            },
+            onError: (error) => {
+                toast.error("Terjadi kesalahan. Coba lagi.");
+            },
+        });
     };
 
     return (
@@ -28,8 +59,8 @@ export default function ModalEditRole({ onClose }) {
                 <div className="bg-white p-6 rounded-lg shadow-xl w-[430px] text-center relative">
                     {/* Header */}
                     <div className="flex justify-between items-center mb-6 border-b border-deepForestGreen">
-                        <h2 className="text-2xl text-center font-bold text-darkGreen">Upgrade Role</h2>
-                        {/* Tombol X untuk tutup */}
+                        <h2 className="text-2xl text-center font-bold mb-2 text-darkGreen">Update Role</h2>
+                        {/* Close Button */}
                         <button
                             onClick={onClose}
                             className="absolute top-2 right-2 flex justify-center items-center"
@@ -38,24 +69,29 @@ export default function ModalEditRole({ onClose }) {
                         </button>
                     </div>
 
-                    {/* List Role dalam Grid 3 kolom */}
+                    {/* List Role in Grid */}
                     <div className="grid grid-cols-3 gap-4 mt-4 text-left">
-                        {roles.map((role, index) => (
-                            <label key={index} className="flex items-center space-x-2">
+                        {roles.map((role) => (
+                            <label key={role.id} className="flex items-center space-x-2">
                                 <input
                                     type="radio"
-                                    name="role"
-                                    value={role}
-                                    checked={selectedRole === role}
+                                    name="role_id"
+                                    value={role.id} // Set value as role.id
+                                    checked={selectedRole === role.id} // Compare with role.id
                                     onChange={handleRoleChange}
                                     className="h-5 w-5 text-deepForestGreen"
                                 />
-                                <span className="text-lg">{role}</span>
+                                <span className="text-lg">{role.name}</span>{/* Fix: Display role.name */}
                             </label>
                         ))}
                     </div>
 
-                    {/* Tombol Simpan */}
+                    {/* Error Message */}
+                    {errorMessage && (
+                        <p className="text-red-500 mt-4">{errorMessage}</p>
+                    )}
+
+                    {/* Save Button */}
                     <div className="mt-6 flex justify-center">
                         <button
                             onClick={handleSave}
@@ -67,16 +103,6 @@ export default function ModalEditRole({ onClose }) {
                 </div>
             </div>
 
-            {/* Modal Konfirmasi */}
-            {isSuccessModalOpen && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
-                    <div className="bg-softGray p-6 rounded-lg shadow-xl w-96 text-center relative">
-                        <h3 className="text-2xl font-bold text-deepForestGreen mt-2">
-                            Role Berhasil di Upgrade
-                        </h3>
-                    </div>
-                </div>
-            )}
         </div>
     );
 }

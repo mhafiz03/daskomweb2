@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { router, usePage } from '@inertiajs/react';
+import toast from 'react-hot-toast';
 import eyeClose from '../../../assets/form/eyeClose.png';
 import eyeOpen from '../../../assets/form/eyeOpen.png';
 import ButtonOption from './ButtonOption';
@@ -46,15 +47,21 @@ export default function LoginFormPraktikan({ mode }) {
         if (values.nim && values.password) {
             router.post('/login/praktikan', values, {
                 preserveScroll: true,
-                onFinish: () => {
-                    console.log('Login finished!');
+                 onSuccess: (page) => {
+                    if (page.props.authenticated) {
+                        toast.success('Login successful!');
+                    } else {
+                        toast.error('Login failed! Please check your credentials.');
+                    }
                 },
-                onError: (errors) => {
-                    console.error('Validation Errors:', errors);
-                },
+                onError: (error) => {
+                    Object.values(error).forEach((errMsg) => {
+                        toast.error(errMsg);
+                    });
+                }
             });
         } else {
-            console.error("NIM and Password are required.");
+            toast.error("NIM and Password are required.");
         }
     };
 
@@ -65,9 +72,6 @@ export default function LoginFormPraktikan({ mode }) {
 
             <form className="flex flex-col gap-2" onSubmit={handleSubmit}>
                 <input className="bg-lightGray py-1 px-4 mt-10 rounded-sm border-dustyBlue border-2 placeholder-dustyBlue" type="text" inputMode="numeric" pattern="[0-9]*" name="nim" id='nim' value={values.nim} placeholder="NIM" onChange={handleChange}/>
-                {errors.nim && (
-                    <p className="text-red-500 text-sm mt-1">{errors.nim}</p>
-                )}
                 <div className="relative">
                     <input
                         className="bg-lightGray py-1 px-4 mt-1 w-full rounded-sm border-dustyBlue border-2 placeholder-dustyBlue"
@@ -83,10 +87,8 @@ export default function LoginFormPraktikan({ mode }) {
                         src={passwordVisible ? eyeOpen : eyeClose}
                         alt="Toggle Password Visibility"
                         onClick={togglePasswordVisibility}
-                    />
-                    {errors.password && (
-                        <p className="text-red-500 text-sm mt-1">{errors.password}</p>
-                    )}
+                        />
+                    
                 </div>
                 <ButtonOption order="login" mode={mode} />
             </form>

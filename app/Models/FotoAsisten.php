@@ -28,7 +28,8 @@ class FotoAsisten extends Model
 
 	protected $fillable = [
 		'kode',
-		'foto'
+		'foto',
+		'fileId',
 	];
 
 	public function asisten()

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import ModalEditProfile from "./ModalEditProfile";
+import toast, { Toaster } from "react-hot-toast";  // Import Toaster
 import iconWA from "../../../assets/contact/iconWhatsapp.svg";
 import iconLine from "../../../assets/contact/iconLine.svg";
 import iconIG from "../../../assets/contact/iconInstagram.svg";
@@ -8,7 +9,6 @@ import daskomIcon from "../../../../resources/assets/daskom.svg";
 
 export default function CardAssistant({ asisten }) {
     const [isModalOpen, setModalOpen] = useState(false);
-    console.log(asisten);
 
     const handleOpenModal = () => setModalOpen(true);
     const handleCloseModal = () => setModalOpen(false);
@@ -34,8 +34,8 @@ export default function CardAssistant({ asisten }) {
 
                     {/* Profile Picture */}
                     <img
-                        src={daskomIcon}
-                        alt={asisten.nama}
+                        src={asisten?.foto_asistens?.foto || daskomIcon}
+                        alt={asisten?.nama || "Profile Picture"}
                         className="w-40 h-40 mx-auto rounded-full object-cover border-2"
                     />
 
@@ -76,7 +76,7 @@ export default function CardAssistant({ asisten }) {
             </div>
 
             {/* Modal */}
-            <ModalEditProfile isOpen={isModalOpen} onClose={handleCloseModal} />
+            <ModalEditProfile isOpen={isModalOpen} onClose={handleCloseModal}/>
         </>
     );
 }

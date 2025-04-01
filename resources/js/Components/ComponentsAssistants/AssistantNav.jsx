@@ -33,6 +33,7 @@ export default function AssisstantNav({ asisten, permission_name }) {
     const [showOpenKJ, setShowOpenKJ] = useState(false);
     const [showOpenTP, setShowOpenTP] = useState(false);
 
+
     const openModal = () => setIsModalOpen(true);
     const closeModal = () => setIsModalOpen(false);
 
@@ -59,124 +60,142 @@ export default function AssisstantNav({ asisten, permission_name }) {
                     <div className="">
                         <ul className="py-5">
                             {/* Bagian Profile dan Praktikum */}
-                            <li>
-                                 <Link
-                                    href={route('assistant')} // Inertia's route helper
-                                    className="flex py-3 px-5 hover:bg-darkGreen"
-                                >
-                                    <img className="w-6" src={profileIcon} alt="profile" />
-                                    <span className="self-center text-sm ml-3">Profile</span>
-                                </Link>
-                            </li>
-                            <li>
+                            {permission_name.includes("manage-profile") && (
+                                <li id="manage-profile">
+                                    <Link
+                                        href={route('assistant')}
+                                        className="flex py-3 px-5 hover:bg-darkGreen"
+                                    >
+                                        <img className="w-6" src={profileIcon} alt="profile" />
+                                        <span className="self-center text-sm ml-3">Profile</span>
+                                    </Link>
+                                </li>
+                            )}
+                            {permission_name.includes("see-history") && (
+                            <li id="manage-praktikum">
                                 <a href="/start-praktikum" className="flex py-3 px-5 hover:bg-darkGreen">
                                     <img className="w-6" src={praktikumIcon} alt="praktikum" />
                                     <span className="self-center text-sm ml-3">Praktikum</span>
                                 </a>
                             </li>
+                            )}
 
                             {/* Bagian History, Laporan, dan Nilai */}
-                            <li>
-                                <a href="/history" className="flex py-3 px-5 hover:bg-darkGreen">
-                                    <img className="w-6" src={historyIcon} alt="history" />
-                                    <span className="self-center text-sm ml-3">History Praktikum</span>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="/list-laporan" className="flex py-3 px-5 hover:bg-darkGreen">
-                                    <img className="w-6" src={laporanIcon} alt="laporan" />
-                                    <span className="self-center text-sm ml-3">Laporan Praktikum</span>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="/nilai-praktikan" className="flex py-3 px-5 hover:bg-darkGreen">
-                                    <img className="w-6" src={nilaiIcon} alt="nilai" />
-                                    <span className="self-center text-sm ml-3">Nilai Praktikan</span>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="/modul" className="flex py-3 px-5 hover:bg-darkGreen">
-                                    <img className="w-6" src={moduleIcon} alt="moduleIcon" />
-                                    <span className="self-center text-sm ml-3">Modul</span>
-                                </a>
-                            </li>
+                            {permission_name.includes("see-history") && (
+                                <li id="see-history">
+                                    <a href="/history" className="flex py-3 px-5 hover:bg-darkGreen">
+                                        <img className="w-6" src={historyIcon} alt="history" />
+                                        <span className="self-center text-sm ml-3">History Praktikum</span>
+                                    </a>
+                                </li>
+                            )}
+                            {permission_name.includes("laporan-praktikum") && (
+                                <li id="laporan-praktikum">
+                                    <a href="/list-laporan" className="flex py-3 px-5 hover:bg-darkGreen">
+                                        <img className="w-6" src={laporanIcon} alt="laporan" />
+                                        <span className="self-center text-sm ml-3">Laporan Praktikum</span>
+                                    </a>
+                                </li>
+                            )}
+                            {permission_name.includes("see-nilai") && (
+                                <li id="nilai-praktikan">
+                                    <a href="/nilai-praktikan" className="flex py-3 px-5 hover:bg-darkGreen">
+                                        <img className="w-6" src={nilaiIcon} alt="nilai" />
+                                        <span className="self-center text-sm ml-3">Nilai Praktikan</span>
+                                    </a>
+                                </li>
+                            )}
+                            {permission_name.includes("manage-modul") && (
+                                <li id="manage-modul">
+                                    <a href="/modul" className="flex py-3 px-5 hover:bg-darkGreen">
+                                        <img className="w-6" src={moduleIcon} alt="moduleIcon" />
+                                        <span className="self-center text-sm ml-3">Modul</span>
+                                    </a>
+                                </li>
+                            )}
 
                             {/* Bagian Soal, Ranking, dan Polling */}
-                            <li>
-                                <a href="/soal" className="flex py-3 px-5 hover:bg-darkGreen">
-                                    <img className="w-6" src={inputSoalIcon} alt="input soal" />
-                                    <span className="self-center text-sm ml-3">Input Soal</span>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="/ranking" className="flex py-3 px-5 hover:bg-darkGreen">
-                                    <img className="w-6" src={rankingIcon} alt="ranking" />
-                                    <span className="self-center text-sm ml-3">Ranking Praktikan</span>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="/polling" className="flex py-3 px-5 hover:bg-darkGreen">
-                                    <img className="w-6" src={pollingIcon} alt="polling" />
-                                    <span className="self-center text-sm ml-3">Polling Assistant</span>
-                                </a>
-                            </li>
+                            {permission_name.includes("manage-soal") && (
+                                <li id="see-soal">
+                                    <a href="/soal" className="flex py-3 px-5 hover:bg-darkGreen">
+                                        <img className="w-6" src={inputSoalIcon} alt="input soal" />
+                                        <span className="self-center text-sm ml-3">Input Soal</span>
+                                    </a>
+                                </li>
+                            )}
+                            {permission_name.includes("see-ranking") && (
+                                <li id="ranking-praktikan">
+                                    <a href="/ranking" className="flex py-3 px-5 hover:bg-darkGreen">
+                                        <img className="w-6" src={rankingIcon} alt="ranking" />
+                                        <span className="self-center text-sm ml-3">Ranking Praktikan</span>
+                                    </a>
+                                </li>
+                            )}
+                            {permission_name.includes("see-polling") && (
+                                <li id="see-polling">
+                                    <a href="/polling" className="flex py-3 px-5 hover:bg-darkGreen">
+                                        <img className="w-6" src={pollingIcon} alt="polling" />
+                                        <span className="self-center text-sm ml-3">Polling Assistant</span>
+                                    </a>
+                                </li>
+                            )}
 
                             {/* Bagian Plottingan, Praktikan, dan Pelanggaran */}
-                            <li>
-                                <a href="/plottingan" className="flex py-3 px-5 hover:bg-darkGreen">
-                                    <img className="w-6" src={plottingIcon} alt="plotting" />
-                                    <span className="self-center text-sm ml-3">Plotting Jadwal</span>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="/set-praktikan" className="flex py-3 px-5 hover:bg-darkGreen">
-                                    <img className="w-6" src={roleIcon} alt="praktikan" />
-                                    <span className="self-center text-sm ml-3">Set Praktikan</span>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="/pelanggaran" className="flex py-3 px-5 hover:bg-darkGreen">
-                                    <img className="w-6" src={pelanggaranIcon} alt="pelanggaran" />
-                                    <span className="self-center text-sm ml-3">Pelanggaran</span>
-                                </a>
-                            </li>
+                            {permission_name.includes("see-plot") && (
+                                <li id="see-plot">
+                                    <a href="/plottingan" className="flex py-3 px-5 hover:bg-darkGreen">
+                                        <img className="w-6" src={plottingIcon} alt="plotting" />
+                                        <span className="self-center text-sm ml-3">Plotting Jadwal</span>
+                                    </a>
+                                </li>
+                            )}
+                            {permission_name.includes("set-praktikan") && (
+                                <li id="set-praktikan">
+                                    <a href="/set-praktikan" className="flex py-3 px-5 hover:bg-darkGreen">
+                                        <img className="w-6" src={roleIcon} alt="praktikan" />
+                                        <span className="self-center text-sm ml-3">Set Praktikan</span>
+                                    </a>
+                                </li>
+                            )}
+                            {permission_name.includes("see-pelanggaran") && (
+                                <li id="see-pelanggaran">
+                                    <a href="/pelanggaran" className="flex py-3 px-5 hover:bg-darkGreen">
+                                        <img className="w-6" src={pelanggaranIcon} alt="pelanggaran" />
+                                        <span className="self-center text-sm ml-3">Pelanggaran</span>
+                                    </a>
+                                </li>
+                            )}
 
-                            {/* Bagian Kunci Jawaban, manage role dan Konfigurasi */}
-                            <li v-if="permission_name.can.manage-role">
-                                <a href="/manage-role" className="flex py-3 px-5 hover:bg-darkGreen">
-                                    <img className="w-6" src={praktikanIcon} alt="manage role" />
-                                    <span className="self-center text-sm ml-3">Manage Role</span>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="/lihat-tp" className="flex py-3 px-5 hover:bg-darkGreen">
-                                    <img className="w-6" src={jawabanTP} alt="lihat tp" />
-                                    <span className="self-center text-sm ml-3">Lihat TP</span>
-                                </a>
-                            </li>
-                            {/* <li>
-                                <a onClick={openOpenKJModal} className="flex py-3 px-5 hover:bg-darkGreen">
-                                    <img className="w-6" src={announcementIcon} alt="open-jawaban" />
-                                    <span className="self-center text-sm ml-3">Open Jawaban</span>
-                                </a>
-                            </li> */}
-                            <li>
-                                <a onClick={openOpenTPModal} className="flex py-3 px-5 hover:bg-darkGreen cursor-pointer">
-                                    <img className="w-6" src={tpModuleIcon} alt="konfigurasi" />
-                                    <span className="self-center text-sm ml-3">Tugas Pendahuluan</span>
-                                </a>
-                            </li>
-                            <li>
-                                <a onClick={openConfigModal} className="flex py-3 px-5 hover:bg-darkGreen cursor-pointer">
-                                    <img className="w-6" src={konfigurasiIcon} alt="konfigurasi" />
-                                    <span className="self-center text-sm ml-3">Konfigurasi</span>
-                                </a>
-                            </li>
+                            {/* Bagian Kunci Jawaban, Role Management, dan Konfigurasi */}
+                            {permission_name.includes("manage-role") && (
+                                <li id="manage-role">
+                                    <a href="/manage-role" className="flex py-3 px-5 hover:bg-darkGreen">
+                                        <img className="w-6" src={praktikanIcon} alt="manage role" />
+                                        <span className="self-center text-sm ml-3">Manage Role</span>
+                                    </a>
+                                </li>
+                            )}
+                            {permission_name.includes("check-tugas-pendahuluan") && (
+                                <li id="check-tugas-pendahuluan">
+                                    <a href="/lihat-tp" className="flex py-3 px-5 hover:bg-darkGreen">
+                                        <img className="w-6" src={jawabanTP} alt="lihat tp" />
+                                        <span className="self-center text-sm ml-3">Lihat TP</span>
+                                    </a>
+                                </li>
+                            )}
+                            {permission_name.includes("unlock-jawaban") && (
+                                <li id="unlock-jawaban">
+                                    <a onClick={openOpenKJModal} className="flex py-3 px-5 hover:bg-darkGreen cursor-pointer">
+                                        <img className="w-6" src={announcementIcon} alt="open-jawaban" />
+                                        <span className="self-center text-sm ml-3">Open Jawaban</span>
+                                    </a>
+                                </li>
+                            )}
                         </ul>
 
                         <ul className="py-5">
                             {/* Bagian Pengaturan dan Logout */}
-                            <li>
+                            <li id="change-password">
                                 <a onClick={openModal} className="flex py-3 px-5 hover:bg-darkGreen">
                                     <img className="w-6" src={changePassIcon} alt="change password" />
                                     <span className="self-center text-sm ml-3">Change Password</span>

@@ -28,35 +28,45 @@ class RegisteredAsistenController extends Controller
      *
      * @throws \Illuminate\Validation\ValidationException
      */
-    public function store(Request $request):RedirectResponse
+    public function store(Request $request): RedirectResponse
     {
-        $request->validate([
-            'nama' => 'required|string|max:255',
-            'kode' => 'required|string|uppercase|max:3|unique:' . Asisten::class,
-            'role_id'=>'required|integer|exists:roles,id', 
-            'nomor_telepon' =>'required|string|max:15',
-            'id_line' => 'required|string',
-            'instagram' => 'required|string',
-            'deskripsi' => 'required|string',
-            'password' =>'required|string',
-        ]);
+        try {
+            // Validate input
+            $validated = $request->validate([
+                'nama' => 'required|string|max:255',
+                'kode' => 'required|string|uppercase|max:3|unique:asistens,kode',
+                'role_id' => 'required|integer|exists:roles,id',
+                'nomor_telepon' => 'required|string|max:15',
+                'id_line' => 'required|string',
+                'instagram' => 'required|string',
+                'deskripsi' => 'required|string',
+                'password' => 'required|string',
+            ]);
 
-        $asisten = Asisten::create([
-            'nama' => $request->nama,
-            'kode' => $request->kode,
-            'role_id' => $request->role_id,
-            'nomor_telepon' => $request->nomor_telepon,
-            'id_line' => $request->id_line,
-            'instagram' => $request->instagram,
-            'deskripsi' => $request->deskripsi, 
-            'password' => Hash::make($request->password),
-            'created_at' => now(),
-            'updated_at' => now(),
-        ]);
-        $role = Role::findOrFail($request->role_id);
+            // Create new Asisten
+            $asisten = Asisten::create([
+                'nama' => $validated['nama'],
+                'kode' => $validated['kode'],
+                'role_id' => $validated['role_id'],
+                'nomor_telepon' => $validated['nomor_telepon'],
+                'id_line' => $validated['id_line'],
+                'instagram' => $validated['instagram'],
+                'deskripsi' => $validated['deskripsi'],
+                'password' => Hash::make($validated['password']),
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
 
-        $asisten->assignRole($role->name);
+            // Assign role
+            $role = Role::findOrFail($validated['role_id']);
+            $asisten->assignRole($role->name);
 
-        return Redirect::route('login');
+            return redirect('/register?mode=assistant')->with('success', 'Asisten registered successfully');
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return redirect()->back()->withErrors($e->validator)->withInput();
+        } catch (\Exception $e) {
+            Log::error('Error creating asisten: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'An unexpected error occurred. Please try again.');
+        }
     }
 }

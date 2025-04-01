@@ -65,7 +65,11 @@ Route::get('/about', function () {
 Route::get(
     '/assistant',
     function () {
-        return Inertia::render('PagesAssistants/ProfileAssistant');
+        // $foto = auth('asisten')->user()->foto_asistens->foto;
+        return Inertia::render('PagesAssistants/ProfileAssistant', [
+            'foto' => auth('asisten')->user()?->foto_asistens?->foto ?? 'https://via.placeholder.com/150', // Use default image if null
+        ]);
+
     }
 )->name('assistant')->middleware(['auth:asisten', 'can:manage-profile,lms-configuration']);
 
@@ -95,7 +99,7 @@ Route::get('/set-praktikan', function () {
 
 Route::get('/pelanggaran', function () {
     return Inertia::render('PagesAssistants/PelanggaranAssistant');
-})->name('pelanggaran')->middleware(['auth:asisten', 'can:see-pelanggaran, manage-pelanggaran']);
+})->name('pelanggaran')->middleware(['auth:asisten', 'can:see-pelanggaran']);
 
 Route::get('/history', function () {
     return Inertia::render('PagesAssistants/HistoryPraktikum');
@@ -115,7 +119,7 @@ Route::get('/nilai-praktikan', function () {
 
 Route::get('/start-praktikum', function () {
     return Inertia::render('PagesAssistants/StartPraktikum');
-})->name('manage-role')->middleware(['auth:asisten', 'can:manage-praktikum, see-praktikum']);
+})->name('start-praktikum')->middleware(['auth:asisten', 'can:manage-praktikum, see-praktikum']);
 
 Route::get('/modul', function () {
     return Inertia::render('PagesAssistants/ModulePraktikum');
@@ -142,7 +146,7 @@ Route::get('/score-praktikan', function () {
 
 Route::get('/leaderboard-praktikan', function () {
     return Inertia::render('PagesPraktikan/LeaderboardPraktikan');
-})->name('leaderboard-praktikan')->middleware(['auth:praktikan', 'can:ranking-praktikan']);
+})->name('leaderboard-praktikan')->middleware(['auth:praktikan', 'can:lihat-leaderboard']);
 
 Route::get('/contact-assistant', function () {
     return Inertia::render('PagesPraktikan/ContactAssistant');
@@ -155,9 +159,9 @@ Route::get('/polling-assistant', function () {
 /////////////////////////////////////// Data Routes ///////////////////////////////////////
 Route::prefix('api-v1')->group(function () {
     Route::put('/asisten', [AsistenController::class, 'update'])->name('update.asisten')->middleware(['auth:asisten', 'can:manage-profile']);
-    Route::get('/asisten', [AsistenController::class, 'index'])->name('get.asisten')->middleware(['auth:praktikan,asisten', 'can:see-plot,lihat-asisten']);
-    Route::get('/asisten', [AsistenController::class, 'index'])->name('get.asisten')->middleware(['auth:praktikan', 'can:ihat-asisten']);
-    
+    Route::post('/profilePic', [AsistenController::class, 'updatePp'])->name('updatePp.asisten');
+    Route::delete('/profilePic', [AsistenController::class, 'destroyPp'])->name('destroyPp.asisten');
+
     // i guess
     Route::post('/register/asisten', [RegisteredAsistenController::class, 'store'])->name('store.asisten')->middleware('guest');
     Route::post('/register/praktikan', [RegisteredPraktikanController::class, 'store'])->name('store.praktikan')->middleware('guest');
@@ -168,9 +172,9 @@ Route::prefix('api-v1')->group(function () {
 
     // Asisten
     Route::patch('/asisten/password', [AsistenController::class, 'updatePassword'])->middleware('auth:asisten');
-    Route::get('/asisten', [AsistenController::class, 'index'])->name('get.asisten')->middleware(['auth:asisten,praktikan', 'can:see-plot,lihat-asisten']);
+    Route::get('/asisten', [AsistenController::class, 'index'])->name('get.asisten')->middleware(['auth:asisten,praktikan', 'can:lihat-asisten, see-plot']);
     // Route::put('/asisten', [AsistenController::class, 'update'])->name('update.asisten')->middleware(['auth:asisten', 'can:manage-profile']);
-    Route::delete('/asisten/{idAsisten}', [AsistenController::class, 'destroy'])->name('destroy.asisten')->middleware(['auth:asisten', 'can:manage-role']);
+    Route::post('/asisten/delete', [AsistenController::class, 'destroy'])->name('destroy.asisten')->middleware(['auth:asisten', 'can:manage-role']);
 
     // Roles
     Route::get('/roles', [RoleController::class, 'index'])->name('get.roles');
@@ -178,7 +182,8 @@ Route::prefix('api-v1')->group(function () {
     Route::put('/roles/{id}', [RoleController::class, 'update'])->name('update.roles')->middleware(['auth:asisten', 'can:manage-role']);
 
     // Modul
-    Route::get('/modul', [ModulController::class, 'index'])->name('get.modul')->middleware(['auth:asisten', 'can:manage-modul']);
+    // Route::get('/modul', [ModulController::class, 'index'])->name('get.modul');
+    Route::get('/modul', [ModulController::class, 'index'])->name('get.modul')->middleware(['auth:asisten,praktikan', 'can:manage-modul,lihat-modul']);
     Route::post('/modul', [ModulController::class, 'store'])->name('store.modul')->middleware(['auth:asisten', 'can:manage-modul']);
     //Route::put('/modul/{id}', [ModulController::class, 'update'])->name('update.modul')->middleware(['auth:asisten', 'can:manage-modul']);
     Route::patch('/modul/{id}', [ModulController::class, 'update'])->name('modul.update')->middleware(['auth:asisten', 'can:manage-modul']);
@@ -197,7 +202,7 @@ Route::prefix('api-v1')->group(function () {
     // Route::patch('/api-v1/modul/{id}', [ModulController::class, 'update'])->name('modul.update')->middleware(['auth:asisten', 'can:manage-modul']);
 
     // Kelas
-    Route::get('/kelas', [KelasController::class, 'index'])->name('get.kelas')->middleware(['auth:asisten', 'can:manage-plot,see-plot']);
+    Route::get('/kelas', [KelasController::class, 'index'])->name('get.kelas');
     Route::post('/kelas', [KelasController::class, 'store'])->name('store.kelas')->middleware(['auth:asisten', 'can:manage-plot']);
     Route::put('/kelas/{id}', [KelasController::class, 'update'])->name('update.kelas')->middleware(['auth:asisten', 'can:manage-plot']);
     Route::delete('/kelas/{id}', [KelasController::class, 'destroy'])->name('delete.kelas')->middleware(['auth:asisten', 'can:manage-plot']);
@@ -286,7 +291,7 @@ Route::prefix('api-v1')->group(function () {
     Route::put('/tugas-pendahuluan', [TugasPendahuluanController::class, 'update'])->name('update.tugaspendahuluans')->middleware(['auth:asisten', 'can:tugas-pendahuluan']);
 
     // leaderboard
-    Route::get('/leaderboard', [LeaderBoardController::class, 'index'])->name('get.leaderboard')->middleware(['auth:asisten', 'can:ranking-praktikan']);
+    Route::get('/leaderboard', [LeaderBoardController::class, 'index'])->name('get.leaderboard')->middleware(['auth:asisten,praktikan', 'can:lihat-leaderboard,ranking-praktikan']);
     Route::get('/leaderboard/{idKelas}', [LeaderBoardController::class, 'show'])->name('show.leaderboard')->middleware(['auth:asisten', 'can:ranking-praktikan']);
 
     // nilais

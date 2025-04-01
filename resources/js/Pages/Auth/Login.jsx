@@ -1,3 +1,4 @@
+import { Toaster } from "react-hot-toast";  // Import Toaster
 import Checkbox from '@/Components/Checkbox';
 import GuestLayout from '@/Layouts/GuestLayout';
 import InputError from '@/Components/InputError';
@@ -24,6 +25,8 @@ export default function Login({ status, canResetPassword }) {
     return (
         <GuestLayout>
             <Head title="Log in" />
+
+            <Toaster />
 
             {status && <div className="mb-4 font-medium text-sm text-green-600">{status}</div>}
 

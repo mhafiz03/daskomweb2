@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
 import { router, usePage } from '@inertiajs/react';
+import toast from 'react-hot-toast';
 import eyeClose from '../../../assets/form/eyeClose.png';
 import eyeOpen from '../../../assets/form/eyeOpen.png';
 import ButtonOption from '../../Components/ComponentsPraktikans/ButtonOption';
 
 export default function RegistFormAssistant({ mode }) {
+    
     const [values, setValues] = useState({
         nama: '',
         deskripsi: '',
@@ -19,15 +21,20 @@ export default function RegistFormAssistant({ mode }) {
     const [passwordVisible, setPasswordVisible] = useState(false);
     const [roles, setRoles] = useState([]);
     const [localErrors, setLocalErrors] = useState({});
-    const { errors: serverErrors } = usePage().props;
 
     const togglePasswordVisibility = () => {
         setPasswordVisible((prevState) => !prevState);
     };
 
     const handleChange = (e) => {
+
         const key = e.target.id;
-        const value = e.target.value;
+        let value = e.target.value;
+
+        // Convert specific fields to uppercase
+        if (key === "kode") {
+            value = value.toUpperCase();
+        }
         setValues((prevValues) => ({
             ...prevValues,
             [key]: value,
@@ -51,22 +58,33 @@ export default function RegistFormAssistant({ mode }) {
         return Object.keys(newErrors).length === 0;
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
 
         if (validateFields()) {
-            // Submit form using Inertia
-            router.post('/api-v1/register/asisten', values, {
-                preserveScroll: true,
-                onFinish: () => {
-                    console.log('Registration finished!');
-                },
-                onError: (errors) => {
-                    console.error('Validation Errors:', errors);
-                },
-            });
+            try {
+                await router.post('/api-v1/register/asisten', values, {
+                    preserveScroll: true,
+                    onSuccess: () => {
+                        toast.success('Registration finished!');
+                        setTimeout(() => {
+                            router.visit('/login?mode=assistant');
+                        }, 500);
+                    },
+                    onError: (error) => {
+                        console.error('Validation Errors:', error);
+                        Object.values(error).forEach((errMsg) => {
+                            toast.error(errMsg);
+                        });
+                    }
+                });
+            } catch (error) {
+                console.error('Unexpected Error:', error);
+                toast.error('An unexpected error occurred. Please try again.');
+            }
         }
     };
+
 
     useEffect(() => {
         async function fetchRoles() {
@@ -76,10 +94,10 @@ export default function RegistFormAssistant({ mode }) {
                     const data = await response.json();
                     setRoles(data.roles || []);
                 } else {
-                    console.error('Failed to fetch roles:', response.statusText);
+                    toast.error("Whoops terjadi kesalahan");
                 }
             } catch (error) {
-                console.error('Error fetching roles:', error);
+                toast.error("Whoops terjadi kesalahan");
             }
         }
 
@@ -105,6 +123,7 @@ export default function RegistFormAssistant({ mode }) {
                         placeholder="Nama Lengkap"
                     />
                     {localErrors.nama && <p className="text-red-500 text-sm mt-1">{localErrors.nama}</p>}
+                    
                 </div>
                 <div>
                     <input
@@ -177,14 +196,14 @@ export default function RegistFormAssistant({ mode }) {
                 </div>
                 <div>
                     <input
-                        className={`bg-lightGray py-1 px-4 mt-1 rounded-sm border-2 ${
-                            localErrors.kode ? 'border-red-500' : 'border-dustyBlue'
+                        className={`bg-lightGray py-1 px-4 mt-1 rounded-sm border-2 uppercase ${
+                            localErrors.kode ? 'border-red-500' : 'border-dustyBlue '
                         } placeholder-dustyBlue w-full`}
                         type="text"
                         id="kode"
                         value={values.kode}
                         onChange={handleChange}
-                        placeholder="Kode Asisten"
+                        placeholder="DHY"
                         maxLength={3}
                     />
                     {localErrors.kode && <p className="text-red-500 text-sm mt-1">{localErrors.kode}</p>}
@@ -206,9 +225,12 @@ export default function RegistFormAssistant({ mode }) {
                         alt="Toggle Password Visibility"
                         onClick={togglePasswordVisibility}
                     />
-                    {localErrors.password && <p className="text-red-500 text-sm mt-1">{localErrors.password}</p>}
                 </div>
-                <ButtonOption order="register" mode={mode} />
+                <div>
+                    {localErrors.password && <p className="text-red-500 text-sm mt-1">{localErrors.password}</p>}
+
+                </div>
+                <ButtonOption order="register" mode={mode}/>
             </form>
         </div>
     );

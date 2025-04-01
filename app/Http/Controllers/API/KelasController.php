@@ -26,11 +26,7 @@ class KelasController extends Controller
                 'kelas' => $kelas,
             ], 200);
         } catch (\Exception $e) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Failed to retrieve kelas.',
-                'error' => $e->getMessage(),
-            ], 500);
+            return redirect('/register?mode=praktikan')->with('error', $e->getMessage());
         }
     }
 
