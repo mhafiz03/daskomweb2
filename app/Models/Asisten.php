@@ -110,7 +110,7 @@ class Asisten extends Authenticatable
 
 	public function foto_asistens()
 	{
-		return $this->hasMany(FotoAsisten::class, 'kode', 'kode');
+		return $this->hasOne(FotoAsisten::class, 'kode', 'kode');
 	}
 
 	public function history_jagas()
