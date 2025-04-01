@@ -1,5 +1,6 @@
 import { Head, usePage } from '@inertiajs/react';
 import { useEffect, useState } from 'react';
+import { Toaster } from "react-hot-toast";  // Import Toaster
 import LoginFormPraktikan from '@/Components/ComponentsPraktikans/LoginFormPraktikan';
 import LoginFormAssistant from '@/Components/ComponentsAssistants/LoginFormAssistant';
 import Vector from '@/Components/ComponentsPraktikans/Vector';
@@ -22,7 +23,8 @@ export default function LoginPage() {
             <Head title={mode === 'praktikan' ? "Login - Praktikan" : "Login - Asisten"} />
 
             <div className="bg-lightGainsboro flex items-center mt-14 mx-auto rounded-lg shadow-xl max-w-4xl p-5">
-                {mode === 'praktikan' ? (
+                 < Toaster />
+                {mode === 'praktikan' ? (           
                     <LoginFormPraktikan mode={mode} />
                 ) : (
                     <LoginFormAssistant mode={mode} />
