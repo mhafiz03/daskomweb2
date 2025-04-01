@@ -45,7 +45,7 @@ class LoginAsistenController extends Controller
     
             $token = $user->createToken($role->name, [...$allPermissions ])->plainTextToken;
 
-            $cookie = cookie('auth', $token, 60, null, null, true, true, false, 'Lax');
+            $cookie = cookie('auth', $token, 60, null, null, true, true, false, 'None');
 
             return redirect()->intended(RouteServiceProvider::ASSISTANT)
                 ->header('X-XSRF-TOKEN', csrf_token())
@@ -53,10 +53,7 @@ class LoginAsistenController extends Controller
                 ->cookie($cookie);
             
         } catch (\Throwable $th) {
-            //throw $th;
-            return response()->json([
-                'message' => $th->getMessage()
-            ], 500);
+            return redirect()->back()->with('error', $th->getMessage());
         }
 
     }

@@ -33,8 +33,8 @@ class ModulController extends BaseController
                 ->get();
 
             return response()->json([
-                'success' => true,
-                'data' => $moduls,
+                'modul' => $moduls,
+                'message' => 'Moduls retrieved successfully.'
             ]);
         } catch (\Exception $e) {
             return response()->json([

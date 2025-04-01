@@ -37,15 +37,15 @@ class PraktikanLoginRequest extends FormRequest
      *
      * @throws \Illuminate\Validation\ValidationException
      */
-    public function authenticate(): void
+    public function authenticate()
     {
         $this->ensureIsNotRateLimited();
 
         if (! Auth::guard('praktikan')->attempt($this->only('nim', 'password'))) {
             RateLimiter::hit($this->throttleKey());
 
-            throw ValidationException::withMessages([
-                'kode' => trans('auth.failed'),
+            return redirect()->back()->withErrors([
+                'nim' => trans('auth.failed'),
             ]);
         }
     }
@@ -67,7 +67,7 @@ class PraktikanLoginRequest extends FormRequest
         $seconds = RateLimiter::availableIn($this->throttleKey());
 
         throw ValidationException::withMessages([
-            'email' => trans('auth.throttle', [
+            'nim' => trans('auth.throttle', [
                 'seconds' => $seconds,
                 'minutes' => ceil($seconds / 60),
             ]),

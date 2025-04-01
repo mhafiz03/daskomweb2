@@ -9,6 +9,7 @@ export default function ContactAssistant() {
     const { auth } = usePage().props; //data praktikan
     const praktikan = auth.praktikan;
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+    console.log(praktikan)
 
     const toggleSidebar = () => {
         setIsSidebarOpen(!isSidebarOpen);

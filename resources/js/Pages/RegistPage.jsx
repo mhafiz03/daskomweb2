@@ -1,5 +1,6 @@
 import { Head, usePage } from '@inertiajs/react';
 import { useEffect, useState } from 'react';
+import toast , { Toaster } from "react-hot-toast";  // Import Toaster
 import RegistFormPraktikan from '@/Components/ComponentsPraktikans/RegistFormPraktikan';
 import RegistFormAssistant from '@/Components/ComponentsAssistants/RegistFormAssistant';
 import Vector from '@/Components/ComponentsPraktikans/Vector';
@@ -19,12 +20,13 @@ export default function RegistPage() {
     return (
         <>
             <Head title={mode === 'praktikan' ? "Register - Praktikan" : "Register - Asisten"} />
-
+            < Toaster />
             <div className="bg-lightGainsboro flex mt-8 mx-auto rounded-lg shadow-xl max-w-4xl p-5">
+
                 {mode === 'praktikan' ? (
-                    <RegistFormPraktikan />
+                    <RegistFormPraktikan mode={mode} />
                 ) : (
-                    <RegistFormAssistant />
+                    <RegistFormAssistant mode={mode} />
                 )}
                 <Vector />
             </div>

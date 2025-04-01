@@ -47,11 +47,8 @@ class LoginPraktikanController extends Controller
                 ->header('X-XSRF-TOKEN', csrf_token())
                 ->header('Authorization', $token)
                 ->cookie($cookie);
-            
         } catch (\Throwable $th) {
-            return response()->json([
-                'error' => $th->getMessage()
-            ]);
+            return redirect()->back()->with('error', $th->getMessage());
         }
 
     }
