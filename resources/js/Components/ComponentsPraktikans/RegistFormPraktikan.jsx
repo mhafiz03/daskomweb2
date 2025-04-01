@@ -1,10 +1,13 @@
 import { useState, useEffect } from 'react';
 import { router, usePage } from '@inertiajs/react';
+import toast from 'react-hot-toast';
 import eyeClose from '../../../assets/form/eyeClose.png';
 import eyeOpen from '../../../assets/form/eyeOpen.png';
-import AuthButton from '../ComponentsPraktikans/AuthButton';
+import ButtonOption from '../../Components/ComponentsPraktikans/ButtonOption';
 
-export default function RegistFormPraktikan() {
+
+export default function RegistFormPraktikan({ mode }) {
+
     const [values, setValues] = useState({
         email: '',
         nama: '',
@@ -17,7 +20,7 @@ export default function RegistFormPraktikan() {
     const [kelas, setKelas] = useState([]);
     const [passwordVisible, setPasswordVisible] = useState(false);
     const [localErrors, setLocalErrors] = useState({});
-    const { errors: serverErrors } = usePage().props;
+    const [kelas, setKelas] = useState([]);
 
     const togglePasswordVisibility = () => {
         setPasswordVisible((prevState) => !prevState);
@@ -49,36 +52,52 @@ export default function RegistFormPraktikan() {
         return Object.keys(newErrors).length === 0;
     }
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
 
         if (validateFields()) {
-            router.post('/api-v1/register/praktikan', values, {
-                preserveScroll: true,
-                onFinish: () => {
-                    console.log('Registration finished!');
-                },
-                onError: (errors) => {
-                    console.error('Validation Errors:', errors);
-                },
-            });
+            try {
+                await router.post('/api-v1/register/praktikan', values, {
+                    preserveScroll: true,
+                    onSuccess: () => {
+                        toast.success('Registration finished!');
+                        setTimeout(() => {
+                            router.visit('/login?mode=praktikan');                    
+                        }, 1500); 
+                    },
+                    onError: (error) => {
+                        Object.values(error).forEach((errMsg) => {
+                            toast.error(errMsg);
+                        });
+                    }
+                });
+            } catch (error) {
+                toast.error('An unexpected error occurred. Please try again.');
+            }
         }
     };
+
+
 
     useEffect(() => {
         async function fetchKelas() {
             try {
-                const response = await fetch('/api-v1/get-kelas'); // Sesuaikan dengan route di backend
-                const result = await response.json();
-                console.log("Data kelas:", result); // Cek data yang diterima
-                setKelas(result.kelas || []);
+                const response = await fetch('/api-v1/kelas');
+                if (response.ok) {
+                    const data = await response.json();
+                    setKelas(data.kelas || []);
+                } else {
+                    toast.error("Whoops terjadi kesalahan");
+                }
             } catch (error) {
-                console.error('Error fetching kelas:', error);
+                toast.error("Whoops terjadi kesalahan");
             }
         }
 
         fetchKelas();
     }, []);
+
+    console.log(mode);
 
     return (
         <div className="w-1/2 my-1 px-10">
@@ -111,20 +130,23 @@ export default function RegistFormPraktikan() {
                     onChange={handleChange}
                 />
                 {localErrors.nim && <p className="text-red-500 text-sm mt-1">{localErrors.nim}</p>}
-                <select
+
+               <select
                     className="bg-lightGray py-1 px-4 mt-[-10px] rounded-sm border-dustyBlue border-2 placeholder-dustyBlue w-full"
                     id="kelas_id"
                     value={values.kelas_id}
                     onChange={handleChange}
-                 >
+                >
                     <option value="" disabled>
                         Pilih Kelas
                     </option>
-                    {kelas.map((k) => (
-                        <option key={k.id} value={k.id}>
-                            {k.kelas}
-                        </option>
-                    ))}
+                    {kelas
+                        .filter((k) => !k.kelas.startsWith("TOT")) // Hide classes that start with "TOT"
+                        .map((k) => (
+                            <option key={k.id} value={k.id}>
+                                {k.kelas}
+                            </option>
+                        ))}
                 </select>
                 {localErrors.kelas_id && <p className="text-red-500 text-sm mt-1">{localErrors.kelas_id}</p>}
                 <input
@@ -162,7 +184,7 @@ export default function RegistFormPraktikan() {
                     />
                     {localErrors.password && <p className="text-red-500 text-sm mt-1">{localErrors.password}</p>}
                 </div>
-                <AuthButton order="register" mode="register" />
+                <ButtonOption order="register" mode="praktikan" />
             </form>
         </div>
     );

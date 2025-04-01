@@ -11,7 +11,7 @@ const Separator = () => (
     </div>
 );
 
-export default function AuthButton({ order, openModal, mode }) {
+export default function AuthButton({ order, mode }) {
     const [isModalOpen, setIsModalOpen] = useState(false);
 
     const handleOpenModal = () => {
@@ -41,7 +41,7 @@ export default function AuthButton({ order, openModal, mode }) {
         <>
             <button
                 className="w-full mt-2 mb-1 p-1 bg-deepForestGreen text-lg text-white font-bold rounded-sm hover:bg-deepForestGreenDark duration-300"
-                onClick={handleOpenModal} type='submit'
+                type='submit'
             >
                 Daftar
             </button>

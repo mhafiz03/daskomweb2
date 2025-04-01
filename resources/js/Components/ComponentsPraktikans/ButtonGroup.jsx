@@ -4,7 +4,7 @@ import ButtonMode from './ButtonMode';
 
 const buttonTypes = ['praktikan', 'assistant'];
 
-export default function ButtonGroup() {
+export default function ButtonGroup({mode}) {
     const { ziggy } = usePage().props; 
     const currentMode = new URL(ziggy.location).searchParams.get('mode') || 'praktikan';
 

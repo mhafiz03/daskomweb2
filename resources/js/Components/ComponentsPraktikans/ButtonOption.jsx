@@ -10,7 +10,7 @@ export default function ButtonOption({ openModal, order, mode }) {
 
     return (
         <>
-            <AuthButton order={order} openModal={openModal} mode={mode} navigateToPage={navigateToPage} />
+            <AuthButton order={order} mode={mode} navigateToPage={navigateToPage} />
             <Modal isOpen={openModal} onClose={() => openModal(false)} width="w-[350px]" />
         </>
     );

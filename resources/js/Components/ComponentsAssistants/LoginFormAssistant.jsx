@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { router, usePage } from '@inertiajs/react';
+import toast from 'react-hot-toast';
 import eyeClose from '../../../assets/form/eyeClose.png';
 import eyeOpen from '../../../assets/form/eyeOpen.png';
 import ButtonOption from '../../Components/ComponentsPraktikans/ButtonOption';
@@ -14,9 +15,7 @@ export default function LoginFormAssistant({ mode }) {
 
     const [passwordVisible, setPasswordVisible] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
-
-    // Access shared props from Inertia
-    const { errors } = usePage().props;
+    const [errorMessage, setErrorMessage] = useState("");
 
     const togglePasswordVisibility = () => {
         setPasswordVisible((prevState) => !prevState);
@@ -45,38 +44,20 @@ export default function LoginFormAssistant({ mode }) {
         // Perform login using Inertia's router
         router.post('/login/asisten', values, {
             preserveScroll: true, // Keeps the scroll position
-            onFinish: () => {
-
-                console.log('Login finished!');
+            onSuccess: (page) => {
+                if (page.props.authenticated) {
+                    toast.success('Login successful!');
+                } else {
+                    toast.error('Login failed! Please check your credentials.');
+                }
             },
-            onError: (errors) => {
-                console.error('Validation Errors:', errors);
-            },
+            onError: (error) => {
+                Object.values(error).forEach((errMsg) => {
+                    toast.error(errMsg);
+                });
+            }
         });
     }
-    //     function handleSubmit(e) {
-    //     e.preventDefault();
-
-    //     // Perform login using Inertia's router
-    //     router.post('/login/asisten', values, {
-    //         preserveScroll: true,
-    //         onSuccess: (page) => {
-    //             const token = page.props.auth?.token; // Adjust according to your server response
-    //             if (token) {
-    //                 // Save the token (e.g., in localStorage)
-    //                 localStorage.setItem('token', token);
-
-    //                 // Set the default Authorization header
-    //                 axios_client.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-
-    //                 console.log('Token set to Axios default header!');
-    //             }
-    //         },
-    //         onError: (errors) => {
-    //             console.error('Validation Errors:', errors);
-    //         },
-    //     });
-    // }
 
     return (
         <div className="w-1/2 my-10 px-10">
@@ -97,9 +78,6 @@ export default function LoginFormAssistant({ mode }) {
                     placeholder="B0T"
                     maxLength={3}
                 />
-                {errors.kode && (
-                    <p className="text-red-500 text-sm mt-1">{errors.kode}</p>
-                )}
 
                 <div className="relative">
                     <input
@@ -117,21 +95,27 @@ export default function LoginFormAssistant({ mode }) {
                         alt="Toggle Password Visibility"
                         onClick={togglePasswordVisibility}
                     />
-                    {errors.password && (
-                        <p className="text-red-500 text-sm mt-1">{errors.password}</p>
+                   
+                </div>
+                <div className="relative items-center" >
+                    {/* Error Message */}
+                    {errorMessage && (
+                        <p className="text-red-500 justify-center text-sm mt-2">{errorMessage}</p>
                     )}
                 </div>
+
+
                 <ButtonOption order="login" mode={mode} />
             </form>
             <div className="relative my-1 text-right">
-                    <p
-                        className="inline-block relative text-sm text-deepForestGreen font-semibold cursor-pointer group"
-                        onClick={openModal}
-                    >
-                        Forgot Password?
-                        <span className="absolute bottom-[-1px] left-0 right-0 h-0.5 bg-deepForestGreenDark transform scale-x-0 origin-left transition-transform duration-300 group-hover:scale-x-100" />
-                    </p>
-                </div>
+                <p
+                    className="inline-block relative text-sm text-deepForestGreen font-semibold cursor-pointer group"
+                    onClick={openModal}
+                >
+                    Forgot Password?
+                    <span className="absolute bottom-[-1px] left-0 right-0 h-0.5 bg-deepForestGreenDark transform scale-x-0 origin-left transition-transform duration-300 group-hover:scale-x-100" />
+                </p>
+            </div>
 
             {isModalOpen && (
                 <Modal isOpen={isModalOpen} onClose={closeModal} width="w-[370px]">
