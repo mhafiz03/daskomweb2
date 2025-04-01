@@ -51,31 +51,47 @@ class RegisteredPraktikanController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([
-            'nama' => 'required|string|max:255',
-            'nim' => 'required|string|max:12|unique:' . Praktikan::class,
-            'nomor_telepon' =>'required|string|max:15',
-            'email' => 'required|string|email',
-            'kelas_id'=>'required|integer|exists:kelas,id',
-            'alamat' => 'required|string',
-            'password' =>'required|string',
-        ]);
+        try {
+            // Validate the request
+            $validatedData = $request->validate([
+                'nama' => 'required|string|max:255',
+                'nim' => 'required|string|max:12|unique:praktikans,nim',
+                'nomor_telepon' => 'required|string|max:15',
+                'email' => 'required|string|email',
+                'kelas_id' => 'required|integer|exists:kelas,id',
+                'alamat' => 'required|string',
+                'password' => 'required|string',
+            ]);
 
-        $praktikan = Praktikan::create([
-            'nama' => $request->nama,
-            'nim' => $request->nim,
-            'kelas_id' => $request->kelas_id,
-            'alamat' => $request->alamat,
-            'email' => $request->email,
-            'nomor_telepon' => $request->nomor_telepon,
-            'password' => Hash::make($request->password),
-            'created_at' => now(),
-            'updated_at' => now(),
-        ]);
+            // Create the Praktikan
+            $praktikan = Praktikan::create([
+                'nama' => $validatedData['nama'],
+                'nim' => $validatedData['nim'],
+                'kelas_id' => $validatedData['kelas_id'],
+                'alamat' => $validatedData['alamat'],
+                'email' => $validatedData['email'],
+                'nomor_telepon' => $validatedData['nomor_telepon'],
+                'password' => Hash::make($validatedData['password']),
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
 
-        $praktikan->assignRole('PRAKTIKAN');
+            // Assign role
+            $praktikan->assignRole('PRAKTIKAN');
 
-        return Redirect::route('login');
+            return redirect()->back()
+                ->with('success', 'Praktikan registered successfully');
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            // Catch validation errors
+            return redirect()->back()
+                ->withErrors($e->validator)
+                ->withInput();
+        } catch (\Exception $e) {
+            // Catch unexpected errors
+            return redirect('/register?mode=praktikan')
+                ->with('error', 'An unexpected error occurred. Please try again.')
+                ->withInput();
+        }
     }
 
     public function lupaPassword(Request $request): RedirectResponse
