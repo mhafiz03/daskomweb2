@@ -2,7 +2,7 @@ import { useState } from "react";
 import ButtonAddRole from "./ModalAddRole";
 import TableManageRole from "./TableRole";
 
-export default function ContentManageRole() {
+export default function ContentManageRole({ asisten }) {
     const [showModal, setShowModal] = useState(false);
 
     const handleOpenModal = () => setShowModal(true);
@@ -30,7 +30,7 @@ export default function ContentManageRole() {
 
             {/* Table Data role asistant */}
             <div className="">
-                <TableManageRole />
+                <TableManageRole asisten={asisten}/>
             </div>
 
             {/* Modal Add role */}

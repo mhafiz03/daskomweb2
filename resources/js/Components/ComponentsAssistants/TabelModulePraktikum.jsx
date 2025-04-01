@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import axios from "axios";
+import { router, usePage } from "@inertiajs/react";
 import ButtonEditModule from "./ModalEditModule";
 import editIcon from "../../../assets/nav/Icon-Edit.svg";
 import trashIcon from "../../../assets/nav/Icon-Delete.svg";
@@ -17,6 +17,7 @@ export default function TabelModulePraktikum() {
     const [selectedModuleId, setSelectedModuleId] = useState(null);
     const [message, setMessage] = useState("");
     const [openIndex, setOpenIndex] = useState(null);
+    const [roles, setRoles] = useState([]);
     const [modules, setModules] = useState([]);
     const [loading, setLoading] = useState(false);
     const [initialOpen, setInitialOpen] = useState(false);
