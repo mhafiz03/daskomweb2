@@ -165,21 +165,6 @@ export default function PollingContent({ activeCategory, pollingsData, onSubmit,
                     )}
                 </div>
             </div>
-         
-            {/* Submit button */}
-            <div className="mt-4 flex justify-center">
-                <button
-                    onClick={handleSubmitAll}
-                    disabled={isSubmitted}
-                    className={`px-6 py-2 rounded-lg font-bold ${
-                        isSubmitted 
-                            ? 'bg-gray-400 cursor-not-allowed' 
-                            : 'bg-deepForestGreen text-white hover:bg-green-800'
-                    }`}
-                >
-                    {isSubmitted ? 'Submitted' : 'Submit Polling'}
-                </button>
-            </div>
 
             {/* Modal for selected asisten */}
             {activeModalCards[activeCategory] && (
