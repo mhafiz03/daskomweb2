@@ -172,7 +172,7 @@ Route::prefix('api-v1')->group(function () {
 
     // Asisten
     Route::patch('/asisten/password', [AsistenController::class, 'updatePassword'])->middleware('auth:asisten');
-    Route::get('/asisten', [AsistenController::class, 'index'])->name('get.asisten')->middleware(['auth:asisten,praktikan', 'can:lihat-asisten, see-plot']);
+    Route::get('/asisten', [AsistenController::class, 'index'])->name('get.asisten')->middleware(['auth:asisten,praktikan', 'can:lihat-asisten']);    
     // Route::put('/asisten', [AsistenController::class, 'update'])->name('update.asisten')->middleware(['auth:asisten', 'can:manage-profile']);
     Route::post('/asisten/delete', [AsistenController::class, 'destroy'])->name('destroy.asisten')->middleware(['auth:asisten', 'can:manage-role']);
 
@@ -234,7 +234,7 @@ Route::prefix('api-v1')->group(function () {
     Route::post('/pelanggaran/reset', [PelanggaranController::class, 'reset'])->name('reset.pelanggaran')->middleware(['auth:asisten', 'can:lms-configuration']);
 
     // Jenis Polling
-    Route::get('/jenis-polling', [JenisPollingController::class, 'index'])->name('get.jenis.poling')->middleware(['auth:asisten', 'can:see-polling,isi-polling']);
+    Route::get('/jenis-polling', [JenisPollingController::class, 'index'])->name('get.jenis.poling')->middleware(['auth:asisten', 'can:see-polling']);
 
     // Polling View Count
     Route::get('/polling/{id}', [PollingsController::class, 'show'])->name('show.polling')->middleware(['auth:asisten', 'can:see-polling']);
@@ -325,19 +325,11 @@ Route::prefix('api-v1')->group(function () {
     ////////////////praktikan///////////////////////////////
     
     // polling
-    //Route::post('/pollings', [PollingsController::class, 'store'])->name('store.polling')->middleware(['auth:praktikan', 'can:isi-polling']);
-    //Route::post('/pollings/asistens', [PollingsController::class, 'getAllAsistens'])->middleware(['auth:praktikan', 'can:isi-polling']);
-    //Route::get('/pollings/{id}', [PollingsController::class, 'show'])->name('show.polling')->middleware(['auth:praktikan', 'can:isi-polling']);
-    //ini gatau anomali knp klw pakai group bisa, klw gak pakai group ga bisa
-    Route::group(['prefix' => 'pollings'], function () {
-        Route::get('/asistens', [PollingsController::class, 'getAllAsistens'])->middleware(['auth:praktikan', 'can:isi-polling']);
-        Route::post('/submit-all', [PollingsController::class, 'submitAll'])->name('pollings.submit-all')->middleware(['auth:praktikan', 'can:isi-polling']);
-        Route::get('/{id}', [PollingsController::class, 'show'])->name('show.polling')->middleware(['auth:praktikan', 'can:isi-polling']);
-        Route::post('/', [PollingsController::class, 'store'])->name('store.polling')->middleware(['auth:praktikan', 'can:isi-polling']);
-    });
-
+    Route::post('/pollings', [PollingsController::class, 'store'])->name('store.polling')->middleware(['auth:praktikan', 'can:isi-polling']);    
+    Route::get('/pollings/{id}', [PollingsController::class, 'show'])->name('show.polling')->middleware(['auth:praktikan', 'can:isi-polling']);
+    Route::get('/pollings/{id}', [PollingsController::class, 'show'])->name('show.polling')->middleware(['auth:praktikan', 'can:isi-polling']);
     Route::get('/jenis-polling', [JenisPollingController::class, 'index'])->name('get.jenis.poling')->middleware(['auth:praktikan', 'can:isi-polling']);
-
+    
     Route::get('/nilai', [NilaiController::class, 'show'])->name('show.nilais')->middleware(['auth:praktikan', 'can:lihat-nilai']);
 
     // Jawaban TA
