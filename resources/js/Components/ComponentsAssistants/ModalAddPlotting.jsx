@@ -17,38 +17,6 @@ export default function ModalAddPlotting({ onClose, fetchKelas }) {
         isEnglish: 0, // Default 0 (false)
     });
 
-<<<<<<< HEAD
-    // Fetch data asisten saat komponen dimount
-    useEffect(() => {
-        const fetchData = async () => {
-            setLoading(true);
-            try {
-                const response = await axios.get("/api-v1/asisten");
-                console.log("Response dari backend:", response.data);
-
-                if (response.data.success) {
-                    setAsisten(response.data.asisten);
-                    console.log("Data asisten di state:", response.data.asisten);
-                } else {
-                    setError(response.data.message || "Gagal mengambil data asisten.");
-                }
-            } catch (error) {
-                console.error("Error fetching data:", error);
-                if (error.response && error.response.status === 403) {
-                    setError("Akses ditolak. Pastikan Anda memiliki izin yang diperlukan.");
-                } else {
-                    setError("Terjadi kesalahan saat mengambil data.");
-                }
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchData();
-    }, []);
-
-=======
->>>>>>> e54be60ead4bdc26a42d92bfaa60d3c40a019604
     // Handle perubahan input
     const handleInputChange = (e) => {
         const { id, value } = e.target;
