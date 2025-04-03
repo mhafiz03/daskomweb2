@@ -4,44 +4,63 @@ import { usePage } from '@inertiajs/react';
 import daskomIcon from "../../../assets/daskom.svg";
 import CardPolling from "./CardPolling";
 
-export default function PollingContent({ activeCategory, onSubmit, isSubmitted }) {
+export default function PollingContent({ activeCategory, pollingsData, onSubmit, isSubmitted, submitRef }) {
     
     const [selectedCards, setSelectedCards] = useState({});
     const [activeModalCards, setActiveModalCards] = useState({});
     const [asistens, setAsistens] = useState([]);
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const { auth } = usePage().props;
-    const user = auth.praktikan;
-    console.log('Praktikan user:', user);
+    const user = auth?.praktikan;
 
+    // Find polling ID from the polling name/category
+    const getPollingIdByName = (pollingName) => {
+        const polling = pollingsData?.find(p => p.name === pollingName);
+    };
 
-
-    // Load selected cards from localStorage
     useEffect(() => {
         const storedCards = localStorage.getItem("selectedCards");
-        if (storedCards) setSelectedCards(JSON.parse(storedCards));
+        if (storedCards) {
+            try {
+                setSelectedCards(JSON.parse(storedCards));
+            } catch (err) {
+                console.error("Error parsing stored cards:", err);
+                localStorage.removeItem("selectedCards");
+            }
+        }
 
         const storedModalCards = localStorage.getItem("activeModalCards");
-        if (storedModalCards) setActiveModalCards(JSON.parse(storedModalCards));
-    }, []);
-
-    // Fetch asisten data when activeCategory changes
-    useEffect(() => {
-        const fetchAsistens = async () => {
+        if (storedModalCards) {
             try {
-                setLoading(true);
-                const response = await axios.get('/api-v1/pollings/asistens');
-                setAsistens(response.data.asistens);
-                setLoading(false);
+                setActiveModalCards(JSON.parse(storedModalCards));
             } catch (err) {
-                setError(err.response?.data?.message || 'Failed to fetch asisten data');
-                setLoading(false);
-                console.error('Error fetching asisten data:', err);
+                console.error("Error parsing stored modal cards:", err);
+                localStorage.removeItem("activeModalCards");
             }
-        };
+        }
+    }, []);    
 
-        if (activeCategory) fetchAsistens();
+    useEffect(() => {
+        if (activeCategory) {
+            setLoading(true);
+    
+            axios.get('/api-v1/asisten')
+                .then(response => {
+                    if (response.data && response.data.success) {
+                        setAsistens(response.data.asisten || []);
+                    } else {
+                        setError(response.data?.message || 'Failed to fetch asisten');
+                        console.error('Failed to fetch asisten:', response.data?.message);
+                    }
+                    setLoading(false);
+                })
+                .catch(error => {
+                    setError(error.message || 'Failed to fetch asisten');
+                    setLoading(false);
+                    console.error('Failed to fetch asisten:', error);
+                });    
+        }
     }, [activeCategory]);
 
     const handleCardClick = (asisten) => {
@@ -62,104 +81,91 @@ export default function PollingContent({ activeCategory, onSubmit, isSubmitted }
 
     const handleSubmitAll = async () => {
         if (!user || !selectedCards) {
-            console.log("User or selectedCards missing", { user, selectedCards });
-            return;
+            console.error("User or selectedCards missing", { user, selectedCards });
+            return { success: false, message: 'User information or selections are missing' };
         }
-    
+        
         try {
-            // Prepare submissions data
             const submissions = Object.entries(selectedCards)
-                .filter(([pollingId, asisten]) => asisten)
-                .map(([pollingId, asisten]) => ({
-                    polling_id: pollingId,
-                    asisten_id: asisten.id,
+                .filter(([categoryName, asisten]) => categoryName && asisten && asisten.kode)
+                .map(([categoryName, asisten]) => ({
+                    polling_id: getPollingIdByName(categoryName),
+                    kode: asisten.kode,
                     praktikan_id: user.id
                 }));
-    
-            if (submissions.length === 0) {
-                alert('Please select at least one asisten');
-                return;
-            }
-    
-//            const response = await fetch('/api-v1/pollings/submit-all', {
-//                method: 'POST',
-//                headers: {
-//                    'Content-Type': 'application/json',
-//                    'Accept': 'application/json',
-//                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content, 
-//                },
-//                body: JSON.stringify({ submissions }),
-//                credentials: 'include'
-//            });
 
-            const response = await axios.post('/api-v1/pollings/submit-all', submissions, {
+            if (submissions.length === 0) {
+                return { success: false, message: 'Please select at least one asisten' };
+            }
+
+            const response = await axios.post('/api-v1/pollings', submissions, {
                 headers: {
                     'Content-Type': 'application/json',
                     'Accept': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content, 
-                },
-                credentials: 'include'
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '', 
+                }
             });
-            // First check if the response is OK (status 200-299)
-            if (!response.ok) {
-                // Try to get error message from response
-                let errorData;
-                try {
-                    errorData = await response.json();
-                } catch (e) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
+
+            // Check if response exists and has data property
+            if (response && response.data) {
+                const data = response.data;
+
+                if (data.status === 'success') {
+                    if (onSubmit && typeof onSubmit === 'function') {
+                        onSubmit(selectedCards);
+                        // Clear selections after successful submission
+                        setSelectedCards({});
+                        setActiveModalCards({});
+                        localStorage.removeItem("selectedCards");
+                        localStorage.removeItem("activeModalCards");
+                    }
+                    return { success: true, message: 'Polling submitted successfully!' };
+                } else {
+                    throw new Error(data.message || 'Server returned non-success status');
                 }
-                throw new Error(errorData.message || 'Failed to submit pollings');
-            }
-    
-            // Parse successful response
-            const data = await response.json();
-            
-            // Check if data exists and has status property
-            if (!data || typeof data.status === 'undefined') {
-                throw new Error('Invalid server response format');
-            }
-    
-            if (data.status === 'success') {
-                if (onSubmit) {
-                    onSubmit(selectedCards);
-                    setSelectedCards({});
-                    setActiveModalCards({});
-                }
-                alert('Polling submitted successfully!');
             } else {
-                throw new Error(data.message || 'Server returned non-success status');
+                throw new Error('Invalid response from server');
             }
         } catch (err) {
             console.error('Submission error:', err);
-            alert('Failed to submit pollings: ' + (err.message || 'Unknown error'));
+            return { success: false, message: 'Failed to submit pollings: ' + (err.message || 'Unknown error') };
         }
     };
 
-    if (loading) return <div>Loading asisten data...</div>;
-    if (error) return <div>Error: {error}</div>;
+    useEffect(() => {
+        if (submitRef) {
+            submitRef.current = handleSubmitAll;
+        }
+    }, [submitRef, user, selectedCards]);
 
+    if (loading) return <div>Mengambil Data...</div>;
+    if (error) return <div>Error: {error}</div>;
+    
     return (
         <div className={`relative ${isSubmitted ? "pointer-events-none" : ""}`}>
             <div className="p-4 mt-4 h-[59vh] overflow-y-auto bg-softIvory rounded-lg shadow-lg relative">
                 <div className="grid grid-cols-3 gap-4">
-                    {asistens.map((asisten) => (
-                        <CardPolling
-                            key={asisten.id}
-                            image={daskomIcon}
-                            name={`${asisten.kode} | ${asisten.nama}`}
-                            description={asisten.deskripsi || "Asisten Laboratorium Daskom"}
-                            onClick={() => handleCardClick(asisten)}
-                            isDimmed={
-                                !!activeModalCards[activeCategory] &&
-                                activeModalCards[activeCategory]?.id !== asisten.id
-                            }
-                            isSelected={selectedCards[activeCategory]?.id === asisten.id}
-                        />
-                    ))}
+                    {Array.isArray(asistens) && asistens.length > 0 ? (
+                        asistens.map((asisten) => (
+                            <CardPolling
+                                key={asisten.kode}
+                                image={asisten.foto ? asisten.foto : daskomIcon}
+                                name={`${asisten.kode} | ${asisten.nama}`}
+                                description={asisten.deskripsi || "Asisten Laboratorium Daskom"}
+                                onClick={() => handleCardClick(asisten)}
+                                isDimmed={
+                                    !!activeModalCards[activeCategory] &&
+                                    activeModalCards[activeCategory]?.kode !== asisten.kode
+                                }
+                                isSelected={selectedCards[activeCategory]?.kode === asisten.kode}
+                            />
+                        ))
+                    ) : (
+                        <div className="col-span-3 text-center py-8">No asisten data available</div>
+                    )}
                 </div>
             </div>
-
+         
             {/* Submit button */}
             <div className="mt-4 flex justify-center">
                 <button
@@ -180,12 +186,12 @@ export default function PollingContent({ activeCategory, onSubmit, isSubmitted }
                 <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-50">
                     <div className="pointer-events-auto h-[50vh] w-[23vw] border-4 rounded-lg bg-softIvory shadow-lg p-6">
                         <img
-                            src={daskomIcon}
-                            alt={activeModalCards[activeCategory]?.nama}
+                            src={activeModalCards[activeCategory]?.foto || daskomIcon}
+                            alt={activeModalCards[activeCategory]?.nama || "Asisten"}
                             className="w-[165px] mx-auto rounded-full mb-4"
                         />
                         <h2 className="text-center mb-5 font-bold text-xl text-black">
-                            {activeModalCards[activeCategory]?.kode} | {activeModalCards[activeCategory]?.nama}
+                            {activeModalCards[activeCategory]?.kode || ""} | {activeModalCards[activeCategory]?.nama || ""}
                         </h2>
                         <p className="font-semibold text-center text-sm text-black">
                             {activeModalCards[activeCategory]?.deskripsi || "Asisten Laboratorium Daskom"}
