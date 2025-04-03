@@ -29,32 +29,4 @@ class JenisPollingController extends Controller
             ], 500);
         }
     }
-
-    /**
-     * Store a new polling category
-     */
-    public function store(Request $request)
-    {
-        $request->validate([
-            'judul' => 'required|string|unique:jenis_pollings,judul',
-        ]);
-
-        try {
-            $category = JenisPolling::create([
-                'judul' => $request->judul,
-            ]);
-
-            return response()->json([
-                'status' => 'success',
-                'category' => $category,
-                'message' => 'Polling category created successfully.'
-            ], 201);
-        } catch (\Exception $e) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Failed to create polling category.',
-                'error' => $e->getMessage(),
-            ], 500);
-        }
-    }
 }
