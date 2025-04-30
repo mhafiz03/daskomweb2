@@ -14,9 +14,9 @@ export default function PollingContent({ activeCategory, pollingsData, onSubmit,
     const { auth } = usePage().props;
     const user = auth?.praktikan;
 
-    // Find polling ID from the polling name/category
-    const getPollingIdByName = (pollingName) => {
-        const polling = pollingsData?.find(p => p.name === pollingName);
+    // Fix the polling ID function to use the category ID directly
+    const getPollingId = (categoryId) => {
+        return categoryId; // Simply return the ID that was passed from PollingHeader
     };
 
     useEffect(() => {
@@ -87,9 +87,9 @@ export default function PollingContent({ activeCategory, pollingsData, onSubmit,
         
         try {
             const submissions = Object.entries(selectedCards)
-                .filter(([categoryName, asisten]) => categoryName && asisten && asisten.kode)
-                .map(([categoryName, asisten]) => ({
-                    polling_id: getPollingIdByName(categoryName),
+                .filter(([categoryId, asisten]) => categoryId && asisten && asisten.kode)
+                .map(([categoryId, asisten]) => ({
+                    polling_id: getPollingId(categoryId),
                     kode: asisten.kode,
                     praktikan_id: user.id
                 }));

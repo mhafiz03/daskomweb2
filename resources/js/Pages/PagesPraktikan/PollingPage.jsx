@@ -9,7 +9,7 @@ import ModalSuccessData from "@/Components/ComponentsPraktikans/ModalSuccessData
 
 export default function PollingPage({ auth }) {
     const { ziggy } = usePage().props;
-    const [activeCategory, setActiveCategory] = useState("Tercantik");
+    const [activeCategory, setActiveCategory] = useState("1");
     const [selectedCards, setSelectedCards] = useState(() => {
         const storedCards = localStorage.getItem("selectedCards");
         return storedCards ? JSON.parse(storedCards) : {};
