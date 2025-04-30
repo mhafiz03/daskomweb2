@@ -17,7 +17,6 @@ export default function PollingHeader({ onCategoryClick, activeCategory }) {
             try {
                 const response = await axios.get('/api-v1/jenis-polling');
                 setCategories(response.data.categories);
-                console.log("Fetched categories:", response.data.categories); // Add this line for debuggi
                 setLoading(false);
             } catch (error) {
                 console.error('Error fetching categories:', error);
