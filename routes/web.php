@@ -155,7 +155,7 @@ Route::get('/contact-assistant', function () {
 Route::get('/polling-assistant', function () {
     return Inertia::render('PagesPraktikan/PollingPage');
 })->name('polling-assistant');
-
+    
 /////////////////////////////////////// Data Routes ///////////////////////////////////////
 Route::prefix('api-v1')->group(function () {
     Route::put('/asisten', [AsistenController::class, 'update'])->name('update.asisten')->middleware(['auth:asisten', 'can:manage-profile']);
@@ -172,7 +172,7 @@ Route::prefix('api-v1')->group(function () {
 
     // Asisten
     Route::patch('/asisten/password', [AsistenController::class, 'updatePassword'])->middleware('auth:asisten');
-    Route::get('/asisten', [AsistenController::class, 'index'])->name('get.asisten')->middleware(['auth:asisten,praktikan', 'can:lihat-asisten, see-plot']);
+    Route::get('/asisten', [AsistenController::class, 'index'])->name('get.asisten')->middleware(['auth:asisten,praktikan', 'can:lihat-asisten']);    
     // Route::put('/asisten', [AsistenController::class, 'update'])->name('update.asisten')->middleware(['auth:asisten', 'can:manage-profile']);
     Route::post('/asisten/delete', [AsistenController::class, 'destroy'])->name('destroy.asisten')->middleware(['auth:asisten', 'can:manage-role']);
 
@@ -234,7 +234,7 @@ Route::prefix('api-v1')->group(function () {
     Route::post('/pelanggaran/reset', [PelanggaranController::class, 'reset'])->name('reset.pelanggaran')->middleware(['auth:asisten', 'can:lms-configuration']);
 
     // Jenis Polling
-    Route::get('/jenis-polling', [JenisPollingController::class, 'index'])->name('get.jenis.poling')->middleware(['auth:asisten', 'can:see-polling,isi-polling']);
+    Route::get('/jenis-polling', [JenisPollingController::class, 'index'])->name('get.jenis.poling')->middleware(['auth:asisten', 'can:see-polling']);
 
     // Polling View Count
     Route::get('/polling/{id}', [PollingsController::class, 'show'])->name('show.polling')->middleware(['auth:asisten', 'can:see-polling']);
@@ -323,9 +323,13 @@ Route::prefix('api-v1')->group(function () {
     //set praktikan
     Route::patch('/set-password', [PraktikanController::class, 'setPassword'])->name('set-password')->middleware(['auth:asisten', 'can:set-praktikan']);
     ////////////////praktikan///////////////////////////////
+    
     // polling
-    Route::post('/polling', [PollingsController::class, 'store'])->name('store.polling')->middleware(['auth:praktikan', 'can:isi-polling']);
-
+    Route::post('/pollings', [PollingsController::class, 'store'])->name('store.polling')->middleware(['auth:praktikan', 'can:isi-polling']);    
+    Route::get('/pollings/{id}', [PollingsController::class, 'show'])->name('show.polling')->middleware(['auth:praktikan', 'can:isi-polling']);
+    Route::get('/pollings/{id}', [PollingsController::class, 'show'])->name('show.polling')->middleware(['auth:praktikan', 'can:isi-polling']);
+    Route::get('/jenis-polling', [JenisPollingController::class, 'index'])->name('get.jenis.poling')->middleware(['auth:praktikan', 'can:isi-polling']);
+    
     Route::get('/nilai', [NilaiController::class, 'show'])->name('show.nilais')->middleware(['auth:praktikan', 'can:lihat-nilai']);
 
     // Jawaban TA

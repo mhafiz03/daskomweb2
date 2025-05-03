@@ -8,6 +8,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Validator;
+use Inertia\Inertia;
 
 class PollingsController extends Controller
 {
@@ -24,48 +26,74 @@ class PollingsController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([
-            'asisten_id' => 'required|integer|exists:asistens,id',
-            'polling_id' => 'required|integer|exists:jenis_pollings,id',
-            'praktikan_id' => 'required|integer|exists:praktikans,id',
+        $validator = Validator::make($request->all(), [
+            '*.polling_id' => 'required|integer|exists:jenis_pollings,id',
+            '*.kode' => 'required|string|exists:asistens,kode',
+            '*.praktikan_id' => 'required|integer|exists:praktikans,id',
         ]);
-        try {
-            $polling = Polling::where('praktikan_id', $request->praktikan_id)
-                ->where('polling_id', $request->polling_id)
-                ->first();
-            if ($polling) {
-                $polling->update([
-                    'asisten_id' => $request->asisten_id,
-                ]);
-                return response()->json([
-                    'message' => 'Polling updated successfully.'
-                ], 200);
-            } else {
-                Polling::create([
-                    'asisten_id' => $request->asisten_id,
-                    'polling_id' => $request->polling_id,
-                    'praktikan_id' => $request->praktikan_id,
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ]);
-                return response()->json([
-                    'message' => 'Polling created successfully.'
-                ], 201);
-            }
-        } catch (\Exception $e) {
+
+        if ($validator->fails()) {
             return response()->json([
+                'status' => 'error',
+                'message' => 'Validation failed',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        try {
+            DB::beginTransaction();
+            
+            foreach ($request->all() as $submission) {
+                $asisten = Asisten::where('kode', $submission['kode'])->first();
+                if (!$asisten) {
+                    throw new \Exception("Asisten with code {$submission['kode']} not found.");
+                }
+
+                $polling = Polling::where('praktikan_id', $submission['praktikan_id'])
+                    ->where('polling_id', $submission['polling_id'])
+                    ->first();
+
+                if ($polling) {
+                    $polling->update([
+                        'asisten_id' => $asisten->id,
+                        'updated_at' => now(),
+                    ]);
+                } else {
+                    Polling::create([
+                        'asisten_id' => $asisten->id,
+                        'polling_id' => $submission['polling_id'],
+                        'praktikan_id' => $submission['praktikan_id'],
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ]);
+                }
+            }
+            
+            DB::commit();
+            
+            return response()->json([
+                'status' => 'success',
+                'message' => 'All pollings submitted successfully'
+            ], 200);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'status' => 'error',
                 'message' => 'An error occurred while processing the request.',
                 'error' => $e->getMessage(),
             ], 500);
         }
     }
 
+
+
+
     public function show(string $id) // $id adalah pollingId (ID jenis polling)
     {
         try {
             $asisten = DB::table('pollings')
                 ->leftJoin('jenis_pollings', 'jenis_pollings.id', '=', 'pollings.polling_id')
-                ->leftJoin('asistens', 'asistens.id', '=', 'pollings.asisten_id')
+                ->leftJoin('asistens', 'asistens.id', '=', 'pollings.kode')
                 ->where('pollings.polling_id', $id) // Gunakan polling_id, bukan praktikan_id
                 ->select('asistens.id', 'asistens.nama', 'asistens.kode', DB::raw('count(pollings.id) as total'))
                 ->groupBy('asistens.id', 'asistens.nama', 'asistens.kode')
