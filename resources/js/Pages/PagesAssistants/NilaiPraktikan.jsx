@@ -8,7 +8,8 @@ export default function PelanggaranAssistant() {
     const { auth } = usePage().props; //data asisten
     const asisten = auth.asisten;
     console.log(auth);
-    const permission = asisten.role.permissions;
+    //const permission = asisten.role.permissions;
+    const permission = asisten?.role?.permissions || []; //sementara.. hapus ? nya ntar
     const permission_name = permission.map(item => item.name);
     return (
         <>
