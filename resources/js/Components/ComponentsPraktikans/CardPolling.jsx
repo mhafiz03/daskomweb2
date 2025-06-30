@@ -21,7 +21,7 @@ export default function CardPolling({
             <img
                 src={image}
                 alt={name}
-                className="rounded-full w-[165px] h-auto mx-auto"
+                className="rounded-full w-[165px] h-[165px] mx-auto object-cover"
             />
             <h1 className="mb-7 font-bold text-lg text-black">{name}</h1>
             <p className="font-semibold text-sm text-black">{description}</p>
