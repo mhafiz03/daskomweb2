@@ -115,7 +115,7 @@ Route::get('/manage-role', function () {
 
 Route::get('/nilai-praktikan', function () {
     return Inertia::render('PagesAssistants/NilaiPraktikan');
-})->name('nilai-praktikan');
+})->name('nilai-praktikan')->middleware(['auth:asisten', 'can:nilai-praktikan']);
 
 Route::get('/start-praktikum', function () {
     return Inertia::render('PagesAssistants/StartPraktikum');
