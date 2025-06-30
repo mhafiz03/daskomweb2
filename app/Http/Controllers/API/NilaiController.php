@@ -81,7 +81,13 @@ class NilaiController extends Controller
     public function show()
     {
         try {
-            $nilai = Nilai::where('praktikan_id', auth('sanctum')->user()->id)->get();
+            //$nilai = Nilai::where('praktikan_id', auth('sanctum')->user()->id)->get();
+            //change sanctum method to guard praktikan
+            $nilai = Nilai::where('praktikan_id', auth('praktikan')->user()->id)
+            ->with(['modul', 'asisten'])
+            ->get();
+
+    
             if ($nilai->isEmpty()) {
                 return response()->json([
                     'message' => 'Data nilai tidak ditemukan untuk praktikan ini.',
