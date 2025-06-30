@@ -1,35 +1,19 @@
 import { useState, useEffect } from "react";
-import axios from "axios";
-import { usePage } from '@inertiajs/react';
 import daskomIcon from "../../../assets/daskom.svg";
 import CardPolling from "./CardPolling";
 
-export default function PollingContent({ activeCategory, pollingsData, onSubmit, isSubmitted, submitRef }) {
-    
-    const [selectedCards, setSelectedCards] = useState({});
+export default function PollingContent({ 
+    activeCategory, 
+    asistens, 
+    loading, 
+    error, 
+    selectedCards, 
+    setSelectedCards, 
+    isSubmitted 
+}) {
     const [activeModalCards, setActiveModalCards] = useState({});
-    const [asistens, setAsistens] = useState([]);
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState(null);
-    const { auth } = usePage().props;
-    const user = auth?.praktikan;
-
-    // Fix the polling ID function to use the category ID directly
-    const getPollingId = (categoryId) => {
-        return categoryId; // Simply return the ID that was passed from PollingHeader
-    };
 
     useEffect(() => {
-        const storedCards = localStorage.getItem("selectedCards");
-        if (storedCards) {
-            try {
-                setSelectedCards(JSON.parse(storedCards));
-            } catch (err) {
-                console.error("Error parsing stored cards:", err);
-                localStorage.removeItem("selectedCards");
-            }
-        }
-
         const storedModalCards = localStorage.getItem("activeModalCards");
         if (storedModalCards) {
             try {
@@ -40,28 +24,6 @@ export default function PollingContent({ activeCategory, pollingsData, onSubmit,
             }
         }
     }, []);    
-
-    useEffect(() => {
-        if (activeCategory) {
-            setLoading(true);
-    
-            axios.get('/api-v1/asisten')
-                .then(response => {
-                    if (response.data && response.data.success) {
-                        setAsistens(response.data.asisten || []);
-                    } else {
-                        setError(response.data?.message || 'Failed to fetch asisten');
-                        console.error('Failed to fetch asisten:', response.data?.message);
-                    }
-                    setLoading(false);
-                })
-                .catch(error => {
-                    setError(error.message || 'Failed to fetch asisten');
-                    setLoading(false);
-                    console.error('Failed to fetch asisten:', error);
-                });    
-        }
-    }, [activeCategory]);
 
     const handleCardClick = (asisten) => {
         if (isSubmitted || !activeCategory) return;
@@ -78,65 +40,6 @@ export default function PollingContent({ activeCategory, pollingsData, onSubmit,
             return newState;
         });
     };
-
-    const handleSubmitAll = async () => {
-        if (!user || !selectedCards) {
-            console.error("User or selectedCards missing", { user, selectedCards });
-            return { success: false, message: 'User information or selections are missing' };
-        }
-        
-        try {
-            const submissions = Object.entries(selectedCards)
-                .filter(([categoryId, asisten]) => categoryId && asisten && asisten.kode)
-                .map(([categoryId, asisten]) => ({
-                    polling_id: getPollingId(categoryId),
-                    kode: asisten.kode,
-                    praktikan_id: user.id
-                }));
-
-            if (submissions.length === 0) {
-                return { success: false, message: 'Please select at least one asisten' };
-            }
-
-            const response = await axios.post('/api-v1/pollings', submissions, {
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '', 
-                }
-            });
-
-            // Check if response exists and has data property
-            if (response && response.data) {
-                const data = response.data;
-
-                if (data.status === 'success') {
-                    if (onSubmit && typeof onSubmit === 'function') {
-                        onSubmit(selectedCards);
-                        // Clear selections after successful submission
-                        setSelectedCards({});
-                        setActiveModalCards({});
-                        localStorage.removeItem("selectedCards");
-                        localStorage.removeItem("activeModalCards");
-                    }
-                    return { success: true, message: 'Polling submitted successfully!' };
-                } else {
-                    throw new Error(data.message || 'Server returned non-success status');
-                }
-            } else {
-                throw new Error('Invalid response from server');
-            }
-        } catch (err) {
-            console.error('Submission error:', err);
-            return { success: false, message: 'Failed to submit pollings: ' + (err.message || 'Unknown error') };
-        }
-    };
-
-    useEffect(() => {
-        if (submitRef) {
-            submitRef.current = handleSubmitAll;
-        }
-    }, [submitRef, user, selectedCards]);
 
     if (loading) return <div>Mengambil Data...</div>;
     if (error) return <div>Error: {error}</div>;
