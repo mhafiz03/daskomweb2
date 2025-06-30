@@ -1,31 +1,16 @@
 import { useState, useEffect } from "react";
-import axios from "axios";
 import iconSwipeLeft from "../../../assets/polling/iconSwipeLeft.svg";
 import iconSwipeLeftHover from "../../../assets/polling/iconSwipeLeftHover.svg";
 import iconSwipeRight from "../../../assets/polling/iconSwipeRight.svg";
 import iconSwipeRightHover from "../../../assets/polling/iconSwipeRightHover.svg";
 
-export default function PollingHeader({ onCategoryClick, activeCategory }) {
-    const [categories, setCategories] = useState([]);
-    const [loading, setLoading] = useState(true);
+export default function PollingHeader({ onCategoryClick, activeCategory, availableCategories }) {
     const [startIndex, setStartIndex] = useState(0);
     const [isHoverLeft, setIsHoverLeft] = useState(false);
     const [isHoverRight, setIsHoverRight] = useState(false);
 
-    useEffect(() => {
-        const fetchCategories = async () => {
-            try {
-                const response = await axios.get('/api-v1/jenis-polling');
-                setCategories(response.data.categories);
-                setLoading(false);
-            } catch (error) {
-                console.error('Error fetching categories:', error);
-                setLoading(false);
-            }
-        };
-
-        fetchCategories();
-    }, []);
+    const maxVisibleCategories = 5;
+    const visibleCategories = availableCategories.slice(startIndex, startIndex + maxVisibleCategories);
 
     const handleScrollLeft = () => {
         if (startIndex > 0) {
@@ -34,12 +19,14 @@ export default function PollingHeader({ onCategoryClick, activeCategory }) {
     };
 
     const handleScrollRight = () => {
-        if (startIndex < categories.length - 5) {
+        if (startIndex < availableCategories.length - maxVisibleCategories) {
             setStartIndex((prev) => prev + 1);
         }
     };
 
-    if (loading) return <div>Loading categories...</div>;
+    if (!availableCategories || availableCategories.length === 0) {
+        return <div>No categories available...</div>;
+    }
 
     return (
         <div className="bg-deepForestGreen rounded-lg py-3 px-4 flex items-center max-w-full overflow-hidden">
@@ -60,30 +47,20 @@ export default function PollingHeader({ onCategoryClick, activeCategory }) {
                 />
             </button>
 
-            <div
-                className="flex-1 overflow-hidden relative"
-                style={{ display: "flex", justifyContent: "center" }}
-            >
-                <div
-                    className="flex transition-transform duration-500 ease-in-out"
-                    style={{
-                        transform: `translateX(-${startIndex * 20}%)`,
-                        width: `${categories.length * 20}%`,
-                    }}
-                >
-                    {categories.map((category, index) => (
+            <div className="flex-1 overflow-hidden flex justify-center items-center">
+                <div className="flex gap-4">
+                    {visibleCategories.map((category) => (
                         <div
                             key={category.id}
-                            className={`flex-none cursor-pointer text-center group ${
-                                activeCategory === category.id ? 'text-yellow-300' : 'text-white'
+                            className={`cursor-pointer text-center group px-4 ${
+                                activeCategory === category.id.toString() ? 'text-yellow-300' : 'text-white'
                             }`}
-                            style={{ width: "20%" }}
-                            onClick={() => onCategoryClick(category.id)}
+                            onClick={() => onCategoryClick(category.id.toString())}
                         >
-                            <h1 className="font-bold text-lg relative">
+                            <h1 className="font-bold text-lg relative whitespace-nowrap">
                                 {category.judul}
                                 <span className={`absolute left-1/2 bottom-0 h-[2px] ${
-                                    activeCategory === category.id ? 'bg-yellow-300' : 'bg-white'
+                                    activeCategory === category.id.toString() ? 'bg-yellow-300' : 'bg-white'
                                 } w-[70%] scale-x-0 group-hover:scale-x-100 origin-center transition-transform duration-300 -translate-x-1/2`}></span>
                             </h1>
                         </div>
@@ -97,11 +74,11 @@ export default function PollingHeader({ onCategoryClick, activeCategory }) {
                 onMouseLeave={() => setIsHoverRight(false)}
                 onClick={handleScrollRight}
                 className={`w-8 h-8 flex items-center justify-center transition ${
-                    startIndex >= categories.length - 5
+                    startIndex >= availableCategories.length - maxVisibleCategories
                         ? "opacity-50 cursor-not-allowed"
                         : ""
                 }`}
-                disabled={startIndex >= categories.length - 5}
+                disabled={startIndex >= availableCategories.length - maxVisibleCategories}
             >
                 <img
                     src={isHoverRight ? iconSwipeRightHover : iconSwipeRight}
