@@ -21,6 +21,8 @@ class PollingsController extends Controller
         //
     }
 
+    
+
     /**
      * Store a newly created resource in storage.
      */
@@ -88,15 +90,15 @@ class PollingsController extends Controller
 
 
 
-    public function show(string $id) // $id adalah pollingId (ID jenis polling)
+    public function show(string $id)
     {
         try {
             $asisten = DB::table('pollings')
-                ->leftJoin('jenis_pollings', 'jenis_pollings.id', '=', 'pollings.polling_id')
-                ->leftJoin('asistens', 'asistens.id', '=', 'pollings.kode')
-                ->where('pollings.polling_id', $id) // Gunakan polling_id, bukan praktikan_id
+                ->join('asistens', 'asistens.id', '=', 'pollings.asisten_id')
+                ->where('pollings.polling_id', $id)
                 ->select('asistens.id', 'asistens.nama', 'asistens.kode', DB::raw('count(pollings.id) as total'))
                 ->groupBy('asistens.id', 'asistens.nama', 'asistens.kode')
+                ->orderBy('total', 'desc')
                 ->get();
 
             return response()->json([

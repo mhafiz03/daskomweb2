@@ -234,10 +234,10 @@ Route::prefix('api-v1')->group(function () {
     Route::post('/pelanggaran/reset', [PelanggaranController::class, 'reset'])->name('reset.pelanggaran')->middleware(['auth:asisten', 'can:lms-configuration']);
 
     // Jenis Polling
-    Route::get('/jenis-polling', [JenisPollingController::class, 'index'])->name('get.jenis.poling')->middleware(['auth:asisten', 'can:see-polling']);
+    //Route::get('/jenis-polling', [JenisPollingController::class, 'index'])->name('get.jenis.poling');//->middleware(['auth:asisten,praktikan', 'can:see-polling']);
 
     // Polling View Count
-    Route::get('/polling/{id}', [PollingsController::class, 'show'])->name('show.polling')->middleware(['auth:asisten', 'can:see-polling']);
+    Route::get('/polling/{id}', [PollingsController::class, 'show'])->name('show.polling');//->middleware(['auth:asisten,praktikan', 'can:see-polling']);
 
     // Soal TP
     Route::get('/soal-tp/{idModul}', [SoalTPController::class, 'show'])->name('show.soaltp')->middleware(['auth:asisten', 'can:lihat-modul,see-soal']);
@@ -328,8 +328,8 @@ Route::prefix('api-v1')->group(function () {
     Route::post('/pollings', [PollingsController::class, 'store'])->name('store.polling')->middleware(['auth:praktikan', 'can:isi-polling']);    
     Route::get('/pollings/{id}', [PollingsController::class, 'show'])->name('show.polling')->middleware(['auth:praktikan', 'can:isi-polling']);
     Route::get('/pollings/{id}', [PollingsController::class, 'show'])->name('show.polling')->middleware(['auth:praktikan', 'can:isi-polling']);
-    Route::get('/jenis-polling', [JenisPollingController::class, 'index'])->name('get.jenis.poling')->middleware(['auth:praktikan', 'can:isi-polling']);
-    
+    Route::get('/jenis-polling', [JenisPollingController::class, 'index'])->name('get.jenis.poling');//->middleware(['auth:asisten,praktikan', 'can:isi-polling,see-polling']);
+    //asa issue dengan middleware asisen dimana tidak bisa memakai api-v1/jenis-polling dengan auth sebagai asisten
     Route::get('/nilai', [NilaiController::class, 'show'])->name('show.nilais')->middleware(['auth:praktikan', 'can:lihat-nilai']);
 
     // Jawaban TA

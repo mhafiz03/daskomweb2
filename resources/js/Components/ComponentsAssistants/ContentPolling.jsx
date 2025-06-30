@@ -4,8 +4,11 @@ import TablePolling from "./TablePolling";
 
 export default function ContentPolling() {
     const [pollingData, setPollingData] = useState([]);
+    const [loading, setLoading] = useState(false);
+
     const handleSelectPolling = (data) => {
         setPollingData(data);
+        setLoading(false);
     };
 
     return (
@@ -22,7 +25,11 @@ export default function ContentPolling() {
 
             {/* Table data polling */}
             <div className="">
-                <TablePolling data={pollingData} />
+                {loading ? (
+                    <div className="text-center py-4">Loading...</div>
+                ) : (
+                    <TablePolling data={pollingData} />
+                )}
             </div>
         </section>
     );
