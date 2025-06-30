@@ -97,7 +97,7 @@ export default function AssisstantNav({ asisten, permission_name }) {
                                     </a>
                                 </li>
                             )}
-                            {permission_name.includes("see-nilai") && (
+                            {permission_name.includes("nilai-praktikan") && (
                                 <li id="nilai-praktikan">
                                     <a href="/nilai-praktikan" className="flex py-3 px-5 hover:bg-darkGreen">
                                         <img className="w-6" src={nilaiIcon} alt="nilai" />
