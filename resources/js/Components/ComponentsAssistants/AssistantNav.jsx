@@ -89,14 +89,14 @@ export default function AssisstantNav({ asisten, permission_name }) {
                                     </a>
                                 </li>
                             )}
-                            {permission_name.includes("laporan-praktikum") && (
+                            {/* {permission_name.includes("laporan-praktikum") && (
                                 <li id="laporan-praktikum">
                                     <a href="/list-laporan" className="flex py-3 px-5 hover:bg-darkGreen">
                                         <img className="w-6" src={laporanIcon} alt="laporan" />
                                         <span className="self-center text-sm ml-3">Laporan Praktikum</span>
                                     </a>
                                 </li>
-                            )}
+                            )} */}
                             {permission_name.includes("nilai-praktikan") && (
                                 <li id="nilai-praktikan">
                                     <a href="/nilai-praktikan" className="flex py-3 px-5 hover:bg-darkGreen">
@@ -195,6 +195,12 @@ export default function AssisstantNav({ asisten, permission_name }) {
 
                         <ul className="py-5">
                             {/* Bagian Pengaturan dan Logout */}
+                            <li id="config">
+                                <a onClick={openConfigModal} className="flex py-3 px-5 hover:bg-darkGreen">
+                                    <img className="w-6" src={tpModuleIcon} alt="change password" />
+                                    <span className="self-center text-sm ml-3">Configuration</span>
+                                </a>
+                            </li>
                             <li id="change-password">
                                 <a onClick={openModal} className="flex py-3 px-5 hover:bg-darkGreen">
                                     <img className="w-6" src={changePassIcon} alt="change password" />

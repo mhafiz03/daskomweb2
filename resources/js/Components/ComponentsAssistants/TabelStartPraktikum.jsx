@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import ButtonEditStartPraktikum from "./ModalEditStartPraktikum";
 import ModalLaporanPraktikum from "./SendLaporanPraktikum";
 import editIcon from "../../../assets/nav/Icon-Edit.svg";
@@ -44,12 +44,35 @@ export default function TabelStartPraktikum() {
         },
     ];
 
+    useEffect(() => {
+        const fetchPraktikum = async () => {
+            // setLoading(true);
+            try {
+                const response = await fetch("/api-v1/praktikum");
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log("Fetched Praktikum:", data.data);
+                    // setKelas(data.data || []);
+                } else {
+                    console.error("Failed to fetch praktikum:", response.statusText);
+                }
+            } catch (error) {
+                console.error("Error fetching praktikum:", error);
+            } finally {
+                // setLoading(false);
+            }
+        };
+
+        fetchPraktikum();
+
+    }, []);
+
     return (
         <div className="mt-5 px-4">
             {/* Header dengan div */}
             <div className="bg-deepForestGreen rounded-lg py-2 px-4 mb-4 shadow-md flex justify-center items-center">
                 <h1 className="font-bold text-white text-center text-2xl hover:bg-darkOliveGreen hover:rounded-lg transition-colors duration-300 px-4 py-1">
-                    Modul Praktikum
+                    Start Praktikum
                 </h1>
             </div>
 

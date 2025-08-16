@@ -33,8 +33,9 @@ class ModulController extends BaseController
                 ->get();
 
             return response()->json([
-                'modul' => $moduls,
-                'message' => 'Moduls retrieved successfully.'
+                'data' => $moduls,
+                'message' => 'Moduls retrieved successfully.',
+                'success' => true,
             ]);
         } catch (\Exception $e) {
             return response()->json([
@@ -131,7 +132,6 @@ class ModulController extends BaseController
             'modul_link' => 'required|string',
             'ppt_link' => 'required|string',
             'video_link' => 'required|string',
-            'oldJudul' => 'required|string',
         ]);
 
         if ($validator->fails()) {
@@ -140,7 +140,8 @@ class ModulController extends BaseController
 
         try {
             // Check if title is being changed and if new title already exists
-            if ($request->judul !== $request->oldJudul) {
+            $modul = Modul::findOrFail($id);
+            if ($request->judul !== $modul->judul) {
                 $existingModul = Modul::where('judul', $request->judul)->first();
                 if ($existingModul) {
                     return redirect()->back()->withErrors([
@@ -148,8 +149,7 @@ class ModulController extends BaseController
                     ])->withInput();
                 }
             }
-
-            $modul = Modul::findOrFail($id);
+            
             $resource = Resource::where('modul_id', $modul->id)->first();
 
             if (!$resource) {

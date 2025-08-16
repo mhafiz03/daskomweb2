@@ -5,7 +5,6 @@ namespace App\Http\Controllers\API;
 use App\Models\Asisten;
 use App\PermissionGroupEnum;
 use Illuminate\Http\Request;
-use App\Models\Role as roles;
 use Spatie\Permission\Models\Role;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;

@@ -1,6 +1,5 @@
 <?php
 
-use App\Models\Role;
 use App\Models\Asisten;
 use App\Models\Polling;
 use App\Models\JenisPolling;
