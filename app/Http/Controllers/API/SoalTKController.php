@@ -35,38 +35,39 @@ class SoalTKController extends Controller
                 "jawaban_salah2" => "required|string|max:255",
                 "jawaban_salah3" => "required|string|max:255",
             ]);
-            // Cek jika modul dengan ID tersebut ada
-            $modul = Modul::find($id);
-            if (!$modul) {
-                return response()->json([
-                    "message" => "Modul dengan ID $id tidak ditemukan.",
-                ], 404);
-            }
             // Cek duplikasi pertanyaan
-            $existingSoal = SoalTk::where('modul_id', $id)
-                ->where('pertanyaan', $request->pertanyaan)
-                ->first();
+            $existingSoal = SoalTk::where('modul_id', $id)->where('pertanyaan', $request->pertanyaan)->first();
             if ($existingSoal) {
                 return response()->json([
                     "message" => "Soal dengan pertanyaan yang sama sudah terdaftar.",
                 ], 400);
             }
-            // Menyimpan data soal
+
             $soal = SoalTk::create([
                 "modul_id" => $id,
-                "pengantar" => $request->pengantar ?? "empty",
+                "pengantar" => $request->pengantar ?? "",
                 "kodingan" => $request->kodingan ?? "empty",
                 "pertanyaan" => $request->pertanyaan,
                 "jawaban_benar" => $request->jawaban_benar,
                 "jawaban_salah1" => $request->jawaban_salah1,
                 "jawaban_salah2" => $request->jawaban_salah2,
                 "jawaban_salah3" => $request->jawaban_salah3,
-                "created_at" => now(),
-                "updated_at" => now(),
             ]);
             return response()->json([
                 "status" => "success",
-                "data" => $soal,
+                "data" => [
+                    'id' => $soal->id,
+                    'pengantar' => $soal->pengantar,
+                    'kodingan' => $soal->kodingan,
+                    'pertanyaan' => $soal->pertanyaan,
+                    'modul_id' => $soal->modul_id,
+                    'jawaban_benar' => $soal->jawaban_benar,
+                    'jawaban' => [
+                        $soal->jawaban_salah1,
+                        $soal->jawaban_salah2,
+                        $soal->jawaban_salah3,
+                    ],
+                ],
             ], 200);
         } catch (\Exception $e) {
             // Menangani kesalahan yang terjadi pada proses penyimpanan
@@ -76,53 +77,63 @@ class SoalTKController extends Controller
             ], 500);
         }
     }
-    
-    public function show($modul_id, $kelas_id)
+
+    public function show($modul_id)
     {
         try {
-            // Validasi kelas
-            $kelas = Kelas::find($kelas_id);
-            if (!$kelas) {
-                return response()->json([
-                    "message" => "Kelas dengan ID $kelas_id tidak ditemukan.",
-                ], 404);
-            }
-            // Validasi modul
             $modul = Modul::find($modul_id);
             if (!$modul) {
                 return response()->json([
                     "message" => "Modul dengan ID $modul_id tidak ditemukan.",
                 ], 404);
             }
-            // Mengambil soal sesuai kelas
-            if (substr($kelas->kelas, 0, 3) === 'TOT') {
-                $all_soal = SoalTk::where('modul_id', $modul_id)->get();
-            } else {
-                $all_soal = SoalTk::where('modul_id', $modul_id)->inRandomOrder()->take(10)->get();
+
+            $user = auth('praktikan')->user();
+            $soalQuery = SoalTk::where('modul_id', $modul_id);
+
+            if ($user) { // for praktikan (10 questions) and also tot accounts (all quesntions)
+                $isTOT = substr($user->kelas->kelas, 0, 3) === 'TOT';
+                $soals = $isTOT ? $soalQuery->get() : $soalQuery->inRandomOrder()->take(10)->get();
+
+                $data = $soals->map(function ($soal) {
+                    $jawaban = [
+                        $soal->jawaban_benar,
+                        $soal->jawaban_salah1,
+                        $soal->jawaban_salah2,
+                        $soal->jawaban_salah3,
+                    ];
+                    shuffle($jawaban);
+                    return [
+                        'id' => $soal->id,
+                        'pengantar' => $soal->pengantar,
+                        'kodingan' => $soal->kodingan,
+                        'pertanyaan' => $soal->pertanyaan,
+                        'modul_id' => $soal->modul_id,
+                        'soal' => $jawaban,
+                    ];
+                });
+            } else { // for assistant
+                $soals = $soalQuery->get();
+                $data = $soals->map(function ($soal) {
+                    return [
+                        'id' => $soal->id,
+                        'pengantar' => $soal->pengantar,
+                        'kodingan' => $soal->kodingan,
+                        'pertanyaan' => $soal->pertanyaan,
+                        'modul_id' => $soal->modul_id,
+                        'jawaban_benar' => $soal->jawaban_benar,
+                        'jawaban' => [
+                            $soal->jawaban_salah1,
+                            $soal->jawaban_salah2,
+                            $soal->jawaban_salah3,
+                        ],
+                    ];
+                });
             }
-            // Jika tidak ada soal yang ditemukan
-            if ($all_soal->isEmpty()) {
-                return response()->json([
-                    "message" => "Tidak ada soal untuk modul ID $modul_id.",
-                ], 404);
-            }
-            // Format soal
-            $soal_tk = $all_soal->map(function ($soal) {
-                return [
-                    'id' => $soal->id,
-                    'pengantar' => $soal->pengantar,
-                    'kodingan' => $soal->kodingan,
-                    'pertanyaan' => $soal->pertanyaan,
-                    'modul_id' => $soal->modul_id,
-                    'pilihan1' => $soal->jawaban_benar,
-                    'pilihan2' => $soal->jawaban_salah1,
-                    'pilihan3' => $soal->jawaban_salah2,
-                    'pilihan4' => $soal->jawaban_salah3,
-                ];
-            });
+
             return response()->json([
                 "message" => "Soal retrieved successfully.",
-                "soalTK" => $soal_tk,
+                "data" => $data,
             ], 200);
         } catch (\Exception $e) {
             return response()->json([
@@ -131,7 +142,7 @@ class SoalTKController extends Controller
             ], 500);
         }
     }
-    
+
     public function update(Request $request, $id)
     {
         try {
@@ -162,19 +173,27 @@ class SoalTKController extends Controller
                     "message" => "Soal dengan pertanyaan yang sama sudah terdaftar.",
                 ], 400);
             }
+            // Siapkan data update, set default jika null
+            $data = $request->all();
+            $data['pengantar'] = $request->pengantar ?? "";
+            $data['kodingan'] = $request->kodingan ?? "empty";
             // Update soal
-            $soal->modul_id = $request->modul_id;
-            $soal->pengantar = $request->pengantar ?? $soal->pengantar;
-            $soal->kodingan = $request->kodingan ?? $soal->kodingan;
-            $soal->pertanyaan = $request->pertanyaan;
-            $soal->jawaban_benar = $request->jawaban_benar;
-            $soal->jawaban_salah1 = $request->jawaban_salah1;
-            $soal->jawaban_salah2 = $request->jawaban_salah2;
-            $soal->jawaban_salah3 = $request->jawaban_salah3;
-            $soal->save();
+            $soal->update($data);
             return response()->json([
                 "status" => "success",
-                "data" => $soal,
+                "data" => [
+                    'id' => $soal->id,
+                    'pengantar' => $soal->pengantar,
+                    'kodingan' => $soal->kodingan,
+                    'pertanyaan' => $soal->pertanyaan,
+                    'modul_id' => $soal->modul_id,
+                    'jawaban_benar' => $soal->jawaban_benar,
+                    'jawaban' => [
+                        $soal->jawaban_salah1,
+                        $soal->jawaban_salah2,
+                        $soal->jawaban_salah3,
+                    ],
+                ],
             ], 200);
         } catch (\Exception $e) {
             return response()->json([
@@ -206,7 +225,7 @@ class SoalTKController extends Controller
             ], 500);
         }
     }
-    
+
     public function reset()
     {
         try {
@@ -221,5 +240,4 @@ class SoalTKController extends Controller
             ], 500);
         }
     }
-    
 }

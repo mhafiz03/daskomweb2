@@ -19,7 +19,7 @@ export default function ModalJawabanTP({ onClose }) {
                 <hr className="border-t-2 border-darkBrown mb-4" />
 
                 {/* isi laporan + judul */}
-                <div className="max-h-96 overflow-y-auto">
+                <div className="lg:max-h-[48rem] md:max-h-96 overflow-y-auto">
                     <h2 className="text-xl font-bold text-black underline text-center mb-4">Pengantar Algoritma dan Pemrograman</h2>
                     {/* Card Wrapper */}
                     <div className="space-y-4 max-h-[400px]">

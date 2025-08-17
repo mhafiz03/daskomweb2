@@ -72,7 +72,7 @@ class SoalJurnalController extends Controller
             }
             return response()->json([
                 "message" => "Soal Jurnal retrieved successfully.",
-                "soalJurnal" => $all_jurnal,
+                "data" => $all_jurnal,
             ], 200);
         } catch (\Exception $e) {
             return response()->json([

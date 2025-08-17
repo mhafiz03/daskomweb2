@@ -34,7 +34,7 @@ export default function TablePelanggaran() {
       </div>
 
       {/* Kontainer untuk tabel scrollable */}
-      <div className="overflow-x-auto max-h-96">
+      <div className="overflow-x-auto lg:max-h-[48rem] md:max-h-96">
         {[...Array(10)].map((_, index) => (
           <div
             key={index}

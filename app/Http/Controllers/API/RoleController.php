@@ -73,12 +73,12 @@ class RoleController extends Controller
                 }
 
                 switch ($paket) {
-                    case 'super':
-                        $permissions = array_merge($permissions, $SUPER_PACKAGE);
-                        break;
-                    case 'aslab':
-                        $permissions = array_merge($permissions, $ASLAB_PACKAGE);
-                        break;
+                    // case 'super':
+                    //     $permissions = array_merge($permissions, $SUPER_PACKAGE);
+                    //     break;
+                    // case 'aslab':
+                    //     $permissions = array_merge($permissions, $ASLAB_PACKAGE);
+                    //     break;
                     case 'atc':
                         $permissions = array_merge($permissions, $ATC_PACKAGE);
                         break;
@@ -91,10 +91,8 @@ class RoleController extends Controller
                     default:
                         $permissions = [];
                         break;
-                }
-                
+                }                
             }
-
 
             $role = Role::create([
                 'name' => $request->name,

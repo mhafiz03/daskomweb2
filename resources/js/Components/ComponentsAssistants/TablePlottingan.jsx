@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import ModalDeletePlottingan from "./ModalDelatePlottingan";
+import ModalDeletePlottingan from "./ModalDeletePlottingan";
 import ModalEditPlotting from "./ModalEditPlottingan";
 import trashIcon from "../../../assets/nav/Icon-Delete.svg";
 import editIcon from "../../../assets/nav/Icon-Edit.svg";
@@ -132,7 +132,7 @@ export default function TablePlottingan() {
             </div>
 
             {/* Kontainer untuk scroll tabel */}
-            <div className="overflow-x-auto max-h-96">
+            <div className="overflow-x-auto lg:max-h-[48rem] md:max-h-96">
                 {loading ? (
                     <div className="text-center py-10 text-gray-500">Memuat data...</div>
                 ) : error ? (

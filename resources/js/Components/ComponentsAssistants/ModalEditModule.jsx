@@ -82,7 +82,6 @@ export default function ButtonEditModule({ onClose, modules, selectedModuleId, o
             modul_link: link3,
             ppt_link: link1,
             video_link: link2,
-            oldJudul: modules.find(m => m.idM === selectedModuleId)?.judul
         };
 
         router.patch(`/api-v1/modul/${selectedModuleId}`, payload, {

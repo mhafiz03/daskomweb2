@@ -83,9 +83,9 @@ class ModulController extends BaseController
             'poin3' => 'nullable|string',
             'isEnglish' => 'required|integer',
             'isUnlocked' => 'required|integer',
-            'modul_link' => 'required|string',
-            'ppt_link' => 'required|string',
-            'video_link' => 'required|string',
+            'modul_link' => 'nullable|string',
+            'ppt_link' => 'nullable|string',
+            'video_link' => 'nullable|string',
         ]);
         try {
             $modul = Modul::create([
@@ -100,9 +100,9 @@ class ModulController extends BaseController
             ]);
             Resource::create([
                 'modul_id' => $modul->id,
-                'modul_link' => $request->modul_link,
-                'ppt_link' => $request->ppt_link,
-                'video_link' => $request->video_link,
+                'modul_link' => $request->modul_link ?? '',
+                'ppt_link' => $request->ppt_link ?? '',
+                'video_link' => $request->video_link ?? '',
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);

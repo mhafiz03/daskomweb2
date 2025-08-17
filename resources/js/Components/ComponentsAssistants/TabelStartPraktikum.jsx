@@ -77,7 +77,7 @@ export default function TabelStartPraktikum() {
             </div>
 
             {/* Kontainer modul untuk scroll tabel */}
-            <div className="overflow-x-auto max-h-96 bg-white rounded-lg p-1">
+            <div className="overflow-x-auto lg:max-h-[48rem] md:max-h-96 bg-white rounded-lg p-1">
                 {/* Accordion */}
                 {modules.map((module, index) => (
                     <div

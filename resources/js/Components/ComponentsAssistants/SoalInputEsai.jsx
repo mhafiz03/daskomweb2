@@ -1,18 +1,41 @@
-import { useState } from "react";
-import ModalDelateSoal from "./ModalDelateSoal";
+import { useEffect, useState } from "react";
+import ModalDeleteSoal from "./ModalDeleteSoal";
 import ModalEditSoalEssay from "./ModalEditSoalEssay";
 import ModalSaveSoal from "./ModalSaveSoal";
 import trashIcon from "../../../assets/nav/Icon-Delete.svg";
 import editIcon from "../../../assets/nav/Icon-Edit.svg";
 
-export default function SoalInputEssay({ tipeSoal, modul, onModalSuccess, onModalValidation, addSoal }) {
+export default function SoalInputEssay({ kategoriSoal, modul, onModalSuccess, onModalValidation, addSoal }) {
     const [soal, setSoal] = useState("");
     const [soalList, setSoalList] = useState([]);
-    const [isModalOpenDelate, setIsModalOpenDelate] = useState(false);
+    const [isModalOpenDelete, setIsModalOpenDelete] = useState(false);
     const [selectedNomor, setSelectedNomor] = useState(null);
     const [isModalOpenSuccess, setIsModalOpenSuccess] = useState(false);
     const [isModalOpenEdit, setIsModalOpenEdit] = useState(false);
     const [editingSoal, setEditingSoal] = useState(null);
+
+
+    const fetchSoal = async () => {
+        if (modul && kategoriSoal) {
+            try {
+                const response = await fetch(`/api-v1/soal-${kategoriSoal}/${modul}`);
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log("Fetched soal:", data.data);
+                    setSoalList(data.data);
+                } else {
+                    console.error('Failed to fetch soal:', response.statusText);
+                    setSoalList([]);
+                }
+            } catch (error) {
+                console.error("Error fetching soal:", error);
+            }
+        }
+    };
+
+    useEffect(() => {
+        fetchSoal();
+    }, [modul, kategoriSoal]);
 
     const handleTambahSoal = () => {
         if (!soal) {
@@ -48,17 +71,17 @@ export default function SoalInputEssay({ tipeSoal, modul, onModalSuccess, onModa
 
     const handleOpenModalDelate = (nomor) => {
         setSelectedNomor(nomor);
-        setIsModalOpenDelate(true);
+        setIsModalOpenDelete(true);
     };
 
-    const handleCloseModalDelate = () => {
-        setIsModalOpenDelate(false);
+    const handleCloseModalDelete = () => {
+        setIsModalOpenDelete(false);
         setSelectedNomor(null);
     };
 
     const handleConfirmDelete = () => {
         setSoalList(soalList.filter((item) => item.nomor !== selectedNomor));
-        handleCloseModalDelate();
+        handleCloseModalDelete();
     };
 
     const handleOpenModalEdit = (soalItem) => {
@@ -141,8 +164,8 @@ export default function SoalInputEssay({ tipeSoal, modul, onModalSuccess, onModa
                 </ul>
             </div>
 
-            {isModalOpenDelate && ( <ModalDelateSoal onClose={handleCloseModalDelate} onConfirm={handleConfirmDelete} />)}
-            {isModalOpenEdit && ( <ModalEditSoalEssay initialSoal={editingSoal.soal} onClose={handleCloseModalEdit} onSave={handleConfirmEdit} />)}
+            {isModalOpenDelete && (<ModalDeleteSoal onClose={handleCloseModalDelete} onConfirm={handleConfirmDelete} />)}
+            {isModalOpenEdit && (<ModalEditSoalEssay initialSoal={editingSoal.soal} onClose={handleCloseModalEdit} onSave={handleConfirmEdit} />)}
             {isModalOpenSuccess && <ModalSaveSoal onClose={handleCloseSuccessModal} />}
         </div>
     );

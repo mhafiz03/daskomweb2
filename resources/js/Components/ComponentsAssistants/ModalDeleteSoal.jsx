@@ -1,4 +1,4 @@
-export default function ModalDelateSoal({ onClose, message }) {
+export default function ModalDeleteSoal({ onClose }) {
     return (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
             <div className="bg-softGray p-6 rounded-lg shadow-xl w-96 text-center relative">

@@ -74,7 +74,7 @@ class SoalFITBController extends Controller
             }
             return response()->json([
                 "message" => "Soal FITB retrieved successfully.",
-                "soalFitb" => $all_fitb,
+                "data" => $all_fitb,
             ], 200);
         } catch (\Exception $e) {
             return response()->json([
