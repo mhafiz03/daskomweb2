@@ -7,6 +7,7 @@ use App\Models\SoalTa;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Models\Modul;
+use Illuminate\Validation\Rule;
 
 class SoalTAController extends Controller
 {
@@ -21,34 +22,27 @@ class SoalTAController extends Controller
     public function store(Request $request, $id)
     {
         try {
-            $request->validate([
-                "modul_id" => "required|integer",
-                "pengantar" => "nullable|string",
-                "kodingan" => "nullable|string",
-                "pertanyaan" => "required|string",
-                "jawaban_benar" => "required|string",
-                "jawaban_salah1" => "required|string",
-                "jawaban_salah2" => "required|string",
-                "jawaban_salah3" => "required|string",
+            $validated = $request->validate([
+                'pengantar'      => 'nullable|string|max:1000',
+                'kodingan'       => 'nullable|string|max:1000',
+                'pertanyaan'     => [
+                    'required',
+                    'string',
+                    'max:1000',
+                    Rule::unique('soal_tas', 'pertanyaan')
+                        ->where(fn($q) => $q->where('modul_id', $id)),
+                ],
+                'jawaban_benar'  => 'required|string|max:1000',
+                'jawaban_salah1' => 'required|string|max:1000',
+                'jawaban_salah2' => 'required|string|max:1000',
+                'jawaban_salah3' => 'required|string|max:1000',
             ]);
-            // Cek duplikasi soal
-            $existingSoal = SoalTa::where('modul_id', $id)->where('pertanyaan', $request->pertanyaan)->first();
-            if ($existingSoal) {
-                return response()->json([
-                    "message" => "Soal dengan pertanyaan yang sama sudah terdaftar.",
-                ], 400);
-            }
 
-            $soal = SoalTa::create([
-                "modul_id" => $id,
-                "pengantar" => $request->pengantar ?? "empty",
-                "kodingan" => $request->kodingan ?? "empty",
-                "pertanyaan" => $request->pertanyaan,
-                "jawaban_benar" => $request->jawaban_benar,
-                "jawaban_salah1" => $request->jawaban_salah1,
-                "jawaban_salah2" => $request->jawaban_salah2,
-                "jawaban_salah3" => $request->jawaban_salah3,
-            ]);
+            $validated['pengantar'] = $validated['pengantar'] ?? 'empty';
+            $validated['kodingan']  = $validated['kodingan']  ?? 'empty';
+
+            $soal = SoalTa::create($validated + ['modul_id' => $id]);
+
             return response()->json([
                 "status" => "success",
                 "data" => [
@@ -56,7 +50,7 @@ class SoalTAController extends Controller
                     'pengantar' => $soal->pengantar,
                     'kodingan' => $soal->kodingan,
                     'pertanyaan' => $soal->pertanyaan,
-                    'modul_id' => $soal->modul_id,
+                    'modul_id' => $id,
                     'jawaban_benar' => $soal->jawaban_benar,
                     'jawaban' => [
                         $soal->jawaban_salah1,
@@ -149,43 +143,42 @@ class SoalTAController extends Controller
     public function update(Request $request, $id)
     {
         try {
-            $request->validate([
-                "modul_id" => "required|integer|exists:moduls,id",
-                "pengantar" => "nullable|string|max:255",
-                "kodingan" => "nullable|string|max:1000",
-                "pertanyaan" => "required|string|max:500",
-                "jawaban_benar" => "required|string",
-                "jawaban_salah1" => "required|string",
-                "jawaban_salah2" => "required|string",
-                "jawaban_salah3" => "required|string",
-            ]);
             $soal = SoalTa::find($id);
-            if (!$soal) {
-                return response()->json([
-                    "message" => "Soal dengan ID $id tidak ditemukan.",
-                ], 404);
-            }
-            // Cek duplikasi soal
-            $duplicateSoal = SoalTa::where('modul_id', $request->modul_id)
-                ->where('pertanyaan', $request->pertanyaan)
-                ->where('id', '!=', $id)
-                ->first();
-            if ($duplicateSoal) {
-                return response()->json([
-                    "message" => "Soal dengan pertanyaan yang sama sudah terdaftar.",
-                ], 400);
-            }
-            $soal->update($request->all());
+            if (!$soal)
+                return response()->json(['message' => "Soal dengan ID $id tidak ditemukan."], 404);
+
+            // If modul_id may change, use the incoming one for the unique scope; otherwise fall back to current
+            $modulId = $request->input('modul_id', $soal->modul_id);
+            $validated = $request->validate([
+                'modul_id'        => ['required', 'integer', 'exists:moduls,id'],
+                'pengantar'       => ['nullable', 'string', 'max:255'],
+                'kodingan'        => ['nullable', 'string', 'max:1000'],
+                'pertanyaan'      => [
+                    'required',
+                    'string',
+                    'max:500',
+                    Rule::unique('soal_tas', 'pertanyaan')->where(fn($q) => $q->where('modul_id', $modulId))->ignore($soal->id),
+                ],
+                'jawaban_benar'   => ['required', 'string', 'max:255'],
+                'jawaban_salah1'  => ['required', 'string', 'max:255'],
+                'jawaban_salah2'  => ['required', 'string', 'max:255'],
+                'jawaban_salah3'  => ['required', 'string', 'max:255'],
+            ]);
+
+            $validated['pengantar'] = $validated['pengantar'] ?? 'empty';
+            $validated['kodingan']  = $validated['kodingan']  ?? 'empty';
+            $validated['modul_id'] = $modulId;
+            $soal->fill($validated)->save();
             return response()->json([
-                "status" => "success",
-                "data" => [
-                    'id' => $soal->id,
-                    'pengantar' => $soal->pengantar,
-                    'kodingan' => $soal->kodingan,
-                    'pertanyaan' => $soal->pertanyaan,
-                    'modul_id' => $soal->modul_id,
+                'status' => 'success',
+                'data'   => [
+                    'id'            => $soal->id,
+                    'pengantar'     => $soal->pengantar,
+                    'kodingan'      => $soal->kodingan,
+                    'pertanyaan'    => $soal->pertanyaan,
+                    'modul_id'      => $soal->modul_id,
                     'jawaban_benar' => $soal->jawaban_benar,
-                    'jawaban' => [
+                    'jawaban'       => [
                         $soal->jawaban_salah1,
                         $soal->jawaban_salah2,
                         $soal->jawaban_salah3,

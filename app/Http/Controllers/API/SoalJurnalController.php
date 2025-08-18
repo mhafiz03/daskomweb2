@@ -23,9 +23,9 @@ class SoalJurnalController extends Controller
     {
         try {
             $request->validate([
-                "modul_id" => "required|integer",
-                "pengantar" => "required|string",
-                "soal" => "required|string",
+                "pengantar" => "nullable|string|max:255",
+                "kodingan" => "nullable|string|max:1000",
+                "soal" => "required|string|max:1000",
             ]);
             // Cek duplikasi soal
             $existingSoal = SoalJurnal::where('modul_id', $id)
@@ -39,7 +39,7 @@ class SoalJurnalController extends Controller
             }
             $soal = SoalJurnal::create([
                 "modul_id" => $id,
-                "pengantar" => $request->pengantar,
+                "pengantar" => $request->pengantar ?? "empty",
                 "kodingan" => $request->kodingan ?? "empty", // Default "empty" jika null
                 "soal" => $request->soal,
                 "created_at" => now(),
@@ -90,9 +90,10 @@ class SoalJurnalController extends Controller
     {
         try {
             $request->validate([
-                "modul_id" => "required|integer",
-                "pengantar" => "required|string",
-                "soal" => "required|string",
+                "modul_id" => "required|integer|exists:moduls,id",
+                "pengantar" => "nullable|string|max:255",
+                "kodingan" => "nullable|string|max:1000",
+                "soal" => "required|string|max:1000",
             ]);
             $soal = SoalJurnal::find($id);
             if (!$soal) {
@@ -113,7 +114,8 @@ class SoalJurnalController extends Controller
             }
             $soal->update([
                 "modul_id" => $request->modul_id,
-                "pengantar" => $request->pengantar,
+                "pengantar" => $request->pengantar ?? "empty",
+                "kodingan" => $request->kodingan ?? "empty",
                 "soal" => $request->soal,
                 "updated_at" => now(),
             ]);

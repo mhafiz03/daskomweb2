@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import ModalDeleteSoal from "./ModalDeleteSoal";
 import ModalEditSoalPG from "./ModalEditSoalPG";
-import ModalSaveSoal from "./ModalSaveSoal";
+// import ModalSaveSoal from "./ModalSaveSoal";
 import trashIcon from "../../../assets/nav/Icon-Delete.svg";
 import editIcon from "../../../assets/nav/Icon-Edit.svg";
 import axios from 'axios';
@@ -24,44 +24,33 @@ export default function SoalInputPG({ kategoriSoal, modul, onModalSuccess, onMod
         if (modul && kategoriSoal) {
             try {
                 const response = await axios.get(`/api-v1/soal-${kategoriSoal}/${modul}`);
-                if (response.data.data) {
-                    console.log("Fetched soal:", response.data.data);
-                    setSoalList(response.data.data);
-                } else {
-                    setSoalList([]);
-                    console.log("Failed fetching data", response.statusText);
-                }
+                if (response.data && response.statusText === "OK") setSoalList(response.data.data);
+                else  setSoalList([]);
+                console.log("Message:", response.data.message);
             } catch (error) {
                 console.error("Error fetching soal:", error);
+                setSoalList([])
             }
         }
     };
 
     const postSoal = async (soalBaru) => {
         try {
-            const response = await axios.post(`/api-v1/soal-${kategoriSoal}/${modul}`, {
-                ...soalBaru
-            });
-            if (response.data && response.data.status === "success") {
-                console.log("Success posting soal:", response.data.data);
+            const response = await axios.post(`/api-v1/soal-${kategoriSoal}/${modul}`, { ...soalBaru });
+            if (response.data && response.statusText === "OK") 
                 setSoalList(prev => [...prev, response.data.data]);
-            }
-            console.log('Message:', response.statusText);
+            console.log('Message:', response.data.message);
         } catch (error) {
             console.error("Error posting soal:", error);
         }
     };
 
-    const putSoal = async (soalId, editSoal) => {
+    const putSoal = async (soalId, soalTeredit) => {
         try {
-            const response = await axios.put(`/api-v1/soal-${kategoriSoal}/${soalId}`, {
-                ...editSoal
-            });
-            if (response.data && response.data.status === "success") {
-                console.log("Success editing soal:", response.data.data);
+            const response = await axios.put(`/api-v1/soal-${kategoriSoal}/${soalId}`, { ...soalTeredit });
+            if (response.data && response.statusText === "OK")
                 setSoalList(soalList.map((prev) => prev.id === response.data.data.id ? response.data.data : prev));
-            }
-            console.log('Message:', response.statusText);
+            console.log('Message:', response.data.message);
         } catch (error) {
             console.error("Error posting soal:", error);
         }
@@ -70,12 +59,8 @@ export default function SoalInputPG({ kategoriSoal, modul, onModalSuccess, onMod
     const deleteSoal = async (soalId) => {
         try {
             const response = await axios.delete(`/api-v1/soal-${kategoriSoal}/${soalId}`);
-            if (response.data && response.data.status === "success") {
-                console.log("Success deleting soal:", response.statusText);
-            }
-            console.log('Message:', response.statusText);
         } catch (error) {
-            console.error("Error posting soal:", error);
+            console.error("Error deleting soal:", error);
         }
     };
 
@@ -105,7 +90,6 @@ export default function SoalInputPG({ kategoriSoal, modul, onModalSuccess, onMod
         }
 
         const payload = {
-            modul_id: Number(modul),
             pengantar: mode === "kode" ? addSoal.pengantar : "",
             kodingan: mode === "kode" ? addSoal.kodingan : "",
             pertanyaan: addSoal.pertanyaan,
@@ -129,7 +113,6 @@ export default function SoalInputPG({ kategoriSoal, modul, onModalSuccess, onMod
     };
 
     const handleOpenModalDelete = (soalId) => {
-        console.log("Menghapuskan soal ID:", soalId);
         deleteSoal(soalId);
         setSoalList(soalList.filter((item) => item.id !== soalId));
         setIsModalOpenDelete(true);
@@ -198,7 +181,7 @@ export default function SoalInputPG({ kategoriSoal, modul, onModalSuccess, onMod
                         onChange={handleChange}
                     ></textarea>
                     <textarea
-                        className="w-full p-2 border rounded overflow-auto max-h-64 resize-none"
+                        className="w-full p-2 mb-2 border rounded overflow-auto max-h-64 resize-none"
                         rows="4"
                         placeholder="Masukkan soal..."
                         value={addSoal.pertanyaan}
@@ -239,14 +222,9 @@ export default function SoalInputPG({ kategoriSoal, modul, onModalSuccess, onMod
                 >
                     + Tambah Soal
                 </button>
-                {/* {soalList.length > 0 && (
-                    <button
-                        className="text-md py-1 px-8 font-bold border text-white bg-deepForestGreen border-deepForestGreen rounded-md shadow-sm"
-                        onClick={handleSaveSoal}
-                    >
+                {/* {soalList.length > 0 && ( <button className="text-md py-1 px-8 font-bold border text-white bg-deepForestGreen border-deepForestGreen rounded-md shadow-sm" onClick={handleSaveSoal}>
                         Save Soal
-                    </button>
-                )} */}
+                    </button>)} */}
             </div>
 
             <div className="mt-5">

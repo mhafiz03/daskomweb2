@@ -24,7 +24,6 @@ class SoalTPController extends Controller
         try {
             // Validasi input
             $request->validate([
-                "modul_id" => "required|integer|exists:moduls,id",
                 "soal" => "required|string|max:1000",
             ]);
 
@@ -32,8 +31,6 @@ class SoalTPController extends Controller
             $soal = SoalTp::create([
                 "modul_id" => $id,
                 "soal" => $request->soal,
-                "created_at" => now(),
-                "updated_at" => now(),
             ]);
 
             return response()->json([

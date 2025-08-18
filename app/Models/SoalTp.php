@@ -53,7 +53,7 @@ class SoalTp extends Model
 
     public function jawaban()
     {
-        return $this->hasMany(JawabanTps::class, 'soal_id');
+        return $this->hasMany(JawabanTp::class, 'soal_id');
     }
 
 	public function temp_jawabantps()

@@ -26,7 +26,6 @@ export default function ModalEditSoalPG({ soalItem, onClose, onConfirm }) {
             jawaban_benar: pilihan[0],
             jawaban: pilihan.slice(1)
         };
-        console.log('Edited', updatedSoalItem);
         onConfirm(updatedSoalItem);
     };
 

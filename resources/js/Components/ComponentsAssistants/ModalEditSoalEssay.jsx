@@ -1,20 +1,33 @@
 import { useState } from "react";
 import closeIcon from "../../../assets/modal/iconClose.svg"
 
-export default function ModalEditSoalEssay({ onClose, initialSoal, onSave }) {
-    const [soal, setSoal] = useState(initialSoal || "");
+export default function ModalEditSoalEssay({ onClose, soalItem, onSave }) {
+    const [soal, setSoal] = useState(soalItem.soal || "");
+    const [pengantar, setPengantar] = useState(soalItem.pengantar || " ");
+    const [kodingan, setKodingan] = useState(soalItem.kodingan || "");
+    const [isEssay, setIsEssay] = useState(soalItem.is_essay || "");
+    const [isProgram, setIsProgram] = useState(soalItem.is_program || "");
+    const [isSulit, setIsSulit] = useState(soalItem.is_sulit || "");
     const [showSuccessModal, setShowSuccessModal] = useState(false);
 
     const handleSave = () => {
         // ini dipanggil
-        onSave(soal); 
+        onSave({
+            ...soalItem,
+            soal,
+            pengantar,
+            kodingan,
+            is_essay: isEssay,
+            is_program: isProgram,
+            is_sulit: isSulit,
+        });
         // di tunjukin
         setShowSuccessModal(true);
 
-        setTimeout(() => {
-            setShowSuccessModal(false);
-            onClose(); 
-        }, 3000);
+        // setTimeout(() => {
+        //     setShowSuccessModal(false);
+        //     onClose(); 
+        // }, 3000);
     };
 
     return (
@@ -28,7 +41,7 @@ export default function ModalEditSoalEssay({ onClose, initialSoal, onSave }) {
                     <button
                         onClick={onClose}
                         className="absolute top-2 right-2 flex justify-center items-center"
-                    >        
+                    >
                         <img className="w-9" src={closeIcon} alt="closeIcon" />
                     </button>
                 </div>
