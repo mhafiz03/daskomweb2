@@ -6,7 +6,7 @@ import trashIcon from "../../../assets/nav/Icon-Delete.svg";
 import editIcon from "../../../assets/nav/Icon-Edit.svg";
 
 export default function TablePlottingan() {
-    const [isModalOpenDelate, setIsModalOpenDelate] = useState(false);
+    const [isModalOpenDelete, setIsModalOpenDelete] = useState(false);
     const [isModalOpenEdit, setIsModalOpenEdit] = useState(false);
     const [message, setMessage] = useState("");
     const [kelas, setKelas] = useState([]);
@@ -63,13 +63,13 @@ export default function TablePlottingan() {
         fetchData();
     }, []);
 
-    const handleOpenModalDelate = (kelasItem) => {
+    const handleOpenModalDelete = (kelasItem) => {
         setSelectedKelas(kelasItem); // Pastikan kelasItem memiliki properti id
-        setIsModalOpenDelate(true);
+        setIsModalOpenDelete(true);
     };
 
-    const handleCloseModalDelate = () => {
-        setIsModalOpenDelate(false);
+    const handleCloseModalDelete = () => {
+        setIsModalOpenDelete(false);
     };
 
     const handleConfirmDelete = async () => {
@@ -85,7 +85,7 @@ export default function TablePlottingan() {
             console.error("Failed to delete kelas:", error);
             setMessage("Gagal menghapus kelas. Silakan coba lagi.");
         } finally {
-            setIsModalOpenDelate(false);
+            setIsModalOpenDelete(false);
         }
     };
 
@@ -155,7 +155,7 @@ export default function TablePlottingan() {
                                 </div>
                                 <div className="flex items-center justify-center h-full py-1 px-2 border border-forestGreen space-x-2">
                                     <button
-                                        onClick={() => handleOpenModalDelate(kelasItem)}
+                                        onClick={() => handleOpenModalDelete(kelasItem)}
                                         className="flex justify-center items-center p-1 border-2 border-fireRed rounded"
                                     >
                                         <img className="w-4" src={trashIcon} alt="delete icon" />
@@ -176,9 +176,9 @@ export default function TablePlottingan() {
             </div>
 
             {/* Modal components */}
-            {isModalOpenDelate && (
+            {isModalOpenDelete && (
                 <ModalDeletePlottingan
-                    onClose={handleCloseModalDelate}
+                    onClose={handleCloseModalDelete}
                     onConfirm={handleConfirmDelete}
                     message={message}
                     isError={message.includes("Gagal")}
