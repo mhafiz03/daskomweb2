@@ -20,7 +20,6 @@ export default function RegistFormPraktikan({ mode }) {
     const [kelas, setKelas] = useState([]);
     const [passwordVisible, setPasswordVisible] = useState(false);
     const [localErrors, setLocalErrors] = useState({});
-    const [kelas, setKelas] = useState([]);
 
     const togglePasswordVisibility = () => {
         setPasswordVisible((prevState) => !prevState);
