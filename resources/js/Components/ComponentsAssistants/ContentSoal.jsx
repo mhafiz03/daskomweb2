@@ -30,7 +30,7 @@ export default function ContentSoal() {
             {/* all dropdown input soal */}
             <div className="flex gap-5 mt-4 items-start border-2 border-darkBrown rounded-md shadow-md">
                 {/* Panggil komponen dropdown jenis soal */}
-                <div className="overflow-y-auto h-96 w-full">
+                <div className="overflow-y-auto lg:h-[48rem] md:h-96 w-full">
                     <SoalInputForm />
                 </div>
             </div>

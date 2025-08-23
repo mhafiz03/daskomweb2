@@ -24,20 +24,13 @@ class SoalTPController extends Controller
         try {
             // Validasi input
             $request->validate([
-                "modul_id" => "required|integer|exists:moduls,id",
                 "soal" => "required|string|max:1000",
-                // "isEssay" => "required|boolean",
-                // "isProgram" => "required|boolean",
             ]);
 
             // Menyimpan soal baru
             $soal = SoalTp::create([
                 "modul_id" => $id,
                 "soal" => $request->soal,
-                // "isEssay" => $request->isEssay,
-                // "isProgram" => $request->isProgram,
-                "created_at" => now(),
-                "updated_at" => now(),
             ]);
 
             return response()->json([
@@ -64,7 +57,7 @@ class SoalTPController extends Controller
             }
             return response()->json([
                 "message" => "Soal TP retrieved successfully.",
-                "soalTp" => $all_tp,
+                "data" => $all_tp,
             ], 200);
         } catch (\Exception $e) {
             return response()->json([

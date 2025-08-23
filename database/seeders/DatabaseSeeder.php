@@ -3,7 +3,6 @@
 namespace Database\Seeders;
 
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
-use App\Models\Role;
 use App\Models\Kelas;
 use App\Models\Modul;
 use App\Models\SoalTa;

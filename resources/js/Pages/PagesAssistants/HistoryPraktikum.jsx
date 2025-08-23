@@ -2,6 +2,7 @@ import AssisstantNav from "@/Components/ComponentsAssistants/AssistantNav";
 import ContentHistory from "@/Components/ComponentsAssistants/ContentHistory";
 import Clock from "@/Components/ComponentsAssistants/Clock";
 import ModalSoftware from "@/Components/ComponentsAssistants/ModalSoftware";
+import { usePage } from "@inertiajs/react";
 
 export default function ResultLaporan() {
     const { auth } = usePage().props; //data asisten

@@ -196,14 +196,14 @@ export default function RegistFormAssistant({ mode }) {
                 </div>
                 <div>
                     <input
-                        className={`bg-lightGray py-1 px-4 mt-1 rounded-sm border-2 uppercase ${
+                        className={`bg-lightGray py-1 px-4 mt-1 rounded-sm border-2 ${
                             localErrors.kode ? 'border-red-500' : 'border-dustyBlue '
                         } placeholder-dustyBlue w-full`}
                         type="text"
                         id="kode"
                         value={values.kode}
                         onChange={handleChange}
-                        placeholder="DHY"
+                        placeholder="Kode Asisten"
                         maxLength={3}
                     />
                     {localErrors.kode && <p className="text-red-500 text-sm mt-1">{localErrors.kode}</p>}

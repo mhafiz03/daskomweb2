@@ -25,11 +25,11 @@ export default function ButtonAddModule({ onClose }) {
 
         if (!values.judul.trim()) newErrors.judul = "Judul is required.";
         if (!values.poin1.trim()) newErrors.poin1 = "Poin 1 is required.";
-        if (!values.poin2.trim()) newErrors.poin2 = "Poin 2 is required.";
-        if (!values.poin3.trim()) newErrors.poin3 = "Poin 3 is required.";
-        if (!values.ppt_link.trim()) newErrors.ppt_link = "Link PPT is required.";
-        if (!values.video_link.trim()) newErrors.video_link = "Link Video Youtube is required.";
-        if (!values.modul_link.trim()) newErrors.modul_link = "Link Modul is required.";
+        // if (!values.poin2.trim()) newErrors.poin2 = "Poin 2 is required.";
+        // if (!values.poin3.trim()) newErrors.poin3 = "Poin 3 is required.";
+        // if (!values.ppt_link.trim()) newErrors.ppt_link = "Link PPT is required.";
+        // if (!values.video_link.trim()) newErrors.video_link = "Link Video Youtube is required.";
+        // if (!values.modul_link.trim()) newErrors.modul_link = "Link Modul is required.";
 
         setLocalErrors(newErrors);
 
@@ -47,7 +47,7 @@ export default function ButtonAddModule({ onClose }) {
                     setTimeout(() => {
                         setShowSuccessModal(false);
                         onClose();
-                    }, 3000);
+                    }, 2000);
                 },
                 onError: (errors) => {
                     console.error('Validation errors:', errors);
@@ -144,7 +144,6 @@ export default function ButtonAddModule({ onClose }) {
                             </label>
                             <input
                                 id={link}
-                                type="url"
                                 className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-darkBrown focus:border-darkBrown"
                                 placeholder={`Masukkan ${link}`}
                                 value={values[link]}

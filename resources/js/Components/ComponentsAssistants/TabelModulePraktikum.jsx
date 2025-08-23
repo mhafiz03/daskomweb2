@@ -140,7 +140,7 @@ export default function TabelModulePraktikum() {
             </div>
 
             {/* Module container */}
-            <div className="overflow-x-auto max-h-96 bg-white rounded-lg p-1">
+            <div className="overflow-x-auto lg:max-h-[48rem] md:max-h-96 bg-white rounded-lg p-1">
                 {/* If no modules, show a message */}
                 {loading ? (
                     <div className="text-center py-10 text-gray-500">Memuat data...</div>
@@ -156,7 +156,19 @@ export default function TabelModulePraktikum() {
                                 className="flex justify-between items-center w-full px-5 py-3 text-left font-semibold bg-white transition-all rounded-lg"
                             >
                                 <span className="font-bold text-xl text-black">{index + 1}. {module.judul}</span>
-                                <span className="text-xl">{openIndex === index ? "▲" : "▼"}</span>
+                                <div className="flex items-center gap-2">
+                                    {module.isUnlocked === 0 && (
+                                        <span className=" rounded py-1 text-sm">
+                                            🔒
+                                        </span>
+                                    )}
+                                    {module.isEnglish === 1 && (
+                                        <span className="border border-gray-400 rounded-lg px-2 py-1 text-sm text-white bg-deepForestGreenDark">
+                                            English
+                                        </span>
+                                    )}
+                                    <span className="text-xl">{openIndex === index ? "▲" : "▼"}</span>
+                                </div>
                             </button>
 
                             <div className="pl-10">

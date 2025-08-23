@@ -10,10 +10,8 @@ export default function SoalInputForm() {
     const [isModalValidationOpen, setIsModalValidationOpen] = useState(false);
     const [isModalSuccesOpenAddSoal, setIsModalSuccesOpenAddSoal] = useState(false);
     const [kategoriSoal, setKategoriSoal] = useState("");
-    const [values, setValues] = useState({
-        modul_id: '',
-    });
-    const [modul, setModul] = useState([]);
+    const [selectedModul, setSelectedModul] = useState('');
+    const [moduls, setModuls] = useState([]);
     const [loading, setLoading] = useState(false);
     const [soalList, setSoalList] = useState([]);
 
@@ -24,14 +22,14 @@ export default function SoalInputForm() {
             if (response.ok) {
                 const data = await response.json();
                 console.log("Fetched modules:", data.data);
-                setModul(Array.isArray(data.data) ? data.data : []); // ini kudu array gaes tong di ubah
+                setModuls(Array.isArray(data.data) ? data.data : []); // ini kudu array gaes tong di ubah
             } else {
                 console.error('Failed to fetch modules:', response.statusText);
-                setModul([]);
+                setModuls([]);
             }
         } catch (error) {
             console.error("Error fetching modules:", error);
-            setModul([]);
+            setModuls([]);
         } finally {
             setLoading(false);
         }
@@ -42,29 +40,19 @@ export default function SoalInputForm() {
         fetchModules();
     }, []);
 
-    const handleChange = (e) => {
-        const key = e.target.id;
-        const value = e.target.value;
-        setValues((prevValues) => ({
-            ...prevValues,
-            [key]: value,
-        }));
-    };
+    useEffect(() => {
+    }, [selectedModul]);
 
-    const handleOpenModalSave = () => {
-        // Validasi apakah soal sudah lengkap
-        if (!soalList.some(soal => !soal.soal || soal.pilihan?.some(p => p === ""))) {
-            setIsModalSaveOpen(true);
-        } else {
-            setIsModalValidationOpen(true);
-        }
+    const handleModulChange = (e) => {
+        const value = e.target.value;
+        setSelectedModul(value);
     };
 
     const handleCloseModalSave = () => {
         setIsModalSaveOpen(false);
         // Reset dropdown ke default
         setKategoriSoal("");
-        setModul("");
+        setModuls("");
     };
 
     const handleCloseModalValidation = () => {
@@ -79,10 +67,6 @@ export default function SoalInputForm() {
         setIsModalSuccesOpenAddSoal(false);
     };
 
-    const addSoal = (soalBaru) => {
-        setSoalList([...soalList, soalBaru]);
-    };
-
     return (
         <div className="p-6">
             {/* Pilih kategori soal dan modul */}
@@ -94,25 +78,24 @@ export default function SoalInputForm() {
                         onChange={(e) => setKategoriSoal(e.target.value)}
                     >
                         <option value="">- Pilih Kategori Soal -</option>
-                        <option value="Pendahuluan">Tes Pendahuluan</option>
-                        <option value="TesAwal">Tes Awal</option>
-                        <option value="Jurnal">Jurnal</option>
-                        <option value="Mandiri">Mandiri</option>
-                        <option value="Keterampilan">Tes Keterampilan</option>
+                        <option value="tp">Tes Pendahuluan</option>
+                        <option value="ta">Tes Awal</option>
+                        <option value="fitb">Fill in the blank</option>
+                        <option value="jurnal">Jurnal</option>
+                        <option value="tm">Mandiri</option>
+                        <option value="tk">Tes Keterampilan</option>
                     </select>
                 </div>
                 <div className="w-2/3">
                     <select
                         className="w-full border-2 border-darkBrown rounded-md shadow-md"
-                        value={values.modul_id}
                         id="modul_id"
-                        onChange={handleChange}
+                        onChange={handleModulChange}
                     >
                         <option value="">- Pilih Modul -</option>
-                        {console.log("Modul data:", modul)}
-                        {modul.length > 0 ? (
-                            modul.map((k, index) => (
-                                <option key={k.idM ?? `modul-${index}`} value={k.idM}>
+                        {moduls.length > 0 ? (
+                            moduls.map((k) => (
+                                <option key={k.idM} value={k.idM}>
                                     {k.judul}
                                 </option>
                             ))
@@ -125,57 +108,33 @@ export default function SoalInputForm() {
             </div>
 
             {/* Input soal berdasarkan kategori soal */}
-            {kategoriSoal === "Pendahuluan" && modul && (
-                <SoalInputEssay
-                    kategoriSoal={kategoriSoal}
-                    modul={modul}
-                    onModalSuccess={handleOpenModalAddSuccesSoal}
-                    onModalValidation={() => setIsModalValidationOpen(true)}
-                    addSoal={addSoal}
-                />
-            )}
+            {(() => {
+                if (!kategoriSoal) return null;
+                const essayTypes = ["tp", "fitb", "jurnal", "tm"];
+                const pgTypes = ["ta", "tk"];
+                if (essayTypes.includes(kategoriSoal) && selectedModul) {
+                    return (
+                        <SoalInputEssay
+                            kategoriSoal={kategoriSoal}
+                            modul={selectedModul}
+                            onModalSuccess={handleOpenModalAddSuccesSoal}
+                            onModalValidation={() => setIsModalValidationOpen(true)}
+                        />
+                    );
+                }
+                if (pgTypes.includes(kategoriSoal) && selectedModul) {
+                    return (
+                        <SoalInputPG
+                            kategoriSoal={kategoriSoal}
+                            modul={selectedModul}
+                            onModalSuccess={handleOpenModalAddSuccesSoal}
+                            onModalValidation={() => setIsModalValidationOpen(true)}
+                        />
+                    );
+                }
+                return null;
+            })()}
 
-            {kategoriSoal === "TesAwal" && modul && (
-                <SoalInputPG
-                    kategoriSoal={kategoriSoal}
-                    modul={modul}
-                    onModalSuccess={handleOpenModalAddSuccesSoal}
-                    onModalValidation={() => setIsModalValidationOpen(true)}
-                    addSoal={addSoal}
-                />
-            )}
-
-            {kategoriSoal === "Jurnal" && modul && (
-                <SoalInputEssay
-                    kategoriSoal={kategoriSoal}
-                    modul={modul}
-                    onModalSuccess={handleOpenModalAddSuccesSoal}
-                    onModalValidation={() => setIsModalValidationOpen(true)}
-                    addSoal={addSoal}
-                />
-            )}
-
-            {kategoriSoal === "Mandiri" && modul && (
-                <SoalInputEssay
-                    kategoriSoal={kategoriSoal}
-                    modul={modul}
-                    onModalSuccess={handleOpenModalAddSuccesSoal}
-                    onModalValidation={() => setIsModalValidationOpen(true)}
-                    addSoal={addSoal}
-                />
-            )}
-
-            {kategoriSoal === "Keterampilan" && modul && (
-                <SoalInputPG
-                    kategoriSoal={kategoriSoal}
-                    modul={modul}
-                    onModalSuccess={handleOpenModalAddSuccesSoal}
-                    onModalValidation={() => setIsModalValidationOpen(true)}
-                    addSoal={addSoal}
-                />
-            )}
-
-            {/* Modal Save Soal */}
             {isModalSaveOpen && <ModalSaveSoal onClose={handleCloseModalSave} />}
             {/* Modal Validasi Soal */}
             {isModalValidationOpen && <ModalValidationAddSoal onClose={handleCloseModalValidation} />}

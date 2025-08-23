@@ -5,7 +5,6 @@ namespace App\Http\Controllers\API;
 use App\Models\Asisten;
 use App\PermissionGroupEnum;
 use Illuminate\Http\Request;
-use App\Models\Role as roles;
 use Spatie\Permission\Models\Role;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
@@ -74,12 +73,12 @@ class RoleController extends Controller
                 }
 
                 switch ($paket) {
-                    case 'super':
-                        $permissions = array_merge($permissions, $SUPER_PACKAGE);
-                        break;
-                    case 'aslab':
-                        $permissions = array_merge($permissions, $ASLAB_PACKAGE);
-                        break;
+                    // case 'super':
+                    //     $permissions = array_merge($permissions, $SUPER_PACKAGE);
+                    //     break;
+                    // case 'aslab':
+                    //     $permissions = array_merge($permissions, $ASLAB_PACKAGE);
+                    //     break;
                     case 'atc':
                         $permissions = array_merge($permissions, $ATC_PACKAGE);
                         break;
@@ -92,10 +91,8 @@ class RoleController extends Controller
                     default:
                         $permissions = [];
                         break;
-                }
-                
+                }                
             }
-
 
             $role = Role::create([
                 'name' => $request->name,

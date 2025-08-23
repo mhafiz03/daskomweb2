@@ -16,7 +16,19 @@ class PraktikumController extends Controller
      */
     public function index()
     {
-        //no needed
+        try {
+            $praktikum = Praktikum::with('modul')->get();
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Praktikum retrieved successfully.',
+                'data' => $praktikum,
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'An error occurred while retrieving the praktikum.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
     }
 
     /**

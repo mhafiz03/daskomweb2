@@ -33,8 +33,9 @@ class ModulController extends BaseController
                 ->get();
 
             return response()->json([
-                'modul' => $moduls,
-                'message' => 'Moduls retrieved successfully.'
+                'data' => $moduls,
+                'message' => 'Moduls retrieved successfully.',
+                'success' => true,
             ]);
         } catch (\Exception $e) {
             return response()->json([
@@ -82,9 +83,9 @@ class ModulController extends BaseController
             'poin3' => 'nullable|string',
             'isEnglish' => 'required|integer',
             'isUnlocked' => 'required|integer',
-            'modul_link' => 'required|string',
-            'ppt_link' => 'required|string',
-            'video_link' => 'required|string',
+            'modul_link' => 'nullable|string',
+            'ppt_link' => 'nullable|string',
+            'video_link' => 'nullable|string',
         ]);
         try {
             $modul = Modul::create([
@@ -99,9 +100,9 @@ class ModulController extends BaseController
             ]);
             Resource::create([
                 'modul_id' => $modul->id,
-                'modul_link' => $request->modul_link,
-                'ppt_link' => $request->ppt_link,
-                'video_link' => $request->video_link,
+                'modul_link' => $request->modul_link ?? '',
+                'ppt_link' => $request->ppt_link ?? '',
+                'video_link' => $request->video_link ?? '',
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);
@@ -131,7 +132,6 @@ class ModulController extends BaseController
             'modul_link' => 'required|string',
             'ppt_link' => 'required|string',
             'video_link' => 'required|string',
-            'oldJudul' => 'required|string',
         ]);
 
         if ($validator->fails()) {
@@ -140,7 +140,8 @@ class ModulController extends BaseController
 
         try {
             // Check if title is being changed and if new title already exists
-            if ($request->judul !== $request->oldJudul) {
+            $modul = Modul::findOrFail($id);
+            if ($request->judul !== $modul->judul) {
                 $existingModul = Modul::where('judul', $request->judul)->first();
                 if ($existingModul) {
                     return redirect()->back()->withErrors([
@@ -148,8 +149,7 @@ class ModulController extends BaseController
                     ])->withInput();
                 }
             }
-
-            $modul = Modul::findOrFail($id);
+            
             $resource = Resource::where('modul_id', $modul->id)->first();
 
             if (!$resource) {

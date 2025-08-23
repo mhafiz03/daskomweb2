@@ -70,7 +70,6 @@ export default function ModalOpenKJ({ onClose, modules }) {
                 modul_link: mod.modul_link,
                 ppt_link: mod.ppt_link,
                 video_link: mod.video_link,
-                oldJudul: mod.judul,
             };
 
             console.log("Payload untuk modul ID", mod.idM, ":", payload);

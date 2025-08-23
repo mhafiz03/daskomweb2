@@ -34,6 +34,4 @@ Saya juga ingin mengucapkan terima kasih kepada teman-teman yang telah berkontri
 - [Mohammad Fiqri Firmansyah [RYU]](https://github.com/TakanashaTaryu) 
 - [Junaidi Rahmat [JIN]](https://github.com/Junaidirah) 
 - [Muhamad Al Fitra Zulfikhar Akbar [MAI]](https://github.com/Raphaeline) 
-
-## Contributors
-- 
+- [Muhammad Hafiz [MHZ]](https://github.com/mhafiz03) 

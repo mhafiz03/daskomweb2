@@ -91,24 +91,6 @@ class JawabanTPController extends Controller
         }
     }
 
-    // Get all modules for the dropdown
-    public function getModules()
-    {
-        try {
-            $modules = Modul::select('id', 'judul')->get();
-            return response()->json([
-                'success' => true,
-                'data' => $modules
-            ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Gagal memuat data modul',
-                'error' => $e->getMessage()
-            ], 500);
-        }
-    }
-
     public function getJawabanTP($nim, $modulId) {
         try {
             // Existing logic from showJawabanTP

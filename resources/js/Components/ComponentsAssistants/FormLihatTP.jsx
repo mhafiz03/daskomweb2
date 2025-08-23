@@ -151,7 +151,7 @@ export default function FormLihatTp() {
                                     Pilih Modul
                                 </option>
                                 {modules.map((modul) => (
-                                    <option key={modul.id} value={modul.id}>
+                                    <option key={modul.idM} value={modul.idM}>
                                         {modul.judul}
                                     </option>
                                 ))}

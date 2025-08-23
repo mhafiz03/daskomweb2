@@ -33,7 +33,7 @@ export default function TableHistory() {
             </div>
 
             {/* Kontainer untuk scroll tabel */}
-            <div className="overflow-x-auto max-h-96">
+            <div className="overflow-x-auto lg:max-h-[48rem] md:max-h-96">
                 <div className="grid grid-cols-4 gap-1 bg-softIvory">
                     {[...Array(10)].map((_, index) => (
                         <>
