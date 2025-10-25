@@ -1,9 +1,9 @@
 import { Head, usePage } from '@inertiajs/react';
 import { useEffect, useState } from 'react';
 import toast , { Toaster } from "react-hot-toast";  // Import Toaster
-import RegistFormPraktikan from '@/Components/ComponentsPraktikans/RegistFormPraktikan';
-import RegistFormAssistant from '@/Components/ComponentsAssistants/RegistFormAssistant';
-import Vector from '@/Components/ComponentsPraktikans/Vector';
+import RegistFormPraktikan from '@/Components/Praktikans/Forms/RegistFormPraktikan';
+import RegistFormAssistant from '@/Components/Assistants/Forms/RegistFormAssistant';
+import Vector from '@/Components/Praktikans/Sections/Vector';
 
 export default function RegistPage() {
     const { ziggy } = usePage().props;  

@@ -1,8 +1,8 @@
 import { Head } from '@inertiajs/react';
-import LandingNavbar from '@/Components/ComponentsPraktikans/LandingNavbar';
-import MainLanding from '@/Components/ComponentsPraktikans/MainLanding';
-import LandingSosmed from '@/Components/ComponentsPraktikans/LandingSosmed';
-import LandingFooter from '@/Components/ComponentsPraktikans/LandingFooter';
+import LandingNavbar from '@/Components/Praktikans/Layout/LandingNavbar';
+import MainLanding from '@/Components/Praktikans/Sections/MainLanding';
+import LandingSosmed from '@/Components/Praktikans/Sections/LandingSosmed';
+import LandingFooter from '@/Components/Praktikans/Layout/LandingFooter';
 
 export default function LandingPage() {
     return (

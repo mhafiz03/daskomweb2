@@ -1,6 +1,6 @@
-import AssisstantNav from "@/Components/ComponentsAssistants/AssistantNav";
-import Clock from "@/Components/ComponentsAssistants/Clock";
-import ModalSoftware from "@/Components/ComponentsAssistants/ModalSoftware";
+import AssisstantNav from "@/Components/Assistants/Common/AssistantNav";
+import Clock from "@/Components/Assistants/Common/Clock";
+import ModalSoftware from "@/Components/Assistants/Modals/ModalSoftware";
 import { usePage } from "@inertiajs/react";
 
 export default function AssistantLayout({

@@ -1,10 +1,10 @@
 import { Head, usePage } from '@inertiajs/react';
 import { useEffect, useState } from 'react';
 import { Toaster } from "react-hot-toast";  // Import Toaster
-import LoginFormPraktikan from '@/Components/ComponentsPraktikans/LoginFormPraktikan';
-import LoginFormAssistant from '@/Components/ComponentsAssistants/LoginFormAssistant';
-import Vector from '@/Components/ComponentsPraktikans/Vector';
-import ButtonGroup from '@/Components/ComponentsPraktikans/ButtonGroup';
+import LoginFormPraktikan from '@/Components/Praktikans/Forms/LoginFormPraktikan';
+import LoginFormAssistant from '@/Components/Assistants/Forms/LoginFormAssistant';
+import Vector from '@/Components/Praktikans/Sections/Vector';
+import ButtonGroup from '@/Components/Praktikans/Buttons/ButtonGroup';
 
 export default function LoginPage() {
     const { ziggy } = usePage().props; 

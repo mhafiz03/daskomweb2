@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link } from "@inertiajs/react";
-import AssistantNav from "../Components/ComponentsAssistants/AssistantNav";
-import AssistantAnnouncement from "../Components/ComponentsAssistants/AssistantAnno";
+import AssistantNav from "@/Components/Assistants/Common/AssistantNav";
+import AssistantAnnouncement from "../Components/Assistants/AssistantAnno";
 
 export default function AssistantAuthenticated({ children }) {
     return (

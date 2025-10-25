@@ -1,4 +1,4 @@
-import PraktikanNav from "../Components/ComponentsPraktikans/PraktikanNav";
+import PraktikanNav from "../Components/Praktikans/Layout/PraktikanNav";
 
 export default function PraktikanAuthenticated({ children, customWidth, praktikan}) {
     return (
