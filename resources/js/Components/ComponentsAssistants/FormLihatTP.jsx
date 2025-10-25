@@ -1,54 +1,65 @@
-import { useState, useEffect } from "react";
-import { router } from "@inertiajs/react";
-import axios from "axios";
+import { useState } from "react";
+import { useMutation } from "@tanstack/react-query";
+import { api } from "@/lib/api";
+import { useModulesQuery } from "@/hooks/useModulesQuery";
 import ContentLihatTP from "./ContentLihatTP";
 
 export default function FormLihatTp() {
     const [nim, setNim] = useState("");
     const [selectedModulId, setSelectedModulId] = useState("");
-    const [modules, setModules] = useState([]);
-    const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const [modalMessage, setModalMessage] = useState("");
-    const [isSuccess, setIsSuccess] = useState(true);
-
-    // Add state to handle display of results
     const [showResults, setShowResults] = useState(false);
     const [resultData, setResultData] = useState({
         jawabanData: [],
         praktikan: null,
-        modul: null
+        modul: null,
     });
 
-    // Fetch modules for dropdown
-    useEffect(() => {
-        const fetchModules = async () => {
-            try {
-                const response = await axios.get('/api-v1/modul');
-                if (response.data.success) {
-                    setModules(response.data.data);
-                }
-            } catch (error) {
-                console.error('Error fetching modules:', error);
-                setModalMessage('Gagal memuat daftar modul');
-                setIsSuccess(false);
-                setIsModalOpen(true);
-            }
-        };
+    const {
+        data: modules = [],
+        isLoading: modulesLoading,
+        isError: modulesError,
+        error: modulesQueryError,
+    } = useModulesQuery({
+        onError: (err) => {
+            console.error("Error fetching modules:", err);
+        },
+    });
 
-        fetchModules();
-    }, []);
+    const jawabanTpMutation = useMutation({
+        mutationFn: async ({ nim: praktikanNim, modulId }) => {
+            try {
+                const { data } = await api.get(`/api-v1/jawaban-tp/${praktikanNim}/${modulId}`);
+                if (!data?.success) {
+                    throw new Error(data?.message ?? "Gagal menampilkan jawaban TP");
+                }
+                return data.data;
+            } catch (err) {
+                const message = err.response?.data?.message ?? err.message ?? "Gagal menampilkan jawaban TP";
+                throw new Error(message);
+            }
+        },
+        retry: false,
+        onSuccess: (data) => {
+            setResultData({
+                jawabanData: data?.jawabanData ?? [],
+                praktikan: data?.praktikan ?? null,
+                modul: data?.modul ?? null,
+            });
+            setShowResults(true);
+        },
+        onError: (err) => {
+            setError(err.message ?? "Gagal menampilkan jawaban TP");
+        },
+    });
 
     const handleNimChange = (e) => {
         setNim(e.target.value);
-        // Reset previous results when NIM changes
         setError("");
     };
 
     const handleModulChange = (e) => {
         setSelectedModulId(e.target.value);
-        // Reset previous results when module changes
         setError("");
     };
 
@@ -60,40 +71,17 @@ export default function FormLihatTp() {
             return;
         }
 
-        setLoading(true);
         setError("");
-        try {
-            const response = await axios.get(`/api-v1/jawaban-tp/${nim}/${selectedModulId}`);
-            console.log("Response dari backend:", response.data);
-
-            if (response.data.success) {
-                // Instead of navigating, store the data and show the results
-                setResultData({
-                    jawabanData: response.data.data.jawabanData,
-                    praktikan: response.data.data.praktikan,
-                    modul: response.data.data.modul
-                });
-                setShowResults(true);
-            } else {
-                setError(response.data.message || "Gagal menampilkan jawaban TP");
-            }
-
-        } catch (error) {
-            console.error('Error fetching TP:', error);
-            setError(error.response?.data?.message || "Gagal menampilkan jawaban TP");
-        } finally {
-            setLoading(false);
-        }
+        jawabanTpMutation.mutate({ nim, modulId: selectedModulId });
     };
 
-    // Function to go back to the form
     const handleBackToForm = () => {
         setShowResults(false);
         setNim("");
         setSelectedModulId("");
+        setError("");
     };
 
-    // If showing results, render ContentLihatTP component
     if (showResults) {
         return (
             <div>
@@ -114,13 +102,11 @@ export default function FormLihatTp() {
         );
     }
 
-    // Otherwise, render the form
     return (
         <div className="container mx-auto p-4">
             <div className="bg-white shadow-md border-2 border-deepForestGreen rounded-lg p-6">
                 <h1 className="text-2xl font-bold mb-6 text-center text-deepForestGreen">Lihat Jawaban TP</h1>
 
-                {/* Search Form */}
                 <form onSubmit={handleSubmit} className="mb-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
@@ -146,29 +132,36 @@ export default function FormLihatTp() {
                                 value={selectedModulId}
                                 onChange={handleModulChange}
                                 className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-green-500"
+                                disabled={modulesLoading}
                             >
                                 <option value="" disabled>
                                     Pilih Modul
                                 </option>
-                                {modules.map((modul) => (
-                                    <option key={modul.idM} value={modul.idM}>
-                                        {modul.judul}
+                                {modulesLoading && <option value="" disabled>Memuat modul...</option>}
+                                {modulesError && (
+                                    <option value="" disabled>
+                                        {modulesQueryError?.message ?? "Gagal memuat modul"}
                                     </option>
-                                ))}
+                                )}
+                                {!modulesLoading && !modulesError &&
+                                    modules.map((modul) => (
+                                        <option key={modul.idM} value={modul.idM}>
+                                            {modul.judul}
+                                        </option>
+                                    ))}
                             </select>
                         </div>
                     </div>
 
                     <button
                         type="submit"
-                        disabled={loading}
+                        disabled={jawabanTpMutation.isPending || modulesLoading}
                         className="mt-4 w-full p-2 bg-deepForestGreen text-white font-semibold rounded hover:bg-darkGreen disabled:bg-gray-400"
                     >
-                        {loading ? "Memuat..." : "Lihat Jawaban"}
+                        {jawabanTpMutation.isPending ? "Memuat..." : "Lihat Jawaban"}
                     </button>
                 </form>
 
-                {/* Error message */}
                 {error && (
                     <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
                         {error}

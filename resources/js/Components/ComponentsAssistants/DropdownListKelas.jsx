@@ -1,10 +1,17 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
+import { useKelasQuery } from "@/hooks/useKelasQuery";
 
 export default function DropdownListKelas() {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedOption, setSelectedOption] = useState("-- Pilih Kelas --");
-  const [kelas, setKelas] = useState([]);
-  const [loading, setLoading] = useState(false);
+
+  const {
+    data: kelas = [],
+    isLoading,
+    isError,
+    error,
+    refetch,
+  } = useKelasQuery();
 
   const toggleDropdown = () => {
     setIsOpen(!isOpen);
@@ -15,41 +22,34 @@ export default function DropdownListKelas() {
     setIsOpen(false);
   };
 
-  const fetchKelas = async () => {
-    setLoading(true);
-    try {
-      const response = await fetch("/api-v1/kelas");
-      if (response.ok) {
-        const data = await response.json();
-        console.log("Fetched kelas:", data.kelas);
-        setKelas(data.kelas || []);
-      } else {
-        console.error("Failed to fetch kelas:", response.statusText);
-      }
-    } catch (error) {
-      console.error("Error fetching kelas:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchKelas();
-  }, []);
+  const kelasIsEmpty = !isLoading && !isError && kelas.length === 0;
 
   return (
     <div className="relative">
       <button
-        onClick={toggleDropdown}
+        onClick={() => {
+          if (isError) {
+            refetch();
+          }
+          toggleDropdown();
+        }}
         className="flex items-center gap-2 border-2 border-darkBrown text-darkBrown font-semibold rounded-md px-7 py-1 shadow-md"
-        disabled={loading}
+        disabled={isLoading}
       >
-        {loading ? "Loading..." : selectedOption}
+        {isLoading ? "Loading..." : selectedOption}
       </button>
       {isOpen && (
         <div className="absolute right-0 mt-2 bg-white border-2 border-darkBrown rounded-md shadow-md w-[168px] z-10">
           <ul>
-            {kelas.length > 0 ? (
+            {isError && (
+              <li className="px-4 py-2 text-red-600">
+                {error?.message ?? "Gagal memuat kelas"}
+              </li>
+            )}
+            {kelasIsEmpty && (
+              <li className="px-4 py-2 text-gray-500">No kelas available</li>
+            )}
+            {!isError && !kelasIsEmpty &&
               kelas.map((kel) => (
                 <li
                   key={kel.id}
@@ -58,12 +58,7 @@ export default function DropdownListKelas() {
                 >
                   {kel.kelas}
                 </li>
-              ))
-            ) : (
-              <li className="px-4 py-2 text-gray-500">
-                No kelas available
-              </li>
-            )}
+              ))}
           </ul>
         </div>
       )}

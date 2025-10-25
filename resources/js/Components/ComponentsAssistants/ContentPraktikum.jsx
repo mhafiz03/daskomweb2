@@ -1,59 +1,22 @@
-import { index as kelasIndex } from "@/actions/App/Http/Controllers/API/KelasController";
-import { index as modulIndex} from "@/actions/App/Http/Controllers/API/ModulController";
-import DropdownListKelas from "./DropdownListKelas";
-import TabelStartPraktikum from "./TabelStartPraktikum";
-import { useState, useEffect } from "react";
-
+import { useModulesQuery } from "@/hooks/useModulesQuery";
+import { useKelasQuery } from "@/hooks/useKelasQuery";
+import { useState } from "react";
 
 export default function ContentModulePraktikum() {
-    const [kelas, setKelas] = useState([]);
-    const [loading, setLoading] = useState(false);
-    const [moduls, setModuls] = useState([]);
-    const [selectedModul, setSelectedModul] = useState('');
-    const [selectedKelas, setSelectedKelas] = useState('');
+    const [selectedModul, setSelectedModul] = useState("");
+    const [selectedKelas, setSelectedKelas] = useState("");
 
-    const fetchKelas = async () => {
-        setLoading(true);
-        try {
-            const response = await fetch(kelasIndex.url());
-            if (response.ok) {
-                const data = await response.json();
-                console.log("Fetched kelas:", data.kelas);
-                setKelas(data.kelas || []);
-            } else {
-                console.error("Failed to fetch kelas:", response.statusText);
-            }
-        } catch (error) {
-            console.error("Error fetching kelas:", error);
-        } finally {
-            setLoading(false);
-        }
-    };
+    const {
+        data: kelas = [],
+        isLoading: kelasLoading,
+        isError: kelasError,
+    } = useKelasQuery();
 
-    const fetchModules = async () => {
-        setLoading(true);
-        try {
-            const response = await fetch(modulIndex.url());
-            if (response.ok) {
-                const data = await response.json();
-                console.log("Fetched modules:", data.data);
-                setModuls(Array.isArray(data.data) ? data.data : []);
-            } else {
-                console.error('Failed to fetch modules:', response.statusText);
-                setModuls([]);
-            }
-        } catch (error) {
-            console.error("Error fetching modules:", error);
-            setModuls([]);
-        } finally {
-            setLoading(false);
-        }
-    }
-
-    useEffect(() => {
-        fetchKelas()
-        fetchModules()
-    }, [])
+    const {
+        data: moduls = [],
+        isLoading: modulLoading,
+        isError: modulError,
+    } = useModulesQuery();
 
     return (
         <section>
@@ -73,42 +36,48 @@ export default function ContentModulePraktikum() {
                             <select
                                 className="w-full border-2 border-darkBrown rounded-md shadow-md"
                                 id="kelas_id"
+                                value={selectedKelas}
                                 onChange={(e) => {
                                     const value = e.target.value;
                                     setSelectedKelas(value);
                                 }}
                             >
                                 <option value="">- Pilih Kelas -</option>
-                                {kelas.length > 0 ? (
+                                {kelasLoading && <option disabled>Loading kelas...</option>}
+                                {kelasError && <option disabled>Gagal memuat kelas</option>}
+                                {!kelasLoading && !kelasError && kelas.length === 0 && (
+                                    <option disabled>Data kelas kosong</option>
+                                )}
+                                {!kelasLoading && !kelasError &&
                                     kelas.map((k) => (
                                         <option key={k.id} value={k.kelas}>
                                             {k.kelas}
                                         </option>
-                                    ))
-                                ) : (
-                                    <option disabled>Loading...</option>
-                                )}
+                                    ))}
                             </select>
                         </div>
                         <div className="w-2/3">
                             <select
                                 className="w-full border-2 border-darkBrown rounded-md shadow-md"
                                 id="modul_id"
+                                value={selectedModul}
                                 onChange={(e) => {
                                     const value = e.target.value;
                                     setSelectedModul(value);
                                 }}
                             >
                                 <option value="">- Pilih Modul -</option>
-                                {moduls.length > 0 ? (
+                                {modulLoading && <option disabled>Loading modul...</option>}
+                                {modulError && <option disabled>Gagal memuat modul</option>}
+                                {!modulLoading && !modulError && moduls.length === 0 && (
+                                    <option disabled>Data modul kosong</option>
+                                )}
+                                {!modulLoading && !modulError &&
                                     moduls.map((k) => (
                                         <option key={k.idM} value={k.idM}>
                                             {k.judul}
                                         </option>
-                                    ))
-                                ) : (
-                                    <option disabled>Loading...</option>
-                                )}
+                                    ))}
                             </select>
                         </div>
                     </div>

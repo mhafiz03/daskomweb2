@@ -1,82 +1,82 @@
-import { useState, useEffect } from "react";
-import axios from 'axios';
+import { useState } from "react";
+import { useMutation } from "@tanstack/react-query";
+import { api } from "@/lib/api";
+import { useModulesQuery } from "@/hooks/useModulesQuery";
 
 export default function FormTarikPraktikan() {
-    const [nim, setNim] = useState('');
-    const [module, setModule] = useState('');
+    const [nim, setNim] = useState("");
+    const [module, setModule] = useState("");
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [modalMessage, setModalMessage] = useState('');
+    const [modalMessage, setModalMessage] = useState("");
     const [isSuccess, setIsSuccess] = useState(false);
-    const [modules, setModules] = useState([]);
-    const [loading, setLoading] = useState(false);
 
-    // Fetch modules on component mount
-    useEffect(() => {
-        const fetchModules = async () => {
+    const {
+        data: modules = [],
+        isLoading: modulesLoading,
+        isError: modulesError,
+        error: modulesQueryError,
+    } = useModulesQuery({
+        onError: (err) => {
+            console.error("Error fetching modules:", err);
+            setModalMessage("Gagal memuat daftar modul");
+            setIsSuccess(false);
+            setIsModalOpen(true);
+        },
+    });
+
+    const tarikPraktikanMutation = useMutation({
+        mutationFn: async ({ nim: praktikanNim, modulId }) => {
+            const payload = { nim: praktikanNim, modul_id: modulId };
+
             try {
-                const response = await axios.get('/api-v1/modul');
-                if (response.data.success) {
-                    setModules(response.data.data);
+                const { data } = await api.post("/api-v1/tarik-praktikan", payload);
+                if (!data?.success) {
+                    throw new Error(data?.message ?? "Gagal menarik data praktikan");
                 }
-            } catch (error) {
-                console.error('Error fetching modules:', error);
-                setModalMessage('Gagal memuat daftar modul');
-                setIsSuccess(false);
-                setIsModalOpen(true);
+                return data;
+            } catch (err) {
+                if (err.response?.data) {
+                    const responseMessage = err.response.data.message;
+                    if (err.response.status === 404 && responseMessage?.includes("No record found")) {
+                        throw new Error(
+                            "Tidak ada data untuk praktikan dan modul ini. Praktikan mungkin belum terdaftar untuk modul ini."
+                        );
+                    }
+
+                    if (err.response.data.errors) {
+                        const errorMessages = Object.values(err.response.data.errors).flat();
+                        throw new Error(errorMessages.join(", "));
+                    }
+
+                    throw new Error(responseMessage ?? "Terjadi kesalahan");
+                }
+
+                throw new Error("Gagal terhubung ke server");
             }
-        };
+        },
+        onSuccess: () => {
+            setModalMessage("Data praktikan berhasil ditarik");
+            setIsSuccess(true);
+            setNim("");
+            setModule("");
+            setIsModalOpen(true);
+        },
+        onError: (err) => {
+            setModalMessage(err.message ?? "Gagal menarik data praktikan");
+            setIsSuccess(false);
+            setIsModalOpen(true);
+        },
+    });
 
-        fetchModules();
-    }, []);
-
-    const handleSubmit = async () => {
+    const handleSubmit = () => {
         if (!nim || !module) {
-            setModalMessage('Harap isi semua kolom, jangan tertinggal!');
+            setModalMessage("Harap isi semua kolom, jangan tertinggal!");
             setIsSuccess(false);
             setIsModalOpen(true);
             return;
         }
 
-        setLoading(true);
-        try {
-            const response = await axios.post('/api-v1/tarik-praktikan', {
-                nim: nim,
-                modul_id: module
-            });
-
-            if (response.data.success) {
-                setModalMessage('Data praktikan berhasil ditarik');
-                setIsSuccess(true);
-                setNim('');
-                setModule('');
-            } else {
-                setModalMessage(response.data.message || 'Gagal menarik data praktikan');
-                setIsSuccess(false);
-            }
-        } catch (error) {
-            console.error('Error assigning praktikan:', error);
-
-            if (error.response) {
-                if (error.response.status === 404) {
-                    if (error.response.data.message.includes('No record found')) {
-                        setModalMessage('Tidak ada data untuk praktikan dan modul ini. Praktikan mungkin belum terdaftar untuk modul ini.');
-                    } else {
-                        setModalMessage(error.response.data.message || 'Data tidak ditemukan');
-                    }
-                } else if (error.response.data.errors) {
-                    const errorMessages = Object.values(error.response.data.errors).flat();
-                    setModalMessage(errorMessages.join(', '));
-                } else {
-                    setModalMessage(error.response.data.message || 'Terjadi kesalahan');
-                }
-            } else {
-                setModalMessage('Gagal terhubung ke server');
-            }
-            setIsSuccess(false);
-        } finally {
-            setLoading(false);
-            setIsModalOpen(true);
-        }
+        tarikPraktikanMutation.mutate({ nim, modulId: module });
     };
 
     const closeModal = () => {
@@ -87,7 +87,6 @@ export default function FormTarikPraktikan() {
         <div className="bg-softIvory p-6 rounded shadow-lg shadow-deepForestGreen w-[750px]">
             <h2 className="text-xl font-bold mb-6 text-start text-black">Tarik Praktikan</h2>
             <div className="flex items-center gap-4">
-                {/* Input NIM */}
                 <div className="flex-1">
                     <label htmlFor="nim" className="block text-sm font-medium mb-2">
                         NIM
@@ -101,7 +100,6 @@ export default function FormTarikPraktikan() {
                         className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-green-500"
                     />
                 </div>
-                {/* Dropdown Modul */}
                 <div className="flex-1">
                     <label htmlFor="module" className="block text-sm font-medium mb-2">
                         Modul
@@ -111,35 +109,41 @@ export default function FormTarikPraktikan() {
                         value={module}
                         onChange={(e) => setModule(e.target.value)}
                         className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-green-500"
+                        disabled={modulesLoading}
                     >
                         <option value="" disabled>
                             Pilih Modul
                         </option>
-                        {modules.map((modul) => (
-                            <option key={modul.idM} value={modul.idM}>
-                                {modul.judul}
+                        {modulesLoading && <option value="" disabled>Memuat modul...</option>}
+                        {modulesError && (
+                            <option value="" disabled>
+                                {modulesQueryError?.message ?? "Gagal memuat modul"}
                             </option>
-                        ))}
+                        )}
+                        {!modulesLoading && !modulesError &&
+                            modules.map((modul) => (
+                                <option key={modul.idM} value={modul.idM}>
+                                    {modul.judul}
+                                </option>
+                            ))}
                     </select>
                 </div>
-                {/* Tombol Tarik */}
                 <div className="flex-shrink-0 mt-6">
                     <button
                         onClick={handleSubmit}
-                        disabled={loading}
-                        className="h-10 px-6 bg-deepForestGreen text-white font-semibold rounded hover:bg-darkGreen transition duration-200"
+                        disabled={tarikPraktikanMutation.isPending || modulesLoading}
+                        className="h-10 px-6 bg-deepForestGreen text-white font-semibold rounded hover:bg-darkGreen transition duration-200 disabled:bg-gray-400"
                     >
-                        {loading ? 'Menark...' : 'Tarik'}
+                        {tarikPraktikanMutation.isPending ? "Menarik..." : "Tarik"}
                     </button>
                 </div>
             </div>
 
-            {/* Modal */}
             {isModalOpen && (
                 <div className="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50">
                     <div className="bg-white p-8 rounded shadow-lg w-[30%]">
                         <h3 className="text-2xl font-bold mb-4 text-center">
-                            {isSuccess ? 'Berhasil Ditambahkan' : 'Gagal Ditambahkan'}
+                            {isSuccess ? "Berhasil Ditambahkan" : "Gagal Ditambahkan"}
                         </h3>
                         <p className="text-center text-md mt-6">{modalMessage}</p>
                         <div className="mt-6 text-center">

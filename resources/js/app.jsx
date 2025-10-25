@@ -4,6 +4,7 @@ import '../css/app.css';
 import { createRoot, hydrateRoot } from 'react-dom/client';
 import { createInertiaApp } from '@inertiajs/react';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 
@@ -11,12 +12,19 @@ createInertiaApp({
     title: (title) => `${title} - ${appName}`,
     resolve: (name) => resolvePageComponent(`./Pages/${name}.jsx`, import.meta.glob('./Pages/**/*.jsx')),
     setup({ el, App, props }) {
+        const queryClient = new QueryClient();
+        const app = (
+            <QueryClientProvider client={queryClient}>
+                <App {...props} />
+            </QueryClientProvider>
+        );
+
         if (import.meta.env.DEV) {
-            createRoot(el).render(<App {...props} />);
-            return
+            createRoot(el).render(app);
+            return;
         }
 
-        hydrateRoot(el, <App {...props} />);
+        hydrateRoot(el, app);
     },
     progress: {
         color: '#4B5563',
