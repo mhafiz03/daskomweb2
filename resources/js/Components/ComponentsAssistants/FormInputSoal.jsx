@@ -104,7 +104,6 @@ export default function SoalInputForm() {
                         )}
                     </select>
                 </div>
-
             </div>
 
             {/* Input soal berdasarkan kategori soal */}

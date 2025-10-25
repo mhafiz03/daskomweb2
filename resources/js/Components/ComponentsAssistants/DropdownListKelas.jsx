@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import Cookies from "js-cookie";
 
 export default function DropdownListKelas() {
   const [isOpen, setIsOpen] = useState(false);
