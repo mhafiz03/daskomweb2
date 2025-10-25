@@ -18,7 +18,6 @@ export default function ContentModulePraktikum() {
 
             </div>
 
-            {/* List per module */}
             <div className="">
                 <TabelStartPraktikum />
             </div>

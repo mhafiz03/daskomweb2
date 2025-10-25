@@ -29,7 +29,6 @@ export default function TabelStartPraktikum() {
     };
 
     const toggleAccordion = (index) => {
-        // logika accordian by flowbite
         setOpenIndex(openIndex === index ? null : index);
     };
 

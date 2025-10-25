@@ -1,24 +1,25 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 
-export default function Clock() {
-    const [currentTime, setCurrentTime] = useState("");
+const formatter = new Intl.DateTimeFormat(undefined, {
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+});
 
-    // Update waktu setiap detik
+export default function Clock({
+    className = "absolute top-4 right-4 bg-forestGreen text-white py-2 px-4 rounded-lg shadow-lg font-medium",
+}) {
+    const [currentTime, setCurrentTime] = useState(() => formatter.format(new Date()));
+
     useEffect(() => {
-        const interval = setInterval(() => {
-            const now = new Date();
-            setCurrentTime(now.toLocaleTimeString());
-        }, 1000);
-        return () => clearInterval(interval);
+        const updateTime = () => setCurrentTime(formatter.format(new Date()));
+
+        updateTime();
+
+        const interval = window.setInterval(updateTime, 1000);
+
+        return () => window.clearInterval(interval);
     }, []);
 
-    return (
-        <>
-            {/* Clock in top-right corner */}
-            <div className="absolute top-4 right-4 bg-forestGreen text-white py-2 px-4 rounded-lg shadow-lg font-medium">
-                {currentTime}
-            </div>
-
-        </>
-    );
+    return <div className={className}>{currentTime}</div>;
 }
