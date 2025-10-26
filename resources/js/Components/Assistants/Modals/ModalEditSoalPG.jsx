@@ -1,102 +1,140 @@
-import { useState } from "react";
-import closeIcon from "../../../../assets/modal/iconClose.svg"
+import { useMemo, useState } from "react";
+import toast from "react-hot-toast";
+import closeIcon from "../../../../assets/modal/iconClose.svg";
+
+const determineIsCorrect = (soalItem, option, optionIndex) => {
+    if (typeof option?.is_correct === "boolean") {
+        return option.is_correct;
+    }
+
+    if (option?.id && soalItem?.opsi_benar_id) {
+        return option.id === soalItem.opsi_benar_id;
+    }
+
+    if (typeof soalItem?.correct_option === "number") {
+        return soalItem.correct_option === optionIndex;
+    }
+
+    return false;
+};
+
+const OPTION_COUNT = 4;
+
+const ensureOptionStructure = (soalItem) => {
+    const sourceOptions = soalItem?.options ?? [];
+
+    const normalized = sourceOptions.slice(0, OPTION_COUNT).map((option, index) => ({
+        id: option?.id ?? null,
+        text: option?.text ?? "",
+        is_correct: determineIsCorrect(soalItem, option, index),
+    }));
+
+    while (normalized.length < OPTION_COUNT) {
+        normalized.push({ id: null, text: "", is_correct: false });
+    }
+
+    return normalized;
+};
 
 export default function ModalEditSoalPG({ soalItem, onClose, onConfirm }) {
-    const [pengantar, setPengantar] = useState(soalItem.pengantar || " ");
-    const [pertanyaan, setPertanyaan] = useState(soalItem.pertanyaan || "");
-    const [kodingan, setKodingan] = useState(soalItem.kodingan || "");
-    const [pilihan, setPilihan] = useState([
-        soalItem.jawaban_benar,
-        ...soalItem.jawaban
-    ]);
-    const [mode, setMode] = useState(soalItem.kodingan && soalItem.kodingan.trim() !== "empty" ? "kode" : "text");
+    const initialOptions = useMemo(
+        () => ensureOptionStructure(soalItem),
+        [soalItem],
+    );
 
-    const handlePilihanChange = (index, value) => {
-        const updatedPilihan = [...pilihan];
-        updatedPilihan[index] = value;
-        setPilihan(updatedPilihan);
+    const [pertanyaan, setPertanyaan] = useState(soalItem.pertanyaan || "");
+    const [options, setOptions] = useState(initialOptions);
+    const [correctIndex, setCorrectIndex] = useState(() => {
+        const index = initialOptions.findIndex((option) => option.is_correct);
+        return index >= 0 ? index : 0;
+    });
+
+    const handleOptionChange = (index, value) => {
+        setOptions((prev) =>
+            prev.map((option, optIndex) =>
+                optIndex === index ? { ...option, text: value } : option,
+            ),
+        );
     };
 
     const handleConfirm = () => {
-        const updatedSoalItem = {
+        if (!pertanyaan.trim()) {
+            toast.error("Pertanyaan tidak boleh kosong.");
+            return;
+        }
+
+        if (options.some((option) => !option.text.trim())) {
+            toast.error("Semua opsi jawaban harus diisi.");
+            return;
+        }
+
+        const uniqueTexts = new Set(options.map((option) => option.text.trim()));
+        if (uniqueTexts.size !== options.length) {
+            toast.error("Teks opsi tidak boleh duplikat.");
+            return;
+        }
+
+        onConfirm({
             ...soalItem,
-            pengantar,
-            pertanyaan,
-            kodingan,
-            jawaban_benar: pilihan[0],
-            jawaban: pilihan.slice(1)
-        };
-        onConfirm(updatedSoalItem);
+            pertanyaan: pertanyaan.trim(),
+            options: options.map((option) => ({
+                id: option.id,
+                text: option.text.trim(),
+            })),
+            correct_option: correctIndex,
+        });
+
+        toast.success("Soal berhasil diperbarui.");
+        onClose();
     };
 
     return (
         <div className="modal fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-            <div className="modal-content bg-white rounded-lg p-6 w-[1000px] max-h-[90vh] shadow-lg overflow-y-auto relative">
-                <span className="border-b border-deepForestGreen">
-                    <h2 className="text-2xl font-bold text-darkGreen mb-4">Edit Soal</h2>
+            <div className="modal-content bg-white rounded-lg p-6 w-[800px] max-h-[90vh] shadow-lg overflow-y-auto relative">
+                <div className="flex justify-between items-center mb-6 border-b border-deepForestGreen pb-2">
+                    <h2 className="text-2xl font-bold text-darkGreen">Edit Soal</h2>
                     <button
                         onClick={onClose}
                         className="absolute top-2 right-2 flex justify-center items-center"
                     >
-                        <img className="w-9" src={closeIcon} alt="closeIcon" />
+                        <img className="w-9" src={closeIcon} alt="Tutup" />
                     </button>
-                    <button
-                        className="absolute top-4 right-14 border-2 border-darkBrown rounded-md shadow-md text-sm text-darkBrown text-left py-2 font-bold px-8"
-                        onClick={() => { setMode(mode === "text" ? "kode" : "text") }}
-                    >
-                        {mode === "text" ? "Mode Kode" : "Mode Text"}
-                    </button>
-                </span>
-                {mode === "kode" ? (
-                    <div>
-                        <input
-                            type="text"
-                            value={pengantar}
-                            onChange={(e) => setPengantar(e.target.value)}
-                            placeholder="Pengantar, contoh: Perhatikan Soal Berikut"
-                            className="input w-full border border-gray-300 rounded-lg p-2 mb-4"
-                        />
-                        <textarea
-                            value={kodingan}
-                            rows="10"
-                            onChange={(e) => setKodingan(e.target.value)}
-                            placeholder="Tulis kode di sini..."
-                            className="textarea w-full border border-gray-300 rounded-lg p-2 mb-4 font-mono text-sm whitespace-pre"
-                        ></textarea>
-                        <textarea
-                            value={pertanyaan}
-                            rows="4"
-                            onChange={(e) => setPertanyaan(e.target.value)}
-                            placeholder="Masukkan soal..."
-                            className="textarea w-full border border-gray-300 rounded-lg p-2 mb-4"
-                        ></textarea>
-                    </div>
-                ) : (
-                    <textarea
-                        value={pertanyaan}
-                        rows="10"
-                        onChange={(e) => setPertanyaan(e.target.value)}
-                        placeholder="Masukkan soal..."
-                        className="textarea w-full border border-gray-300 rounded-lg p-2 mb-4"
-                    ></textarea>
-                )}
-                <label className="block text-gray-700 font-medium mb-2">Pilihan Jawaban:</label>
-                <div className="grid grid-cols-1 gap-2">
-                    {pilihan.map((pil, index) => (
-                        <input
-                            key={index}
-                            value={pil}
-                            onChange={(e) => handlePilihanChange(index, e.target.value)}
-                            placeholder={`Pilihan ${index === 0 ? "benar" : "salah"}`}
-                            className={`input w-full rounded-lg border-2 p-2 ${index === 0 ? "border-deepForestGreen" : "border-fireRed"
-                                }`}
-                        />
+                </div>
+
+                <label className="block text-gray-700 font-medium mb-2">Pertanyaan</label>
+                <textarea
+                    value={pertanyaan}
+                    rows={6}
+                    onChange={(e) => setPertanyaan(e.target.value)}
+                    placeholder="Masukkan soal..."
+                    className="w-full border border-gray-300 rounded-lg p-3 mb-6"
+                />
+
+                <label className="block text-gray-700 font-medium mb-2">Pilihan Jawaban</label>
+                <div className="space-y-3">
+                    {options.map((option, index) => (
+                        <div key={index} className="flex items-center space-x-3">
+                            <input
+                                type="radio"
+                                name="correctOption"
+                                checked={correctIndex === index}
+                                onChange={() => setCorrectIndex(index)}
+                                className="accent-deepForestGreen"
+                            />
+                            <input
+                                value={option.text}
+                                onChange={(e) => handleOptionChange(index, e.target.value)}
+                                placeholder={`Pilihan ${String.fromCharCode(65 + index)}`}
+                                className="flex-1 rounded-lg border border-gray-300 p-2"
+                            />
+                        </div>
                     ))}
                 </div>
+
                 <div className="modal-actions flex justify-end gap-4 mt-6">
                     <button
                         onClick={handleConfirm}
-                        className="button-confirm px-6 py-2 bg-deepForestGreen text-white font-semibold rounded-md shadow hover:bg-darkGreen transition duration-300"
+                        className="px-6 py-2 bg-deepForestGreen text-white font-semibold rounded-md shadow hover:bg-darkGreen transition duration-300"
                     >
                         Simpan
                     </button>

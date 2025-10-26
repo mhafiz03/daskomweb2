@@ -16,8 +16,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
  * 
  * @property int $id
  * @property int $modul_id
- * @property string $pengantar
- * @property string $kodingan
  * @property string $soal
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
@@ -40,8 +38,6 @@ class SoalJurnal extends Model
 
 	protected $fillable = [
 		'modul_id',
-		'pengantar',
-		'kodingan',
 		'soal',
 	];
 

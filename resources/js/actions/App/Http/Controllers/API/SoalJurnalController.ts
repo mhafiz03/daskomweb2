@@ -1,7 +1,7 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../../../wayfinder'
 /**
 * @see \App\Http\Controllers\API\SoalJurnalController::show
-* @see app/Http/Controllers/API/SoalJurnalController.php:64
+* @see app/Http/Controllers/API/SoalJurnalController.php:59
 * @route '/api-v1/soal-jurnal/{idModul}'
 */
 export const show = (args: { idModul: string | number } | [idModul: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -16,7 +16,7 @@ show.definition = {
 
 /**
 * @see \App\Http\Controllers\API\SoalJurnalController::show
-* @see app/Http/Controllers/API/SoalJurnalController.php:64
+* @see app/Http/Controllers/API/SoalJurnalController.php:59
 * @route '/api-v1/soal-jurnal/{idModul}'
 */
 show.url = (args: { idModul: string | number } | [idModul: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -43,7 +43,7 @@ show.url = (args: { idModul: string | number } | [idModul: string | number ] | s
 
 /**
 * @see \App\Http\Controllers\API\SoalJurnalController::show
-* @see app/Http/Controllers/API/SoalJurnalController.php:64
+* @see app/Http/Controllers/API/SoalJurnalController.php:59
 * @route '/api-v1/soal-jurnal/{idModul}'
 */
 show.get = (args: { idModul: string | number } | [idModul: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -53,7 +53,7 @@ show.get = (args: { idModul: string | number } | [idModul: string | number ] | s
 
 /**
 * @see \App\Http\Controllers\API\SoalJurnalController::show
-* @see app/Http/Controllers/API/SoalJurnalController.php:64
+* @see app/Http/Controllers/API/SoalJurnalController.php:59
 * @route '/api-v1/soal-jurnal/{idModul}'
 */
 show.head = (args: { idModul: string | number } | [idModul: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -63,7 +63,7 @@ show.head = (args: { idModul: string | number } | [idModul: string | number ] | 
 
 /**
 * @see \App\Http\Controllers\API\SoalJurnalController::show
-* @see app/Http/Controllers/API/SoalJurnalController.php:64
+* @see app/Http/Controllers/API/SoalJurnalController.php:59
 * @route '/api-v1/soal-jurnal/{idModul}'
 */
 const showForm = (args: { idModul: string | number } | [idModul: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -73,7 +73,7 @@ const showForm = (args: { idModul: string | number } | [idModul: string | number
 
 /**
 * @see \App\Http\Controllers\API\SoalJurnalController::show
-* @see app/Http/Controllers/API/SoalJurnalController.php:64
+* @see app/Http/Controllers/API/SoalJurnalController.php:59
 * @route '/api-v1/soal-jurnal/{idModul}'
 */
 showForm.get = (args: { idModul: string | number } | [idModul: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -83,7 +83,7 @@ showForm.get = (args: { idModul: string | number } | [idModul: string | number ]
 
 /**
 * @see \App\Http\Controllers\API\SoalJurnalController::show
-* @see app/Http/Controllers/API/SoalJurnalController.php:64
+* @see app/Http/Controllers/API/SoalJurnalController.php:59
 * @route '/api-v1/soal-jurnal/{idModul}'
 */
 showForm.head = (args: { idModul: string | number } | [idModul: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -174,7 +174,7 @@ store.form = storeForm
 
 /**
 * @see \App\Http\Controllers\API\SoalJurnalController::update
-* @see app/Http/Controllers/API/SoalJurnalController.php:89
+* @see app/Http/Controllers/API/SoalJurnalController.php:84
 * @route '/api-v1/soal-jurnal/{idSoal}'
 */
 export const update = (args: { idSoal: string | number } | [idSoal: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
@@ -189,7 +189,7 @@ update.definition = {
 
 /**
 * @see \App\Http\Controllers\API\SoalJurnalController::update
-* @see app/Http/Controllers/API/SoalJurnalController.php:89
+* @see app/Http/Controllers/API/SoalJurnalController.php:84
 * @route '/api-v1/soal-jurnal/{idSoal}'
 */
 update.url = (args: { idSoal: string | number } | [idSoal: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -216,7 +216,7 @@ update.url = (args: { idSoal: string | number } | [idSoal: string | number ] | s
 
 /**
 * @see \App\Http\Controllers\API\SoalJurnalController::update
-* @see app/Http/Controllers/API/SoalJurnalController.php:89
+* @see app/Http/Controllers/API/SoalJurnalController.php:84
 * @route '/api-v1/soal-jurnal/{idSoal}'
 */
 update.put = (args: { idSoal: string | number } | [idSoal: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
@@ -226,7 +226,7 @@ update.put = (args: { idSoal: string | number } | [idSoal: string | number ] | s
 
 /**
 * @see \App\Http\Controllers\API\SoalJurnalController::update
-* @see app/Http/Controllers/API/SoalJurnalController.php:89
+* @see app/Http/Controllers/API/SoalJurnalController.php:84
 * @route '/api-v1/soal-jurnal/{idSoal}'
 */
 const updateForm = (args: { idSoal: string | number } | [idSoal: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -241,7 +241,7 @@ const updateForm = (args: { idSoal: string | number } | [idSoal: string | number
 
 /**
 * @see \App\Http\Controllers\API\SoalJurnalController::update
-* @see app/Http/Controllers/API/SoalJurnalController.php:89
+* @see app/Http/Controllers/API/SoalJurnalController.php:84
 * @route '/api-v1/soal-jurnal/{idSoal}'
 */
 updateForm.put = (args: { idSoal: string | number } | [idSoal: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -258,7 +258,7 @@ update.form = updateForm
 
 /**
 * @see \App\Http\Controllers\API\SoalJurnalController::destroy
-* @see app/Http/Controllers/API/SoalJurnalController.php:138
+* @see app/Http/Controllers/API/SoalJurnalController.php:128
 * @route '/api-v1/soal-jurnal/{idSoal}'
 */
 export const destroy = (args: { idSoal: string | number } | [idSoal: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -273,7 +273,7 @@ destroy.definition = {
 
 /**
 * @see \App\Http\Controllers\API\SoalJurnalController::destroy
-* @see app/Http/Controllers/API/SoalJurnalController.php:138
+* @see app/Http/Controllers/API/SoalJurnalController.php:128
 * @route '/api-v1/soal-jurnal/{idSoal}'
 */
 destroy.url = (args: { idSoal: string | number } | [idSoal: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -300,7 +300,7 @@ destroy.url = (args: { idSoal: string | number } | [idSoal: string | number ] | 
 
 /**
 * @see \App\Http\Controllers\API\SoalJurnalController::destroy
-* @see app/Http/Controllers/API/SoalJurnalController.php:138
+* @see app/Http/Controllers/API/SoalJurnalController.php:128
 * @route '/api-v1/soal-jurnal/{idSoal}'
 */
 destroy.delete = (args: { idSoal: string | number } | [idSoal: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -310,7 +310,7 @@ destroy.delete = (args: { idSoal: string | number } | [idSoal: string | number ]
 
 /**
 * @see \App\Http\Controllers\API\SoalJurnalController::destroy
-* @see app/Http/Controllers/API/SoalJurnalController.php:138
+* @see app/Http/Controllers/API/SoalJurnalController.php:128
 * @route '/api-v1/soal-jurnal/{idSoal}'
 */
 const destroyForm = (args: { idSoal: string | number } | [idSoal: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -325,7 +325,7 @@ const destroyForm = (args: { idSoal: string | number } | [idSoal: string | numbe
 
 /**
 * @see \App\Http\Controllers\API\SoalJurnalController::destroy
-* @see app/Http/Controllers/API/SoalJurnalController.php:138
+* @see app/Http/Controllers/API/SoalJurnalController.php:128
 * @route '/api-v1/soal-jurnal/{idSoal}'
 */
 destroyForm.delete = (args: { idSoal: string | number } | [idSoal: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({

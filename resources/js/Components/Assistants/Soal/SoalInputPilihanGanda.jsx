@@ -1,32 +1,60 @@
 import { useState } from "react";
-import ModalDeleteSoal from "../Modals/ModalDeleteSoal";
-import ModalEditSoalPG from "../Modals/ModalEditSoalPG";
-// import ModalSaveSoal from "../Modals/ModalSaveSoal";
-import trashIcon from "../../../../assets/nav/Icon-Delete.svg";
-import editIcon from "../../../../assets/nav/Icon-Edit.svg";
-import { useSoalQuery, soalQueryKey } from "@/hooks/useSoalQuery";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { send } from "@/lib/wayfinder";
+import { useSoalQuery, soalQueryKey } from "@/hooks/useSoalQuery";
 import { getSoalController } from "@/lib/soalControllers";
+import ModalDeleteSoal from "../Modals/ModalDeleteSoal";
+import ModalEditSoalPG from "../Modals/ModalEditSoalPG";
+import trashIcon from "../../../../assets/nav/Icon-Delete.svg";
+import editIcon from "../../../../assets/nav/Icon-Edit.svg";
 
-export default function SoalInputPG({ kategoriSoal, modul, onModalSuccess, onModalValidation, }) {
-    const [addSoal, setAddSoal] = useState({
-        pengantar: "",
-        kodingan: "",
+const OPTION_COUNT = 4;
+const EMPTY_OPTIONS = Array.from({ length: OPTION_COUNT }, () => "");
+
+const isOptionCorrect = (soalItem, option, optionIndex) => {
+    if (typeof option?.is_correct === "boolean") {
+        return option.is_correct;
+    }
+
+    if (option?.id && soalItem?.opsi_benar_id) {
+        return option.id === soalItem.opsi_benar_id;
+    }
+
+    if (typeof soalItem?.correct_option === "number") {
+        return soalItem.correct_option === optionIndex;
+    }
+
+    return false;
+};
+
+const normalizeOptionsForDisplay = (soalItem) => {
+    const options = soalItem?.options ?? [];
+    const normalized = options.map((option) => ({
+        id: option?.id ?? null,
+        text: option?.text ?? "",
+        is_correct: option?.is_correct,
+    }));
+
+    while (normalized.length < OPTION_COUNT) {
+        normalized.push({ id: null, text: "", is_correct: false });
+    }
+
+    return normalized;
+};
+
+export default function SoalInputPG({ kategoriSoal, modul, onModalSuccess, onModalValidation }) {
+    const [formState, setFormState] = useState({
         pertanyaan: "",
-        pilihan: ["", "", "", ""],
+        options: [...EMPTY_OPTIONS],
+        correctIndex: 0,
     });
     const [isModalOpenDelete, setIsModalOpenDelete] = useState(false);
     const [isModalOpenEdit, setIsModalOpenEdit] = useState(false);
     const [editingSoal, setEditingSoal] = useState(null);
-    const [mode, setMode] = useState("text");
-    const [soalCounter, setSoalCounter] = useState(1); // jgn di ilangin buat counter global untuk soal
+
     const queryClient = useQueryClient();
     const soalQuery = useSoalQuery(kategoriSoal, modul);
     const soalList = soalQuery.data ?? [];
-    const soalLoading = soalQuery.isLoading;
-    const soalError = soalQuery.isError;
-    const soalQueryError = soalQuery.error;
 
     const controller = getSoalController(kategoriSoal);
 
@@ -35,6 +63,7 @@ export default function SoalInputPG({ kategoriSoal, modul, onModalSuccess, onMod
             if (!controller) {
                 throw new Error(`Kategori soal tidak didukung: ${kategoriSoal}`);
             }
+
             const { data } = await send(controller.store(modul), payload);
             return data;
         },
@@ -48,6 +77,7 @@ export default function SoalInputPG({ kategoriSoal, modul, onModalSuccess, onMod
             if (!controller) {
                 throw new Error(`Kategori soal tidak didukung: ${kategoriSoal}`);
             }
+
             const { data } = await send(controller.update(soalId), payload);
             return data;
         },
@@ -61,6 +91,7 @@ export default function SoalInputPG({ kategoriSoal, modul, onModalSuccess, onMod
             if (!controller) {
                 throw new Error(`Kategori soal tidak didukung: ${kategoriSoal}`);
             }
+
             await send(controller.destroy(soalId));
         },
         onSuccess: () => {
@@ -68,51 +99,44 @@ export default function SoalInputPG({ kategoriSoal, modul, onModalSuccess, onMod
         },
     });
 
-    const handleChange = (e) => {
-        const { name, value } = e.target;
-        setAddSoal(prev => ({ ...prev, [name]: value }));
+    const handleOptionChange = (index, value) => {
+        setFormState((prev) => {
+            const updated = [...prev.options];
+            updated[index] = value;
+            return { ...prev, options: updated };
+        });
     };
 
-    const handlePilihanChange = (i, val) => {
-        setAddSoal(prev => {
-            const pilihan = [...prev.pilihan];
-            pilihan[i] = val;
-            return { ...prev, pilihan };
-        });
+    const handleSetCorrect = (index) => {
+        setFormState((prev) => ({ ...prev, correctIndex: index }));
     };
 
     const handleTambahSoal = () => {
-        if (!addSoal.pertanyaan.trim() || addSoal.pilihan.some(pil => !pil.trim())) {
-            onModalValidation();
-            return;
-        }
-        // Check for duplicate choices
-        const pilihanSet = new Set(addSoal.pilihan.map(pil => pil.trim()));
-        if (pilihanSet.size !== addSoal.pilihan.length) {
+        const { pertanyaan, options, correctIndex } = formState;
+
+        if (!pertanyaan.trim() || options.some((option) => !option.trim())) {
             onModalValidation();
             return;
         }
 
-        const payload = {
-            pengantar: mode === "kode" ? addSoal.pengantar : "",
-            kodingan: mode === "kode" ? addSoal.kodingan : "",
-            pertanyaan: addSoal.pertanyaan,
-            jawaban_benar: addSoal.pilihan[0],
-            jawaban_salah1: addSoal.pilihan[1],
-            jawaban_salah2: addSoal.pilihan[2],
-            jawaban_salah3: addSoal.pilihan[3],
-        };
+        const uniqueOptions = new Set(options.map((option) => option.trim()));
+        if (uniqueOptions.size !== options.length) {
+            onModalValidation();
+            return;
+        }
 
-        postSoalMutation.mutate(payload);
-
-        // Reset form
-        setAddSoal({
-            pengantar: "",
-            kodingan: "",
-            pertanyaan: "",
-            pilihan: ["", "", "", ""],
+        postSoalMutation.mutate({
+            pertanyaan: pertanyaan.trim(),
+            options: options.map((option) => ({ text: option.trim() })),
+            correct_option: correctIndex,
         });
-        setSoalCounter(soalCounter + 1);
+
+        setFormState({
+            pertanyaan: "",
+            options: [...EMPTY_OPTIONS],
+            correctIndex: 0,
+        });
+
         onModalSuccess();
     };
 
@@ -130,172 +154,145 @@ export default function SoalInputPG({ kategoriSoal, modul, onModalSuccess, onMod
         setIsModalOpenEdit(true);
     };
 
+    const handleCloseModalEdit = () => {
+        setEditingSoal(null);
+        setIsModalOpenEdit(false);
+    };
+
     const handleConfirmEdit = (updatedSoal) => {
         putSoalMutation.mutate({
             soalId: updatedSoal.id,
             payload: {
                 modul_id: updatedSoal.modul_id,
-                pengantar: updatedSoal.pengantar,
-                kodingan: updatedSoal.kodingan,
                 pertanyaan: updatedSoal.pertanyaan,
-                jawaban_benar: updatedSoal.jawaban_benar,
-                jawaban_salah1: updatedSoal.jawaban[0],
-                jawaban_salah2: updatedSoal.jawaban[1],
-                jawaban_salah3: updatedSoal.jawaban[2],
+                options: updatedSoal.options,
+                correct_option: updatedSoal.correct_option,
             },
         });
-        setIsModalOpenEdit(false);
+
+        handleCloseModalEdit();
     };
 
-    const handleCloseModalEdit = () => {
-        setEditingSoal(null);
-        setIsModalOpenEdit(false);
-    };
     return (
         <div>
-            <div className="flex justify-between items-center mb-2">
-                <label className="font-semibold text-lg">Soal</label>
-                <button
-                    className="border-2 border-darkBrown rounded-md shadow-md text-sm text-darkBrown text-left py-1 font-bold px-8"
-                    onClick={() => { setMode(mode === "text" ? "kode" : "text") }}
-                >
-                    {mode === "text" ? "Mode Kode" : "Mode Text"}
-                </button>
-            </div>
-
-            {mode === "kode" ? (
-                <div>
-                    <input
-                        type="text"
-                        className="w-full p-2 mb-2 border rounded"
-                        placeholder="Pengantar, contoh: Perhatikan Soal Berikut"
-                        value={addSoal.pengantar}
-                        name="pengantar"
-                        onChange={handleChange}
-                    />
-                    <textarea
-                        className="w-full p-2 mb-2 border rounded font-mono text-sm whitespace-pre overflow-auto max-h-64 resize-none"
-                        rows="10"
-                        placeholder="Tulis kode di sini..."
-                        value={addSoal.kodingan}
-                        name="kodingan"
-                        onChange={handleChange}
-                    ></textarea>
-                    <textarea
-                        className="w-full p-2 mb-2 border rounded overflow-auto max-h-64 resize-none"
-                        rows="4"
-                        placeholder="Masukkan soal..."
-                        value={addSoal.pertanyaan}
-                        name="pertanyaan"
-                        onChange={handleChange}
-                    ></textarea>
-                </div>
-            ) : (
-                <div>
-                    <textarea
-                        className="w-full p-2 mb-2 border rounded overflow-auto max-h-64 resize-none"
-                        rows="4"
-                        placeholder={"Masukkan soal..."}
-                        value={addSoal.pertanyaan}
-                        name="pertanyaan"
-                        onChange={handleChange}
-                    ></textarea>
-                </div>
-            )}
+            <label className="block font-semibold text-lg mb-2">Soal</label>
+            <textarea
+                className="w-full p-3 border rounded mb-4"
+                rows={4}
+                placeholder="Masukkan soal..."
+                value={formState.pertanyaan}
+                onChange={(e) => setFormState((prev) => ({ ...prev, pertanyaan: e.target.value }))}
+            />
 
             <label className="block mb-2 font-medium">Pilihan Jawaban</label>
-            {addSoal.pilihan.map((pil, index) => (
-                <input
-                    key={index}
-                    type="text"
-                    className={`w-full p-2 mb-2 border-2 rounded ${index === 0 ? "border-deepForestGreen" : "border-fireRed"
-                        }`}
-                    placeholder={`Pilihan ${String.fromCharCode(65 + index)}`}
-                    value={pil ?? ""}
-                    onChange={(e) => handlePilihanChange(index, e.target.value)}
-                />
-            ))}
+            <div className="space-y-3">
+                {formState.options.map((option, index) => (
+                    <div key={index} className="flex items-center space-x-3">
+                        <input
+                            type="radio"
+                            name="correctOption"
+                            checked={formState.correctIndex === index}
+                            onChange={() => handleSetCorrect(index)}
+                            className="accent-deepForestGreen"
+                        />
+                        <input
+                            type="text"
+                            className="flex-1 p-2 border rounded"
+                            placeholder={`Pilihan ${String.fromCharCode(65 + index)}`}
+                            value={option}
+                            onChange={(e) => handleOptionChange(index, e.target.value)}
+                        />
+                    </div>
+                ))}
+            </div>
 
-            <div className="flex justify-end space-x-3 mt-3">
+            <div className="flex justify-end space-x-3 mt-4">
                 <button
-                    className="text-md py-1 px-8 font-bold border text-white bg-deepForestGreen border-deepForestGreen rounded-md shadow-sm" //  bg-redredDark border-redredDark
+                    className="text-md py-1 px-8 font-bold border text-white bg-deepForestGreen border-deepForestGreen rounded-md shadow-sm disabled:opacity-70"
                     onClick={handleTambahSoal}
+                    disabled={postSoalMutation.isPending}
                 >
-                    + Tambah Soal
+                    {postSoalMutation.isPending ? "Menyimpan..." : "+ Tambah Soal"}
                 </button>
-                {/* {soalList.length > 0 && ( <button className="text-md py-1 px-8 font-bold border text-white bg-deepForestGreen border-deepForestGreen rounded-md shadow-sm" onClick={handleSaveSoal}>
-                        Save Soal
-                    </button>)} */}
             </div>
 
             <div className="mt-5">
                 <h3 className="font-bold mb-3">Soal yang telah ditambahkan:</h3>
-                {soalLoading && <p>Memuat soal...</p>}
-                {soalError && (
+                {soalQuery.isLoading && <p>Memuat soal...</p>}
+                {soalQuery.isError && (
                     <p className="text-red-500">
-                        {soalQueryError?.message ?? "Gagal memuat soal"}
+                        {soalQuery.error?.message ?? "Gagal memuat soal"}
                     </p>
                 )}
-                {!soalLoading && !soalError && (
+                {!soalQuery.isLoading && !soalQuery.isError && (
                     <ul className="space-y-3">
                         {soalList.map((soalItem, index) => (
-                        <li key={index} className="relative p-7 border border-gray-300 rounded-lg bg-softIvory shadow-lg">
-                            {soalItem.kodingan && soalItem.kodingan !== "empty" ? (
-                                <>
-                                    <div>
-                                        <div className="mb-2">
-                                            <strong>Soal: {index + 1}</strong>
-                                            <p className="ml-4">{soalItem.pengantar}</p>
-                                        </div>
-                                        <div className="mb-2">
-                                            <pre className="ml-4 bg-gray-200 p-2 rounded font-mono text-sm">
-                                                {soalItem.kodingan}
-                                            </pre>
-                                        </div>
-                                        <div className="mb-2">
-                                            <p className="ml-4">{soalItem.pertanyaan}</p>
-                                        </div>
-                                    </div>
-                                </>
-                            ) : (
-                                <div className="mb-2">
-                                    <strong>Soal: {index + 1} </strong>
-                                    <p className="ml-4">{soalItem.pertanyaan}</p>
+                            <li
+                                key={soalItem.id ?? index}
+                                className="relative p-5 border border-gray-300 rounded-lg bg-softIvory shadow-lg"
+                            >
+                                <div className="mb-3">
+                                    <strong>Soal: {index + 1}</strong>
+                                    <p className="ml-4 mt-1 text-sm text-justify">
+                                        {soalItem.pertanyaan}
+                                    </p>
                                 </div>
-                            )}
 
-                            <div className="mb-2">
-                                <strong>Pilihan:</strong>
-                                <ul className="ml-4">
-                                    <li key="A" className="border bg-deepForestGreen text-white rounded-md">{`A. ${soalItem.jawaban_benar}`}</li>
-                                    {soalItem.jawaban.map((pilihan, idx) => (
-                                        <li key={66 + idx}>{`${String.fromCharCode(66 + idx)}. ${pilihan}`}</li>
-                                    ))}
-                                </ul>
-                            </div>
+                                <div className="mb-2">
+                                    <strong>Pilihan:</strong>
+                                    <ul className="ml-4 mt-1 space-y-1">
+                                        {normalizeOptionsForDisplay(soalItem).map((option, optionIndex) => (
+                                            <li
+                                                key={option.id ?? `${option.text}-${optionIndex}`}
+                                                className={`px-3 py-1 rounded ${
+                                                    isOptionCorrect(soalItem, option, optionIndex)
+                                                        ? "bg-deepForestGreen text-white"
+                                                        : "bg-softIvory border border-gray-200"
+                                                }`}
+                                            >
+                                                <span className="font-semibold mr-2">
+                                                    {String.fromCharCode(65 + optionIndex)}.
+                                                </span>
+                                                {option.text ? (
+                                                    option.text
+                                                ) : (
+                                                    <span className="italic text-gray-500">Belum diisi</span>
+                                                )}
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </div>
 
-                            <div className="absolute top-2 right-2 flex space-x-2">
-                                <button
-                                    onClick={() => handleOpenModalEdit(soalItem)}
-                                    className="flex justify-center items-center p-1 border-2 border-darkBrown rounded bg-white"
-                                >
-                                    <img className="w-5" src={editIcon} alt="Edit" />
-                                </button>
-                                <button
-                                    onClick={() => handleOpenModalDelete(soalItem.id)}
-                                    className="flex justify-center items-center p-1 border-2 border-fireRed rounded bg-white"
-                                >
-                                    <img className="w-5 h-5" src={trashIcon} alt="Delete" />
-                                </button>
-                            </div>
-                        </li>
+                                <div className="absolute top-2 right-2 flex space-x-2">
+                                    <button
+                                        onClick={() => handleOpenModalEdit(soalItem)}
+                                        className="flex justify-center items-center p-1 border-2 border-darkBrown rounded bg-white"
+                                    >
+                                        <img className="w-5" src={editIcon} alt="Edit" />
+                                    </button>
+                                    <button
+                                        onClick={() => handleOpenModalDelete(soalItem.id)}
+                                        className="flex justify-center items-center p-1 border-2 border-fireRed rounded bg-white"
+                                    >
+                                        <img className="w-5 h-5" src={trashIcon} alt="Delete" />
+                                    </button>
+                                </div>
+                            </li>
                         ))}
                     </ul>
                 )}
             </div>
 
-            {isModalOpenDelete && (<ModalDeleteSoal onClose={handleCloseModalDelete} />)}
-            {isModalOpenEdit && (<ModalEditSoalPG soalItem={editingSoal} onClose={handleCloseModalEdit} onConfirm={handleConfirmEdit} />)}
+            {isModalOpenDelete && (
+                <ModalDeleteSoal onClose={handleCloseModalDelete} onConfirm={handleCloseModalDelete} />
+            )}
+            {isModalOpenEdit && (
+                <ModalEditSoalPG
+                    soalItem={editingSoal}
+                    onClose={handleCloseModalEdit}
+                    onConfirm={handleConfirmEdit}
+                />
+            )}
         </div>
     );
 }

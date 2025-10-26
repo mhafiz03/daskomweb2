@@ -9,14 +9,7 @@ import { send } from "@/lib/wayfinder";
 import { getSoalController } from "@/lib/soalControllers";
 
 export default function SoalInputEssay({ kategoriSoal, modul, onModalSuccess, onModalValidation }) {
-    const [addSoal, setAddSoal] = useState({
-        pengantar: "",
-        kodingan: "",
-        soal: "",
-        is_essay: false,
-        is_program: false,
-        is_sulit: false,
-    });
+    const [addSoal, setAddSoal] = useState({ soal: "" });
     const [isModalOpenDelete, setIsModalOpenDelete] = useState(false);
     const [isModalOpenEdit, setIsModalOpenEdit] = useState(false);
     const [editingSoal, setEditingSoal] = useState(null);
@@ -78,20 +71,13 @@ export default function SoalInputEssay({ kategoriSoal, modul, onModalSuccess, on
     });
 
     const handleTambahSoal = () => {
-        if (!addSoal.soal) {
+        if (!addSoal.soal.trim()) {
             onModalValidation();
             return;
         }
 
-        postSoalMutation.mutate(addSoal);
-        setAddSoal({
-            pengantar: "",
-            kodingan: "",
-            soal: "",
-            is_essay: false,
-            is_program: false,
-            is_sulit: false,
-        });
+        postSoalMutation.mutate({ soal: addSoal.soal.trim() });
+        setAddSoal({ soal: "" });
         onModalSuccess();
     };
 
@@ -115,7 +101,13 @@ export default function SoalInputEssay({ kategoriSoal, modul, onModalSuccess, on
     };
 
     const handleConfirmEdit = (updatedSoal) => {
-        putSoalMutation.mutate({ soalId: updatedSoal.id, payload: updatedSoal });
+        putSoalMutation.mutate({
+            soalId: updatedSoal.id,
+            payload: {
+                modul_id: updatedSoal.modul_id,
+                soal: updatedSoal.soal,
+            },
+        });
         handleCloseModalEdit();
     };
 
@@ -127,8 +119,8 @@ export default function SoalInputEssay({ kategoriSoal, modul, onModalSuccess, on
                 rows="8"
                 placeholder="Masukkan soal..."
                 value={addSoal.soal}
-                onChange={(e) => setAddSoal((prev) => ({ ...prev, soal: e.target.value }))}
-            ></textarea>
+                onChange={(e) => setAddSoal({ soal: e.target.value })}
+            />
 
             <div className="flex justify-end space-x-3 mt-3">
                 <button

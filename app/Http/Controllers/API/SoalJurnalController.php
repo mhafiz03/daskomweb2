@@ -23,24 +23,19 @@ class SoalJurnalController extends Controller
     {
         try {
             $request->validate([
-                "pengantar" => "nullable|string|max:255",
-                "kodingan" => "nullable|string|max:1000",
                 "soal" => "required|string|max:1000",
             ]);
             // Cek duplikasi soal
             $existingSoal = SoalJurnal::where('modul_id', $id)
-                ->where('pengantar', $request->pengantar)
                 ->where('soal', $request->soal)
                 ->first();
             if ($existingSoal) {
                 return response()->json([
-                    "message" => "Soal dengan pengantar dan soal yang sama sudah terdaftar.",
+                    "message" => "Soal dengan soal yang sama sudah terdaftar.",
                 ], 400);
             }
             $soal = SoalJurnal::create([
                 "modul_id" => $id,
-                "pengantar" => $request->pengantar ?? "empty",
-                "kodingan" => $request->kodingan ?? "empty", // Default "empty" jika null
                 "soal" => $request->soal,
                 "created_at" => now(),
                 "updated_at" => now(),
@@ -91,8 +86,6 @@ class SoalJurnalController extends Controller
         try {
             $request->validate([
                 "modul_id" => "required|integer|exists:moduls,id",
-                "pengantar" => "nullable|string|max:255",
-                "kodingan" => "nullable|string|max:1000",
                 "soal" => "required|string|max:1000",
             ]);
             $soal = SoalJurnal::find($id);
@@ -103,7 +96,6 @@ class SoalJurnalController extends Controller
             }
             // Cek duplikasi soal baru
             $duplicateSoal = SoalJurnal::where('modul_id', $request->modul_id)
-                ->where('pengantar', $request->pengantar)
                 ->where('soal', $request->soal)
                 ->where('id', '!=', $id)
                 ->first();
@@ -114,8 +106,6 @@ class SoalJurnalController extends Controller
             }
             $soal->update([
                 "modul_id" => $request->modul_id,
-                "pengantar" => $request->pengantar ?? "empty",
-                "kodingan" => $request->kodingan ?? "empty",
                 "soal" => $request->soal,
                 "updated_at" => now(),
             ]);

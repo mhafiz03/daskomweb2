@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
+use App\Models\Asisten;
 use App\Models\Configuration;
 use Illuminate\Http\Request;
 
@@ -49,7 +50,6 @@ class ConfigurationController extends Controller
                 'polling_activation' => 'required|integer|in:0,1',
                 'registrationPraktikan_activation' => 'required|integer|in:0,1',
                 'registrationAsisten_activation' => 'required|integer|in:0,1',
-                'kode_asisten' => 'required|string',
             ]);
 
             // Cari atau buat record configuration
@@ -61,7 +61,9 @@ class ConfigurationController extends Controller
             $config->polling_activation = $request->polling_activation;
             $config->registrationPraktikan_activation = $request->registrationPraktikan_activation;
             $config->registrationAsisten_activation = $request->registrationAsisten_activation;
-            $config->kode_asisten = $request->kode_asisten ?? auth('sanctum')->user()->kode;
+
+            $editor = $request->user();
+            $config->kode_asisten = $editor?->kode ?? 'UNK';
             $config->save();
 
             return response()->json([

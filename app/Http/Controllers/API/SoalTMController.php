@@ -24,15 +24,11 @@ class SoalTMController extends Controller
         try {
             // Validasi input
             $request->validate([
-                "pengantar" => "nullable|string|max:255",
-                "kodingan" => "nullable|string|max:1000",
                 "soal" => "required|string|max:1000",
             ]);
             // Menyimpan soal baru
             $soal = SoalMandiri::create([
                 "modul_id" => $id,
-                "pengantar" => $request->pengantar ?? "empty",
-                "kodingan" => $request->kodingan ?? "empty",
                 "soal" => $request->soal,
                 "created_at" => now(),
                 "updated_at" => now(),
@@ -78,8 +74,6 @@ class SoalTMController extends Controller
             // Validasi input
             $request->validate([
                 "modul_id" => "required|integer|exists:moduls,id",
-                "pengantar" => "nullable|string|max:255",
-                "kodingan" => "nullable|string|max:1000",
                 "soal" => "required|string|max:1000",
             ]);
             $soal = SoalMandiri::find($id);
@@ -99,8 +93,6 @@ class SoalTMController extends Controller
             // Update soal
             $soal->update([
                 "modul_id" => $request->modul_id,
-                "pengantar" => $request->pengantar ?? "empty",
-                "kodingan" => $request->kodingan ?? "empty",
                 "soal" => $request->soal,
                 "updated_at" => now(),
             ]);

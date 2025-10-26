@@ -17,8 +17,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
  * @property int $id
  * @property int $modul_id
  * @property string $soal
- * @property bool|null $isEssay
- * @property bool|null $isProgram
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * 
@@ -35,15 +33,11 @@ class SoalTp extends Model
 
 	protected $casts = [
 		'modul_id' => 'int',
-		'isEssay' => 'bool',
-		'isProgram' => 'bool'
 	];
 
 	protected $fillable = [
 		'modul_id',
 		'soal',
-		'isEssay',
-		'isProgram'
 	];
 
     public function modul()

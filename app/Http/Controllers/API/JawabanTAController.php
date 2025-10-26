@@ -2,151 +2,142 @@
 
 namespace App\Http\Controllers\API;
 
-use App\Models\Modul;
-use App\Models\SoalTa;
-use App\Models\JawabanTa;
-use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Auth;
+use App\Models\JawabanTa;
+use App\Models\Modul;
+use App\Models\SoalOpsi;
+use App\Models\SoalTa;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 
 class JawabanTAController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
-    {
-        //
-    }
+    public function index(): void {}
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
+    public function store(Request $request): JsonResponse
     {
-        try {
-            $request->validate([
-                '0.praktikan_id' => 'required|integer',
-                '0.modul_id' => 'required|integer',
-                '*.soal_id' => 'required|integer',
-                '*.jawaban' => 'nullable|string',
-            ]);
-            JawabanTa::where('praktikan_id', $request->input('0.praktikan_id'))
-                ->where('modul_id', $request->input('0.modul_id'))
-                ->delete();
-            foreach ($request->all() as $index => $data) {
-                JawabanTa::create([
-                    'praktikan_id' => $data['praktikan_id'],
-                    'modul_id' => $data['modul_id'],
-                    'soal_id' => $data['soal_id'],
-                    'jawaban' => empty($data['jawaban']) ? '-' : $data['jawaban'],
-                ]);
-            }
-            $allJawabanTa = JawabanTa::where('praktikan_id', $request->input('0.praktikan_id'))
-                ->where('modul_id', $request->input('0.modul_id'))
-                ->get();
-            $nilaiTaCorrect = 0;
-            foreach ($allJawabanTa as $jawaban) {
-                $currentSoal = SoalTa::find($jawaban->soal_id);
-                if ($currentSoal && $jawaban->jawaban === $currentSoal->jawaban_benar) {
-                    $nilaiTaCorrect++;
-                }
-            }
-            $nilaiTA = count($allJawabanTa) > 0 ? ($nilaiTaCorrect / count($allJawabanTa)) * 100 : 0;
-            return response()->json([
-                "status" => "success",
-                "nilai_ta" => $nilaiTA,
-            ], 200);
-        } catch (\Illuminate\Validation\ValidationException $e) {
-            return response()->json([
-                "status" => "error",
-                "message" => "Validasi gagal.",
-                "errors" => $e->errors(),
-            ], 422);
-        } catch (\Exception $e) {
-            return response()->json([
-                "status" => "error",
-                "message" => "Terjadi kesalahan saat menyimpan jawaban TA.",
-                "error" => $e->getMessage(),
-            ], 500);
-        }
-    }
-    
+        $validated = $request->validate([
+            'praktikan_id' => ['required', 'integer'],
+            'modul_id' => ['required', 'integer'],
+            'answers' => ['required', 'array', 'min:1'],
+            'answers.*.soal_id' => ['required', 'integer', 'exists:soal_tas,id'],
+            'answers.*.opsi_id' => ['required', 'integer', 'exists:soal_opsis,id'],
+        ]);
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
+        $praktikanId = (int) $validated['praktikan_id'];
+        $modulId = (int) $validated['modul_id'];
+
         try {
-            $modul = Modul::findOrFail($id);
-            if ($modul->isUnlocked) {
-                // Mengambil jawaban TA berdasarkan praktikan_id dan modul_id
-                $jawaban = JawabanTa::where('jawaban_tas.praktikan_id', auth('sanctum')->user()->id)
-                    ->where('jawaban_tas.modul_id', $id)
-                    ->leftJoin('soal_tas', 'soal_tas.id', '=', 'jawaban_tas.soal_id')
-                    ->select(
-                        'soal_tas.pertanyaan as pertanyaan',
-                        'soal_tas.pengantar as pengantar',
-                        'soal_tas.kodingan as kodingan',
-                        'soal_tas.jawaban_salah1 as jawaban_salah1',
-                        'soal_tas.jawaban_salah2 as jawaban_salah2',
-                        'soal_tas.jawaban_salah3 as jawaban_salah3',
-                        'soal_tas.jawaban_benar as jawaban_benar',
-                        'jawaban_tas.soal_id as soal_id',
-                        'jawaban_tas.jawaban as jawaban'
-                    )
-                    ->get();
-                if ($jawaban->isEmpty()) {
-                    return response()->json([
-                        "message" => "Tidak ada jawaban"
+            DB::transaction(function () use ($validated, $praktikanId, $modulId) {
+                JawabanTa::where('praktikan_id', $praktikanId)
+                    ->where('modul_id', $modulId)
+                    ->delete();
+
+                foreach ($validated['answers'] as $index => $answer) {
+                    /** @var SoalTa|null $soal */
+                    $soal = SoalTa::with('options')->find($answer['soal_id']);
+
+                    if (!$soal || $soal->modul_id !== $modulId) {
+                        throw ValidationException::withMessages([
+                            "answers.{$index}.soal_id" => 'Soal tidak valid untuk modul ini.',
+                        ]);
+                    }
+
+                    $option = $soal->options->firstWhere('id', $answer['opsi_id']);
+                    if (!$option || $option->soal_type !== SoalOpsi::TYPE_TA) {
+                        throw ValidationException::withMessages([
+                            "answers.{$index}.opsi_id" => 'Opsi tidak valid untuk soal ini.',
+                        ]);
+                    }
+
+                    JawabanTa::create([
+                        'praktikan_id' => $praktikanId,
+                        'modul_id' => $modulId,
+                        'soal_id' => $soal->id,
+                        'opsi_id' => $option->id,
                     ]);
                 }
-                $mappedJawaban = $jawaban->map(function ($item) {
-                    return [
-                        'pertanyaan' => $item->pertanyaan,
-                        'pengantar' => $item->pengantar,
-                        'kodingan' => $item->kodingan,
-                        'soal_id' => $item->soal_id,
-                        'jawaban' => $item->jawaban,
-                        'jawaban1' => $item->jawaban_salah2,
-                        'jawaban2' => $item->jawaban_salah3,
-                        'jawaban3' => $item->jawaban_benar,
-                        'jawaban4' => $item->jawaban_salah1,
-                    ];
-                });
-                return response()->json([
-                    'status' => 'success',
-                    'jawaban_ta' => $mappedJawaban,
-                ]);
-            }
+            });
+
+            $jawaban = JawabanTa::with('soal_ta')
+                ->where('praktikan_id', $praktikanId)
+                ->where('modul_id', $modulId)
+                ->get();
+
+            $correct = $jawaban->filter(fn (JawabanTa $item) => $item->opsi_id === $item->soal_ta?->opsi_benar_id)->count();
+            $nilai = $jawaban->isNotEmpty() ? ($correct / $jawaban->count()) * 100 : 0;
+
             return response()->json([
-                "status" => "success",
-                'messages' => "Jawaban Masih Terkunci"
+                'status' => 'success',
+                'nilai_ta' => $nilai,
             ]);
-        } catch (\Exception $e) {
+        } catch (ValidationException $e) {
+            throw $e;
+        } catch (\Throwable $e) {
+            report($e);
+
             return response()->json([
                 'status' => 'error',
-                'message' => 'Terjadi kesalahan saat mengambil data jawaban',
+                'message' => 'Terjadi kesalahan saat menyimpan jawaban TA.',
                 'error' => $e->getMessage(),
             ], 500);
         }
     }
-    
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
+    public function show(string $id): JsonResponse
     {
-        //
-    }
+        try {
+            $modul = Modul::findOrFail($id);
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
+            if (!$modul->isUnlocked) {
+                return response()->json([
+                    'status' => 'success',
+                    'messages' => 'Jawaban Masih Terkunci',
+                ]);
+            }
+
+            $jawaban = JawabanTa::with(['soal_ta.options'])
+                ->where('praktikan_id', auth('sanctum')->id())
+                ->where('modul_id', $id)
+                ->get();
+
+            if ($jawaban->isEmpty()) {
+                return response()->json([
+                    'message' => 'Tidak ada jawaban',
+                ]);
+            }
+
+            $data = $jawaban->map(function (JawabanTa $item) {
+                $soal = $item->soal_ta;
+                $options = $soal?->options->map(fn (SoalOpsi $opsi) => [
+                    'id' => $opsi->id,
+                    'text' => $opsi->text,
+                    'is_correct' => $opsi->id === $soal->opsi_benar_id,
+                ]);
+
+                return [
+                    'soal_id' => $item->soal_id,
+                    'pertanyaan' => $soal?->pertanyaan,
+                    'selected_opsi_id' => $item->opsi_id,
+                    'opsi_benar_id' => $soal?->opsi_benar_id,
+                    'options' => $options,
+                ];
+            });
+
+            return response()->json([
+                'status' => 'success',
+                'jawaban_ta' => $data,
+            ]);
+        } catch (\Throwable $e) {
+            report($e);
+
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Terjadi kesalahan saat mengambil data jawaban.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
     }
 }

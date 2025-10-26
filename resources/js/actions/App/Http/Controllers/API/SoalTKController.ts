@@ -1,7 +1,7 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../../../wayfinder'
 /**
 * @see \App\Http\Controllers\API\SoalTKController::show
-* @see app/Http/Controllers/API/SoalTKController.php:71
+* @see app/Http/Controllers/API/SoalTKController.php:50
 * @route '/api-v1/soal-tk/{idModul}'
 */
 export const show = (args: { idModul: string | number } | [idModul: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -16,7 +16,7 @@ show.definition = {
 
 /**
 * @see \App\Http\Controllers\API\SoalTKController::show
-* @see app/Http/Controllers/API/SoalTKController.php:71
+* @see app/Http/Controllers/API/SoalTKController.php:50
 * @route '/api-v1/soal-tk/{idModul}'
 */
 show.url = (args: { idModul: string | number } | [idModul: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -43,7 +43,7 @@ show.url = (args: { idModul: string | number } | [idModul: string | number ] | s
 
 /**
 * @see \App\Http\Controllers\API\SoalTKController::show
-* @see app/Http/Controllers/API/SoalTKController.php:71
+* @see app/Http/Controllers/API/SoalTKController.php:50
 * @route '/api-v1/soal-tk/{idModul}'
 */
 show.get = (args: { idModul: string | number } | [idModul: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -53,7 +53,7 @@ show.get = (args: { idModul: string | number } | [idModul: string | number ] | s
 
 /**
 * @see \App\Http\Controllers\API\SoalTKController::show
-* @see app/Http/Controllers/API/SoalTKController.php:71
+* @see app/Http/Controllers/API/SoalTKController.php:50
 * @route '/api-v1/soal-tk/{idModul}'
 */
 show.head = (args: { idModul: string | number } | [idModul: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -63,7 +63,7 @@ show.head = (args: { idModul: string | number } | [idModul: string | number ] | 
 
 /**
 * @see \App\Http\Controllers\API\SoalTKController::show
-* @see app/Http/Controllers/API/SoalTKController.php:71
+* @see app/Http/Controllers/API/SoalTKController.php:50
 * @route '/api-v1/soal-tk/{idModul}'
 */
 const showForm = (args: { idModul: string | number } | [idModul: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -73,7 +73,7 @@ const showForm = (args: { idModul: string | number } | [idModul: string | number
 
 /**
 * @see \App\Http\Controllers\API\SoalTKController::show
-* @see app/Http/Controllers/API/SoalTKController.php:71
+* @see app/Http/Controllers/API/SoalTKController.php:50
 * @route '/api-v1/soal-tk/{idModul}'
 */
 showForm.get = (args: { idModul: string | number } | [idModul: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -83,7 +83,7 @@ showForm.get = (args: { idModul: string | number } | [idModul: string | number ]
 
 /**
 * @see \App\Http\Controllers\API\SoalTKController::show
-* @see app/Http/Controllers/API/SoalTKController.php:71
+* @see app/Http/Controllers/API/SoalTKController.php:50
 * @route '/api-v1/soal-tk/{idModul}'
 */
 showForm.head = (args: { idModul: string | number } | [idModul: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -100,7 +100,7 @@ show.form = showForm
 
 /**
 * @see \App\Http\Controllers\API\SoalTKController::store
-* @see app/Http/Controllers/API/SoalTKController.php:24
+* @see app/Http/Controllers/API/SoalTKController.php:19
 * @route '/api-v1/soal-tk/{idModul}'
 */
 export const store = (args: { idModul: string | number } | [idModul: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -115,7 +115,7 @@ store.definition = {
 
 /**
 * @see \App\Http\Controllers\API\SoalTKController::store
-* @see app/Http/Controllers/API/SoalTKController.php:24
+* @see app/Http/Controllers/API/SoalTKController.php:19
 * @route '/api-v1/soal-tk/{idModul}'
 */
 store.url = (args: { idModul: string | number } | [idModul: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -142,7 +142,7 @@ store.url = (args: { idModul: string | number } | [idModul: string | number ] | 
 
 /**
 * @see \App\Http\Controllers\API\SoalTKController::store
-* @see app/Http/Controllers/API/SoalTKController.php:24
+* @see app/Http/Controllers/API/SoalTKController.php:19
 * @route '/api-v1/soal-tk/{idModul}'
 */
 store.post = (args: { idModul: string | number } | [idModul: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -152,7 +152,7 @@ store.post = (args: { idModul: string | number } | [idModul: string | number ] |
 
 /**
 * @see \App\Http\Controllers\API\SoalTKController::store
-* @see app/Http/Controllers/API/SoalTKController.php:24
+* @see app/Http/Controllers/API/SoalTKController.php:19
 * @route '/api-v1/soal-tk/{idModul}'
 */
 const storeForm = (args: { idModul: string | number } | [idModul: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -162,7 +162,7 @@ const storeForm = (args: { idModul: string | number } | [idModul: string | numbe
 
 /**
 * @see \App\Http\Controllers\API\SoalTKController::store
-* @see app/Http/Controllers/API/SoalTKController.php:24
+* @see app/Http/Controllers/API/SoalTKController.php:19
 * @route '/api-v1/soal-tk/{idModul}'
 */
 storeForm.post = (args: { idModul: string | number } | [idModul: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -174,7 +174,7 @@ store.form = storeForm
 
 /**
 * @see \App\Http\Controllers\API\SoalTKController::update
-* @see app/Http/Controllers/API/SoalTKController.php:136
+* @see app/Http/Controllers/API/SoalTKController.php:79
 * @route '/api-v1/soal-tk/{idSoal}'
 */
 export const update = (args: { idSoal: string | number } | [idSoal: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
@@ -189,7 +189,7 @@ update.definition = {
 
 /**
 * @see \App\Http\Controllers\API\SoalTKController::update
-* @see app/Http/Controllers/API/SoalTKController.php:136
+* @see app/Http/Controllers/API/SoalTKController.php:79
 * @route '/api-v1/soal-tk/{idSoal}'
 */
 update.url = (args: { idSoal: string | number } | [idSoal: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -216,7 +216,7 @@ update.url = (args: { idSoal: string | number } | [idSoal: string | number ] | s
 
 /**
 * @see \App\Http\Controllers\API\SoalTKController::update
-* @see app/Http/Controllers/API/SoalTKController.php:136
+* @see app/Http/Controllers/API/SoalTKController.php:79
 * @route '/api-v1/soal-tk/{idSoal}'
 */
 update.put = (args: { idSoal: string | number } | [idSoal: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
@@ -226,7 +226,7 @@ update.put = (args: { idSoal: string | number } | [idSoal: string | number ] | s
 
 /**
 * @see \App\Http\Controllers\API\SoalTKController::update
-* @see app/Http/Controllers/API/SoalTKController.php:136
+* @see app/Http/Controllers/API/SoalTKController.php:79
 * @route '/api-v1/soal-tk/{idSoal}'
 */
 const updateForm = (args: { idSoal: string | number } | [idSoal: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -241,7 +241,7 @@ const updateForm = (args: { idSoal: string | number } | [idSoal: string | number
 
 /**
 * @see \App\Http\Controllers\API\SoalTKController::update
-* @see app/Http/Controllers/API/SoalTKController.php:136
+* @see app/Http/Controllers/API/SoalTKController.php:79
 * @route '/api-v1/soal-tk/{idSoal}'
 */
 updateForm.put = (args: { idSoal: string | number } | [idSoal: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -258,7 +258,7 @@ update.form = updateForm
 
 /**
 * @see \App\Http\Controllers\API\SoalTKController::destroy
-* @see app/Http/Controllers/API/SoalTKController.php:189
+* @see app/Http/Controllers/API/SoalTKController.php:118
 * @route '/api-v1/soal-tk/{idSoal}'
 */
 export const destroy = (args: { idSoal: string | number } | [idSoal: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -273,7 +273,7 @@ destroy.definition = {
 
 /**
 * @see \App\Http\Controllers\API\SoalTKController::destroy
-* @see app/Http/Controllers/API/SoalTKController.php:189
+* @see app/Http/Controllers/API/SoalTKController.php:118
 * @route '/api-v1/soal-tk/{idSoal}'
 */
 destroy.url = (args: { idSoal: string | number } | [idSoal: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -300,7 +300,7 @@ destroy.url = (args: { idSoal: string | number } | [idSoal: string | number ] | 
 
 /**
 * @see \App\Http\Controllers\API\SoalTKController::destroy
-* @see app/Http/Controllers/API/SoalTKController.php:189
+* @see app/Http/Controllers/API/SoalTKController.php:118
 * @route '/api-v1/soal-tk/{idSoal}'
 */
 destroy.delete = (args: { idSoal: string | number } | [idSoal: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -310,7 +310,7 @@ destroy.delete = (args: { idSoal: string | number } | [idSoal: string | number ]
 
 /**
 * @see \App\Http\Controllers\API\SoalTKController::destroy
-* @see app/Http/Controllers/API/SoalTKController.php:189
+* @see app/Http/Controllers/API/SoalTKController.php:118
 * @route '/api-v1/soal-tk/{idSoal}'
 */
 const destroyForm = (args: { idSoal: string | number } | [idSoal: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -325,7 +325,7 @@ const destroyForm = (args: { idSoal: string | number } | [idSoal: string | numbe
 
 /**
 * @see \App\Http\Controllers\API\SoalTKController::destroy
-* @see app/Http/Controllers/API/SoalTKController.php:189
+* @see app/Http/Controllers/API/SoalTKController.php:118
 * @route '/api-v1/soal-tk/{idSoal}'
 */
 destroyForm.delete = (args: { idSoal: string | number } | [idSoal: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({

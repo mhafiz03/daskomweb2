@@ -1,56 +1,46 @@
 import { useState } from "react";
 import toast from "react-hot-toast";
-import closeIcon from "../../../../assets/modal/iconClose.svg"
+import closeIcon from "../../../../assets/modal/iconClose.svg";
 
 export default function ModalEditSoalEssay({ onClose, soalItem, onSave }) {
     const [soal, setSoal] = useState(soalItem.soal || "");
-    const [pengantar, setPengantar] = useState(soalItem.pengantar || " ");
-    const [kodingan, setKodingan] = useState(soalItem.kodingan || "");
-    const [isEssay, setIsEssay] = useState(soalItem.is_essay || "");
-    const [isProgram, setIsProgram] = useState(soalItem.is_program || "");
-    const [isSulit, setIsSulit] = useState(soalItem.is_sulit || "");
 
     const handleSave = () => {
-        // ini dipanggil
+        if (!soal.trim()) {
+            toast.error("Soal tidak boleh kosong.");
+            return;
+        }
+
         onSave({
             ...soalItem,
             soal,
-            pengantar,
-            kodingan,
-            is_essay: isEssay,
-            is_program: isProgram,
-            is_sulit: isSulit,
         });
+
         toast.success("Soal berhasil diedit!");
         onClose();
     };
 
     return (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-            {/* Modal Utama */}
             <div className="bg-white rounded-lg p-6 w-[800px] shadow-lg relative">
-                {/* Header */}
                 <div className="flex justify-between items-center mb-6 border-b border-deepForestGreen">
                     <h2 className="text-2xl font-bold text-darkGreen">Edit Soal</h2>
-                    {/* Tombol X untuk tutup */}
                     <button
                         onClick={onClose}
                         className="absolute top-2 right-2 flex justify-center items-center"
                     >
-                        <img className="w-9" src={closeIcon} alt="closeIcon" />
+                        <img className="w-9" src={closeIcon} alt="Tutup" />
                     </button>
                 </div>
 
-                {/* Edit soal */}
                 <textarea
                     className="w-full p-2 border rounded"
                     rows="10"
                     placeholder="Edit soal..."
                     value={soal}
                     onChange={(e) => setSoal(e.target.value)}
-                ></textarea>
+                />
 
-                {/* Tombol Simpan */}
                 <div className="mt-4 text-right">
                     <button
                         onClick={handleSave}
