@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, usePage, router } from "@inertiajs/react";
 import profileIcon from "../../../../assets/nav/Icon-Profile.svg";
 import praktikumIcon from "../../../../assets/nav/Icon-Praktikum.svg";
@@ -8,15 +8,21 @@ import asistenIcon from "../../../../assets/nav/Icon-Asisten.svg";
 import pollingIcon from "../../../../assets/nav/Icon-Polling.svg";
 import changePassIcon from "../../../../assets/nav/Icon-GantiPassword.svg";
 import logoutIcon from "../../../../assets/nav/Icon-Logout.svg";
-import Modal from '../Modals/Modal';
-import ModalChangePass from '../Modals/ModalPasswordPraktikan';
-import ModalChangePassSuccess from '../Modals/ModalChangePassSuccess';
-import ModalChangePassFailed from '../Modals/ModalChangePassFailed';
 import ModalLogout from '../Modals/ModalLogout';
 import ModalPasswordPraktikan from '../Modals/ModalPasswordPraktikan';
 
+const STORAGE_KEY = 'praktikanNavCollapsed';
+
 export default function PraktikanNav() {
-    const [isCollapsed, setIsCollapsed] = useState(true);
+    const getInitialCollapsed = () => {
+        if (typeof window === 'undefined') {
+            return true;
+        }
+        const stored = window.localStorage.getItem(STORAGE_KEY);
+        return stored !== null ? stored === 'true' : true;
+    };
+
+    const [isCollapsed, setIsCollapsed] = useState(getInitialCollapsed);
     const [isAnimating, setIsAnimating] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isChangePassSuccess, setIsChangePassSuccess] = useState(false);
@@ -40,21 +46,29 @@ export default function PraktikanNav() {
         setIsChangePassFailed(false);
     };
 
+    useEffect(() => {
+        if (typeof window === 'undefined') {
+            return;
+        }
+        window.localStorage.setItem(STORAGE_KEY, String(isCollapsed));
+    }, [isCollapsed]);
+
     const toggleSidebar = () => {
         if (!isCollapsed) {
             setIsAnimating(true);
             setTimeout(() => {
-                setIsCollapsed(!isCollapsed);
+                setIsCollapsed((prev) => !prev);
                 setIsAnimating(false);
             }, 300);
         } else {
-            setIsCollapsed(!isCollapsed);
+            setIsCollapsed((prev) => !prev);
         }
     };
-    const [isOpen, setIsOpen] = useState(false);
+    const [isOpen, setIsOpen] = useState(() => !getInitialCollapsed());
     const genericHamburgerLine = `h-1 w-6 my-1 rounded-full bg-black transition ease transform duration-300`;
 
     return (
+        <>
         <nav className="h-screen flex items-center">
             <div
                 className={`flex flex-col h-[91vh] ${isCollapsed ? "w-12" : "w-[230px]"
@@ -272,5 +286,6 @@ export default function PraktikanNav() {
         {showLogoutModal && (
             <ModalLogout onClose={closeLogoutModal} onConfirm={handleLogoutConfirm} />
         )}
+        </>
     );
 }
