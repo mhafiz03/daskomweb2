@@ -44,10 +44,7 @@ export default function TablePlottingan() {
 
     const deleteKelasMutation = useMutation({
         mutationFn: async (kelasId) => {
-            const token = localStorage.getItem("token");
-            await api.delete(`/api-v1/kelas/${kelasId}`, {
-                headers: token ? { Authorization: `Bearer ${token}` } : undefined,
-            });
+            await api.delete(`/api-v1/kelas/${kelasId}`);
         },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: KELAS_QUERY_KEY });

@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { router } from "@inertiajs/react";
 import toast, { Toaster } from "react-hot-toast";
 import ModalDeleteRole from "../Modals/ModalDeleteRole";
 import ModalConfirmDeleteRole from "../Modals/ModalConfirmDeleteRole";
@@ -7,6 +6,8 @@ import ModalEditRole from "../Modals/ModalEditRole";
 import editIcon from "../../../../assets/nav/Icon-Edit.svg";
 import { useAsistensQuery, ASISTENS_QUERY_KEY } from "@/hooks/useAsistensQuery";
 import { useQueryClient } from "@tanstack/react-query";
+import { submit } from "@/lib/wayfinder";
+import { destroy as destroyAsistens } from "@/actions/App/Http/Controllers/API/AsistenController";
 
 export default function TableManageRole({ asisten }) {
     const [isModalOpenDelete, setIsModalOpenDelete] = useState(false);
@@ -78,7 +79,8 @@ export default function TableManageRole({ asisten }) {
     const handleConfirmDelete = async () => {
         setIsModalOpenConfirmDelete(false);
         setIsLoading(true);
-        router.post('/api-v1/asisten/delete', { asistens: checkedAsistens }, {
+        submit(destroyAsistens(), {
+            data: { asistens: checkedAsistens },
             onSuccess: () => {
                 toast.success("Asisten berhasil dihapus 🎉");
                 setCheckedAsistens([]);

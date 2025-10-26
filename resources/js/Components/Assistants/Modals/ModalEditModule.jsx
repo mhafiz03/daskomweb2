@@ -1,7 +1,9 @@
 import { useState, useEffect } from "react";
 import closeIcon from "../../../../assets/modal/iconClose.svg";
 import trashIcon from "../../../../assets/nav/Icon-Delete.svg";
-import { router, usePage } from "@inertiajs/react";
+import { usePage } from "@inertiajs/react";
+import { submit } from "@/lib/wayfinder";
+import { update as updateModul } from "@/actions/App/Http/Controllers/API/ModulController";
 
 export default function ButtonEditModule({ onClose, modules, selectedModuleId, onUpdate, initialOpen }) {
     const [showSuccessModal, setShowSuccessModal] = useState(false);
@@ -84,7 +86,8 @@ export default function ButtonEditModule({ onClose, modules, selectedModuleId, o
             video_link: link2,
         };
 
-        router.patch(`/api-v1/modul/${selectedModuleId}`, payload, {
+        submit(updateModul(selectedModuleId), {
+            data: payload,
             preserveScroll: true,
             onSuccess: (page) => {
                 const updatedModule = {

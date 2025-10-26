@@ -3,7 +3,8 @@ import closeIcon from "../../../../assets/modal/iconClose.svg";
 import editIcon from "../../../../assets/nav/Icon-Edit.svg";
 import { useConfigurationQuery, CONFIG_QUERY_KEY } from "@/hooks/useConfigurationQuery";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { api } from "@/lib/api";
+import { send } from "@/lib/wayfinder";
+import { update as updateConfigurationRoute } from "@/actions/App/Http/Controllers/API/ConfigurationController";
 
 export default function ModalKonfigurasi({ onClose }) {
     const [isTugasPendahuluanOn, setIsTugasPendahuluanOn] = useState(false);
@@ -50,7 +51,7 @@ export default function ModalKonfigurasi({ onClose }) {
 
     const updateConfigurationMutation = useMutation({
         mutationFn: async (configPayload) => {
-            const { data } = await api.put("/api-v1/config", configPayload);
+            const { data } = await send(updateConfigurationRoute(), configPayload);
             return data;
         },
         onSuccess: () => {

@@ -1,8 +1,10 @@
 import { useState, useEffect } from "react";
 import closeIcon from "../../../../assets/modal/iconClose.svg";
 import editIcon from "../../../../assets/nav/Icon-Edit.svg";
-import { router, usePage } from "@inertiajs/react";
+import { usePage } from "@inertiajs/react";
 import { useModulesQuery } from "@/hooks/useModulesQuery";
+import { send } from "@/lib/wayfinder";
+import { update as updateModul } from "@/actions/App/Http/Controllers/API/ModulController";
 
 export default function ModalOpenKJ({ onClose, modules }) {
     const [showSuccess, setShowSuccess] = useState(false);
@@ -71,7 +73,7 @@ export default function ModalOpenKJ({ onClose, modules }) {
 
             console.log("Payload untuk modul ID", mod.idM, ":", payload);
 
-            return router.patch(`/api-v1/modul/${mod.idM}`, payload);
+            return send(updateModul(mod.idM), payload);
         });
 
         try {

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import closeIcon from "../../../../assets/modal/iconClose.svg";
-import { router } from "@inertiajs/react";
+import { submit } from "@/lib/wayfinder";
+import { store as storeModul } from "@/actions/App/Http/Controllers/API/ModulController";
 
 export default function ButtonAddModule({ onClose }) {
     const [showSuccessModal, setShowSuccessModal] = useState(false);
@@ -40,7 +41,8 @@ export default function ButtonAddModule({ onClose }) {
         e.preventDefault();
 
         if (validateFields()) {
-            router.post(route('store.modul'), values, {
+            submit(storeModul(), {
+                data: values,
                 onSuccess: () => {
                     console.log('Data berhasil dikirim');
                     setShowSuccessModal(true);
@@ -52,7 +54,6 @@ export default function ButtonAddModule({ onClose }) {
                 onError: (errors) => {
                     console.error('Validation errors:', errors);
                     setLocalErrors(errors);
-                    // Log the error details
                     if (errors.response) {
                         console.error('Error Response:', errors.response.data);
                     }

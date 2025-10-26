@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
-import { api } from "@/lib/api";
 import { useModulesQuery } from "@/hooks/useModulesQuery";
+import { send } from "@/lib/wayfinder";
+import { setPraktikan } from "@/actions/App/Http/Controllers/API/PraktikanController";
 
 export default function FormTarikPraktikan() {
     const [nim, setNim] = useState("");
@@ -29,7 +30,7 @@ export default function FormTarikPraktikan() {
             const payload = { nim: praktikanNim, modul_id: modulId };
 
             try {
-                const { data } = await api.post("/api-v1/tarik-praktikan", payload);
+                const { data } = await send(setPraktikan(), payload);
                 if (!data?.success) {
                     throw new Error(data?.message ?? "Gagal menarik data praktikan");
                 }

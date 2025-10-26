@@ -1,7 +1,9 @@
-import { Head, usePage, router } from "@inertiajs/react";
-import { useState, useRef, useEffect } from "react";
+import { Head } from "@inertiajs/react";
+import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
+import { send } from "@/lib/wayfinder";
+import { store as storePollings } from "@/actions/App/Http/Controllers/API/PollingsController";
 import PraktikanAuthenticated from "@/Layouts/PraktikanAuthenticatedLayout";
 import Clock from "@/Components/Assistants/Common/Clock";
 import ModalSoftware from "@/Components/Assistants/Modals/ModalSoftware";
@@ -10,7 +12,6 @@ import PollingContent from "@/Components/Praktikans/Sections/PollingContent";
 import ModalSuccessData from "@/Components/Praktikans/Modals/ModalSuccessData";
 
 export default function PollingPage({ auth }) {
-    const { ziggy } = usePage().props;
     const [activeCategory, setActiveCategory] = useState(null);
     const [selectedCards, setSelectedCards] = useState(() => {
         const storedCards = localStorage.getItem("selectedCards");
@@ -18,9 +19,7 @@ export default function PollingPage({ auth }) {
     });
     const [isSubmitted, setIsSubmitted] = useState(false);
     const [showModal, setShowModal] = useState(false);
-    const [submitError, setSubmitError] = useState(null);
-    const submitAllRef = useRef(null);
-    
+
     // Moved from PollingContent
     const [asistens, setAsistens] = useState([]);
     const [loading, setLoading] = useState(false);
@@ -117,7 +116,7 @@ export default function PollingPage({ auth }) {
                 return { success: false, message: 'Pilih minimal 1 asisten sebelum mengirim' };
             }
 
-            const { data } = await api.post('/api-v1/pollings', submissions);
+            const { data } = await send(storePollings(), submissions);
 
             if (data?.status === 'success') {
                 const newSubmittedCategories = [...new Set([...submittedCategories, ...submissions.map(s => s.polling_id.toString())])];

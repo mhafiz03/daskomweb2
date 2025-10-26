@@ -1,6 +1,12 @@
 import { useState, useEffect } from "react";
-import { usePage, router } from "@inertiajs/react";
+import { usePage } from "@inertiajs/react";
 import closeIcon from "../../../../assets/modal/iconClose.svg";
+import { submit } from "@/lib/wayfinder";
+import {
+    update as updateAsisten,
+    updatePp as updateAsistenPhoto,
+    destroyPp as destroyAsistenPhoto,
+} from "@/actions/App/Http/Controllers/API/AsistenController";
 
 export default function ModalEditProfile({ isOpen, onClose }) {
     // const [isSuccessModalOpen, setSuccessModalOpen] = useState(false);
@@ -49,13 +55,14 @@ export default function ModalEditProfile({ isOpen, onClose }) {
 
     const handleSave = async (e) => {
         e.preventDefault();
-        router.put("/api-v1/asisten", values, {
+        submit(updateAsisten(), {
+            data: values,
             preserveScroll: true,
             onSuccess: () => {
-                setIsSuccessModalOpen(true); // ✅ Ensure modal opens
+                setIsSuccessModalOpen(true);
                 setTimeout(() => {
                     setIsSuccessModalOpen(false);
-                    onClose(); // Close the main modal
+                    onClose();
                 }, 3000);
             },
             onError: (errors) => {
@@ -87,27 +94,24 @@ export default function ModalEditProfile({ isOpen, onClose }) {
         setAvatar(URL.createObjectURL(file));
 
         // Upload with Inertia
-        router.post(
-            "/api-v1/profilePic",
-            formData,
-            {
-                forceFormData: true,
-                preserveScroll: true,
-                onSuccess: (page) => {
-                    setAvatar(page.props.auth.asisten.foto_asistens?.foto || null);
-                },
-                onError: (errors) => {
-                    console.error("Upload Error:", errors);
-                },
-            }
-        );
+        submit(updateAsistenPhoto(), {
+            data: formData,
+            forceFormData: true,
+            preserveScroll: true,
+            onSuccess: (page) => {
+                setAvatar(page.props.auth.asisten.foto_asistens?.foto || null);
+            },
+            onError: (errors) => {
+                console.error("Upload Error:", errors);
+            },
+        });
     };
 
     const handleDeleteAvatar = () => {
-        router.delete("/api-v1/profilePic", {
+        submit(destroyAsistenPhoto(), {
             preserveScroll: true,
             onSuccess: () => {
-                setAvatar(null); // Reset the avatar state after successful deletion
+                setAvatar(null);
             },
             onError: (errors) => {
                 console.error("Delete Avatar Error:", errors);

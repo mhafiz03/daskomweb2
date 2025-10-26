@@ -1,6 +1,6 @@
 import TableNilai from "../Tables/TableNilai";
 
-export default function ContentNilaiPraktikan() {
+export default function ContentNilai() {
     return (
         <section>
             {/* button nilai */}

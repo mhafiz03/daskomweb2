@@ -12,7 +12,7 @@ import { api } from "@/lib/api";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 
-export default function TabelModulePraktikum() {
+export default function TableModule() {
     const [isModalOpenEdit, setIsModalOpenEdit] = useState(false);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [moduleToDelete, setModuleToDelete] = useState(null);

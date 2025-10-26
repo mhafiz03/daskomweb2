@@ -1,5 +1,6 @@
 import { useState } from "react";  
-import { router } from '@inertiajs/react';
+import { submit } from "@/lib/wayfinder";
+import { setPassword as setPraktikanPassword } from "@/actions/App/Http/Controllers/API/PraktikanController";
 
 export default function FormChangePassPraktikan() {
     const [values, setValues] = useState({
@@ -30,8 +31,9 @@ export default function FormChangePassPraktikan() {
             return;
         }
 
-        //405 mulu.. mamam nih manggil router patch langsung
-        router.patch(route('set-password'), values, {
+        // 405 mulu.. mamam nih manggil helper submit langsung
+        submit(setPraktikanPassword(), {
+            data: values,
             onSuccess: () => {
                 setModalMessage('Password Praktikan telah berhasil diganti.');
                 setIsSuccess(true);

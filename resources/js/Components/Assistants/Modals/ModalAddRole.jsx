@@ -1,7 +1,8 @@
-import { useState, useEffect } from "react";
-import { router, usePage } from "@inertiajs/react";
+import { useState } from "react";
 import toast from "react-hot-toast";
 import closeIcon from "../../../../assets/modal/iconClose.svg"
+import { submit } from "@/lib/wayfinder";
+import { store as storeRole } from "@/actions/App/Http/Controllers/API/RoleController";
 
 export default function ButtonAddRole({ onClose, defaultChecked = ['asisten'] }) {
     const [roleName, setRoleName] = useState("");
@@ -34,10 +35,11 @@ export default function ButtonAddRole({ onClose, defaultChecked = ['asisten'] })
             return;
         }
         try {
-            router.post("/api-v1/roles", {
-                name: roleName,
-                paket: checkedPermissions, // Send as array
-            }, {
+            submit(storeRole(), {
+                data: {
+                    name: roleName,
+                    paket: checkedPermissions,
+                },
                 onSuccess: () => {
                     setShowSuccessModal(true);
                     toast.success("Role berhasil ditambahkan.");

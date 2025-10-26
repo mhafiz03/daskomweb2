@@ -1,11 +1,12 @@
 import { useState } from 'react';
-import { router, usePage } from '@inertiajs/react';
 import toast from 'react-hot-toast';
 import eyeClose from '../../../../assets/form/eyeClose.png';
 import eyeOpen from '../../../../assets/form/eyeOpen.png';
 import ButtonOption from '../../Praktikans/Buttons/ButtonOption';
 import Modal from '../../Praktikans/Modals/Modal';
 import ModalForgotPass from '../Modals/ModalForgotPass';
+import { submit } from '@/lib/wayfinder';
+import { store as loginAsisten } from '@/actions/App/Http/Controllers/Auth/LoginAsistenController';
 
 export default function LoginFormAssistant({ mode }) {
     const [values, setValues] = useState({
@@ -42,8 +43,9 @@ export default function LoginFormAssistant({ mode }) {
         e.preventDefault();
 
         // Perform login using Inertia's router
-        router.post('/login/asisten', values, {
-            preserveScroll: true, // Keeps the scroll position
+        submit(loginAsisten(), {
+            data: values,
+            preserveScroll: true,
             onSuccess: (page) => {
                 if (page.props.authenticated) {
                     toast.success('Login successful!');

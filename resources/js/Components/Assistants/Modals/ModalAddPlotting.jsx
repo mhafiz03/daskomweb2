@@ -1,8 +1,9 @@
 import { useState } from "react";
 import closeIcon from "../../../../assets/modal/iconClose.svg";
-import { api } from "@/lib/api";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { KELAS_QUERY_KEY } from "@/hooks/useKelasQuery";
+import { send } from "@/lib/wayfinder";
+import { store as storeKelas } from "@/actions/App/Http/Controllers/API/KelasController";
 
 export default function ModalAddPlotting({ onClose, fetchKelas }) {
     const [showSuccessModal, setShowSuccessModal] = useState(false);
@@ -12,10 +13,7 @@ export default function ModalAddPlotting({ onClose, fetchKelas }) {
 
     const addKelasMutation = useMutation({
         mutationFn: async (payload) => {
-            const token = localStorage.getItem("token");
-            const { data } = await api.post("/api-v1/kelas", payload, {
-                headers: token ? { Authorization: `Bearer ${token}` } : undefined,
-            });
+            const { data } = await send(storeKelas(), payload);
             return data;
         },
         onSuccess: (data) => {

@@ -1,7 +1,9 @@
 import { useState, useEffect } from "react";
-import { usePage, router } from "@inertiajs/react";
+import { usePage } from "@inertiajs/react";
 import closeIcon from "../../../../assets/modal/iconClose.svg";
 import failedIcon from "../../../../assets/modal/failedSymbol.png";
+import { submit } from "@/lib/wayfinder";
+import { updatePassword as updateAssistantPassword } from "@/actions/App/Http/Controllers/API/AsistenController";
 
 export default function ModalPasswordAssistant({ onClose }) {
     const [values, setValues] = useState({
@@ -61,7 +63,8 @@ export default function ModalPasswordAssistant({ onClose }) {
         }
         
         // Send request to server - using patch as per the route definition
-        router.patch("/api-v1/asisten/password", values, {
+        submit(updateAssistantPassword(), {
+            data: values,
             preserveScroll: true,
             onFinish: () => {
                 setIsLoading(false);

@@ -1,8 +1,9 @@
 import { useState } from "react";
-import { router } from "@inertiajs/react";
 import toast from "react-hot-toast";
 import closeIcon from "../../../../assets/modal/iconClose.svg";
 import { useRolesQuery } from "@/hooks/useRolesQuery";
+import { submit } from "@/lib/wayfinder";
+import { update as updateRole } from "@/actions/App/Http/Controllers/API/RoleController";
 
 export default function ModalEditRole({ onClose, asistenId }) {
     const [selectedRole, setSelectedRole] = useState("");
@@ -32,7 +33,8 @@ export default function ModalEditRole({ onClose, asistenId }) {
             return;
         }
 
-        router.put(`/api-v1/roles/${asistenId}`, { role_id: selectedRole }, {
+        submit(updateRole(asistenId), {
+            data: { role_id: selectedRole },
             preserveScroll: true,
             onSuccess: () => {
                 toast.success("Role berhasil diperbarui.");
@@ -40,7 +42,7 @@ export default function ModalEditRole({ onClose, asistenId }) {
                     onClose();
                 }, 1000);
             },
-            onError: (error) => {
+            onError: () => {
                 toast.error("Terjadi kesalahan. Coba lagi.");
             },
         });

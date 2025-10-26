@@ -3,7 +3,8 @@ import closeIcon from "../../../../assets/modal/iconClose.svg";
 import editIcon from "../../../../assets/nav/Icon-Edit.svg";
 import { useTugasPendahuluanQuery, TUGAS_PENDAHULUAN_QUERY_KEY } from "@/hooks/useTugasPendahuluanQuery";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { api } from "@/lib/api";
+import { send } from "@/lib/wayfinder";
+import { update as updateTugasPendahuluanRoute } from "@/actions/App/Http/Controllers/API/TugasPendahuluanController";
 
 export default function ModalActiveTP({ onClose }) {
     const [modul, setModul] = useState([]);
@@ -45,7 +46,7 @@ export default function ModalActiveTP({ onClose }) {
 
     const updateTugasPendahuluanMutation = useMutation({
         mutationFn: async (payload) => {
-            const { data } = await api.put("/api-v1/tugas-pendahuluan", payload);
+            const { data } = await send(updateTugasPendahuluanRoute(), payload);
             return data;
         },
         onSuccess: () => {

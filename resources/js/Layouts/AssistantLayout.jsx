@@ -2,6 +2,7 @@ import AssisstantNav from "@/Components/Assistants/Common/AssistantNav";
 import Clock from "@/Components/Assistants/Common/Clock";
 import ModalSoftware from "@/Components/Assistants/Modals/ModalSoftware";
 import { usePage } from "@inertiajs/react";
+import { Toaster } from "react-hot-toast";
 
 export default function AssistantLayout({
     children,
@@ -33,6 +34,7 @@ export default function AssistantLayout({
             </div>
             <Clock />
             <ModalSoftware />
+            <Toaster position="top-right" reverseOrder={false} />
         </section>
     );
 }

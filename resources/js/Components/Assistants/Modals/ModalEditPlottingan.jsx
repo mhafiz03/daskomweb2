@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
 import closeIcon from "../../../../assets/modal/iconClose.svg";
-import { api } from "@/lib/api";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { KELAS_QUERY_KEY } from "@/hooks/useKelasQuery";
+import { send } from "@/lib/wayfinder";
+import { update as updateKelas } from "@/actions/App/Http/Controllers/API/KelasController";
 
 export default function ModalEditPlotting({ onClose, kelas }) {
     const [showSuccessModal, setShowSuccessModal] = useState(false);
@@ -18,10 +19,7 @@ export default function ModalEditPlotting({ onClose, kelas }) {
 
     const updateKelasMutation = useMutation({
         mutationFn: async ({ id, payload }) => {
-            const token = localStorage.getItem("token");
-            const { data } = await api.put(`/api-v1/kelas/${id}`, payload, {
-                headers: token ? { Authorization: `Bearer ${token}` } : undefined,
-            });
+            const { data } = await send(updateKelas(id), payload);
             return data;
         },
         onSuccess: () => {
@@ -31,6 +29,7 @@ export default function ModalEditPlotting({ onClose, kelas }) {
                 setShowSuccessModal(false);
                 onClose();
             }, 3000);
+            toast.success("Jadwal berhasil diubah.");
         },
         onError: (err) => {
             console.error("Error updating data:", err);
@@ -53,6 +52,11 @@ export default function ModalEditPlotting({ onClose, kelas }) {
     }, [kelas]);
 
     const handleSave = async () => {
+        if (!formData.kelas || !formData.hari || !formData.shift || !formData.totalGroup) {
+            toast.error("Harap isi semua field yang diperlukan.");
+            return;
+        }
+
         const dataToSend = {
             kelas: formData.kelas,
             hari: formData.hari,

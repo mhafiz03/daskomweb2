@@ -6,7 +6,8 @@ import trashIcon from "../../../../assets/nav/Icon-Delete.svg";
 import editIcon from "../../../../assets/nav/Icon-Edit.svg";
 import { useSoalQuery, soalQueryKey } from "@/hooks/useSoalQuery";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { api } from "@/lib/api";
+import { send } from "@/lib/wayfinder";
+import { getSoalController } from "@/lib/soalControllers";
 
 export default function SoalInputPG({ kategoriSoal, modul, onModalSuccess, onModalValidation, }) {
     const [addSoal, setAddSoal] = useState({
@@ -27,9 +28,14 @@ export default function SoalInputPG({ kategoriSoal, modul, onModalSuccess, onMod
     const soalError = soalQuery.isError;
     const soalQueryError = soalQuery.error;
 
+    const controller = getSoalController(kategoriSoal);
+
     const postSoalMutation = useMutation({
         mutationFn: async (payload) => {
-            const { data } = await api.post(`/api-v1/soal-${kategoriSoal}/${modul}`, payload);
+            if (!controller) {
+                throw new Error(`Kategori soal tidak didukung: ${kategoriSoal}`);
+            }
+            const { data } = await send(controller.store(modul), payload);
             return data;
         },
         onSuccess: () => {
@@ -39,7 +45,10 @@ export default function SoalInputPG({ kategoriSoal, modul, onModalSuccess, onMod
 
     const putSoalMutation = useMutation({
         mutationFn: async ({ soalId, payload }) => {
-            const { data } = await api.put(`/api-v1/soal-${kategoriSoal}/${soalId}`, payload);
+            if (!controller) {
+                throw new Error(`Kategori soal tidak didukung: ${kategoriSoal}`);
+            }
+            const { data } = await send(controller.update(soalId), payload);
             return data;
         },
         onSuccess: () => {
@@ -49,7 +58,10 @@ export default function SoalInputPG({ kategoriSoal, modul, onModalSuccess, onMod
 
     const deleteSoalMutation = useMutation({
         mutationFn: async (soalId) => {
-            await api.delete(`/api-v1/soal-${kategoriSoal}/${soalId}`);
+            if (!controller) {
+                throw new Error(`Kategori soal tidak didukung: ${kategoriSoal}`);
+            }
+            await send(controller.destroy(soalId));
         },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: soalQueryKey(kategoriSoal, modul) });

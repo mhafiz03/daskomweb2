@@ -1,11 +1,13 @@
 import { useState } from 'react';
-import { router, usePage } from '@inertiajs/react';
+import { usePage } from '@inertiajs/react';
 import toast from 'react-hot-toast';
 import eyeClose from '../../../../assets/form/eyeClose.png';
 import eyeOpen from '../../../../assets/form/eyeOpen.png';
 import ButtonOption from '../Buttons/ButtonOption';
 import Modal from '../Modals/Modal';
 import ModalForgotPass from '../Modals/ModalForgotPass';
+import { submit } from '@/lib/wayfinder';
+import { store as loginPraktikan } from '@/actions/App/Http/Controllers/Auth/LoginPraktikanController';
 
 export default function LoginFormPraktikan({ mode }) {
     const [values, setValues] = useState({
@@ -45,7 +47,8 @@ export default function LoginFormPraktikan({ mode }) {
 
         // Validate form values before submission (if needed)
         if (values.nim && values.password) {
-            router.post('/login/praktikan', values, {
+            submit(loginPraktikan(), {
+                data: values,
                 preserveScroll: true,
                  onSuccess: (page) => {
                     if (page.props.authenticated) {

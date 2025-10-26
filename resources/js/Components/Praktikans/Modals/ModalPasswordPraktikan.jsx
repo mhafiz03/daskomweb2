@@ -1,7 +1,9 @@
 import { useState, useEffect } from "react";
-import { usePage, router } from "@inertiajs/react";
+import { usePage } from "@inertiajs/react";
 import closeIcon from "../../../../assets/modal/iconClose.svg";
 import failedIcon from "../../../../assets/modal/failedSymbol.png";
+import { submit } from "@/lib/wayfinder";
+import { updatePassword as updatePraktikanPassword } from "@/actions/App/Http/Controllers/API/PraktikanController";
 
 export default function ModalPasswordPraktikan({ onClose }) {
     const [values, setValues] = useState({
@@ -57,7 +59,8 @@ export default function ModalPasswordPraktikan({ onClose }) {
             return;
         }
         
-        router.patch("/api-v1/praktikan/password", values, {
+        submit(updatePraktikanPassword(), {
+            data: values,
             preserveScroll: true,
             onFinish: () => {
                 setIsLoading(false);

@@ -1,10 +1,12 @@
-import { router } from '@inertiajs/react';
 import closeIcon from "../../../../assets/modal/iconClose.svg";
+import { submit } from "@/lib/wayfinder";
+import { destroy as logoutPraktikan } from "@/actions/App/Http/Controllers/Auth/LoginPraktikanController";
 
 export default function ModalLogout({ onClose, onConfirm }) {
     const handleConfirm = () => {
         if (onConfirm) {
-            router.post('/praktikan/logout', {}, {
+            submit(logoutPraktikan(), {
+                data: {},
                 onSuccess: () => {
                     // Redirect the user to the login page after a successful logout
                     window.location.href = '/';

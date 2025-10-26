@@ -10,10 +10,7 @@ export default function ScoreTable() {
     const nilaiQuery = useQuery({
         queryKey: ['nilai'],
         queryFn: async () => {
-            const token = localStorage.getItem('token');
-            const { data } = await api.get('/api-v1/nilai', {
-                headers: token ? { Authorization: `Bearer ${token}` } : undefined,
-            });
+            const { data } = await api.get('/api-v1/nilai');
 
             if (Array.isArray(data?.nilai)) {
                 return data.nilai.map(item => ({

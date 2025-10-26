@@ -5,6 +5,8 @@ import eyeClose from '../../../../assets/form/eyeClose.png';
 import eyeOpen from '../../../../assets/form/eyeOpen.png';
 import ButtonOption from '../../Praktikans/Buttons/ButtonOption';
 import { useRolesQuery } from '@/hooks/useRolesQuery';
+import { submit } from '@/lib/wayfinder';
+import { store as registerAsisten } from '@/actions/App/Http/Controllers/Auth/RegisteredAsistenController';
 
 export default function RegistFormAssistant({ mode }) {
     
@@ -74,7 +76,8 @@ export default function RegistFormAssistant({ mode }) {
 
         if (validateFields()) {
             try {
-                await router.post('/api-v1/register/asisten', values, {
+                await submit(registerAsisten(), {
+                    data: values,
                     preserveScroll: true,
                     onSuccess: () => {
                         toast.success('Registration finished!');

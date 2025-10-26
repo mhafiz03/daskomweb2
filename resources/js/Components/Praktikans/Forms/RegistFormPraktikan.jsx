@@ -5,6 +5,8 @@ import eyeClose from '../../../../assets/form/eyeClose.png';
 import eyeOpen from '../../../../assets/form/eyeOpen.png';
 import ButtonOption from '../Buttons/ButtonOption';
 import { useKelasQuery } from '@/hooks/useKelasQuery';
+import { submit } from '@/lib/wayfinder';
+import { store as registerPraktikan } from '@/actions/App/Http/Controllers/Auth/RegisteredPraktikanController';
 
 
 export default function RegistFormPraktikan({ mode }) {
@@ -67,7 +69,8 @@ export default function RegistFormPraktikan({ mode }) {
 
         if (validateFields()) {
             try {
-                await router.post('/api-v1/register/praktikan', values, {
+                await submit(registerPraktikan(), {
+                    data: values,
                     preserveScroll: true,
                     onSuccess: () => {
                         toast.success('Registration finished!');

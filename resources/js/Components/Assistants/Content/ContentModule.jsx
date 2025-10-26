@@ -1,9 +1,9 @@
 import { useState } from "react";
 import ButtonAddModule from "../Modals/ModalAddModule";
 //import ButtonResetModule from "../Modals/ModalResetModule";
-import TabelModulePraktikum from "../Tables/TabelModulePraktikum";
+import TableModule from "../Tables/TableModule";
 
-export default function ContentModulePraktikum() {
+export default function ContentModule() {
     const [showModal, setShowModal] = useState(false);
     //const [showModalReset, setShowModalReset] = useState(false);
 
@@ -44,7 +44,7 @@ export default function ContentModulePraktikum() {
 
             {/* List per module */}
             <div className="">
-                <TabelModulePraktikum />
+                <TableModule />
             </div>
 
             {/* per modalan */}
