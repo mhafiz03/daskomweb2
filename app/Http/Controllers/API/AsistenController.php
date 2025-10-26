@@ -26,13 +26,13 @@ class AsistenController extends Controller
         try {
             if(!auth()->guard('asisten')->user()) {
                 $asisten = Asisten::leftJoin('foto_asistens', 'foto_asistens.kode', '=', 'asistens.kode')
-                    ->select('nama', 'asistens.kode', 'foto_asistens.foto', 'nomor_telepon', 'id_line', 'instagram', 'deskripsi')
+                    ->select('asistens.id', 'nama', 'asistens.kode', 'foto_asistens.foto', 'nomor_telepon', 'id_line', 'instagram', 'deskripsi')
                     ->orderBy('asistens.kode', 'asc')->get(); 
                 
             }else{
                 $asisten = Asisten::leftJoin('roles', 'roles.id', '=', 'asistens.role_id')
                 ->leftJoin('foto_asistens', 'foto_asistens.kode', '=', 'asistens.kode')
-                ->select('nama', 'asistens.kode', 'foto_asistens.foto', 'roles.name as role', 'role_id', 'nomor_telepon', 'id_line', 'instagram', 'deskripsi')
+                ->select('asistens.id', 'nama', 'asistens.kode', 'foto_asistens.foto', 'roles.name as role', 'role_id', 'nomor_telepon', 'id_line', 'instagram', 'deskripsi')
                 ->orderBy('asistens.kode', 'asc')->get();
             }
             return response()->json([

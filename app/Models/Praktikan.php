@@ -12,7 +12,6 @@ use Spatie\Permission\Role;
 use Laravel\Sanctum\HasApiTokens;
 use Laravel\Sanctum\NewAccessToken;
 use Spatie\Permission\Traits\HasRoles;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -46,7 +45,6 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
  * @property Collection|LaporanPraktikan[] $laporan_praktikans
  * @property Collection|Nilai[] $nilais
  * @property Collection|Polling[] $pollings
- * @property Collection|ReminderPraktikum[] $reminder_praktikums
  * @property Collection|TempJawabantp[] $temp_jawabantps
  *
  * @package App\Models
@@ -150,11 +148,6 @@ class Praktikan extends Authenticatable
 	public function pollings()
 	{
 		return $this->hasMany(Polling::class);
-	}
-
-	public function reminder_praktikums()
-	{
-		return $this->hasMany(ReminderPraktikum::class);
 	}
 
 	public function temp_jawabantps()

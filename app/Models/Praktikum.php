@@ -25,7 +25,6 @@ use Illuminate\Database\Eloquent\Model;
  * @property LaporanPj $laporan_pj
  * @property Modul $modul
  * @property Asisten $asisten
- * @property Collection|Deadline[] $deadlines
  *
  * @package App\Models
  */
@@ -60,10 +59,5 @@ class Praktikum extends Model
 	public function laporan_pj()
 	{
 		return $this->hasMany(LaporanPj::class, 'praktikum_id');
-	}
-
-	public function deadlines()
-	{
-		return $this->hasMany(Deadline::class, 'praktikums_id');
 	}
 }

@@ -1,10 +1,13 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import toast from "react-hot-toast";
 import closeIcon from "../../../../assets/modal/iconClose.svg";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { KELAS_QUERY_KEY } from "@/hooks/useKelasQuery";
 import { send } from "@/lib/wayfinder";
 import { update as updateKelas } from "@/actions/App/Http/Controllers/API/KelasController";
+import { useAsistensQuery } from "@/hooks/useAsistensQuery";
+import { useJadwalJagaQuery, JADWAL_JAGA_QUERY_KEY } from "@/hooks/useJadwalJagaQuery";
+import { store as storeJadwalJaga, destroy as destroyJadwalJaga } from "@/actions/App/Http/Controllers/API/JadwalJagaController";
 
 export default function ModalEditPlotting({ onClose, kelas }) {
     const [isSwitchOn, setIsSwitchOn] = useState(false);
@@ -16,6 +19,127 @@ export default function ModalEditPlotting({ onClose, kelas }) {
         totalGroup: "",
     });
     const queryClient = useQueryClient();
+    const [newAsistenCode, setNewAsistenCode] = useState("");
+
+    const { data: asistens = [] } = useAsistensQuery();
+
+    const asistenMap = useMemo(() => {
+        const map = new Map();
+        asistens.forEach((item) => {
+            if (item?.id != null) {
+                map.set(Number(item.id), item);
+                map.set(String(item.id), item);
+            }
+            if (item?.kode) {
+                map.set(item.kode.toUpperCase(), item);
+            }
+        });
+        return map;
+    }, [asistens]);
+
+    const {
+        data: jadwalData = [],
+        isFetching: jadwalLoading,
+        refetch: refetchJadwal,
+    } = useJadwalJagaQuery(
+        kelas?.id ? { kelas_id: kelas.id } : {},
+        {
+            enabled: Boolean(kelas?.id),
+        }
+    );
+
+    const jadwalEntries = useMemo(() => {
+        if (!kelas?.id) {
+            return [];
+        }
+
+        const kelasId = Number(kelas.id);
+        const kelasName = kelas?.kelas ? kelas.kelas.toString() : null;
+
+        const target =
+            jadwalData.find((item) => Number(item?.id ?? item?.kelas_id ?? item?.kelasId) === kelasId) ??
+            (kelasName
+                ? jadwalData.find((item) => (item?.kelas ?? "").toString() === kelasName)
+                : undefined);
+
+        if (!target) {
+            return [];
+        }
+
+        if (Array.isArray(target?.jadwal_jagas)) {
+            return target.jadwal_jagas;
+        }
+
+        if (Array.isArray(target?.asistens)) {
+            return target.asistens;
+        }
+
+        return [];
+    }, [jadwalData, kelas]);
+
+    const handleAddAsistenToJadwal = async () => {
+        const trimmed = newAsistenCode.trim().toUpperCase();
+
+        if (!trimmed) {
+            toast.error("Masukkan kode asisten terlebih dahulu.");
+            return;
+        }
+
+        const numericKey = Number(trimmed);
+        const asistenDetail =
+            asistenMap.get(trimmed) ??
+            (!Number.isNaN(numericKey) ? asistenMap.get(numericKey) : undefined);
+
+        if (!asistenDetail) {
+            toast.error("Asisten tidak ditemukan.");
+            return;
+        }
+
+        try {
+            await send(storeJadwalJaga(), {
+                kelas_id: kelas.id,
+                asisten_id: asistenDetail.id,
+            });
+
+            toast.success("Asisten jaga berhasil ditambahkan.");
+            setNewAsistenCode("");
+            await refetchJadwal();
+            queryClient.invalidateQueries({ queryKey: KELAS_QUERY_KEY });
+            queryClient.invalidateQueries({
+                predicate: ({ queryKey }) => Array.isArray(queryKey) && queryKey[0] === JADWAL_JAGA_QUERY_KEY,
+            });
+        } catch (error) {
+            console.error("Gagal menambahkan asisten jaga:", error);
+            const message =
+                error?.response?.data?.message ??
+                error?.response?.data?.error ??
+                "Gagal menambahkan asisten jaga.";
+            toast.error(message);
+        }
+    };
+
+    const handleRemoveAsisten = async (jadwalId) => {
+        if (!jadwalId) {
+            return;
+        }
+
+        try {
+            await send(destroyJadwalJaga(jadwalId));
+            toast.success("Asisten jaga berhasil dihapus.");
+            await refetchJadwal();
+            queryClient.invalidateQueries({ queryKey: KELAS_QUERY_KEY });
+            queryClient.invalidateQueries({
+                predicate: ({ queryKey }) => Array.isArray(queryKey) && queryKey[0] === JADWAL_JAGA_QUERY_KEY,
+            });
+        } catch (error) {
+            console.error("Gagal menghapus asisten jaga:", error);
+            const message =
+                error?.response?.data?.message ??
+                error?.response?.data?.error ??
+                "Gagal menghapus asisten jaga.";
+            toast.error(message);
+        }
+    };
 
     const getErrorMessage = (error) => {
         const responseData = error?.response?.data;
@@ -124,13 +248,26 @@ export default function ModalEditPlotting({ onClose, kelas }) {
                         <label htmlFor="hari" className="block text-black text-sm font-medium">
                             Hari
                         </label>
-                        <input
+                        <select
                             id="hari"
-                            type="text"
                             value={formData.hari}
                             onChange={handleInputChange}
                             className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-darkBrown focus:border-darkBrown"
-                        />
+                        >
+                            <option value="">- Pilih Hari -</option>
+                            {[
+                                "SENIN",
+                                "SELASA",
+                                "RABU",
+                                "KAMIS",
+                                "JUMAT",
+                                "SABTU",
+                            ].map((day) => (
+                                <option key={day} value={day}>
+                                    {day}
+                                </option>
+                            ))}
+                        </select>
                     </div>
                     <div>
                         <label htmlFor="shift" className="block text-black text-sm font-medium">
@@ -155,6 +292,72 @@ export default function ModalEditPlotting({ onClose, kelas }) {
                             onChange={handleInputChange}
                             className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-darkBrown focus:border-darkBrown"
                         />
+                    </div>
+                </div>
+
+                <div className="mt-6 border border-darkBrown rounded-md p-4 bg-softGray mb-6">
+                    <div className="flex flex-col gap-2 md:flex-row md:items-center">
+                        <input
+                            type="text"
+                            value={newAsistenCode}
+                            onChange={(e) => setNewAsistenCode(e.target.value.toUpperCase())}
+                            onKeyDown={(e) => {
+                                if (e.key === "Enter") {
+                                    e.preventDefault();
+                                    handleAddAsistenToJadwal();
+                                }
+                            }}
+                            placeholder="asisten jaga"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-darkBrown focus:border-darkBrown uppercase"
+                        />
+                        <button
+                            type="button"
+                            onClick={handleAddAsistenToJadwal}
+                            className="px-4 py-2 bg-deepForestGreen text-white rounded-md shadow hover:bg-darkGreen transition duration-300"
+                        >
+                            Tambah
+                        </button>
+                    </div>
+                    <div className="mt-3 max-h-40 overflow-y-auto">
+                        {jadwalLoading ? (
+                            <p className="text-sm text-gray-500">Memuat daftar asisten jaga...</p>
+                        ) : jadwalEntries.length > 0 ? (
+                            <ul className="space-y-2">
+                                {jadwalEntries.map((entry, idx) => {
+                                    const detail =
+                                        entry?.asisten ??
+                                        asistenMap.get(Number(entry?.asisten_id)) ??
+                                        null;
+
+                                    const kode = detail?.kode ?? entry?.kode ?? `AST-${idx + 1}`;
+                                    const nama = detail?.nama ?? entry?.nama ?? "Nama tidak tersedia";
+
+                                    const jadwalId = entry?.id ?? entry?.jadwal_id ?? null;
+
+                                    return (
+                                        <li
+                                            key={jadwalId ?? `${kode}-${idx}`}
+                                            className="flex justify-between items-center border border-lightBrown rounded px-3 py-2 text-sm text-darkBrown bg-white"
+                                        >
+                                            <div>
+                                                <p className="font-semibold">{kode}</p>
+                                                <p className="text-xs text-gray-500">{nama}</p>
+                                            </div>
+                                            <button
+                                                type="button"
+                                                onClick={() => handleRemoveAsisten(jadwalId)}
+                                                className="text-fireRed text-xs font-semibold hover:underline"
+                                                disabled={!jadwalId}
+                                            >
+                                                Hapus
+                                            </button>
+                                        </li>
+                                    );
+                                })}
+                            </ul>
+                        ) : (
+                            <p className="text-sm text-gray-500">Belum ada asisten jaga untuk kelas ini.</p>
+                        )}
                     </div>
                 </div>
 

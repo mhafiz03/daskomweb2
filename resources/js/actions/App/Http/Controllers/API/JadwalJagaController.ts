@@ -82,7 +82,7 @@ index.form = indexForm
 
 /**
 * @see \App\Http\Controllers\API\JadwalJagaController::store
-* @see app/Http/Controllers/API/JadwalJagaController.php:96
+* @see app/Http/Controllers/API/JadwalJagaController.php:101
 * @route '/api-v1/jadwal'
 */
 export const store = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -97,7 +97,7 @@ store.definition = {
 
 /**
 * @see \App\Http\Controllers\API\JadwalJagaController::store
-* @see app/Http/Controllers/API/JadwalJagaController.php:96
+* @see app/Http/Controllers/API/JadwalJagaController.php:101
 * @route '/api-v1/jadwal'
 */
 store.url = (options?: RouteQueryOptions) => {
@@ -106,7 +106,7 @@ store.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\API\JadwalJagaController::store
-* @see app/Http/Controllers/API/JadwalJagaController.php:96
+* @see app/Http/Controllers/API/JadwalJagaController.php:101
 * @route '/api-v1/jadwal'
 */
 store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -116,7 +116,7 @@ store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
 /**
 * @see \App\Http\Controllers\API\JadwalJagaController::store
-* @see app/Http/Controllers/API/JadwalJagaController.php:96
+* @see app/Http/Controllers/API/JadwalJagaController.php:101
 * @route '/api-v1/jadwal'
 */
 const storeForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -126,7 +126,7 @@ const storeForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => 
 
 /**
 * @see \App\Http\Controllers\API\JadwalJagaController::store
-* @see app/Http/Controllers/API/JadwalJagaController.php:96
+* @see app/Http/Controllers/API/JadwalJagaController.php:101
 * @route '/api-v1/jadwal'
 */
 storeForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -138,7 +138,7 @@ store.form = storeForm
 
 /**
 * @see \App\Http\Controllers\API\JadwalJagaController::destroy
-* @see app/Http/Controllers/API/JadwalJagaController.php:173
+* @see app/Http/Controllers/API/JadwalJagaController.php:178
 * @route '/api-v1/jadwal/{id}'
 */
 export const destroy = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -153,7 +153,7 @@ destroy.definition = {
 
 /**
 * @see \App\Http\Controllers\API\JadwalJagaController::destroy
-* @see app/Http/Controllers/API/JadwalJagaController.php:173
+* @see app/Http/Controllers/API/JadwalJagaController.php:178
 * @route '/api-v1/jadwal/{id}'
 */
 destroy.url = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -180,7 +180,7 @@ destroy.url = (args: { id: string | number } | [id: string | number ] | string |
 
 /**
 * @see \App\Http\Controllers\API\JadwalJagaController::destroy
-* @see app/Http/Controllers/API/JadwalJagaController.php:173
+* @see app/Http/Controllers/API/JadwalJagaController.php:178
 * @route '/api-v1/jadwal/{id}'
 */
 destroy.delete = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -190,7 +190,7 @@ destroy.delete = (args: { id: string | number } | [id: string | number ] | strin
 
 /**
 * @see \App\Http\Controllers\API\JadwalJagaController::destroy
-* @see app/Http/Controllers/API/JadwalJagaController.php:173
+* @see app/Http/Controllers/API/JadwalJagaController.php:178
 * @route '/api-v1/jadwal/{id}'
 */
 const destroyForm = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -205,7 +205,7 @@ const destroyForm = (args: { id: string | number } | [id: string | number ] | st
 
 /**
 * @see \App\Http\Controllers\API\JadwalJagaController::destroy
-* @see app/Http/Controllers/API/JadwalJagaController.php:173
+* @see app/Http/Controllers/API/JadwalJagaController.php:178
 * @route '/api-v1/jadwal/{id}'
 */
 destroyForm.delete = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({

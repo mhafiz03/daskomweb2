@@ -14,7 +14,12 @@ class JadwalJagaController extends Controller
         try {
             $dayOrder = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
 
-            $query = Kelas::query();
+            $query = Kelas::with([
+                'jadwal_jagas' => function ($query) {
+                    $query->with(['asisten:id,kode,nama']);
+                },
+                'praktikans:id,nim,nama,kelas_id',
+            ]);
 
             // Jika ada parameter sort=true, lakukan sorting
             if ($request->has('sort') && $request->sort == 'true') {
