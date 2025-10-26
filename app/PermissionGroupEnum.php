@@ -8,7 +8,6 @@ enum PermissionGroupEnum: string
     const MANAGE_PRAKTIKUM = 'manage-praktikum';
     const LAPORAN_PRAKTIKUM = 'laporan-praktikum';
     const MANAGE_PLOT = 'manage-plot';
-    const MANAGE_PELANGGARAN = 'manage-pelanggaran';
     const MANAGE_MODUL = 'manage-modul';
     const SEE_MODUL = 'see-modul';
     const MANAGE_SOAL = 'manage-soal';
@@ -23,7 +22,6 @@ enum PermissionGroupEnum: string
     const SEE_PLOT = 'see-plot';
     const RANKING_PRAKTIKAN = 'ranking-praktikan';
     const SEE_POLLING = 'see-polling';
-    const SEE_PELANGGARAN = 'see-pelanggaran';
     const SET_PRAKTIKAN = 'set-praktikan';
     const RESET_PRAKTIKAN = 'reset-praktikan';
     const CHECK_TUGAS_PENDAHULUAN = 'check-tugas-pendahuluan';
@@ -50,7 +48,6 @@ enum PermissionGroupEnum: string
     const ASLAB = [
         self::LAPORAN_PRAKTIKUM,
         self::MANAGE_PLOT,
-        self::MANAGE_PELANGGARAN,
         self::LMS_CONFIGURATION,
     ];
 
@@ -65,7 +62,6 @@ enum PermissionGroupEnum: string
         self::MANAGE_PRAKTIKUM,
         self::TP_CONFIGURATION,
         self::PRAKTIKAN_REGIST,
-        self::SEE_PELANGGARAN,
     ];
 
     const ASISTEN = [

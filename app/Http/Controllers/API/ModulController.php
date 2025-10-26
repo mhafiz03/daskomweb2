@@ -228,7 +228,6 @@ class ModulController extends BaseController
         try {
             DB::statement('SET FOREIGN_KEY_CHECKS=0;');
             Modul::query()->delete();
-            DB::table('history_jagas')->truncate();
             DB::table('jawaban_fitbs')->truncate();
             DB::table('jawaban_jurnals')->truncate();
             DB::table('jawaban_mandiris')->truncate();
@@ -236,8 +235,6 @@ class ModulController extends BaseController
             DB::table('jawaban_tks')->truncate();
             DB::table('jawaban_tps')->truncate();
             DB::table('kumpul_tps')->truncate();
-            DB::table('laporan_pjs')->truncate();
-            DB::table('laporan_praktikans')->truncate();
             DB::table('nilais')->truncate();
             DB::table('praktikums')->truncate();
             DB::table('resources')->truncate();

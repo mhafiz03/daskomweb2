@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { api } from "@/lib/api";
 import { Link } from "@inertiajs/react";
 import iconPPT from "../../../../assets/practicum/iconPPT.svg";
 import iconVideo from "../../../../assets/practicum/iconVideo.svg";
@@ -9,15 +10,52 @@ import Modal from "../Modals/Modal";
 import ModalAttempt from "../Modals/ModalAttempt";
 import ModalReview from "../Modals/ModalReview";
 
-export default function ModuleSection({ 
-    onNavigate, 
+const PHASE_LABELS = {
+    ta: "Tes Awal",
+    fitb_jurnal: "FITB + Jurnal",
+    mandiri: "Mandiri",
+    tk: "Tes Keterampilan",
+};
+
+const STATUS_LABELS = {
+    running: "Sedang berjalan",
+    paused: "Terjeda",
+    completed: "Selesai",
+    exited: "Dihentikan",
+    idle: "Siap",
+};
+
+export default function ModuleSection({
+    onNavigate,
     completedCategories,
     setCompletedCategories,
-    onReviewTask
- }) {
+    onReviewTask,
+    kelasId = null,
+}) {
     const [expandedRows, setExpandedRows] = useState([]);
-    const [openModalAttempt, setOpenModalAttempt] = useState(null); 
-    const [openModalReview, setOpenModalReview] = useState(null);   
+    const [openModalAttempt, setOpenModalAttempt] = useState(null);
+    const [openModalReview, setOpenModalReview] = useState(null);
+    const [praktikumDebug, setPraktikumDebug] = useState("Debug: menunggu konfigurasi...");
+    const [praktikumState, setPraktikumState] = useState(null);
+    const formatTimestamp = (value) => {
+        if (!value) {
+            return "-";
+        }
+
+        const date = new Date(value);
+        if (Number.isNaN(date.getTime())) {
+            return "-";
+        }
+
+        return date.toLocaleString("id-ID", {
+            day: "2-digit",
+            month: "2-digit",
+            year: "numeric",
+            hour: "2-digit",
+            minute: "2-digit",
+            second: "2-digit",
+        });
+    };
 
     const categoryLabels = {
         TugasPendahuluan: "Tugas Pendahuluan",
@@ -48,15 +86,15 @@ export default function ModuleSection({
     };
 
     const handleOpenModalReview = (key) => {
-        setOpenModalReview(key); 
+        setOpenModalReview(key);
         setOpenModalAttempt(null);
     };
 
     const closeModal = () => {
-        setOpenModalAttempt(null); 
-        setOpenModalReview(null); 
-    };    
-      
+        setOpenModalAttempt(null);
+        setOpenModalReview(null);
+    };
+
     const handleAttemptComplete = (key) => {
         if (key === "TugasPendahuluan") {
             onNavigate("TugasPendahuluan");
@@ -70,21 +108,21 @@ export default function ModuleSection({
             onNavigate("TesKeterampilan");
         }
         closeModal();
-    };      
+    };
 
     const handleReviewNavigate = (key) => {
         if (onReviewTask) {
             onReviewTask(key);
         }
-    };    
+    };
 
     const handleCategoryClick = (key) => {
         if (!completedCategories[key]) {
-            handleOpenModalAttempt(key); 
+            handleOpenModalAttempt(key);
         } else {
-            handleOpenModalReview(key); 
+            handleOpenModalReview(key);
         }
-    };            
+    };
 
     const rows = [
         {
@@ -211,10 +249,206 @@ export default function ModuleSection({
         };
     }, []);
 
+    useEffect(() => {
+        if (!kelasId) {
+            setPraktikumState(null);
+            return undefined;
+        }
+
+        let cancelled = false;
+
+        const fetchInitial = async () => {
+            try {
+                const { data } = await api.get(`/api-v1/praktikum/${kelasId}`);
+                const list = Array.isArray(data?.data)
+                    ? data.data
+                    : Array.isArray(data?.praktikum)
+                        ? data.praktikum
+                        : [];
+
+                if (!list.length) {
+                    if (!cancelled) {
+                        setPraktikumState(null);
+                        setPraktikumDebug(
+                            "Debug: belum ada data praktikum untuk kelas ini. Tekan Start untuk memulai sesi."
+                        );
+                    }
+                    return;
+                }
+
+                const active = list.find((item) => Boolean(item?.isActive)) ?? list[0];
+
+                if (!cancelled && active) {
+                    setPraktikumState({
+                        status: active?.status ?? null,
+                        current_phase: active?.current_phase ?? null,
+                        modul:
+                            active?.modul?.judul ??
+                            active?.modul?.nama ??
+                            null,
+                        modul_id: active?.modul_id ?? null,
+                        started_at: active?.started_at ?? null,
+                        ended_at: active?.ended_at ?? null,
+                    });
+
+                    setPraktikumDebug(
+                        [
+                            "Debug: data awal praktikum dimuat.",
+                            `Status: ${active?.status ?? "-"}`,
+                            `Tahap: ${active?.current_phase ?? "-"}`,
+                            `Modul: ${active?.modul?.judul ??
+                            active?.modul_id ??
+                            "-"
+                            }`,
+                        ].join("\n")
+                    );
+                }
+            } catch (error) {
+                if (!cancelled) {
+                    setPraktikumDebug(
+                        `Debug: gagal memuat informasi awal praktikum (${error?.message ?? "unknown error"}).`
+                    );
+                }
+            }
+        };
+
+        fetchInitial();
+
+        return () => {
+            cancelled = true;
+        };
+    }, [kelasId]);
+
+    useEffect(() => {
+        if (typeof window === "undefined") {
+            setPraktikumDebug("Debug: window tidak tersedia (server-side render).");
+            return undefined;
+        }
+
+        if (!kelasId) {
+            setPraktikumState(null);
+            setPraktikumDebug("Debug: kelas ID tidak tersedia untuk praktikum.");
+            return undefined;
+        }
+
+        const echo = window.Echo;
+
+        if (!echo) {
+            setPraktikumDebug("Debug: Laravel Echo belum diinisialisasi.");
+            return undefined;
+        }
+
+        const channelName = `praktikum.class.${kelasId}`;
+        setPraktikumDebug(`Debug: terhubung ke channel ${channelName}, menunggu update...`);
+
+        const channel = echo.channel(channelName);
+        const listener = (payload) => {
+            const praktikumPayload = payload?.praktikum ?? payload ?? null;
+            const formatted = praktikumPayload
+                ? JSON.stringify(praktikumPayload, null, 2)
+                : "Payload kosong diterima.";
+
+            if (praktikumPayload) {
+                setPraktikumState({
+                    status: praktikumPayload.status ?? null,
+                    current_phase: praktikumPayload.current_phase ?? null,
+                    modul:
+                        praktikumPayload.modul?.judul ??
+                        praktikumPayload.modul?.nama ??
+                        null,
+                    modul_id: praktikumPayload.modul_id ?? null,
+                    started_at: praktikumPayload.started_at ?? null,
+                    ended_at: praktikumPayload.ended_at ?? null,
+                    pj: praktikumPayload.pj ?? null,
+                    pj_id: praktikumPayload.pj_id ?? null,
+                });
+            } else {
+                setPraktikumState(null);
+            }
+
+            const summary = praktikumPayload
+                ? [
+                    `Status: ${praktikumPayload.status ?? "-"}`,
+                    `Tahap: ${praktikumPayload.current_phase ?? "-"}`,
+                    `Modul: ${praktikumPayload.modul?.judul ??
+                    praktikumPayload.modul_id ??
+                    "-"
+                    }`,
+                ].join("\n")
+                : "Tidak ada data praktikum yang diterima.";
+
+            setPraktikumDebug(
+                `Debug update (${new Date().toLocaleTimeString()}):\n${summary}\n\nPayload mentah:\n${formatted}`
+            );
+        };
+
+        channel.listen(".PraktikumStatusUpdated", listener);
+
+        return () => {
+            try {
+                echo.leave(channelName);
+            } catch (err) {
+                console.warn("Gagal meninggalkan channel praktikum:", err);
+            }
+        };
+    }, [kelasId]);
+
+    const statusLabel = praktikumState?.status
+        ? STATUS_LABELS[praktikumState.status] ?? praktikumState.status
+        : "Menunggu sesi";
+    const phaseLabel = praktikumState?.current_phase
+        ? PHASE_LABELS[praktikumState.current_phase] ?? praktikumState.current_phase
+        : "-";
+    const modulLabel = praktikumState?.modul
+        ? praktikumState.modul
+        : praktikumState?.modul_id
+            ? `Modul #${praktikumState.modul_id}`
+            : "-";
+    const startedDisplay = formatTimestamp(praktikumState?.started_at);
+    const endedDisplay = formatTimestamp(praktikumState?.ended_at);
+
     return (
         <div className="ml-[3vw] bg-white rounded-lg py-4 px-4 w-[896px] mx-auto">
             <div className="flex bg-deepForestGreen rounded-lg py-2 px-2 mb-4 justify-center">
                 <h1 className="text-white text-center font-bold text-2xl bg-deepForestGreen hover:bg-darkOliveGreen rounded-lg p-1 w-[50%]">MODUL PRAKTIKUM</h1>
+            </div>
+            <div className="mb-4 grid gap-3 rounded-md border border-lightBrown bg-softIvory p-4 text-sm text-darkBrown">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <div>
+                        <p className="text-xs font-semibold uppercase text-gray-500">
+                            Status
+                        </p>
+                        <p className="text-base font-semibold text-darkBrown">{statusLabel}</p>
+                    </div>
+                    <div>
+                        <p className="text-xs font-semibold uppercase text-gray-500">
+                            Tahap Saat Ini
+                        </p>
+                        <p className="text-base font-semibold text-darkBrown">{phaseLabel}</p>
+                    </div>
+                    <div>
+                        <p className="text-xs font-semibold uppercase text-gray-500">
+                            Modul
+                        </p>
+                        <p className="text-base font-semibold text-darkBrown">{modulLabel}</p>
+                    </div>
+                    <div>
+                        <p className="text-xs font-semibold uppercase text-gray-500">
+                            Waktu Mulai / Selesai
+                        </p>
+                        <p className="text-base font-semibold text-darkBrown">
+                            {startedDisplay} — {endedDisplay}
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div className="mb-4">
+                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
+                    Debug Praktikum (Echo)
+                </p>
+                <pre className="mt-1 whitespace-pre-wrap text-[11px] leading-4 text-gray-600 bg-gray-100 border border-dashed border-gray-300 rounded p-2 max-h-48 overflow-y-auto">
+                    {praktikumDebug}
+                </pre>
             </div>
             <div
                 className="space-y-2 overflow-y-auto"

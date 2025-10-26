@@ -1,7 +1,7 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../../../wayfinder'
 /**
 * @see \App\Http\Controllers\API\KelasController::index
-* @see app/Http/Controllers/API/KelasController.php:19
+* @see app/Http/Controllers/API/KelasController.php:16
 * @route '/api-v1/kelas'
 */
 export const index = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -16,7 +16,7 @@ index.definition = {
 
 /**
 * @see \App\Http\Controllers\API\KelasController::index
-* @see app/Http/Controllers/API/KelasController.php:19
+* @see app/Http/Controllers/API/KelasController.php:16
 * @route '/api-v1/kelas'
 */
 index.url = (options?: RouteQueryOptions) => {
@@ -25,7 +25,7 @@ index.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\API\KelasController::index
-* @see app/Http/Controllers/API/KelasController.php:19
+* @see app/Http/Controllers/API/KelasController.php:16
 * @route '/api-v1/kelas'
 */
 index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -35,7 +35,7 @@ index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 
 /**
 * @see \App\Http\Controllers\API\KelasController::index
-* @see app/Http/Controllers/API/KelasController.php:19
+* @see app/Http/Controllers/API/KelasController.php:16
 * @route '/api-v1/kelas'
 */
 index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -45,7 +45,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
 /**
 * @see \App\Http\Controllers\API\KelasController::index
-* @see app/Http/Controllers/API/KelasController.php:19
+* @see app/Http/Controllers/API/KelasController.php:16
 * @route '/api-v1/kelas'
 */
 const indexForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -55,7 +55,7 @@ const indexForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => (
 
 /**
 * @see \App\Http\Controllers\API\KelasController::index
-* @see app/Http/Controllers/API/KelasController.php:19
+* @see app/Http/Controllers/API/KelasController.php:16
 * @route '/api-v1/kelas'
 */
 indexForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -65,7 +65,7 @@ indexForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
 
 /**
 * @see \App\Http\Controllers\API\KelasController::index
-* @see app/Http/Controllers/API/KelasController.php:19
+* @see app/Http/Controllers/API/KelasController.php:16
 * @route '/api-v1/kelas'
 */
 indexForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -82,7 +82,7 @@ index.form = indexForm
 
 /**
 * @see \App\Http\Controllers\API\KelasController::store
-* @see app/Http/Controllers/API/KelasController.php:33
+* @see app/Http/Controllers/API/KelasController.php:30
 * @route '/api-v1/kelas'
 */
 export const store = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -97,7 +97,7 @@ store.definition = {
 
 /**
 * @see \App\Http\Controllers\API\KelasController::store
-* @see app/Http/Controllers/API/KelasController.php:33
+* @see app/Http/Controllers/API/KelasController.php:30
 * @route '/api-v1/kelas'
 */
 store.url = (options?: RouteQueryOptions) => {
@@ -106,7 +106,7 @@ store.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\API\KelasController::store
-* @see app/Http/Controllers/API/KelasController.php:33
+* @see app/Http/Controllers/API/KelasController.php:30
 * @route '/api-v1/kelas'
 */
 store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -116,7 +116,7 @@ store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
 /**
 * @see \App\Http\Controllers\API\KelasController::store
-* @see app/Http/Controllers/API/KelasController.php:33
+* @see app/Http/Controllers/API/KelasController.php:30
 * @route '/api-v1/kelas'
 */
 const storeForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -126,7 +126,7 @@ const storeForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => 
 
 /**
 * @see \App\Http\Controllers\API\KelasController::store
-* @see app/Http/Controllers/API/KelasController.php:33
+* @see app/Http/Controllers/API/KelasController.php:30
 * @route '/api-v1/kelas'
 */
 storeForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -138,7 +138,7 @@ store.form = storeForm
 
 /**
 * @see \App\Http\Controllers\API\KelasController::update
-* @see app/Http/Controllers/API/KelasController.php:147
+* @see app/Http/Controllers/API/KelasController.php:129
 * @route '/api-v1/kelas/{id}'
 */
 export const update = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
@@ -153,7 +153,7 @@ update.definition = {
 
 /**
 * @see \App\Http\Controllers\API\KelasController::update
-* @see app/Http/Controllers/API/KelasController.php:147
+* @see app/Http/Controllers/API/KelasController.php:129
 * @route '/api-v1/kelas/{id}'
 */
 update.url = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -180,7 +180,7 @@ update.url = (args: { id: string | number } | [id: string | number ] | string | 
 
 /**
 * @see \App\Http\Controllers\API\KelasController::update
-* @see app/Http/Controllers/API/KelasController.php:147
+* @see app/Http/Controllers/API/KelasController.php:129
 * @route '/api-v1/kelas/{id}'
 */
 update.put = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
@@ -190,7 +190,7 @@ update.put = (args: { id: string | number } | [id: string | number ] | string | 
 
 /**
 * @see \App\Http\Controllers\API\KelasController::update
-* @see app/Http/Controllers/API/KelasController.php:147
+* @see app/Http/Controllers/API/KelasController.php:129
 * @route '/api-v1/kelas/{id}'
 */
 const updateForm = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -205,7 +205,7 @@ const updateForm = (args: { id: string | number } | [id: string | number ] | str
 
 /**
 * @see \App\Http\Controllers\API\KelasController::update
-* @see app/Http/Controllers/API/KelasController.php:147
+* @see app/Http/Controllers/API/KelasController.php:129
 * @route '/api-v1/kelas/{id}'
 */
 updateForm.put = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -222,7 +222,7 @@ update.form = updateForm
 
 /**
 * @see \App\Http\Controllers\API\KelasController::destroy
-* @see app/Http/Controllers/API/KelasController.php:217
+* @see app/Http/Controllers/API/KelasController.php:199
 * @route '/api-v1/kelas/{id}'
 */
 export const destroy = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -237,7 +237,7 @@ destroy.definition = {
 
 /**
 * @see \App\Http\Controllers\API\KelasController::destroy
-* @see app/Http/Controllers/API/KelasController.php:217
+* @see app/Http/Controllers/API/KelasController.php:199
 * @route '/api-v1/kelas/{id}'
 */
 destroy.url = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -264,7 +264,7 @@ destroy.url = (args: { id: string | number } | [id: string | number ] | string |
 
 /**
 * @see \App\Http\Controllers\API\KelasController::destroy
-* @see app/Http/Controllers/API/KelasController.php:217
+* @see app/Http/Controllers/API/KelasController.php:199
 * @route '/api-v1/kelas/{id}'
 */
 destroy.delete = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -274,7 +274,7 @@ destroy.delete = (args: { id: string | number } | [id: string | number ] | strin
 
 /**
 * @see \App\Http\Controllers\API\KelasController::destroy
-* @see app/Http/Controllers/API/KelasController.php:217
+* @see app/Http/Controllers/API/KelasController.php:199
 * @route '/api-v1/kelas/{id}'
 */
 const destroyForm = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -289,7 +289,7 @@ const destroyForm = (args: { id: string | number } | [id: string | number ] | st
 
 /**
 * @see \App\Http\Controllers\API\KelasController::destroy
-* @see app/Http/Controllers/API/KelasController.php:217
+* @see app/Http/Controllers/API/KelasController.php:199
 * @route '/api-v1/kelas/{id}'
 */
 destroyForm.delete = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -306,7 +306,7 @@ destroy.form = destroyForm
 
 /**
 * @see \App\Http\Controllers\API\KelasController::reset
-* @see app/Http/Controllers/API/KelasController.php:240
+* @see app/Http/Controllers/API/KelasController.php:221
 * @route '/api-v1/kelas/reset'
 */
 export const reset = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -321,7 +321,7 @@ reset.definition = {
 
 /**
 * @see \App\Http\Controllers\API\KelasController::reset
-* @see app/Http/Controllers/API/KelasController.php:240
+* @see app/Http/Controllers/API/KelasController.php:221
 * @route '/api-v1/kelas/reset'
 */
 reset.url = (options?: RouteQueryOptions) => {
@@ -330,7 +330,7 @@ reset.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\API\KelasController::reset
-* @see app/Http/Controllers/API/KelasController.php:240
+* @see app/Http/Controllers/API/KelasController.php:221
 * @route '/api-v1/kelas/reset'
 */
 reset.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -340,7 +340,7 @@ reset.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
 /**
 * @see \App\Http\Controllers\API\KelasController::reset
-* @see app/Http/Controllers/API/KelasController.php:240
+* @see app/Http/Controllers/API/KelasController.php:221
 * @route '/api-v1/kelas/reset'
 */
 const resetForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -350,7 +350,7 @@ const resetForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => 
 
 /**
 * @see \App\Http\Controllers\API\KelasController::reset
-* @see app/Http/Controllers/API/KelasController.php:240
+* @see app/Http/Controllers/API/KelasController.php:221
 * @route '/api-v1/kelas/reset'
 */
 resetForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({

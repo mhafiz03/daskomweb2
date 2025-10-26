@@ -4,10 +4,8 @@ import RoleController from './RoleController'
 import ModulController from './ModulController'
 import KelasController from './KelasController'
 import JadwalJagaController from './JadwalJagaController'
-import HistoryJagaController from './HistoryJagaController'
-import LaporanPjController from './LaporanPjController'
+import PraktikumController from './PraktikumController'
 import ConfigurationController from './ConfigurationController'
-import PelanggaranController from './PelanggaranController'
 import JenisPollingController from './JenisPollingController'
 import PollingsController from './PollingsController'
 import SoalTPController from './SoalTPController'
@@ -16,8 +14,6 @@ import SoalFITBController from './SoalFITBController'
 import SoalJurnalController from './SoalJurnalController'
 import SoalTAController from './SoalTAController'
 import SoalTKController from './SoalTKController'
-import PraktikumController from './PraktikumController'
-import DeadlineController from './DeadlineController'
 import TugasPendahuluanController from './TugasPendahuluanController'
 import LeaderBoardController from './LeaderBoardController'
 import NilaiController from './NilaiController'
@@ -27,7 +23,6 @@ import JawabanTKController from './JawabanTKController'
 import JawabanTMController from './JawabanTMController'
 import JawabanFITBController from './JawabanFITBController'
 import JawabanJurnalController from './JawabanJurnalController'
-import LaporanPraktikanController from './LaporanPraktikanController'
 
 const API = {
     AsistenController: Object.assign(AsistenController, AsistenController),
@@ -36,10 +31,8 @@ const API = {
     ModulController: Object.assign(ModulController, ModulController),
     KelasController: Object.assign(KelasController, KelasController),
     JadwalJagaController: Object.assign(JadwalJagaController, JadwalJagaController),
-    HistoryJagaController: Object.assign(HistoryJagaController, HistoryJagaController),
-    LaporanPjController: Object.assign(LaporanPjController, LaporanPjController),
+    PraktikumController: Object.assign(PraktikumController, PraktikumController),
     ConfigurationController: Object.assign(ConfigurationController, ConfigurationController),
-    PelanggaranController: Object.assign(PelanggaranController, PelanggaranController),
     JenisPollingController: Object.assign(JenisPollingController, JenisPollingController),
     PollingsController: Object.assign(PollingsController, PollingsController),
     SoalTPController: Object.assign(SoalTPController, SoalTPController),
@@ -48,8 +41,6 @@ const API = {
     SoalJurnalController: Object.assign(SoalJurnalController, SoalJurnalController),
     SoalTAController: Object.assign(SoalTAController, SoalTAController),
     SoalTKController: Object.assign(SoalTKController, SoalTKController),
-    PraktikumController: Object.assign(PraktikumController, PraktikumController),
-    DeadlineController: Object.assign(DeadlineController, DeadlineController),
     TugasPendahuluanController: Object.assign(TugasPendahuluanController, TugasPendahuluanController),
     LeaderBoardController: Object.assign(LeaderBoardController, LeaderBoardController),
     NilaiController: Object.assign(NilaiController, NilaiController),
@@ -59,7 +50,6 @@ const API = {
     JawabanTMController: Object.assign(JawabanTMController, JawabanTMController),
     JawabanFITBController: Object.assign(JawabanFITBController, JawabanFITBController),
     JawabanJurnalController: Object.assign(JawabanJurnalController, JawabanJurnalController),
-    LaporanPraktikanController: Object.assign(LaporanPraktikanController, LaporanPraktikanController),
 }
 
 export default API

@@ -15,26 +15,21 @@ use App\Http\Controllers\API\SoalTAController;
 use App\Http\Controllers\API\SoalTKController;
 use App\Http\Controllers\API\SoalTMController;
 use App\Http\Controllers\API\SoalTPController;
-use App\Http\Controllers\API\DeadlineController;
 use App\Http\Controllers\API\PollingsController;
 use App\Http\Controllers\API\SoalFITBController;
 use App\Http\Controllers\API\JawabanTAController;
 use App\Http\Controllers\API\JawabanTKController;
 use App\Http\Controllers\API\JawabanTMController;
 use App\Http\Controllers\API\JawabanTPController;
-use App\Http\Controllers\API\LaporanPjController;
 use App\Http\Controllers\API\PraktikanController;
 use App\Http\Controllers\API\PraktikumController;
-use App\Http\Controllers\API\JadwalJagaController;
 use App\Http\Controllers\API\SoalJurnalController;
-use App\Http\Controllers\API\HistoryJagaController;
 use App\Http\Controllers\API\JawabanFITBController;
 use App\Http\Controllers\API\LeaderBoardController;
-use App\Http\Controllers\API\PelanggaranController;
 use App\Http\Controllers\API\JenisPollingController;
 use App\Http\Controllers\API\ConfigurationController;
+use App\Http\Controllers\API\JadwalJagaController;
 use App\Http\Controllers\API\JawabanJurnalController;
-use App\Http\Controllers\API\LaporanPraktikanController;
 use App\Http\Controllers\API\TugasPendahuluanController;
 use App\Http\Controllers\Auth\RegisteredAsistenController;
 use App\Http\Controllers\Auth\RegisteredPraktikanController;
@@ -212,25 +207,16 @@ Route::prefix('api-v1')->group(function () {
     Route::post('/jadwal', [JadwalJagaController::class, 'store'])->name('store.jadwal')->middleware(['auth:asisten', 'can:manage-plot']);
     Route::delete('/jadwal/{id}', [JadwalJagaController::class, 'destroy'])->name('delete.jadwal')->middleware(['auth:asisten', 'can:manage-plot']);
 
-    // History Jaga
-    Route::get('/history-jaga', [HistoryJagaController::class, 'index'])->name('get.history')->middleware(['auth:asisten', 'can:see-history']);
-    Route::post('/history-jaga', [HistoryJagaController::class, 'store'])->name('store.history')->middleware(['auth:asisten', 'can:manage-praktikum']);
-
-    // Laporan PJ
-    Route::get('/laporan-pj', [LaporanPjController::class, 'index'])->name('get.laporanPJ')->middleware(['auth:asisten', 'can:laporan-praktikum']);
-    Route::post('/laporan-pj/{idKelas}', [LaporanPjController::class, 'store'])->name('store.laporanPJ')->middleware(['auth:asisten', 'can:laporan-praktikum']);
-    Route::get('/laporan-pj/{id}', [LaporanPjController::class, 'show'])->name('show.laporanPJ')->middleware(['auth:asisten', 'can:laporan-praktikum']);
-    // Route::delete('/laporan-pj/{id}', [LaporanPjController::class, 'destroy'])->name('delete.laporanPJ'); //in audit for rollback feature maybe
+    // Praktikum Sessions
+    Route::get('/praktikum', [PraktikumController::class, 'index'])->name('api.get.praktikums')->middleware(['auth:asisten', 'can:manage-praktikum,see-praktikum']);
+    Route::post('/praktikum', [PraktikumController::class, 'store'])->name('api.store.praktikums')->middleware(['auth:asisten', 'can:manage-praktikum']);
+    Route::get('/praktikum/history', [PraktikumController::class, 'history'])->name('api.history.praktikums')->middleware(['auth:asisten', 'can:manage-praktikum,see-praktikum']);
+    Route::get('/praktikum/{idKelas}', [PraktikumController::class, 'show'])->name('api.show.praktikums')->middleware(['auth:asisten', 'can:manage-praktikum,see-praktikum']);
+    Route::put('/praktikum/{id}', [PraktikumController::class, 'update'])->name('api.update.praktikums')->middleware(['auth:asisten', 'can:manage-praktikum']);
 
     // Configuration
     Route::get('/config', [ConfigurationController::class, 'index'])->name('get.config')->middleware(['auth:asisten', 'can:lms-configuration,tp-configuration,praktikan-regist']);
     Route::put('/config', [ConfigurationController::class, 'update'])->name('update.config')->middleware(['auth:asisten', 'can:lms-configuration,tp-configuration,praktikan-regist']);
-
-    // Pelanggaran
-    Route::get('/pelanggaran', [PelanggaranController::class, 'index'])->name('get.pelanggaran')->middleware(['auth:asisten', 'can:see-pelanggaran']);
-    Route::post('/pelanggaran', [PelanggaranController::class, 'store'])->name('store.pelanggaran')->middleware(['auth:asisten', 'can:manage-praktikum']);
-    Route::delete('/pelanggaran/{id}', [PelanggaranController::class, 'destroy'])->name('delete.pelanggaran')->middleware(['auth:asisten', 'can:manage-pelanggaran']);
-    Route::post('/pelanggaran/reset', [PelanggaranController::class, 'reset'])->name('reset.pelanggaran')->middleware(['auth:asisten', 'can:lms-configuration']);
 
     // Jenis Polling
     Route::get('/jenis-polling', [JenisPollingController::class, 'index'])->name('get.jenis.poling'); //->middleware(['auth:asisten,praktikan', 'can:see-polling']);
@@ -278,13 +264,6 @@ Route::prefix('api-v1')->group(function () {
     Route::get('/praktikum', [PraktikumController::class, 'index'])->name('get.praktikums')->middleware(['auth:asisten', 'can:manage-praktikum,see-praktikum']);
     Route::get('/praktikum/{idKelas}', [PraktikumController::class, 'show'])->name('show.praktikums')->middleware(['auth:asisten', 'can:manage-praktikum,see-praktikum']);
     Route::put('/praktikum/{id}', [PraktikumController::class, 'update'])->name('update.praktikums')->middleware(['auth:asisten', 'can:manage-praktikum']);
-
-    // reset praktikum
-    Route::put('/deadline/reset/{idPraktikum}', [DeadlineController::class, 'reset'])->name('reset.deadline')->middleware(['auth:asisten', 'can:manage-praktikum']);
-
-    // deadlines
-    Route::get('/deadline/{idPraktikum}', [DeadlineController::class, 'show'])->name('show.deadlines')->middleware(['auth:asisten', 'can:manage-praktikum,see-praktikum']);
-    Route::put('/deadline/{id}', [DeadlineController::class, 'update'])->name('update.deadlines')->middleware(['auth:asisten', 'can:manage-praktikum']);
 
     // tugas pendahuluan
     Route::get('/tugas-pendahuluan', [TugasPendahuluanController::class, 'index'])->name('index.tugaspendahuluans')->middleware(['auth:asisten', 'can:tugas-pendahuluan']);
@@ -354,9 +333,6 @@ Route::prefix('api-v1')->group(function () {
     // Jawaban Tugas Pendahuluan
     Route::post('/jawaban-tp', [JawabanTPController::class, 'store'])->name('store.jawaban.tugas-pendahuluan')->middleware(['auth:praktikan', 'can:praktikum-lms']);
     Route::get('/jawaban-tp/{idModul}', [JawabanTPController::class, 'show'])->name('show.jawaban.tp')->middleware(['auth:praktikan', 'can:lihat-modul']);
-
-    //laporan Praktikan
-    Route::post('/laporan-praktikan', [LaporanPraktikanController::class, 'store'])->name('store.laporan-praktikan')->middleware(['auth:praktikan', 'can:praktikum-lms']);
 });
 
 Route::fallback(function () {

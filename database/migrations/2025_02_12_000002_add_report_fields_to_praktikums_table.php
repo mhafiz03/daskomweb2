@@ -11,8 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('deadlines', function (Blueprint $table) {
-            $table->foreign(['praktikums_id'])->references(['id'])->on('praktikums')->onUpdate('restrict')->onDelete('cascade');
+        Schema::table('praktikums', function (Blueprint $table) {
+            $table->longText('report_notes')->nullable()->after('started_at');
+            $table->timestamp('report_submitted_at')->nullable()->after('report_notes');
         });
     }
 
@@ -21,8 +22,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('deadlines', function (Blueprint $table) {
-            $table->dropForeign('deadlines_praktikums_id_foreign');
+        Schema::table('praktikums', function (Blueprint $table) {
+            $table->dropColumn(['report_notes', 'report_submitted_at']);
         });
     }
 };

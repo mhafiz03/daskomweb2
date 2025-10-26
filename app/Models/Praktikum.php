@@ -6,6 +6,7 @@
 
 namespace App\Models;
 
+use App\Models\Asisten;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
@@ -16,15 +17,21 @@ use Illuminate\Database\Eloquent\Model;
  * @property int $id
  * @property int $modul_id
  * @property int $kelas_id
- * @property int $pj_id
+ * @property int|null $pj_id
  * @property int $laporan_id
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
- * 
+ * @property string|null $status
+ * @property string|null $current_phase
+ * @property Carbon|null $started_at
+ * @property Carbon|null $ended_at
+* @property string|null $report_notes
+* @property Carbon|null $report_submitted_at
+ *
  * @property Kelas $kelas
  * @property LaporanPj $laporan_pj
  * @property Modul $modul
- * @property Asisten $asisten
+ * @property Asisten|null $pj
  *
  * @package App\Models
  */
@@ -35,15 +42,23 @@ class Praktikum extends Model
 	protected $casts = [
 		'modul_id' => 'int',
 		'kelas_id' => 'int',
-		'isActive' => 'int'
+		'isActive' => 'bool',
+		'started_at' => 'datetime',
+		'ended_at' => 'datetime',
+		'report_submitted_at' => 'datetime',
 	];
 
 	protected $fillable = [
 		'modul_id',
 		'kelas_id',
-		'start_time',
-		'end_time',
+		'pj_id',
 		'isActive',
+		'status',
+		'current_phase',
+		'started_at',
+		'ended_at',
+		'report_notes',
+		'report_submitted_at',
 	];
 
 	public function kelas()
@@ -54,6 +69,11 @@ class Praktikum extends Model
 	public function modul()
 	{
 		return $this->belongsTo(Modul::class, 'modul_id');
+	}
+
+	public function pj()
+	{
+		return $this->belongsTo(Asisten::class, 'pj_id');
 	}
 
 	public function laporan_pj()

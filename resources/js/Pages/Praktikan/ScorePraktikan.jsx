@@ -8,7 +8,8 @@ export default function ScorePraktikan({ auth }) {
     return (
         <>
             <PraktikanAuthenticated
-                user={auth.user}
+                user={auth?.user ?? auth?.praktikan ?? null}
+                praktikan={auth?.praktikan ?? auth?.user ?? null}
                 customWidth="w-[65%]"
                 header={
                     <h2 className="font-semibold text-xl text-gray-800 leading-tight">

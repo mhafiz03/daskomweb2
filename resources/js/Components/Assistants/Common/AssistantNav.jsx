@@ -74,8 +74,8 @@ export default function AssisstantNav({ asisten, permission_name }) {
                             {permission_name.includes("see-history") && (
                             <li id="manage-praktikum">
                                 <Link href="/start-praktikum" className="flex py-3 px-5 hover:bg-darkGreen">
-                                    <img className="w-6" src={praktikumIcon} alt="praktikum" />
-                                    <span className="self-center text-sm ml-3">Praktikum</span>
+                                    <img className="w-6" src={praktikumIcon} alt="start praktikum" />
+                                    <span className="self-center text-sm ml-3">Start Praktikum</span>
                                 </Link>
                             </li>
                             )}

@@ -28,7 +28,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
  * @property Collection|Nilai[] $nilais
  * @property Collection|Praktikan[] $praktikans
  * @property Collection|Praktikum[] $praktikums
- * @property Collection|ReminderPraktikum[] $reminder_praktikums
  *
  * @package App\Models
  */
@@ -80,10 +79,5 @@ class Kelas extends Model
 	public function praktikums()
 	{
 		return $this->hasMany(Praktikum::class, 'kelas_id');
-	}
-
-	public function reminder_praktikums()
-	{
-		return $this->hasMany(ReminderPraktikum::class, 'kelas_id');
 	}
 }

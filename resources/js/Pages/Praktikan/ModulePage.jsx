@@ -144,10 +144,18 @@ export default function ModulePage({ auth }) {
         }
     };    
 
+    const praktikanData = auth?.praktikan ?? auth?.user ?? null;
+    const kelasId =
+        praktikanData?.kelas_id ??
+        praktikanData?.kelasId ??
+        praktikanData?.kelas?.id ??
+        null;
+
     return (
         <>
             <PraktikanAuthenticated
-                user={auth.user}
+                user={praktikanData}
+                praktikan={praktikanData}
                 customWidth="w-[80%]"
                 header={
                     <h2 className="font-semibold text-xl text-gray-800 leading-tight">
@@ -166,7 +174,8 @@ export default function ModulePage({ auth }) {
                                 completedCategories={completedCategories}
                                 setCompletedCategories={setCompletedCategories}
                                 onReviewTask={handleReviewTask}
-                            />                        
+                                kelasId={kelasId}
+                            />
                         )}
                         {activeComponent === "TugasPendahuluan" && (
                             <TugasPendahuluan

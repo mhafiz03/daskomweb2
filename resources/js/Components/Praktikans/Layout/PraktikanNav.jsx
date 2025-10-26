@@ -13,7 +13,7 @@ import ModalPasswordPraktikan from '../Modals/ModalPasswordPraktikan';
 
 const STORAGE_KEY = 'praktikanNavCollapsed';
 
-export default function PraktikanNav() {
+export default function PraktikanNav({ praktikan }) {
     const getInitialCollapsed = () => {
         if (typeof window === 'undefined') {
             return true;

@@ -40,13 +40,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
  * @property Role $role
  * @property Collection|Feedback[] $feedback
  * @property Collection|FotoAsisten[] $foto_asistens
- * @property Collection|HistoryJaga[] $history_jagas
- * @property Collection|JadwalJaga[] $jadwal_jagas
- * @property Collection|JadwalPiket[] $jadwal_pikets
  * @property Collection|KeluhanAslab[] $keluhan_aslabs
  * @property Collection|LaporanPraktikan[] $laporan_praktikans
  * @property Collection|Nilai[] $nilais
- * @property Collection|Pelanggaran[] $pelanggarans
  * @property Collection|Polling[] $pollings
  * @property Collection|Praktikum[] $praktikums
  *
@@ -113,26 +109,6 @@ class Asisten extends Authenticatable
 		return $this->hasOne(FotoAsisten::class, 'kode', 'kode');
 	}
 
-	public function history_jagas()
-	{
-		return $this->hasMany(HistoryJaga::class);
-	}
-
-	public function jadwal_jagas()
-	{
-		return $this->hasMany(JadwalJaga::class);
-	}
-
-	public function jadwal_pikets()
-	{
-		return $this->hasMany(JadwalPiket::class);
-	}
-
-	public function keluhan_aslabs()
-	{
-		return $this->hasMany(KeluhanAslab::class);
-	}
-
 	public function laporan_praktikans()
 	{
 		return $this->hasMany(LaporanPraktikan::class);
@@ -141,16 +117,6 @@ class Asisten extends Authenticatable
 	public function nilais()
 	{
 		return $this->hasMany(Nilai::class);
-	}
-
-	public function pelanggarans()
-	{
-		return $this->hasMany(Pelanggaran::class);
-	}
-
-	public function pelanggaranCount()
-	{
-		return $this->hasMany(Pelanggaran::class, 'asisten_id');
 	}
 
 	public function pollings()

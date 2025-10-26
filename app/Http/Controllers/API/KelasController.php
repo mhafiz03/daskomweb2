@@ -4,9 +4,6 @@ namespace App\Http\Controllers\API;
 
 use App\Models\Kelas;
 use App\Models\Modul;
-use App\Models\Deadline;
-use App\Models\LaporanPj;
-use App\Models\Praktikan;
 use App\Models\Praktikum;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
@@ -69,22 +66,7 @@ class KelasController extends Controller
                 $praktikum = Praktikum::create([
                     'kelas_id' => $kelas->id,
                     'modul_id' => $modul->id,
-                    'start_time' => '00:00',
-                    'end_time' => '00:00',
                     'isActive' => 0,
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ]);
-                Deadline::create([
-                    'praktikums_id' => $praktikum->id,
-                    'start_TA' => '00:00',
-                    'end_TA' => '00:00',
-                    'start_jurnal' => '00:00',
-                    'end_jurnal' => '00:00',
-                    'start_TM' => '00:00',
-                    'end_TM' => '00:00',
-                    'start_TK' => '00:00',
-                    'end_TK' => '00:00',
                     'created_at' => now(),
                     'updated_at' => now(),
                 ]);
@@ -220,7 +202,6 @@ class KelasController extends Controller
             $kelas = Kelas::findOrFail($id);
             DB::transaction(function () use ($kelas) {
                 $praktikums = Praktikum::where('kelas_id', $kelas->id);
-                Deadline::whereIn('praktikums_id', $praktikums->pluck('id'))->delete();
                 $praktikums->delete();
                 $kelas->delete();
             });

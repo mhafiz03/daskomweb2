@@ -23,7 +23,6 @@ use Illuminate\Database\Eloquent\Model;
  * @property bool|null $isEnglish
  * @property bool $isUnlocked
  * 
- * @property Collection|HistoryJaga[] $history_jagas
  * @property Collection|JawabanFitb[] $jawaban_fitbs
  * @property Collection|JawabanJurnal[] $jawaban_jurnals
  * @property Collection|JawabanMandiri[] $jawaban_mandiris
@@ -62,11 +61,6 @@ class Modul extends Model
 		'isEnglish',
 		'isUnlocked'
 	];
-
-	public function history_jagas()
-	{
-		return $this->hasMany(HistoryJaga::class);
-	}
 
 	public function jawaban_fitbs()
 	{
