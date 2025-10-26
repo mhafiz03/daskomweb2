@@ -4,7 +4,7 @@ import AssistantLayout from "@/Layouts/AssistantLayout";
 export default function NilaiPraktikan() {
     return (
         <AssistantLayout>
-            <ContentNilai />
+            {({ asisten }) => <ContentNilai asisten={asisten} />}
         </AssistantLayout>
     );
 }

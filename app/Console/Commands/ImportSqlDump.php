@@ -11,12 +11,9 @@ use Throwable;
 
 class ImportSqlDump extends Command
 {
-    protected $signature = 'db:import-phpmyadmin
+    protected $signature = 'db:import-lms1
         {path : Path to the .sql dump file}
         {--connection= : DB connection name to import into (default: database.default)}
-        {--into-temp : Import into a temporary database first (e.g., for legacy → new mapping)}
-        {--from-legacy : Treat dump as legacy schema; run mapping steps into current database}
-        {--keep-temp : Do not drop the temp database after mapping (debugging)}
         {--dry-run : Parse and validate only; do not execute}
     ';
 
@@ -25,21 +22,23 @@ class ImportSqlDump extends Command
     public function handle(): int
     {
         $path = $this->argument('path');
-        if (!is_file($path)) {
+        if (! is_file($path)) {
             $this->error("File not found: {$path}");
+
             return 1;
         }
 
         $connName = $this->option('connection') ?: config('database.default');
         $conn = DB::connection($connName);
 
-        $importToTemp = (bool) $this->option('into-temp') || (bool) $this->option('from-legacy');
-        $fromLegacy   = (bool) $this->option('from-legacy');
-        $dryRun       = (bool) $this->option('dry-run');
+        $importToTemp = true;
+        $fromLegacy = true;
+        $dryRun = (bool) $this->option('dry-run');
 
         $databaseName = $this->getDatabaseName($connName);
-        if (!$databaseName) {
+        if (! $databaseName) {
             $this->error("Could not resolve database name for connection: {$connName}");
+
             return 1;
         }
 
@@ -59,24 +58,22 @@ class ImportSqlDump extends Command
 
         $this->info("Beginning import into: {$targetDbForImport}");
         try {
-            if (!$dryRun) {
+            if (! $dryRun) {
                 $this->setForeignKeyChecks($connName, false);
             }
 
             $this->importSqlFile($connName, $targetDbForImport, $path, $dryRun);
 
-            if (!$dryRun) {
+            if (! $dryRun) {
                 $this->setForeignKeyChecks($connName, true);
             }
         } catch (Throwable $e) {
             $this->error("Import failed: {$e->getMessage()}");
-            if ($tempDb && !$this->option('keep-temp')) {
-                $this->dropDatabase($connName, $tempDb, $dryRun);
-            }
+            $this->dropDatabase($connName, $tempDb, $dryRun);
             return 1;
         }
 
-        $this->info("Import finished.");
+        $this->info('Import finished.');
 
         // If from-legacy, transform/copy into current database
         if ($fromLegacy) {
@@ -84,35 +81,32 @@ class ImportSqlDump extends Command
 
             try {
                 $this->runLegacyToNewMapping($connName, $tempDb, $databaseName, $dryRun);
-                $this->info("Mapping complete.");
+                $this->info('Mapping complete.');
             } catch (Throwable $e) {
                 $this->error("Mapping failed: {$e->getMessage()}");
-                if ($tempDb && !$this->option('keep-temp')) {
-                    $this->dropDatabase($connName, $tempDb, $dryRun);
-                }
+                $this->dropDatabase($connName, $tempDb, $dryRun);
                 return 1;
             }
         }
 
-        // Optionally drop temp DB
-        if ($importToTemp && !$this->option('keep-temp')) {
-            $this->dropDatabase($connName, $tempDb, $dryRun);
-            $this->info("Dropped temp database: {$tempDb}");
-        }
+        $this->dropDatabase($connName, $tempDb, $dryRun);
+        $this->info("Dropped temp database: {$tempDb}");
 
         // Ensure the target is at app’s current migration level
-        if (!$dryRun && !$fromLegacy && !$importToTemp) {
-            $this->info("Running migrations to ensure schema is current...");
+        if (! $dryRun && ! $fromLegacy && ! $importToTemp) {
+            $this->info('Running migrations to ensure schema is current...');
             $this->call('migrate', ['--force' => true, '--database' => $connName]);
         }
 
-        $this->info("All done ✨");
+        $this->info('All done ✨');
+
         return 0;
     }
 
     private function getDatabaseName(string $connection): ?string
     {
         $config = config("database.connections.{$connection}");
+
         return $config['database'] ?? null;
     }
 
@@ -122,6 +116,7 @@ class ImportSqlDump extends Command
         $sql = "CREATE DATABASE `{$dbName}` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci";
         if ($dryRun) {
             $this->line("[dry-run] $sql");
+
             return;
         }
         DB::connection($serverConn)->statement($sql);
@@ -129,15 +124,17 @@ class ImportSqlDump extends Command
 
     private function dropDatabase(string $connection, ?string $dbName, bool $dryRun = false): void
     {
-        if (!$dbName) return;
+        if (! $dbName) {
+            return;
+        }
         if ($dryRun) {
             $this->line("[dry-run] DROP DATABASE IF EXISTS `{$dbName}`");
+
             return;
         }
         $serverConn = $this->serverConnection($connection);
         DB::connection($serverConn)->statement("DROP DATABASE IF EXISTS `{$dbName}`");
     }
-
 
     private function serverConnection(string $connection): string
     {
@@ -150,9 +147,9 @@ class ImportSqlDump extends Command
         $serverCfg['database'] = $serverCfg['database'] ?? null; // or 'information_schema'
 
         config(["database.connections.{$alias}" => $serverCfg]);
+
         return $alias;
     }
-
 
     private function setForeignKeyChecks(string $connection, bool $enable): void
     {
@@ -162,7 +159,7 @@ class ImportSqlDump extends Command
     private function importSqlFile(string $connection, string $database, string $path, bool $dryRun): void
     {
         $pdo = DB::connection($connection)->getPdo();
-        if (!$dryRun) {
+        if (! $dryRun) {
             $pdo->exec("USE `{$database}`");
         } else {
             $this->line("[dry-run] USE `{$database}`");
@@ -170,7 +167,7 @@ class ImportSqlDump extends Command
 
         // Stream the file, batching by semicolons. phpMyAdmin dumps don’t use custom DELIMITER—safe to split on ';'
         $handle = fopen($path, 'r');
-        if (!$handle) {
+        if (! $handle) {
             throw new \RuntimeException("Unable to open file: {$path}");
         }
 
@@ -189,13 +186,16 @@ class ImportSqlDump extends Command
             if (substr(rtrim($line), -1) === ';') {
                 $stmt = trim($buffer);
                 $buffer = '';
-                if ($stmt === '') continue;
+                if ($stmt === '') {
+                    continue;
+                }
 
                 if ($dryRun) {
                     // Keep output small: only echo CREATE/ALTER
                     if (preg_match('/^(CREATE|ALTER|INSERT INTO `migrations`)/i', $stmt)) {
                         $this->line('[dry-run] ' . substr($stmt, 0, 120) . '...');
                     }
+
                     continue;
                 }
 
@@ -221,6 +221,7 @@ class ImportSqlDump extends Command
 
         $formatSql = static function (string $sql): string {
             $normalized = preg_replace('/\s+/', ' ', trim($sql));
+
             return substr($normalized, 0, 180) . (strlen($normalized) > 180 ? '…' : '');
         };
 
@@ -228,6 +229,7 @@ class ImportSqlDump extends Command
             $preview = $label !== '' ? $label : $formatSql($sql);
             if ($dryRun) {
                 $this->line('[dry-run] ' . $preview);
+
                 return;
             }
 
@@ -338,8 +340,9 @@ class ImportSqlDump extends Command
         foreach ($packageDefinitions as $package => $names) {
             $ids = [];
             foreach ($names as $name) {
-                if (!isset($permissionIdByName[$name])) {
+                if (! isset($permissionIdByName[$name])) {
                     $this->warn("Permission '{$name}' is referenced in package '{$package}' but was not seeded.");
+
                     continue;
                 }
                 $ids[] = $permissionIdByName[$name];
@@ -386,7 +389,7 @@ class ImportSqlDump extends Command
 
         $rolePermissionRows = [];
         foreach ($rolePackageMap as $roleName => $packages) {
-            if (!isset($roleNameToId[$roleName])) {
+            if (! isset($roleNameToId[$roleName])) {
                 continue;
             }
             $roleId = $roleNameToId[$roleName];
@@ -467,15 +470,17 @@ class ImportSqlDump extends Command
 
         foreach ($legacyAsistens as $legacyAsisten) {
             $legacyRoleName = $legacyRoleIdToName[$legacyAsisten->role_id] ?? null;
-            if (!$legacyRoleName) {
+            if (! $legacyRoleName) {
                 $skippedAsistens++;
+
                 continue;
             }
 
             $targetRoleName = $legacyRoleNameToNew[$legacyRoleName] ?? null;
-            if (!$targetRoleName || !isset($roleNameToId[$targetRoleName])) {
+            if (! $targetRoleName || ! isset($roleNameToId[$targetRoleName])) {
                 $this->warn("Skipping asisten ID {$legacyAsisten->id} due to unmapped legacy role '{$legacyRoleName}'.");
                 $skippedAsistens++;
+
                 continue;
             }
 
@@ -527,6 +532,7 @@ class ImportSqlDump extends Command
         $exec = function (string $sql) use ($conn, $dryRun, $formatSql) {
             if ($dryRun) {
                 $this->line('[dry-run] ' . $formatSql($sql));
+
                 return;
             }
             $conn->statement($sql);
@@ -557,12 +563,23 @@ class ImportSqlDump extends Command
                       created_at, updated_at, 0 AS isEnglish, 0 AS isUnlocked
                FROM `{$legacyDb}`.`moduls`");
 
-        $this->info('Mapping: soal_fitbs/jurnals/mandiris');
+        $this->info('Mapping: laporan praktikans');
+        $exec("INSERT IGNORE INTO `{$newDb}`.`laporan_praktikans`
+              (`id`,`pesan`,`praktikan_id`,`asisten_id`,`modul_id`,`created_at`,`updated_at`)
+               SELECT id,pesan,praktikan_id,asisten_id,modul_id,created_at,updated_at
+               FROM `{$legacyDb}`.`laporan__praktikans`");
+
+        $this->info('Mapping: soal_fitbs/jurnals/mandiris/tps');
         foreach (['soal__fitbs' => 'soal_fitbs', 'soal__jurnals' => 'soal_jurnals', 'soal__mandiris' => 'soal_mandiris'] as $legacy => $new) {
             $exec("INSERT IGNORE INTO `{$newDb}`.`{$new}` (`id`,`modul_id`,`soal`,`created_at`,`updated_at`)
                    SELECT id, modul_id, soal, created_at, updated_at
                    FROM `{$legacyDb}`.`{$legacy}`");
         }
+
+        $exec("INSERT IGNORE INTO `{$newDb}`.`soal_tps`
+              (`id`,`modul_id`,`soal`,`created_at`,`updated_at`)
+               SELECT id, modul_id, soal, created_at, updated_at
+               FROM `{$legacyDb}`.`soal__tps`");
 
         $this->info('Mapping: soal_tas (legacy text options → soal_opsis + FK columns)');
         $this->mapTaTk($connection, $legacyDb, $newDb, 'soal__tas', 'soal_tas', 'TA', $exec);
@@ -615,10 +632,11 @@ class ImportSqlDump extends Command
             SELECT p.id, p.modul_id, p.kelas_id, p.pj_id, 0,
                    'completed', NULL,
                    p.created_at, p.updated_at,
-                   CONCAT('Legacy laporan_id: ', COALESCE(p.laporan_id, 'N/A')),
-                   p.updated_at,
+                   COALESCE(CONCAT(lp.allasisten_id, '\\n', lp.laporan), CONCAT('Legacy laporan_id: ', COALESCE(p.laporan_id, 'N/A'))),
+                   COALESCE(lp.updated_at, p.updated_at),
                    p.created_at, p.updated_at
-            FROM `{$legacyDb}`.`praktikums` p",
+            FROM `{$legacyDb}`.`praktikums` p
+            LEFT JOIN `{$legacyDb}`.`laporan__pjs` lp ON lp.id = p.laporan_id",
             'Insert praktikums from legacy'
         );
 
@@ -634,9 +652,19 @@ class ImportSqlDump extends Command
                  `secretfeature_activation` = VALUES(`secretfeature_activation`),
                  `polling_activation` = VALUES(`polling_activation`),
                  `kode_asisten` = VALUES(`kode_asisten`),
-                 `created_at` = VALUES(`created_at`),
-                 `updated_at` = VALUES(`updated_at`)',
+                `created_at` = VALUES(`created_at`),
+                `updated_at` = VALUES(`updated_at`)',
             'Upsert configurations row'
+        );
+
+        $this->info('Mapping: feedback');
+        $runStatement("TRUNCATE TABLE `{$newDb}`.`feedback`", 'TRUNCATE feedback');
+        $runStatement(
+            "INSERT INTO `{$newDb}`.`feedback`
+            (`id`,`asisten_id`,`praktikan_id`,`pesan`,`kelas_id`,`read`,`created_at`,`updated_at`)
+            SELECT id, asisten_id, praktikan_id, pesan, kelas_id, `read`, created_at, updated_at
+            FROM `{$legacyDb}`.`feedback`",
+            'Insert feedback from legacy'
         );
     }
 
@@ -662,7 +690,7 @@ class ImportSqlDump extends Command
             'jawaban_salah1' => 'opsi1_id',
             'jawaban_salah2' => 'opsi2_id',
             'jawaban_salah3' => 'opsi3_id',
-            'jawaban_benar'  => 'opsi_benar_id',
+            'jawaban_benar' => 'opsi_benar_id',
         ];
 
         foreach ($map as $legacyTextCol => $fkCol) {
@@ -683,6 +711,7 @@ class ImportSqlDump extends Command
 
         if ($dryRun) {
             $this->line("[dry-run] resolve {$table}.opsi_id via string compare");
+
             return;
         }
 
@@ -703,7 +732,7 @@ class ImportSqlDump extends Command
             }
 
             $questionId = (int) $option->soal_id;
-            if (!isset($optionLookup[$questionId][$normalized])) {
+            if (! isset($optionLookup[$questionId][$normalized])) {
                 $optionLookup[$questionId][$normalized] = (int) $option->id;
             }
         }
@@ -731,7 +760,7 @@ class ImportSqlDump extends Command
             }
 
             $questionId = (int) $answer->soal_id;
-            if (!isset($optionLookup[$questionId][$normalized])) {
+            if (! isset($optionLookup[$questionId][$normalized])) {
                 continue;
             }
 
@@ -769,6 +798,7 @@ class ImportSqlDump extends Command
         }
 
         $collapsed = preg_replace('/\s+/', ' ', trim($value));
+
         return Str::lower($collapsed ?? '');
     }
 }

@@ -1,39 +1,35 @@
 <?php
 
-use Inertia\Inertia;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Route;
-use Illuminate\Foundation\Application;
-use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\API\AsistenController;
-use Illuminate\Auth\Middleware\RedirectIfAuthenticated;
-use App\Http\Controllers\API\RoleController;
-use App\Http\Controllers\API\KelasController;
-use App\Http\Controllers\API\ModulController;
-use App\Http\Controllers\API\NilaiController;
-use App\Http\Controllers\API\SoalTAController;
-use App\Http\Controllers\API\SoalTKController;
-use App\Http\Controllers\API\SoalTMController;
-use App\Http\Controllers\API\SoalTPController;
-use App\Http\Controllers\API\PollingsController;
-use App\Http\Controllers\API\SoalFITBController;
+use App\Http\Controllers\API\ConfigurationController;
+use App\Http\Controllers\API\JadwalJagaController;
+use App\Http\Controllers\API\JawabanFITBController;
+use App\Http\Controllers\API\JawabanJurnalController;
 use App\Http\Controllers\API\JawabanTAController;
 use App\Http\Controllers\API\JawabanTKController;
 use App\Http\Controllers\API\JawabanTMController;
 use App\Http\Controllers\API\JawabanTPController;
+use App\Http\Controllers\API\JenisPollingController;
+use App\Http\Controllers\API\KelasController;
+use App\Http\Controllers\API\LeaderBoardController;
+use App\Http\Controllers\API\ModulController;
+use App\Http\Controllers\API\NilaiController;
+use App\Http\Controllers\API\PollingsController;
 use App\Http\Controllers\API\PraktikanController;
 use App\Http\Controllers\API\PraktikumController;
+use App\Http\Controllers\API\RoleController;
+use App\Http\Controllers\API\SoalFITBController;
 use App\Http\Controllers\API\SoalJurnalController;
-use App\Http\Controllers\API\JawabanFITBController;
-use App\Http\Controllers\API\LeaderBoardController;
-use App\Http\Controllers\API\JenisPollingController;
-use App\Http\Controllers\API\ConfigurationController;
-use App\Http\Controllers\API\JadwalJagaController;
-use App\Http\Controllers\API\JawabanJurnalController;
+use App\Http\Controllers\API\SoalTAController;
+use App\Http\Controllers\API\SoalTKController;
+use App\Http\Controllers\API\SoalTMController;
+use App\Http\Controllers\API\SoalTPController;
 use App\Http\Controllers\API\TugasPendahuluanController;
 use App\Http\Controllers\Auth\RegisteredAsistenController;
 use App\Http\Controllers\Auth\RegisteredPraktikanController;
-use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Route;
+use Inertia\Inertia;
 
 Route::get('/', function () {
     return Inertia::render('LandingPage');
@@ -55,7 +51,7 @@ Route::get('/about', function () {
     return Inertia::render('Praktikan/AboutPage');
 })->name('about')->middleware('check.auth');
 
-//Authenticated pages
+// Authenticated pages
 
 Route::get(
     '/assistant',
@@ -100,7 +96,7 @@ Route::get('/history', function () {
 
 Route::get('/plottingan', function () {
     return Inertia::render('Assistants/PlottingAssistant');
-})->name('plottingan')->middleware(['auth:asisten', 'can:see-plot, manage-plot']);;
+})->name('plottingan')->middleware(['auth:asisten', 'can:see-plot, manage-plot']);
 
 Route::get('/manage-role', function () {
     return Inertia::render('Assistants/ManageRole');
@@ -116,13 +112,11 @@ Route::get('/start-praktikum', function () {
 
 Route::get('/modul', function () {
     return Inertia::render('Assistants/ModulePraktikum');
-})->name('modul')->middleware(['auth:asisten', 'can:manage-modul']); //sesuaikan kalo emng asisten biasa bisa lihat
+})->name('modul')->middleware(['auth:asisten', 'can:manage-modul']); // sesuaikan kalo emng asisten biasa bisa lihat
 
 Route::get('/soal', function () {
     return Inertia::render('Assistants/SoalPraktikum');
 })->name('soal')->middleware(['auth:asisten', 'can:see-soal,manage-soal']);
-
-
 
 // route for praktikan
 Route::get('/praktikan', function () {
@@ -149,7 +143,7 @@ Route::get('/polling-assistant', function () {
     return Inertia::render('Praktikan/PollingPage');
 })->name('polling-assistant');
 
-/////////////////////////////////////// Data Routes ///////////////////////////////////////
+// ///////////////////////////////////// Data Routes ///////////////////////////////////////
 Route::prefix('api-v1')->group(function () {
     Route::put('/asisten', [AsistenController::class, 'update'])->name('update.asisten')->middleware(['auth:asisten', 'can:manage-profile']);
     Route::post('/profilePic', [AsistenController::class, 'updatePp'])->name('updatePp.asisten');
@@ -165,7 +159,7 @@ Route::prefix('api-v1')->group(function () {
 
     // Asisten
     Route::patch('/asisten/password', [AsistenController::class, 'updatePassword'])->middleware('auth:asisten');
-    // Route::get('/asisten', [AsistenController::class, 'index'])->name('get.asisten')->middleware(['auth:asisten,praktikan', 'can:lihat-asisten']);    
+    // Route::get('/asisten', [AsistenController::class, 'index'])->name('get.asisten')->middleware(['auth:asisten,praktikan', 'can:lihat-asisten']);
     Route::get('/asisten', [AsistenController::class, 'index'])->name('get.asisten')->middleware(['auth:asisten,praktikan', 'permission:lihat-asisten|manage-role']);
     // Route::put('/asisten', [AsistenController::class, 'update'])->name('update.asisten')->middleware(['auth:asisten', 'can:manage-profile']);
     Route::post('/asisten/delete', [AsistenController::class, 'destroy'])->name('destroy.asisten')->middleware(['auth:asisten', 'can:manage-role']);
@@ -179,11 +173,11 @@ Route::prefix('api-v1')->group(function () {
     // Route::get('/modul', [ModulController::class, 'index'])->name('get.modul');
     Route::get('/modul', [ModulController::class, 'index'])->name('get.modul')->middleware(['auth:asisten,praktikan', 'can:manage-modul,lihat-modul']);
     Route::post('/modul', [ModulController::class, 'store'])->name('store.modul')->middleware(['auth:asisten', 'can:manage-modul']);
-    //Route::put('/modul/{id}', [ModulController::class, 'update'])->name('update.modul')->middleware(['auth:asisten', 'can:manage-modul']);
+    // Route::put('/modul/{id}', [ModulController::class, 'update'])->name('update.modul')->middleware(['auth:asisten', 'can:manage-modul']);
     Route::patch('/modul/{id}', [ModulController::class, 'update'])->name('modul.update')->middleware(['auth:asisten', 'can:manage-modul']);
     Route::delete('/modul/{id}', [ModulController::class, 'destroy'])->name('delete.modul')->middleware(['auth:asisten', 'can:manage-modul']);
-    //Route::post('/modul/reset', [ModulController::class, 'reset'])->name('reset.modul')->middleware(['auth:asisten', 'can:lms-configuration']);
-    //Route::delete('/moduls/reset-all', [ModulController::class, 'resetAll'])->name('moduls.reset-all');
+    // Route::post('/modul/reset', [ModulController::class, 'reset'])->name('reset.modul')->middleware(['auth:asisten', 'can:lms-configuration']);
+    // Route::delete('/moduls/reset-all', [ModulController::class, 'resetAll'])->name('moduls.reset-all');
     // Route untuk update status isUnlocked
     // Route::patch('/modul/update-status', [ModulController::class, 'updateStatus'])
     //     ->name('modul.updateStatus')
@@ -219,10 +213,10 @@ Route::prefix('api-v1')->group(function () {
     Route::put('/config', [ConfigurationController::class, 'update'])->name('update.config')->middleware(['auth:asisten', 'can:lms-configuration,tp-configuration,praktikan-regist']);
 
     // Jenis Polling
-    Route::get('/jenis-polling', [JenisPollingController::class, 'index'])->name('get.jenis.poling'); //->middleware(['auth:asisten,praktikan', 'can:see-polling']);
+    Route::get('/jenis-polling', [JenisPollingController::class, 'index'])->name('get.jenis.poling'); // ->middleware(['auth:asisten,praktikan', 'can:see-polling']);
 
     // Polling View Count
-    Route::get('/polling/{id}', [PollingsController::class, 'show'])->name('show.polling'); //->middleware(['auth:asisten,praktikan', 'can:see-polling']);
+    Route::get('/polling/{id}', [PollingsController::class, 'show'])->name('show.polling'); // ->middleware(['auth:asisten,praktikan', 'can:see-polling']);
 
     // Soal TP
     Route::get('/soal-tp/{idModul}', [SoalTPController::class, 'show'])->name('show.soaltp')->middleware(['auth:asisten,praktikan', 'permission:see-soal|lihat-modul']);
@@ -275,9 +269,10 @@ Route::prefix('api-v1')->group(function () {
 
     // nilais
     Route::post('/nilai', [NilaiController::class, 'store'])->name('store.nilais')->middleware(['auth:asisten', 'can:nilai-praktikan, praktikum-lms']);
-    Route::get('/nilai/{id}', [NilaiController::class, 'showAsisten'])->name('showAsisten.nilais')->middleware(['auth:asisten', 'can:nilai-praktikan']);
+    Route::get('/nilai/praktikan/{praktikan}/modul/{modul}', [NilaiController::class, 'showAsisten'])->name('showAsisten.nilais')->middleware(['auth:asisten', 'can:nilai-praktikan']);
     Route::put('/nilai/{id}', [NilaiController::class, 'update'])->name('update.nilais')->middleware(['auth:asisten', 'can:nilai-praktikan']);
-
+    Route::get('/nilai', [NilaiController::class, 'show'])->name('show.nilais')->middleware(['auth:praktikan', 'can:lihat-nilai']);
+    
     // // Jawaban TM asisten
     // Route::get('/jawaban-mandiri/praktikan/{idPraktikan}/modul/{idModul}', [JawabanTMController::class, 'showAsisten'])->name('showAsisten.jawaban.tm')->middleware(['auth:asisten', 'can:nilai-praktikan']);
 
@@ -288,27 +283,25 @@ Route::prefix('api-v1')->group(function () {
     // Route::get('/jawaban-jurnal/praktikan/{idPraktikan}/modul/{idModul}', [JawabanJurnalController::class, 'showAsisten'])->name('showAsisten.jawaban.jurnal')->middleware(['auth:asisten', 'can:nilai-praktikan']);
 
     // Jawaban TP asisten
-    //Route::get('/jawaban-tp/{nim}/{modulId}', [JawabanTPController::class, 'show'])->name('jawaban-tp.show')->middleware(['auth:asisten', 'can:nilai-praktikan']);
+    // Route::get('/jawaban-tp/{nim}/{modulId}', [JawabanTPController::class, 'show'])->name('jawaban-tp.show')->middleware(['auth:asisten', 'can:nilai-praktikan']);
     Route::get('/jawaban-tp/{nim}/{modulId}', [JawabanTPController::class, 'getJawabanTP'])->name('jawaban-tp.show')->middleware(['auth:asisten', 'can:nilai-praktikan']);
     // For Inertia.js page rendering
-    //set praktikan
-    //Route::post('/set-praktikan', [PraktikanController::class, 'setPraktikan'])->name('set.praktikan')->middleware(['auth:asisten', 'can:set-praktikan']);
+    // set praktikan
+    // Route::post('/set-praktikan', [PraktikanController::class, 'setPraktikan'])->name('set.praktikan')->middleware(['auth:asisten', 'can:set-praktikan']);
 
     //tarik praktikan
     Route::post('/tarik-praktikan', [PraktikanController::class, 'setPraktikan'])->name('set.praktikan')->middleware(['auth:asisten', 'can:set-praktikan']);
-    Route::get('/praktikan-tertarik', [PraktikanController::class, 'getAssignedPraktikan']);
+    Route::get('/praktikan-tertarik', [PraktikanController::class, 'getAssignedPraktikan'])->middleware(['auth:asisten', 'can:nilai-praktikan']);
 
-    //set praktikan
+    // set praktikan
     Route::patch('/set-password', [PraktikanController::class, 'setPassword'])->name('set-password')->middleware(['auth:asisten', 'can:set-praktikan']);
-    ////////////////praktikan///////////////////////////////
+    // //////////////praktikan///////////////////////////////
 
     // polling
     Route::post('/pollings', [PollingsController::class, 'store'])->name('store.polling')->middleware(['auth:praktikan', 'can:isi-polling']);
     Route::get('/pollings/{id}', [PollingsController::class, 'show'])->name('show.polling')->middleware(['auth:praktikan', 'can:isi-polling']);
     Route::get('/pollings/{id}', [PollingsController::class, 'show'])->name('show.polling')->middleware(['auth:praktikan', 'can:isi-polling']);
-    Route::get('/jenis-polling', [JenisPollingController::class, 'index'])->name('get.jenis.poling'); //->middleware(['auth:asisten,praktikan', 'can:isi-polling,see-polling']);
-    //asa issue dengan middleware asisen dimana tidak bisa memakai api-v1/jenis-polling dengan auth sebagai asisten
-    Route::get('/nilai', [NilaiController::class, 'show'])->name('show.nilais')->middleware(['auth:praktikan', 'can:lihat-nilai']);
+    Route::get('/jenis-polling', [JenisPollingController::class, 'index'])->name('get.jenis.poling'); // ->middleware(['auth:asisten,praktikan', 'can:isi-polling,see-polling']);
 
     // Jawaban TA
     Route::post('/jawaban-ta', [JawabanTAController::class, 'store'])->name('store.jawaban.ta')->middleware(['auth:praktikan', 'can:praktikum-lms']);
@@ -322,7 +315,7 @@ Route::prefix('api-v1')->group(function () {
     Route::post('/jawaban-tm', [JawabanTMController::class, 'store'])->name('store.jawaban.tm')->middleware(['auth:praktikan', 'can:praktikum-lms']);
     Route::get('/jawaban-tm/{idModul}', [JawabanTMController::class, 'show'])->name('show.jawaban.tm')->middleware(['auth:praktikan', 'can:lihat-modul']);
 
-    //Jawaban Fitb
+    // Jawaban Fitb
     Route::post('/jawaban-fitb', [JawabanFITBController::class, 'store'])->name('store.jawaban.fitb')->middleware(['auth:praktikan', 'can:praktikum-lms']);
     Route::get('/jawaban-fitb/{idModul}', [JawabanFITBController::class, 'show'])->name('show.jawaban.fitb')->middleware(['auth:praktikan', 'can:lihat-modul']);
 
@@ -338,6 +331,5 @@ Route::prefix('api-v1')->group(function () {
 Route::fallback(function () {
     return redirect('/');
 })->middleware('check.auth');
-
 
 require __DIR__ . '/auth.php';

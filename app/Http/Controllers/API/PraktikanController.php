@@ -2,16 +2,17 @@
 
 namespace App\Http\Controllers\API;
 
+use App\Http\Controllers\Controller;
 use App\Models\Asisten;
 use App\Models\LaporanPraktikan;
 use App\Models\Nilai;
-use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Auth;
 use App\Models\Praktikan;
+use App\Models\Feedback;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
-use App\Http\Controllers\API\BaseController as BaseController;
 
 class PraktikanController extends Controller
 {
@@ -66,7 +67,7 @@ class PraktikanController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Validation Error',
-                'errors' => $validator->errors()
+                'errors' => $validator->errors(),
             ], 400);
         }
 
@@ -75,7 +76,7 @@ class PraktikanController extends Controller
             $asisten = Auth::user();
             $asisten_id = Auth::id();
 
-            if (!$asisten) {
+            if (! $asisten) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Asisten not found for this user',
@@ -85,7 +86,7 @@ class PraktikanController extends Controller
             // Get the praktikan by NIM
             $praktikan = Praktikan::where('nim', $request->nim)->first();
 
-            if (!$praktikan) {
+            if (! $praktikan) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Praktikan with this NIM not found',
@@ -122,7 +123,7 @@ class PraktikanController extends Controller
                 'message' => 'Praktikan successfully assigned to asisten',
                 'data' => [
                     'laporan_praktikan' => $laporanPraktikan,
-                    'nilai' => $nilai ?? null
+                    'nilai' => $nilai ?? null,
                 ],
             ], 200);
         } catch (\Exception $e) {
@@ -134,41 +135,100 @@ class PraktikanController extends Controller
         }
     }
 
+    public function getAssignedPraktikan(Request $request): JsonResponse
+    {
+        $assistant = $request->user('asisten');
 
+        if (! $assistant) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthorized',
+            ], 401);
+        }
 
-//    public function getAssignedPraktikan(Request $request) {
-//        try {
-//            // Get the current logged in asisten
-//            $asisten = Asisten::where('user_id', Auth::id())->first();
-//            
-//            if (!$asisten) {
-//                return response()->json([
-//                    'success' => false,
-//                    'message' => 'Asisten not found for this user'
-//                ], 404);
-//            }
-//
-//            // Get all assigned praktikan
-//            $praktikans = LaporanPraktikan::with(['praktikan', 'modul'])
-//                ->where('asisten_id', $asisten->id)
-//                ->get();
-//
-//            return response()->json([
-//                'success' => true,
-//                'data' => $praktikans
-//            ], 200);
-//            
-//        } catch (\Exception $e) {
-//            return response()->json([
-//                'success' => false,
-//                'message' => 'An error occurred while retrieving assigned praktikan',
-//                'error' => $e->getMessage()
-//            ], 500);
-//        }
-//    }
+        try {
+            $assignments = LaporanPraktikan::with([
+                'praktikan.kelas',
+                'modul',
+            ])
+                ->where('asisten_id', $assistant->id)
+                ->latest('updated_at')
+                ->get();
 
+            if ($assignments->isEmpty()) {
+                return response()->json([
+                    'success' => true,
+                    'data' => [],
+                    'message' => 'Belum ada praktikan yang ditarik.',
+                ]);
+            }
 
+            $nilaiLookup = Nilai::where('asisten_id', $assistant->id)
+                ->whereIn('praktikan_id', $assignments->pluck('praktikan_id'))
+                ->whereIn('modul_id', $assignments->pluck('modul_id'))
+                ->get()
+                ->keyBy(fn (Nilai $nilai) => $nilai->praktikan_id.'-'.$nilai->modul_id);
 
+            $data = $assignments->map(static function (LaporanPraktikan $assignment) use ($nilaiLookup) {
+                $praktikan = $assignment->praktikan;
+                $kelas = $praktikan?->kelas;
+                $nilai = $nilaiLookup->get($assignment->praktikan_id.'-'.$assignment->modul_id);
+                $timestamp = $assignment->updated_at ?? $assignment->created_at;
+
+                return [
+                    'id' => $assignment->id,
+                    'pesan' => $assignment->pesan,
+                    'timestamps' => [
+                        'assigned_at' => optional($assignment->created_at)->toIso8601String(),
+                        'updated_at' => optional($assignment->updated_at)->toIso8601String(),
+                    ],
+                    'datetime' => [
+                        'date' => optional($timestamp)->toDateString(),
+                        'time' => optional($timestamp)->format('H:i:s'),
+                    ],
+                    'modul' => [
+                        'id' => $assignment->modul?->id,
+                        'judul' => $assignment->modul?->judul,
+                    ],
+                    'praktikan' => [
+                        'id' => $praktikan?->id,
+                        'nama' => $praktikan?->nama,
+                        'nim' => $praktikan?->nim,
+                        'kelas' => $kelas ? [
+                            'id' => $kelas->id,
+                            'nama' => $kelas->kelas,
+                            'hari' => $kelas->hari,
+                            'shift' => $kelas->shift,
+                        ] : null,
+                    ],
+                    'nilai' => $nilai ? [
+                        'id' => $nilai->id,
+                        'tp' => $nilai->tp,
+                        'ta' => $nilai->ta,
+                        'd1' => $nilai->d1,
+                        'd2' => $nilai->d2,
+                        'd3' => $nilai->d3,
+                        'd4' => $nilai->d4,
+                        'l1' => $nilai->l1,
+                        'l2' => $nilai->l2,
+                        'avg' => $nilai->avg,
+                        'updated_at' => optional($nilai->updated_at)->toIso8601String(),
+                    ] : null,
+                ];
+            });
+
+            return response()->json([
+                'success' => true,
+                'data' => $data,
+            ]);
+        } catch (\Throwable $exception) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan saat mengambil data praktikan.',
+                'error' => $exception->getMessage(),
+            ], 500);
+        }
+    }
 
     /**
      * Update the praktikan's password.
@@ -190,7 +250,7 @@ class PraktikanController extends Controller
             if ($request->expectsJson()) {
                 return response()->json([
                     'message' => 'Validasi gagal',
-                    'errors' => $validator->errors()
+                    'errors' => $validator->errors(),
                 ], 422);
             }
 
@@ -201,10 +261,10 @@ class PraktikanController extends Controller
             // Find the praktikan by NIM
             $praktikan = Praktikan::where('nim', $request->nim)->first();
 
-            if (!$praktikan) {
+            if (! $praktikan) {
                 if ($request->expectsJson()) {
                     return response()->json([
-                        'message' => 'Praktikan tidak ditemukan'
+                        'message' => 'Praktikan tidak ditemukan',
                     ], 404);
                 }
 
@@ -217,7 +277,7 @@ class PraktikanController extends Controller
 
             if ($request->expectsJson()) {
                 return response()->json([
-                    'message' => 'Password Praktikan berhasil diperbarui'
+                    'message' => 'Password Praktikan berhasil diperbarui',
                 ], 200);
             }
 
@@ -226,16 +286,13 @@ class PraktikanController extends Controller
             if ($request->expectsJson()) {
                 return response()->json([
                     'message' => 'Terjadi kesalahan saat memperbarui password',
-                    'error' => $e->getMessage()
+                    'error' => $e->getMessage(),
                 ], 500);
             }
 
             return back()->with('error', 'Terjadi kesalahan saat memperbarui password');
         }
     }
-
-
-
 
     /**
      * Change password of praktikan by themself
@@ -250,15 +307,15 @@ class PraktikanController extends Controller
         try {
             $praktikan = Praktikan::find(auth()->guard('praktikan')->user()->id);
 
-            if (!$praktikan) {
+            if (! $praktikan) {
                 return redirect()->back()->withErrors([
-                    'error' => 'Praktikan not found.'
+                    'error' => 'Praktikan not found.',
                 ]);
             }
 
-            if (!Hash::check($request->current_password, $praktikan->password)) {
+            if (! Hash::check($request->current_password, $praktikan->password)) {
                 return redirect()->back()->withErrors([
-                    'current_password' => 'Password saat ini tidak sesuai'
+                    'current_password' => 'Password saat ini tidak sesuai',
                 ]);
             }
 
@@ -269,7 +326,7 @@ class PraktikanController extends Controller
         } catch (\Exception $e) {
             // Since we're using Inertia, return a redirect with errors instead of JSON
             return redirect()->back()->withErrors([
-                'error' => 'Gagal mengubah password: ' . $e->getMessage()
+                'error' => 'Gagal mengubah password: '.$e->getMessage(),
             ]);
         }
     }

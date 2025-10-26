@@ -1,141 +1,218 @@
-import { useState, useEffect } from "react";
-
+import { useEffect, useMemo, useState } from "react";
+import toast from "react-hot-toast";
 import ModalJawabanTP from "./ModalJawabanTP";
+import { submit } from "@/lib/wayfinder";
+import {
+    store as storeNilai,
+    update as updateNilai,
+} from "@/actions/App/Http/Controllers/API/NilaiController";
 
-export default function ModalInputNilai({ onClose, onConfirm }) {
-    const [isModalOpen, setIsModalOpen] = useState(false);
+const scoresSchema = [
+    { key: "tp", label: "TP" },
+    { key: "ta", label: "TA" },
+    { key: "d1", label: "D1" },
+    { key: "d2", label: "D2" },
+    { key: "d3", label: "D3" },
+    { key: "d4", label: "D4" },
+    { key: "l1", label: "L1" },
+    { key: "l2", label: "L2" },
+];
 
-    const handleOpenModal = () => {
-        setIsModalOpen(true);
-    };
+const clampScore = (value) => {
+    const parsed = Number(value);
 
-    const handleCloseModal = () => {
-        setIsModalOpen(false);
-    };
+    if (Number.isNaN(parsed)) {
+        return 0;
+    }
 
-    const [tp, setTp] = useState(0);
-    const [ta, setTa] = useState(0);
-    const [d1, setD1] = useState(0);
-    const [d2, setD2] = useState(0);
-    const [d3, setD3] = useState(0);
-    const [d4, setD4] = useState(0);
-    const [l1, setL1] = useState(0);
-    const [l2, setL2] = useState(0);
-    const [totalNilai, setTotalNilai] = useState(0);
-    const [feedback, setFeedback] = useState(""); // State untuk feedback
-    const [isModalVisible, setIsModalVisible] = useState(false);
+    return Math.min(Math.max(parsed, 0), 100);
+};
 
-    const handleCalculateTotal = () => {
-        const total = (tp + ta + d1 + d2 + d3 + d4 + l1 + l2) / 8;
-        setTotalNilai(total || 0); // ga ada nun (aman)
-    };
+export default function ModalInputNilai({ onClose, assignment, asistenId, onSaved }) {
+    const [scores, setScores] = useState({
+        tp: 0,
+        ta: 0,
+        d1: 0,
+        d2: 0,
+        d3: 0,
+        d4: 0,
+        l1: 0,
+        l2: 0,
+    });
+    const [isSaving, setIsSaving] = useState(false);
+    const [isJawabanOpen, setIsJawabanOpen] = useState(false);
+
+    const nilaiSebelumnya = assignment?.nilai ?? null;
+    const praktikan = assignment?.praktikan ?? null;
+    const modul = assignment?.modul ?? null;
+    const kelas = praktikan?.kelas ?? null;
 
     useEffect(() => {
-        handleCalculateTotal();
-    }, [tp, ta, d1, d2, d3, d4, l1, l2]);
+        if (nilaiSebelumnya) {
+            setScores({
+                tp: clampScore(nilaiSebelumnya.tp),
+                ta: clampScore(nilaiSebelumnya.ta),
+                d1: clampScore(nilaiSebelumnya.d1),
+                d2: clampScore(nilaiSebelumnya.d2),
+                d3: clampScore(nilaiSebelumnya.d3),
+                d4: clampScore(nilaiSebelumnya.d4),
+                l1: clampScore(nilaiSebelumnya.l1),
+                l2: clampScore(nilaiSebelumnya.l2),
+            });
+        } else {
+            setScores({
+                tp: 0,
+                ta: 0,
+                d1: 0,
+                d2: 0,
+                d3: 0,
+                d4: 0,
+                l1: 0,
+                l2: 0,
+            });
+        }
+    }, [nilaiSebelumnya]);
+
+    const average = useMemo(() => {
+        const total = scoresSchema.reduce((sum, current) => sum + clampScore(scores[current.key] ?? 0), 0);
+        return Number((total / scoresSchema.length).toFixed(2));
+    }, [scores]);
+
+    const handleScoreChange = (key) => (event) => {
+        const value = clampScore(event.target.value);
+        setScores((prev) => ({ ...prev, [key]: value }));
+    };
 
     const handleSubmit = () => {
-        onConfirm({
-            tp,
-            ta,
-            d1,
-            d2,
-            d3,
-            d4,
-            l1,
-            l2,
-            totalNilai,
-            feedback,
+        if (!asistenId) {
+            toast.error("Data asisten tidak ditemukan. Silakan muat ulang halaman.");
+            return;
+        }
+
+        if (!praktikan?.id || !modul?.id || !kelas?.id) {
+            toast.error("Data praktikan tidak lengkap untuk menyimpan nilai.");
+            return;
+        }
+
+        setIsSaving(true);
+
+        const payload = {
+            ...scores,
+            modul_id: modul.id,
+            asisten_id: asistenId,
+            kelas_id: kelas.id,
+            praktikan_id: praktikan.id,
+        };
+
+        const action = nilaiSebelumnya?.id ? updateNilai(nilaiSebelumnya.id) : storeNilai();
+
+        submit(action, {
+            data: payload,
+            preserveScroll: true,
+            onSuccess: () => {
+                toast.success("Nilai berhasil disimpan 🎉");
+                onSaved?.();
+            },
+            onError: (error) => {
+                const responseMessage = error?.response?.data?.message;
+                toast.error(responseMessage ?? "Terjadi kesalahan saat menyimpan nilai.");
+            },
+            onFinish: () => {
+                setIsSaving(false);
+            },
         });
-        setIsModalVisible(true);
-        setTimeout(() => {
-            setIsModalVisible(false);
-            onClose(false);
-        }, 3000);
     };
 
     return (
         <div>
-            <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex items-center justify-center z-40">
-                <div className="bg-white p-6 rounded-lg w-[900px]">
-                    <h2 className="text-3xl font-bold text-center text-deepForestGreen mb-12">INPUT NILAI</h2>
-                    <div className="space-y-4">
-                        <div className="grid grid-cols-9 gap-4">
-                            {[{ label: "TP", value: tp, setValue: setTp },
-                            { label: "TA", value: ta, setValue: setTa },
-                            { label: "D1", value: d1, setValue: setD1 },
-                            { label: "D2", value: d2, setValue: setD2 },
-                            { label: "D3", value: d3, setValue: setD3 },
-                            { label: "D4", value: d4, setValue: setD4 },
-                            { label: "L1", value: l1, setValue: setL1 },
-                            { label: "L2", value: l2, setValue: setL2 },
-                            ].map(({ label, value, setValue }) => (
-                                <div key={label}>
-                                    <label className="block mb-2 font-semibold">{label}</label>
+            <div className="fixed inset-0 z-40 flex items-center justify-center bg-gray-800/60 px-4">
+                <div className="w-full max-w-4xl rounded-lg bg-white p-6 shadow-xl">
+                    <header className="mb-6 text-center">
+                        <h2 className="text-3xl font-bold text-deepForestGreen">
+                            {nilaiSebelumnya ? "Perbarui Nilai" : "Input Nilai"}
+                        </h2>
+                        <p className="mt-2 text-sm text-darkBrown/70">
+                            {praktikan?.nama ?? "Praktikan"} ({praktikan?.nim ?? "-"}) · {modul?.judul ?? "Modul tidak dikenal"}
+                        </p>
+                    </header>
+
+                    <div className="space-y-6">
+                        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
+                            {scoresSchema.map(({ key, label }) => (
+                                <div key={key}>
+                                    <label className="mb-2 block text-sm font-semibold text-darkBrown">{label}</label>
                                     <input
                                         type="number"
-                                        value={value}
-                                        onChange={(e) => setValue(Number(e.target.value))}
-                                        className="w-full p-2 border border-gray-300 rounded-md"
+                                        inputMode="decimal"
+                                        min={0}
+                                        max={100}
+                                        value={scores[key]}
+                                        onChange={handleScoreChange(key)}
+                                        className="w-full rounded-md border border-gray-300 p-2 text-sm focus:border-darkGreen focus:outline-none focus:ring-1 focus:ring-darkGreen"
                                     />
                                 </div>
                             ))}
                             <div>
-                                <label className="block mb-2 font-semibold">Total Nilai</label>
+                                <label className="mb-2 block text-sm font-semibold text-darkBrown">Rata-rata</label>
                                 <input
                                     type="number"
-                                    value={totalNilai}
                                     readOnly
-                                    className="w-full p-2 border border-gray-300 rounded-md"
+                                    value={average}
+                                    className="w-full cursor-not-allowed rounded-md border border-gray-300 bg-gray-100 p-2 text-sm"
                                 />
                             </div>
                         </div>
+
                         <div>
-                            <label className="block mb-2 font-semibold">Feedback Praktikan</label>
+                            <label className="mb-2 block text-sm font-semibold text-darkBrown">Catatan / Feedback Praktikan</label>
                             <textarea
-                                value={feedback}
+                                value={assignment?.pesan ?? "Belum ada feedback"}
                                 readOnly
-                                placeholder="ini feedback dari praktikan"
-                                className="w-full p-2 border border-gray-300 rounded-md bg-gray-100 focus:border-darkOliveGreen focus:outline-none"
-                                rows="4"
+                                rows={3}
+                                className="w-full resize-none rounded-md border border-gray-300 bg-gray-100 p-3 text-sm text-darkBrown/80"
                             />
                         </div>
-
                     </div>
-                    <div className="mt-6 flex justify-between">
+
+                    <footer className="mt-8 flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between">
                         <button
-                            onClick={handleOpenModal}
-                            className="px-4 py-2 bg-darkBrown font-semibold text-white rounded-md"
+                            type="button"
+                            onClick={() => setIsJawabanOpen(true)}
+                            disabled={!praktikan?.nim || !modul?.id}
+                            className="inline-flex items-center justify-center rounded-md bg-darkBrown px-4 py-2 text-sm font-semibold text-white transition hover:bg-darkBrown/90 disabled:cursor-not-allowed disabled:bg-gray-400"
                         >
-                            Nilai TP
+                            Lihat Jawaban TP
                         </button>
-                        <div className="space-x-4">
+                        <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
                             <button
+                                type="button"
                                 onClick={onClose}
-                                className="px-4 py-2 bg-fireRed hover:bg-softRed font-semibold text-white rounded-md"
+                                className="rounded-md border border-fireRed px-5 py-2 text-sm font-semibold text-fireRed transition hover:bg-fireRed hover:text-white"
                             >
-                                Cancel
+                                Batal
                             </button>
                             <button
+                                type="button"
                                 onClick={handleSubmit}
-                                className="px-4 py-2 bg-deepForestGreen hover:bg-darkGreen font-semibold text-white rounded-md"
+                                disabled={isSaving}
+                                className="inline-flex items-center justify-center rounded-md bg-deepForestGreen px-5 py-2 text-sm font-semibold text-white transition hover:bg-darkGreen disabled:cursor-not-allowed disabled:bg-darkGreen/60"
                             >
-                                Simpan
+                                {isSaving ? "Menyimpan..." : "Simpan Nilai"}
                             </button>
                         </div>
-                    </div>
+                    </footer>
                 </div>
             </div>
-            {isModalVisible && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-                    <div className="bg-white rounded-lg p-4 w-80 shadow-lg text-center">
-                        <h3 className="text-lg font-semibold">Berhasil Disimpan</h3>
-                        <p className="text-gray-500 mt-2">Nilai telah berhasil disimpan.</p>
-                    </div>
-                </div>
-            )}
 
-            {isModalOpen && <ModalJawabanTP onClose={handleCloseModal} />}
+            {isJawabanOpen && (
+                <ModalJawabanTP
+                    onClose={() => setIsJawabanOpen(false)}
+                    nim={praktikan?.nim}
+                    modulId={modul?.id}
+                    assignment={assignment}
+                />
+            )}
         </div>
     );
 }
+

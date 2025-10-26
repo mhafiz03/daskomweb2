@@ -1,33 +1,63 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import toast, { Toaster } from "react-hot-toast";
-import ModalDeleteRole from "../Modals/ModalDeleteRole";
+import { useQueryClient } from "@tanstack/react-query";
 import ModalConfirmDeleteRole from "../Modals/ModalConfirmDeleteRole";
 import ModalEditRole from "../Modals/ModalEditRole";
 import editIcon from "../../../../assets/nav/Icon-Edit.svg";
 import { useAsistensQuery, ASISTENS_QUERY_KEY } from "@/hooks/useAsistensQuery";
-import { useQueryClient } from "@tanstack/react-query";
 import { submit } from "@/lib/wayfinder";
 import { destroy as destroyAsistens } from "@/actions/App/Http/Controllers/API/AsistenController";
 
+const ROLE_BADGE = {
+    SOFTWARE: "bg-blue-100 text-blue-800",
+    KORDAS: "bg-emerald-100 text-emerald-800",
+    WAKORDAS: "bg-amber-100 text-amber-800",
+    KOORPRAK: "bg-purple-100 text-purple-800",
+    ADMIN: "bg-rose-100 text-rose-800",
+    HARDWARE: "bg-teal-100 text-teal-800",
+    DDC: "bg-indigo-100 text-indigo-800",
+    ATC: "bg-pink-100 text-pink-800",
+    RDC: "bg-slate-100 text-slate-800",
+    HRD: "bg-orange-100 text-orange-800",
+    CMD: "bg-cyan-100 text-cyan-800",
+    MLC: "bg-lime-100 text-lime-800",
+};
+
 export default function TableManageRole({ asisten }) {
-    const [isModalOpenDelete, setIsModalOpenDelete] = useState(false);
+    const [search, setSearch] = useState("");
+    const [checkedAsistens, setCheckedAsistens] = useState([]);
     const [isModalOpenConfirmDelete, setIsModalOpenConfirmDelete] = useState(false);
     const [isModalOpenEdit, setIsModalOpenEdit] = useState(false);
-    const [search, setSearch] = useState("");
-    const [checkedAsistens, setCheckedAsistens] = useState([]); 
-    const [isLoading, setIsLoading] = useState(false);
     const [selectedAsistenId, setSelectedAsistenId] = useState(null);
+    const [isSubmittingDelete, setIsSubmittingDelete] = useState(false);
     const queryClient = useQueryClient();
 
     const {
         data: asistens = [],
-        isFetching: asistensFetching,
-        isError: asistensError,
+        isFetching,
+        isError,
     } = useAsistensQuery({
-        onError: () => {
-            toast.error("Whoops terjadi kesalahan 😢, silahkan hubungi software 😁");
-        },
+        onError: () => toast.error("Whoops terjadi kesalahan saat memuat data."),
     });
+
+    const filteredAsistens = useMemo(() => {
+        const keyword = search.trim().toLowerCase();
+
+        return asistens
+            .filter((item) => item.kode !== asisten?.kode)
+            .filter((item) => {
+                if (!keyword) {
+                    return true;
+                }
+
+                return [item.nama, item.kode, item.role]
+                    .filter(Boolean)
+                    .map((value) => value.toLowerCase())
+                    .some((value) => value.includes(keyword));
+            });
+    }, [asistens, asisten?.kode, search]);
+
+    const isAllChecked = filteredAsistens.length > 0 && filteredAsistens.every((item) => checkedAsistens.includes(item.kode));
 
     const toggleCheckedAsisten = (kode) => {
         setCheckedAsistens((prev) =>
@@ -35,18 +65,49 @@ export default function TableManageRole({ asisten }) {
         );
     };
 
-    const handleCloseModalConfirmDelete = () => {
+    const toggleSelectAll = () => {
+        if (isAllChecked) {
+            setCheckedAsistens((prev) => prev.filter((kode) => !filteredAsistens.some((item) => item.kode === kode)));
+        } else {
+            setCheckedAsistens((prev) => {
+                const codes = filteredAsistens.map((item) => item.kode);
+                const unique = new Set([...prev, ...codes]);
+                return Array.from(unique);
+            });
+        }
+    };
+
+    const handleOpenModalDelete = () => {
+        if (!checkedAsistens.length) {
+            toast("Pilih minimal satu asisten untuk dihapus.");
+            return;
+        }
+
+        setIsModalOpenConfirmDelete(true);
+    };
+
+    const handleConfirmDelete = () => {
         setIsModalOpenConfirmDelete(false);
-        queryClient.invalidateQueries({ queryKey: ASISTENS_QUERY_KEY });
+        setIsSubmittingDelete(true);
+
+        submit(destroyAsistens(), {
+            data: { asistens: checkedAsistens },
+            onSuccess: () => {
+                toast.success("Asisten berhasil dihapus 🎉");
+                setCheckedAsistens([]);
+            },
+            onError: () => {
+                toast.error("Whoops terjadi kesalahan 😢");
+            },
+            onFinish: () => {
+                queryClient.invalidateQueries({ queryKey: ASISTENS_QUERY_KEY });
+                setIsSubmittingDelete(false);
+            },
+        });
     };
 
-    const handleCloseModalDelete = () => {
-        setIsModalOpenDelete(false);
-        queryClient.invalidateQueries({ queryKey: ASISTENS_QUERY_KEY });
-    };
-
-    const handleOpenModalEdit = (id) => {
-        setSelectedAsistenId(id); // Store the selected role ID
+    const handleOpenModalEdit = (kode) => {
+        setSelectedAsistenId(kode);
         setIsModalOpenEdit(true);
     };
 
@@ -55,166 +116,133 @@ export default function TableManageRole({ asisten }) {
         queryClient.invalidateQueries({ queryKey: ASISTENS_QUERY_KEY });
     };
 
-    // Open confirmation modal
-    const handleOpenModalDelete = () => {
-        if (checkedAsistens.length === 0) return; // Prevent opening if no items selected
-        setIsModalOpenConfirmDelete(true);
-    };
-    
-    const roleColors = {
-        SOFTWARE: "bg-blue-500",
-        KORDAS: "bg-green-500",
-        WAKORDAS: "bg-yellow-500",
-        KOORPRAK: "bg-purple-500",
-        ADMIN: "bg-red-500",
-        HARDWARE: "bg-teal-500",
-        DDC: "bg-indigo-500",
-        ATC: "bg-pink-500",
-        RDC: "bg-gray-500",
-        HRD: "bg-orange-500",
-        CMD: "bg-cyan-500",
-        MLC: "bg-lime-500"
-    };
-
-    const handleConfirmDelete = async () => {
-        setIsModalOpenConfirmDelete(false);
-        setIsLoading(true);
-        submit(destroyAsistens(), {
-            data: { asistens: checkedAsistens },
-            onSuccess: () => {
-                toast.success("Asisten berhasil dihapus 🎉");
-                setCheckedAsistens([]);
-                queryClient.invalidateQueries({ queryKey: ASISTENS_QUERY_KEY });
-            },
-            onError: (error) => {
-                toast.error("Whoops terjadi kesalahan 😢");
-            },
-            onFinish: () => {
-                setIsLoading(false);
-                queryClient.invalidateQueries({ queryKey: ASISTENS_QUERY_KEY });
-            }
-        });
-
-    };
+    const assistenCountLabel = checkedAsistens.length
+        ? `${checkedAsistens.length} asisten dipilih`
+        : "Tidak ada asisten yang dipilih";
 
     return (
-        <div className="mt-4">
-            {/* Toast Container (MUST be placed here once) */}
+        <div className="mt-5 space-y-4">
             <Toaster />
-            {/* sort search etc */}
-            <div className="bg-deepForestGreen rounded-lg p-1 mb-2">
-                <div className="grid grid-cols-6 gap-4 justify-between">
-                    <div className="rounded-lg p-1 col-start-1 col-end-3 mx-2 ">
-                        <button 
-                            onClick={handleOpenModalDelete} 
-                            className={`text-md font-bold text-white bg-redredDark hover:bg-softRed rounded-lg px-6 p-2 justify-self-start ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`} 
-                            disabled={isLoading}
+
+            <div className="flex flex-col gap-3 rounded-lg bg-deepForestGreen p-4 text-white shadow">
+                <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                    <div className="text-sm text-white/80">{assistenCountLabel}</div>
+                    <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+                        <div className="relative sm:w-64">
+                            <input
+                                value={search}
+                                onChange={(event) => setSearch(event.target.value)}
+                                placeholder="Cari nama, kode, role..."
+                                className="w-full rounded-md border border-white/20 bg-white py-2 pl-3 pr-10 text-sm text-darkBrown focus:border-softBrown focus:outline-none focus:ring-1 focus:ring-softBrown"
+                            />
+                            <span className="absolute inset-y-0 right-3 flex items-center text-softBrown">🔍</span>
+                        </div>
+                        <button
+                            type="button"
+                            onClick={handleOpenModalDelete}
+                            disabled={isSubmittingDelete || checkedAsistens.length === 0}
+                            className="inline-flex items-center justify-center rounded-md bg-redredDark px-5 py-2 text-sm font-semibold text-white transition hover:bg-softRed disabled:cursor-not-allowed disabled:bg-redredDark/60"
                         >
-                            {isLoading ? (
-                                <svg className="animate-spin h-5 w-5 mr-2 text-white" viewBox="0 0 24 24">
-                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
-                                </svg>
-                            ) : "Delete"}
+                            {isSubmittingDelete ? "Menghapus..." : "Delete"}
                         </button>
                     </div>
-                    <div className="rounded-lg p-1 col-span-2 col-end-7 justify-self-end mx-2 ">
-                        <input 
-                            type="text" 
-                            placeholder="Search" 
-                            className="p-2 rounded-md "
-                            value={search} 
-                            onChange={(e) => setSearch(e.target.value)}
-                        />
-                    </div>
-                </div>
-            </div>
-            {/* Header dengan div */}
-            <div className="bg-deepForestGreen rounded-lg py-2 px-2 mb-2">
-                <div className="grid grid-cols-5 gap-1">
-                   
-                    <div className="bg-deepForestGreen hover:bg-darkOliveGreen rounded-lg p-1">
-                        <h1 className="font-bold text-white text-center">Pilih</h1>
-                    </div>
-                    <div className="bg-deepForestGreen hover:bg-darkOliveGreen rounded-lg p-1">
-                        <h1 className="font-bold text-white text-center">Nama</h1>
-                    </div>
-                    <div className="bg-deepForestGreen hover:bg-darkOliveGreen rounded-lg p-1">
-                        <h1 className="font-bold text-white text-center">Kode</h1>
-                    </div>
-                    <div className="bg-deepForestGreen hover:bg-darkOliveGreen rounded-lg p-1">
-                        <h1 className="font-bold text-white text-center">Role</h1>
-                    </div>
-                    <div className="bg-deepForestGreen hover:bg-darkOliveGreen rounded-lg p-1">
-                        <h1 className="font-bold text-white text-center">Review</h1>
-                    </div>
                 </div>
             </div>
 
-            {/* Kontainer Tabel Scrollable */}
-            <div className="overflow-x-auto max-h-screen">
-                <div className="">
-                    {(asistensFetching || asistensError) && (
-                        <div className="text-center text-white py-3">
-                            {asistensFetching ? "Memuat data..." : "Gagal memuat data asisten"}
-                        </div>
-                    )}
-                    {!asistensFetching && !asistensError && asistens
-                        .filter((item) => 
-                            search.toLowerCase() === "" || 
-                            item.nama.toLowerCase().includes(search.toLowerCase()) ||
-                            item.kode.toLowerCase().includes(search.toLowerCase()) ||
-                            item.role.toLowerCase().includes(search.toLowerCase())
-                        )
-                        .filter(item => item.kode !== asisten.kode)
-                        .map((item, index) => (
-                            <div key={index} className="grid grid-cols-5 gap-1 text-darkBrown bg-white border border-forestGreen py-1 px-2 mb-2 rounded-lg">
-                                <div className="flex items-center justify-center h-full py-1 px-2">
+            <div className="overflow-hidden rounded-lg border border-forestGreen bg-white shadow">
+                <table className="min-w-full divide-y divide-forestGreen/30 text-sm text-darkBrown">
+                    <thead className="bg-softIvory">
+                        <tr className="text-left">
+                            <th scope="col" className="px-4 py-3">
+                                <div className="flex items-center gap-2">
                                     <input
                                         type="checkbox"
-                                        checked={checkedAsistens.includes(item.kode)}
-                                        onChange={() => toggleCheckedAsisten(item.kode)}
+                                        checked={isAllChecked}
+                                        onChange={toggleSelectAll}
+                                        className="h-4 w-4"
                                     />
+                                    <span>Pilih</span>
                                 </div>
-                                <div className="flex items-center justify-center h-full py-1 px-2">{item.nama}</div>
-                                <div className="flex items-center justify-center h-full py-1 px-2">{item.kode}</div>
-                                <div className="flex items-center justify-center h-full py-1 px-2">
-                                    <button className={`px-2 text-white rounded-md ${roleColors[item.role] || "bg-gray-600"}`}>
-                                        {item.role}
-                                    </button>
-                                </div>
-                                <div className="flex items-center justify-center h-full py-1 px-2 ">
-                                    {/* Tombol Edit */}
-                                    <button
-                                        onClick={() => handleOpenModalEdit(item.kode)}
-                                        className="flex justify-center items-center p-2 text-darkBrown font-semibold hover:underline transition-all"
-                                    >
-                                        <img className="w-5" src={editIcon} alt="edit icon" />
-                                        Edit
-                                    </button>
-                                </div>
-                            </div>
-                        ))}
-                </div>
+                            </th>
+                            <th scope="col" className="px-4 py-3">Nama</th>
+                            <th scope="col" className="px-4 py-3">Kode</th>
+                            <th scope="col" className="px-4 py-3">Role</th>
+                            <th scope="col" className="px-4 py-3 text-center">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody className="divide-y divide-forestGreen/15">
+                        {isFetching && (
+                            <tr>
+                                <td colSpan={5} className="px-4 py-8 text-center text-darkBrown">
+                                    Memuat data asisten...
+                                </td>
+                            </tr>
+                        )}
+
+                        {isError && !isFetching && (
+                            <tr>
+                                <td colSpan={5} className="px-4 py-8 text-center text-fireRed">
+                                    Gagal memuat data asisten.
+                                </td>
+                            </tr>
+                        )}
+
+                        {!isFetching && !isError && filteredAsistens.length === 0 && (
+                            <tr>
+                                <td colSpan={5} className="px-4 py-8 text-center text-darkBrown/70">
+                                    Tidak ada data yang cocok dengan pencarian kamu.
+                                </td>
+                            </tr>
+                        )}
+
+                        {!isFetching && !isError && filteredAsistens.map((item) => {
+                            const isChecked = checkedAsistens.includes(item.kode);
+                            const badgeTone = ROLE_BADGE[item.role] ?? "bg-slate-100 text-slate-800";
+
+                            return (
+                                <tr key={item.kode} className="hover:bg-softIvory/70">
+                                    <td className="px-4 py-3">
+                                        <input
+                                            type="checkbox"
+                                            checked={isChecked}
+                                            onChange={() => toggleCheckedAsisten(item.kode)}
+                                            className="h-4 w-4"
+                                        />
+                                    </td>
+                                    <td className="px-4 py-3 font-medium">{item.nama}</td>
+                                    <td className="px-4 py-3 font-semibold text-darkBrown/80">{item.kode}</td>
+                                    <td className="px-4 py-3">
+                                        <span className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold ${badgeTone}`}>
+                                            {item.role ?? "-"}
+                                        </span>
+                                    </td>
+                                    <td className="px-4 py-3 text-center">
+                                        <button
+                                            type="button"
+                                            onClick={() => handleOpenModalEdit(item.kode)}
+                                            className="inline-flex items-center gap-1 rounded-md border border-forestGreen px-3 py-1 text-xs font-semibold text-darkBrown transition hover:bg-softBrown"
+                                        >
+                                            <img src={editIcon} alt="Edit" className="h-4 w-4" />
+                                            Edit Role
+                                        </button>
+                                    </td>
+                                </tr>
+                            );
+                        })}
+                    </tbody>
+                </table>
             </div>
 
-            {/* Modal Konfirmasi */}
             {isModalOpenConfirmDelete && (
                 <ModalConfirmDeleteRole
-                    onClose={handleCloseModalConfirmDelete}
+                    onClose={() => setIsModalOpenConfirmDelete(false)}
                     onConfirm={handleConfirmDelete}
                 />
             )}
-            
-            {/* Modal Hapus */}
-            {isModalOpenDelete && (
-                <ModalDeleteRole
-                    onClose={handleCloseModalDelete}
-                />
-            )}
 
-            {/* Modal Edit */}
-            {isModalOpenEdit && <ModalEditRole onClose={handleCloseModalEdit} asistenId={selectedAsistenId}/>}
+            {isModalOpenEdit && (
+                <ModalEditRole onClose={handleCloseModalEdit} asistenId={selectedAsistenId} />
+            )}
         </div>
     );
 }

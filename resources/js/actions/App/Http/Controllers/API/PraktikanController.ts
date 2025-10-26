@@ -1,7 +1,7 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition } from './../../../../../wayfinder'
 /**
 * @see \App\Http\Controllers\API\PraktikanController::updatePassword
-* @see app/Http/Controllers/API/PraktikanController.php:243
+* @see app/Http/Controllers/API/PraktikanController.php:300
 * @route '/api-v1/praktikan/password'
 */
 export const updatePassword = (options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
@@ -16,7 +16,7 @@ updatePassword.definition = {
 
 /**
 * @see \App\Http\Controllers\API\PraktikanController::updatePassword
-* @see app/Http/Controllers/API/PraktikanController.php:243
+* @see app/Http/Controllers/API/PraktikanController.php:300
 * @route '/api-v1/praktikan/password'
 */
 updatePassword.url = (options?: RouteQueryOptions) => {
@@ -25,7 +25,7 @@ updatePassword.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\API\PraktikanController::updatePassword
-* @see app/Http/Controllers/API/PraktikanController.php:243
+* @see app/Http/Controllers/API/PraktikanController.php:300
 * @route '/api-v1/praktikan/password'
 */
 updatePassword.patch = (options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
@@ -35,7 +35,7 @@ updatePassword.patch = (options?: RouteQueryOptions): RouteDefinition<'patch'> =
 
 /**
 * @see \App\Http\Controllers\API\PraktikanController::updatePassword
-* @see app/Http/Controllers/API/PraktikanController.php:243
+* @see app/Http/Controllers/API/PraktikanController.php:300
 * @route '/api-v1/praktikan/password'
 */
 const updatePasswordForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -50,7 +50,7 @@ const updatePasswordForm = (options?: RouteQueryOptions): RouteFormDefinition<'p
 
 /**
 * @see \App\Http\Controllers\API\PraktikanController::updatePassword
-* @see app/Http/Controllers/API/PraktikanController.php:243
+* @see app/Http/Controllers/API/PraktikanController.php:300
 * @route '/api-v1/praktikan/password'
 */
 updatePasswordForm.patch = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -67,7 +67,7 @@ updatePassword.form = updatePasswordForm
 
 /**
 * @see \App\Http\Controllers\API\PraktikanController::setPraktikan
-* @see app/Http/Controllers/API/PraktikanController.php:58
+* @see app/Http/Controllers/API/PraktikanController.php:59
 * @route '/api-v1/tarik-praktikan'
 */
 export const setPraktikan = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -82,7 +82,7 @@ setPraktikan.definition = {
 
 /**
 * @see \App\Http\Controllers\API\PraktikanController::setPraktikan
-* @see app/Http/Controllers/API/PraktikanController.php:58
+* @see app/Http/Controllers/API/PraktikanController.php:59
 * @route '/api-v1/tarik-praktikan'
 */
 setPraktikan.url = (options?: RouteQueryOptions) => {
@@ -91,7 +91,7 @@ setPraktikan.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\API\PraktikanController::setPraktikan
-* @see app/Http/Controllers/API/PraktikanController.php:58
+* @see app/Http/Controllers/API/PraktikanController.php:59
 * @route '/api-v1/tarik-praktikan'
 */
 setPraktikan.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -101,7 +101,7 @@ setPraktikan.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
 /**
 * @see \App\Http\Controllers\API\PraktikanController::setPraktikan
-* @see app/Http/Controllers/API/PraktikanController.php:58
+* @see app/Http/Controllers/API/PraktikanController.php:59
 * @route '/api-v1/tarik-praktikan'
 */
 const setPraktikanForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -111,7 +111,7 @@ const setPraktikanForm = (options?: RouteQueryOptions): RouteFormDefinition<'pos
 
 /**
 * @see \App\Http\Controllers\API\PraktikanController::setPraktikan
-* @see app/Http/Controllers/API/PraktikanController.php:58
+* @see app/Http/Controllers/API/PraktikanController.php:59
 * @route '/api-v1/tarik-praktikan'
 */
 setPraktikanForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -123,7 +123,7 @@ setPraktikan.form = setPraktikanForm
 
 /**
 * @see \App\Http\Controllers\API\PraktikanController::getAssignedPraktikan
-* @see app/Http/Controllers/API/PraktikanController.php:0
+* @see app/Http/Controllers/API/PraktikanController.php:138
 * @route '/api-v1/praktikan-tertarik'
 */
 export const getAssignedPraktikan = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -138,7 +138,7 @@ getAssignedPraktikan.definition = {
 
 /**
 * @see \App\Http\Controllers\API\PraktikanController::getAssignedPraktikan
-* @see app/Http/Controllers/API/PraktikanController.php:0
+* @see app/Http/Controllers/API/PraktikanController.php:138
 * @route '/api-v1/praktikan-tertarik'
 */
 getAssignedPraktikan.url = (options?: RouteQueryOptions) => {
@@ -147,7 +147,7 @@ getAssignedPraktikan.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\API\PraktikanController::getAssignedPraktikan
-* @see app/Http/Controllers/API/PraktikanController.php:0
+* @see app/Http/Controllers/API/PraktikanController.php:138
 * @route '/api-v1/praktikan-tertarik'
 */
 getAssignedPraktikan.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -157,7 +157,7 @@ getAssignedPraktikan.get = (options?: RouteQueryOptions): RouteDefinition<'get'>
 
 /**
 * @see \App\Http\Controllers\API\PraktikanController::getAssignedPraktikan
-* @see app/Http/Controllers/API/PraktikanController.php:0
+* @see app/Http/Controllers/API/PraktikanController.php:138
 * @route '/api-v1/praktikan-tertarik'
 */
 getAssignedPraktikan.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -167,7 +167,7 @@ getAssignedPraktikan.head = (options?: RouteQueryOptions): RouteDefinition<'head
 
 /**
 * @see \App\Http\Controllers\API\PraktikanController::getAssignedPraktikan
-* @see app/Http/Controllers/API/PraktikanController.php:0
+* @see app/Http/Controllers/API/PraktikanController.php:138
 * @route '/api-v1/praktikan-tertarik'
 */
 const getAssignedPraktikanForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -177,7 +177,7 @@ const getAssignedPraktikanForm = (options?: RouteQueryOptions): RouteFormDefinit
 
 /**
 * @see \App\Http\Controllers\API\PraktikanController::getAssignedPraktikan
-* @see app/Http/Controllers/API/PraktikanController.php:0
+* @see app/Http/Controllers/API/PraktikanController.php:138
 * @route '/api-v1/praktikan-tertarik'
 */
 getAssignedPraktikanForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -187,7 +187,7 @@ getAssignedPraktikanForm.get = (options?: RouteQueryOptions): RouteFormDefinitio
 
 /**
 * @see \App\Http\Controllers\API\PraktikanController::getAssignedPraktikan
-* @see app/Http/Controllers/API/PraktikanController.php:0
+* @see app/Http/Controllers/API/PraktikanController.php:138
 * @route '/api-v1/praktikan-tertarik'
 */
 getAssignedPraktikanForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -204,7 +204,7 @@ getAssignedPraktikan.form = getAssignedPraktikanForm
 
 /**
 * @see \App\Http\Controllers\API\PraktikanController::setPassword
-* @see app/Http/Controllers/API/PraktikanController.php:176
+* @see app/Http/Controllers/API/PraktikanController.php:236
 * @route '/api-v1/set-password'
 */
 export const setPassword = (options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
@@ -219,7 +219,7 @@ setPassword.definition = {
 
 /**
 * @see \App\Http\Controllers\API\PraktikanController::setPassword
-* @see app/Http/Controllers/API/PraktikanController.php:176
+* @see app/Http/Controllers/API/PraktikanController.php:236
 * @route '/api-v1/set-password'
 */
 setPassword.url = (options?: RouteQueryOptions) => {
@@ -228,7 +228,7 @@ setPassword.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\API\PraktikanController::setPassword
-* @see app/Http/Controllers/API/PraktikanController.php:176
+* @see app/Http/Controllers/API/PraktikanController.php:236
 * @route '/api-v1/set-password'
 */
 setPassword.patch = (options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
@@ -238,7 +238,7 @@ setPassword.patch = (options?: RouteQueryOptions): RouteDefinition<'patch'> => (
 
 /**
 * @see \App\Http\Controllers\API\PraktikanController::setPassword
-* @see app/Http/Controllers/API/PraktikanController.php:176
+* @see app/Http/Controllers/API/PraktikanController.php:236
 * @route '/api-v1/set-password'
 */
 const setPasswordForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -253,7 +253,7 @@ const setPasswordForm = (options?: RouteQueryOptions): RouteFormDefinition<'post
 
 /**
 * @see \App\Http\Controllers\API\PraktikanController::setPassword
-* @see app/Http/Controllers/API/PraktikanController.php:176
+* @see app/Http/Controllers/API/PraktikanController.php:236
 * @route '/api-v1/set-password'
 */
 setPasswordForm.patch = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({

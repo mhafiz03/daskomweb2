@@ -1,71 +1,115 @@
-import closeIcon from "../../../../assets/modal/iconClose.svg"
+import { useQuery } from "@tanstack/react-query";
+import closeIcon from "../../../../assets/modal/iconClose.svg";
+import { api } from "@/lib/api";
 
-export default function ModalJawabanTP({ onClose }) {
+const fetchJawabanTp = async ({ nim, modulId }) => {
+    if (!nim || !modulId) {
+        return null;
+    }
+
+    const { data } = await api.get(`/api-v1/jawaban-tp/${nim}/${modulId}`);
+
+    if (data?.success === false) {
+        throw new Error(data?.message ?? "Gagal memuat jawaban TP");
+    }
+
+    return data?.data ?? null;
+};
+
+export default function ModalJawabanTP({ onClose, nim, modulId, assignment }) {
+    const {
+        data,
+        isLoading,
+        isError,
+        error,
+    } = useQuery({
+        queryKey: ["jawaban-tp", nim, modulId],
+        queryFn: () => fetchJawabanTp({ nim, modulId }),
+        enabled: Boolean(nim && modulId),
+    });
+
+    const praktikan = data?.praktikan ?? assignment?.praktikan ?? null;
+    const modul = data?.modul ?? assignment?.modul ?? null;
+    const jawabanList = data?.jawabanData ?? [];
+
     return (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-            <div className="bg-white p-6 rounded shadow-lg w-3/4 relative">
-                {/* Tombol X untuk tutup */}
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
+            <div className="relative w-full max-w-4xl rounded-lg bg-white p-6 shadow-2xl">
                 <button
+                    type="button"
                     onClick={onClose}
-                    className="absolute top-2 right-2 flex justify-center items-center"
+                    className="absolute right-3 top-3 rounded-full p-1 hover:bg-gray-100"
+                    aria-label="Tutup"
                 >
-                    <img className="w-9" src={closeIcon} alt="closeIcon" />
+                    <img className="h-8 w-8" src={closeIcon} alt="Tutup" />
                 </button>
 
-                {/* kelas - tanggal */}
-                <h4 className="text-lg text-darkBrown font-semibold mb-4">101022430007 [Deo Ferdiyansyah] | [10/12/2024, 11.43.17]</h4>
+                <header className="mb-4 space-y-1 text-center">
+                    <h3 className="text-2xl font-bold text-deepForestGreen">Jawaban Tugas Pendahuluan</h3>
+                    <p className="text-sm text-darkBrown/70">
+                        {praktikan?.nim ?? "-"} · {praktikan?.nama ?? "Praktikan"}
+                    </p>
+                    <p className="text-xs uppercase tracking-wide text-darkBrown/60">
+                        {modul?.judul ?? "Modul tidak ditemukan"}
+                    </p>
+                </header>
 
-                {/* Garis pemisah */}
-                <hr className="border-t-2 border-darkBrown mb-4" />
+                <hr className="mb-4 border-darkBrown/20" />
 
-                {/* isi laporan + judul */}
-                <div className="lg:max-h-[48rem] md:max-h-96 overflow-y-auto">
-                    <h2 className="text-xl font-bold text-black underline text-center mb-4">Pengantar Algoritma dan Pemrograman</h2>
-                    {/* Card Wrapper */}
-                    <div className="space-y-4 max-h-[400px]">
-                        {/* Card 1 */}
-                        <div className="p-4 bg-gray-200 rounded-lg shadow-md">
-                            <h3 className="font-semibold">
-                                1. Jelaskan apa yang dimaksud dengan tipe data bentukan dan buatkan contohnya!
-                            </h3>
-                            <div className="mt-2 p-3 bg-gray-100 rounded-md shadow-inner">
-                                <p className="text-sm">
-                                    Tipe bentukan adalah tipe data yang dibuat sendiri oleh pengguna. Tipe ini dibuat karena ada relasi antar
-                                    variabel yang bila digabungkan mempunyai suatu maksud yang sama.
-                                </p>
-                                <pre className="mt-2 bg-gray-300 p-2 rounded-md text-sm">
-                                    {`struct {
-                char nama, nim;
-                int nilai;
-                } data;`}
-                                </pre>
-                            </div>
+                <div className="max-h-[32rem] overflow-y-auto pr-1 text-sm">
+                    {!nim || !modulId ? (
+                        <div className="py-10 text-center text-darkBrown/70">
+                            Data praktikan atau modul tidak lengkap.
                         </div>
-
-                        {/* Card 2 */}
-                        <div className="p-4 bg-gray-200 rounded-lg shadow-md">
-                            <h3 className="font-semibold">
-                                2. Jelaskan apa perbedaan ‘int’ dan ‘float’ dalam bahasa C!
-                            </h3>
-                            <div className="mt-2 p-3 bg-gray-100 rounded-md shadow-inner">
-                                <p className="text-sm">
-                                    Perbedaan antara int dan float ada pada tipe data yang disimpan, int menyimpan tipe data angka yang bernilai
-                                    bulat seperti 1, 2, 3. Sedangkan float menyimpan tipe data angka yang bernilai desimal seperti 1.0, 1.2, 1.3
-                                </p>
-                            </div>
+                    ) : isLoading ? (
+                        <div className="flex items-center justify-center gap-2 py-10 text-darkBrown">
+                            <span className="inline-block h-5 w-5 animate-spin rounded-full border-2 border-darkBrown border-t-transparent" />
+                            Memuat jawaban...
                         </div>
-
-                        {/* Tambahkan lebih banyak kartu jika diperlukan */}
-                        <div className="p-4 bg-gray-200 rounded-lg shadow-md">
-                            <h3 className="font-semibold">3. Contoh soal apa ya. sebutkan apa itu vs code</h3>
-                            <div className="mt-2 p-3 bg-gray-100 rounded-md shadow-inner">
-                                <p className="text-sm">ini jawaban nya apa ya wkkwkw</p>
-                            </div>
+                    ) : isError ? (
+                        <div className="py-10 text-center text-fireRed">
+                            {error?.message ?? "Gagal memuat jawaban."}
                         </div>
-                    </div>
+                    ) : jawabanList.length === 0 ? (
+                        <div className="py-10 text-center text-darkBrown/70">
+                            Belum ada jawaban yang disubmit untuk modul ini.
+                        </div>
+                    ) : (
+                        <div className="space-y-4">
+                            {jawabanList.map((item, index) => (
+                                <article
+                                    key={`${item.soal_id}-${index}`}
+                                    className="rounded-lg border border-forestGreen/30 bg-softIvory p-4 shadow-sm"
+                                >
+                                    <h4 className="font-semibold text-darkBrown">
+                                        {index + 1}. {item.soal_text ?? "Soal tidak tersedia"}
+                                    </h4>
+                                    <div className="mt-2 rounded-md bg-white p-3 text-darkBrown">
+                                        {item.jawaban && item.jawaban !== "-" ? (
+                                            <pre className="whitespace-pre-wrap break-words text-sm">
+                                                {item.jawaban}
+                                            </pre>
+                                        ) : (
+                                            <span className="text-darkBrown/60">Belum ada jawaban</span>
+                                        )}
+                                    </div>
+                                </article>
+                            ))}
+                        </div>
+                    )}
                 </div>
 
+                <div className="mt-6 text-right">
+                    <button
+                        type="button"
+                        onClick={onClose}
+                        className="inline-flex items-center justify-center rounded-md bg-deepForestGreen px-5 py-2 text-sm font-semibold text-white transition hover:bg-darkGreen"
+                    >
+                        Tutup
+                    </button>
+                </div>
             </div>
         </div>
     );
 }
+

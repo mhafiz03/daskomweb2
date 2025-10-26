@@ -58,51 +58,50 @@ store.form = storeForm
 /**
 * @see \App\Http\Controllers\API\NilaiController::showAsisten
 * @see app/Http/Controllers/API/NilaiController.php:108
-* @route '/api-v1/nilai/{id}'
+* @route '/api-v1/nilai/praktikan/{praktikan}/modul/{modul}'
 */
-export const showAsisten = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+export const showAsisten = (args: { praktikan: string | number, modul: string | number } | [praktikan: string | number, modul: string | number ], options?: RouteQueryOptions): RouteDefinition<'get'> => ({
     url: showAsisten.url(args, options),
     method: 'get',
 })
 
 showAsisten.definition = {
     methods: ["get","head"],
-    url: '/api-v1/nilai/{id}',
+    url: '/api-v1/nilai/praktikan/{praktikan}/modul/{modul}',
 } satisfies RouteDefinition<["get","head"]>
 
 /**
 * @see \App\Http\Controllers\API\NilaiController::showAsisten
 * @see app/Http/Controllers/API/NilaiController.php:108
-* @route '/api-v1/nilai/{id}'
+* @route '/api-v1/nilai/praktikan/{praktikan}/modul/{modul}'
 */
-showAsisten.url = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions) => {
-    if (typeof args === 'string' || typeof args === 'number') {
-        args = { id: args }
-    }
-
+showAsisten.url = (args: { praktikan: string | number, modul: string | number } | [praktikan: string | number, modul: string | number ], options?: RouteQueryOptions) => {
     if (Array.isArray(args)) {
         args = {
-            id: args[0],
+            praktikan: args[0],
+            modul: args[1],
         }
     }
 
     args = applyUrlDefaults(args)
 
     const parsedArgs = {
-        id: args.id,
+        praktikan: args.praktikan,
+        modul: args.modul,
     }
 
     return showAsisten.definition.url
-            .replace('{id}', parsedArgs.id.toString())
+            .replace('{praktikan}', parsedArgs.praktikan.toString())
+            .replace('{modul}', parsedArgs.modul.toString())
             .replace(/\/+$/, '') + queryParams(options)
 }
 
 /**
 * @see \App\Http\Controllers\API\NilaiController::showAsisten
 * @see app/Http/Controllers/API/NilaiController.php:108
-* @route '/api-v1/nilai/{id}'
+* @route '/api-v1/nilai/praktikan/{praktikan}/modul/{modul}'
 */
-showAsisten.get = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+showAsisten.get = (args: { praktikan: string | number, modul: string | number } | [praktikan: string | number, modul: string | number ], options?: RouteQueryOptions): RouteDefinition<'get'> => ({
     url: showAsisten.url(args, options),
     method: 'get',
 })
@@ -110,9 +109,9 @@ showAsisten.get = (args: { id: string | number } | [id: string | number ] | stri
 /**
 * @see \App\Http\Controllers\API\NilaiController::showAsisten
 * @see app/Http/Controllers/API/NilaiController.php:108
-* @route '/api-v1/nilai/{id}'
+* @route '/api-v1/nilai/praktikan/{praktikan}/modul/{modul}'
 */
-showAsisten.head = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
+showAsisten.head = (args: { praktikan: string | number, modul: string | number } | [praktikan: string | number, modul: string | number ], options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     url: showAsisten.url(args, options),
     method: 'head',
 })
@@ -120,9 +119,9 @@ showAsisten.head = (args: { id: string | number } | [id: string | number ] | str
 /**
 * @see \App\Http\Controllers\API\NilaiController::showAsisten
 * @see app/Http/Controllers/API/NilaiController.php:108
-* @route '/api-v1/nilai/{id}'
+* @route '/api-v1/nilai/praktikan/{praktikan}/modul/{modul}'
 */
-const showAsistenForm = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+const showAsistenForm = (args: { praktikan: string | number, modul: string | number } | [praktikan: string | number, modul: string | number ], options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
     action: showAsisten.url(args, options),
     method: 'get',
 })
@@ -130,9 +129,9 @@ const showAsistenForm = (args: { id: string | number } | [id: string | number ] 
 /**
 * @see \App\Http\Controllers\API\NilaiController::showAsisten
 * @see app/Http/Controllers/API/NilaiController.php:108
-* @route '/api-v1/nilai/{id}'
+* @route '/api-v1/nilai/praktikan/{praktikan}/modul/{modul}'
 */
-showAsistenForm.get = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+showAsistenForm.get = (args: { praktikan: string | number, modul: string | number } | [praktikan: string | number, modul: string | number ], options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
     action: showAsisten.url(args, options),
     method: 'get',
 })
@@ -140,9 +139,9 @@ showAsistenForm.get = (args: { id: string | number } | [id: string | number ] | 
 /**
 * @see \App\Http\Controllers\API\NilaiController::showAsisten
 * @see app/Http/Controllers/API/NilaiController.php:108
-* @route '/api-v1/nilai/{id}'
+* @route '/api-v1/nilai/praktikan/{praktikan}/modul/{modul}'
 */
-showAsistenForm.head = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+showAsistenForm.head = (args: { praktikan: string | number, modul: string | number } | [praktikan: string | number, modul: string | number ], options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
     action: showAsisten.url(args, {
         [options?.mergeQuery ? 'mergeQuery' : 'query']: {
             _method: 'HEAD',
@@ -156,7 +155,7 @@ showAsisten.form = showAsistenForm
 
 /**
 * @see \App\Http\Controllers\API\NilaiController::update
-* @see app/Http/Controllers/API/NilaiController.php:154
+* @see app/Http/Controllers/API/NilaiController.php:163
 * @route '/api-v1/nilai/{id}'
 */
 export const update = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
@@ -171,7 +170,7 @@ update.definition = {
 
 /**
 * @see \App\Http\Controllers\API\NilaiController::update
-* @see app/Http/Controllers/API/NilaiController.php:154
+* @see app/Http/Controllers/API/NilaiController.php:163
 * @route '/api-v1/nilai/{id}'
 */
 update.url = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -198,7 +197,7 @@ update.url = (args: { id: string | number } | [id: string | number ] | string | 
 
 /**
 * @see \App\Http\Controllers\API\NilaiController::update
-* @see app/Http/Controllers/API/NilaiController.php:154
+* @see app/Http/Controllers/API/NilaiController.php:163
 * @route '/api-v1/nilai/{id}'
 */
 update.put = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
@@ -208,7 +207,7 @@ update.put = (args: { id: string | number } | [id: string | number ] | string | 
 
 /**
 * @see \App\Http\Controllers\API\NilaiController::update
-* @see app/Http/Controllers/API/NilaiController.php:154
+* @see app/Http/Controllers/API/NilaiController.php:163
 * @route '/api-v1/nilai/{id}'
 */
 const updateForm = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -223,7 +222,7 @@ const updateForm = (args: { id: string | number } | [id: string | number ] | str
 
 /**
 * @see \App\Http\Controllers\API\NilaiController::update
-* @see app/Http/Controllers/API/NilaiController.php:154
+* @see app/Http/Controllers/API/NilaiController.php:163
 * @route '/api-v1/nilai/{id}'
 */
 updateForm.put = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
