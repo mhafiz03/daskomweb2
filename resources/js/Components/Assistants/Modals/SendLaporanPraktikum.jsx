@@ -1,8 +1,8 @@
 import { useState } from "react";
+import toast from "react-hot-toast";
 import closeIcon from "../../../../assets/modal/iconClose.svg";
 
 export default function ModalLaporanPraktikum({ onClose }) {
-    const [showSuccessModal, setShowSuccessModal] = useState(false);
     const [judul, setJudul] = useState("");
     const [deskripsi, setDeskripsi] = useState("");
     const [kodeAsisten, setKodeAsisten] = useState("");
@@ -10,14 +10,11 @@ export default function ModalLaporanPraktikum({ onClose }) {
 
     const handleSave = () => {
         if (kodeAsistenError) {
+            toast.error("Perbaiki kode asisten sebelum mengirim laporan.");
             return;
         }
-        setShowSuccessModal(true);
-
-        setTimeout(() => {
-            setShowSuccessModal(false);
-            onClose();
-        }, 3000);
+        toast.success("Laporan berhasil dikirim!");
+        onClose();
     };
 
     const handleKodeAsistenChange = (e) => {
@@ -96,16 +93,6 @@ export default function ModalLaporanPraktikum({ onClose }) {
                 </div>
             </div>
 
-            {/* Modal Notifikasi */}
-            {showSuccessModal && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-                    <div className="bg-white rounded-lg p-6 w-[400px] shadow-lg text-center">
-                        <h2 className="text-2xl font-bold text-darkGreen text-center p-3">
-                            Laporan berhasil dikirim!
-                        </h2>
-                    </div>
-                </div>
-            )}
         </div>
     );
 }

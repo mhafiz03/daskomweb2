@@ -1,8 +1,8 @@
 import { useState } from "react";
+import toast from "react-hot-toast";
 import closeIcon from "../../../../assets/modal/iconClose.svg"
 
 export default function ButtonEditStartPraktikum({ onClose }) {
-    const [showSuccessModal, setShowSuccessModal] = useState(false);
     const [formData, setFormData] = useState({
         tesAwalStart: "2024-08-17T18:00",
         tesAwalEnd: "2024-08-21T18:00",
@@ -23,12 +23,8 @@ export default function ButtonEditStartPraktikum({ onClose }) {
     };
 
     const handleSave = () => {
-        setShowSuccessModal(true);
-
-        setTimeout(() => {
-            setShowSuccessModal(false);
-            onClose();
-        }, 3000);
+        toast.success("Waktu praktikum berhasil diperbarui.");
+        onClose();
     };
 
     return (
@@ -159,17 +155,6 @@ export default function ButtonEditStartPraktikum({ onClose }) {
                     </button>
                 </div>
             </div>
-
-            {/* Modal Notifikasi */}
-            {showSuccessModal && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-                    <div className="bg-white rounded-lg p-6 w-[400px] shadow-lg text-center">
-                        <h2 className="text-xl font-bold text-darkGreen text-center p-3">
-                            Waktu praktikum berhasil diedit!
-                        </h2>
-                    </div>
-                </div>
-            )}
         </div>
     );
 }

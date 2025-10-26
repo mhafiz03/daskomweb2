@@ -1,16 +1,14 @@
 import { useState, useEffect } from "react";
+import toast from "react-hot-toast";
 import closeIcon from "../../../../assets/modal/iconClose.svg";
 import editIcon from "../../../../assets/nav/Icon-Edit.svg";
-import { usePage } from "@inertiajs/react";
 import { useModulesQuery } from "@/hooks/useModulesQuery";
 import { send } from "@/lib/wayfinder";
 import { update as updateModul } from "@/actions/App/Http/Controllers/API/ModulController";
 
 export default function ModalOpenKJ({ onClose, modules }) {
-    const [showSuccess, setShowSuccess] = useState(false);
     const [modul, setModul] = useState(modules || []);
     const [config, setConfig] = useState({});
-    const { flash, errors } = usePage().props;
 
     const shouldFetchModules = !modules || modules.length === 0;
 
@@ -78,16 +76,14 @@ export default function ModalOpenKJ({ onClose, modules }) {
 
         try {
             await Promise.all(updatePromises);
-            setShowSuccess(true);
-            setTimeout(() => {
-                setShowSuccess(false);
-                onClose?.();
-            }, 3000);
+            toast.success("Konfigurasi modul berhasil disimpan.");
+            onClose?.();
         } catch (error) {
             console.error("Error saving configuration:", error);
             if (error.response) {
                 console.error("Response error:", error.response.data);
             }
+            toast.error(error?.response?.data?.message ?? "Gagal menyimpan konfigurasi modul.");
         }
     };
 
@@ -166,15 +162,6 @@ export default function ModalOpenKJ({ onClose, modules }) {
                     </div>
                 </div>
             </div>
-
-            {showSuccess && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-                    <div className="bg-white rounded-lg p-4 w-80 shadow-lg text-center">
-                        <h3 className="text-xl font-bold text-deepForestGreen">Berhasil Disimpan</h3>
-                        <p className="text-darkBrown-500 mt-2">Konfigurasi telah berhasil disimpan.</p>
-                    </div>
-                </div>
-            )}
         </>
     );
 }

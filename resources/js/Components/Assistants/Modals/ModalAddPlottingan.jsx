@@ -4,11 +4,10 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { KELAS_QUERY_KEY } from "@/hooks/useKelasQuery";
 import { send } from "@/lib/wayfinder";
 import { store as storeKelas } from "@/actions/App/Http/Controllers/API/KelasController";
+import toast from "react-hot-toast";
 
-export default function ModalAddPlotting({ onClose, fetchKelas }) {
-    const [showSuccessModal, setShowSuccessModal] = useState(false);
+export default function ModalAddPlottingan({ onClose, fetchKelas }) {
     const [isSwitchOn, setIsSwitchOn] = useState(0); // 0 untuk false, 1 untuk true
-    const [error, setError] = useState(null); // State untuk error
     const queryClient = useQueryClient();
 
     const addKelasMutation = useMutation({
@@ -17,20 +16,16 @@ export default function ModalAddPlotting({ onClose, fetchKelas }) {
             return data;
         },
         onSuccess: (data) => {
-            setShowSuccessModal(true);
             queryClient.invalidateQueries({ queryKey: KELAS_QUERY_KEY });
             if (typeof fetchKelas === "function") {
                 fetchKelas();
             }
-            setTimeout(() => {
-                setShowSuccessModal(false);
-                onClose();
-            }, 3000);
+            toast.success(data.message);
+            onClose();
         },
         onError: (err) => {
             const message = err?.response?.data?.error || err?.response?.data?.message || err?.message || "Gagal menyimpan data kelas";
-            setError(message);
-            alert(message);
+            toast.error(message);
         },
     });
 
@@ -66,11 +61,10 @@ export default function ModalAddPlotting({ onClose, fetchKelas }) {
     const handleSave = async () => {
         // Validasi input
         if (!formData.kelas || !formData.hari || !formData.shift || !formData.totalGroup) {
-            alert("Harap isi semua field yang diperlukan.");
+            toast.error("Harap isi semua field yang diperlukan.");
             return;
         }
 
-        setError(null);
         addKelasMutation.mutate(formData);
     };
 
@@ -166,7 +160,7 @@ export default function ModalAddPlotting({ onClose, fetchKelas }) {
                 {/* Switch On/Off */}
                 <div className="absolute bottom-4 left-4 flex items-center gap-2">
                     <label className="text-sm font-medium text-gray-700">
-                        isEnglish
+                        English
                     </label>
                     <div
                         onClick={toggleSwitch}
@@ -180,17 +174,6 @@ export default function ModalAddPlotting({ onClose, fetchKelas }) {
                     </div>
                 </div>
             </div>
-
-            {/* Modal Notifikasi */}
-            {showSuccessModal && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-                    <div className="bg-white rounded-lg p-6 w-[400px] shadow-lg text-center">
-                        <h2 className="text-2xl font-bold text-darkGreen text-center p-3">
-                            Jadwal berhasil dibuat!
-                        </h2>
-                    </div>
-                </div>
-            )}
         </div>
     );
 }

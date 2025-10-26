@@ -1,4 +1,5 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
+import toast from "react-hot-toast";
 import closeIcon from "../../../../assets/modal/iconClose.svg";
 import editIcon from "../../../../assets/nav/Icon-Edit.svg";
 import { useConfigurationQuery, CONFIG_QUERY_KEY } from "@/hooks/useConfigurationQuery";
@@ -14,18 +15,10 @@ export default function ModalKonfigurasi({ onClose }) {
     const [isPollingAsistenOn, setIsPollingAsistenOn] = useState(false);
     const [kodeAsisten, setKodeAsisten] = useState("");
 
-    const [showSuccess, setShowSuccess] = useState(false);
     const [showConfigModal, setShowConfigModal] = useState(false);
-    const [modalMessage, setModalMessage] = useState("");
-    const [isSuccess, setIsSuccess] = useState(false);
     const queryClient = useQueryClient();
 
-    const {
-        data: configuration,
-        isLoading,
-        isError,
-        error,
-    } = useConfigurationQuery({
+    useConfigurationQuery({
         onSuccess: (config) => {
             if (config) {
                 setIsTugasPendahuluanOn(Boolean(config.tp_activation));
@@ -38,16 +31,33 @@ export default function ModalKonfigurasi({ onClose }) {
             }
         },
         onError: (err) => {
-            setModalMessage(err.message ?? "Gagal memuat konfigurasi. Silakan coba lagi.");
-            setIsSuccess(false);
+            toast.error(err?.message ?? "Gagal memuat konfigurasi. Silakan coba lagi.");
+            setShowConfigModal(false);
         },
     });
 
-    useEffect(() => {
-        if (isError) {
-            setIsSuccess(false);
+    const getErrorMessage = (err) => {
+        const response = err?.response;
+        if (response) {
+            if (response.status === 422) {
+                const errors = response.data?.errors ?? {};
+                const messages = Object.values(errors).flat();
+                if (messages.length > 0) {
+                    return messages[0];
+                }
+                return response.data?.message ?? "Validasi gagal.";
+            }
+            if (response.status === 404) {
+                return "Data konfigurasi tidak ditemukan.";
+            }
+            if (response.status === 500) {
+                return "Terjadi kesalahan di server. Silakan coba lagi.";
+            }
+            return response.data?.message ?? "Gagal menyimpan konfigurasi. Silakan coba lagi.";
         }
-    }, [isError]);
+
+        return err?.message ?? "Gagal terhubung ke server.";
+    };
 
     const updateConfigurationMutation = useMutation({
         mutationFn: async (configPayload) => {
@@ -55,31 +65,12 @@ export default function ModalKonfigurasi({ onClose }) {
             return data;
         },
         onSuccess: () => {
-            setModalMessage("Konfigurasi berhasil diperbarui.");
-            setIsSuccess(true);
-            setShowSuccess(true);
             queryClient.invalidateQueries({ queryKey: CONFIG_QUERY_KEY });
-            setTimeout(() => {
-                setShowSuccess(false);
-                onClose();
-            }, 3000);
+            toast.success("Konfigurasi berhasil diperbarui.");
+            onClose();
         },
         onError: (err) => {
-            const response = err?.response;
-            if (response) {
-                if (response.status === 422) {
-                    setModalMessage("Validasi gagal: " + JSON.stringify(response.data.errors));
-                } else if (response.status === 404) {
-                    setModalMessage("Data konfigurasi tidak ditemukan.");
-                } else if (response.status === 500) {
-                    setModalMessage("Terjadi kesalahan di server. Silakan coba lagi.");
-                } else {
-                    setModalMessage(response.data?.message ?? "Gagal menyimpan konfigurasi. Silakan coba lagi.");
-                }
-            } else {
-                setModalMessage(err.message ?? "Gagal terhubung ke server.");
-            }
-            setIsSuccess(false);
+            toast.error(getErrorMessage(err));
         },
     });
 
@@ -191,31 +182,6 @@ export default function ModalKonfigurasi({ onClose }) {
                 </div>
             )}
 
-            {/* Modal Notifikasi Berhasil */}
-            {showSuccess && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-                    <div className="bg-white rounded-lg p-4 w-80 shadow-lg text-center">
-                        <h3 className="text-lg font-semibold">Berhasil Disimpan</h3>
-                        <p className="text-gray-500 mt-2">Konfigurasi telah berhasil disimpan.</p>
-                    </div>
-                </div>
-            )}
-
-            {/* Modal Notifikasi Error */}
-            {!isSuccess && modalMessage && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-                    <div className="bg-white rounded-lg p-4 w-80 shadow-lg text-center">
-                        <h3 className="text-lg font-semibold">Gagal</h3>
-                        <p className="text-gray-500 mt-2">{modalMessage}</p>
-                        <button
-                            onClick={() => setModalMessage("")}
-                            className="mt-4 w-full py-2 bg-darkGreen text-white font-semibold rounded-lg shadow-md shadow-darkGreen hover:bg-darkGreen transition"
-                        >
-                            Tutup
-                        </button>
-                    </div>
-                </div>
-            )}
         </>
     );
 }

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { router } from "@inertiajs/react";
+import toast from "react-hot-toast";
 import ButtonEditModule from "../Modals/ModalEditModule";
 import editIcon from "../../../../assets/nav/Icon-Edit.svg";
 import trashIcon from "../../../../assets/nav/Icon-Delete.svg";
@@ -17,12 +17,9 @@ export default function TableModule() {
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [moduleToDelete, setModuleToDelete] = useState(null);
     const [selectedModuleId, setSelectedModuleId] = useState(null);
-    const [message, setMessage] = useState("");
     const [openIndex, setOpenIndex] = useState(null);
     const queryClient = useQueryClient();
     const [initialOpen, setInitialOpen] = useState(false);
-    const [showSuccessModal, setShowSuccessModal] = useState(false);
-    const [successMessage, setSuccessMessage] = useState("");
 
     const {
         data: modules = [],
@@ -49,18 +46,13 @@ export default function TableModule() {
         },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: MODULES_QUERY_KEY });
-            setSuccessMessage("Modul berhasil dihapus!");
-            setShowSuccessModal(true);
-            setTimeout(() => {
-                setShowSuccessModal(false);
-            }, 3000);
+            toast.success("Modul berhasil dihapus!");
             setIsDeleteModalOpen(false);
             setModuleToDelete(null);
-            setMessage("");
         },
         onError: (err) => {
             const responseMessage = err?.response?.data?.message ?? err?.message ?? "Gagal menghapus modul.";
-            setMessage(responseMessage);
+            toast.error(responseMessage);
             setIsDeleteModalOpen(false);
         },
     });
@@ -98,11 +90,6 @@ export default function TableModule() {
         }
 
         deleteModuleMutation.mutate(moduleToDelete);
-    };
-
-    // Close success modal
-    const closeSuccessModal = () => {
-        setShowSuccessModal(false);
     };
 
     const toggleAccordion = (index) => {
@@ -249,23 +236,6 @@ export default function TableModule() {
                                 Hapus
                             </button>
                         </div>
-                    </div>
-                </div>
-            )}
-
-            {/* Success Modal */}
-            {showSuccessModal && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-                    <div className="bg-white rounded-lg p-6 w-[400px] shadow-lg text-center">
-                        <h2 className="text-xl font-bold text-darkGreen text-center p-3">
-                            {successMessage}
-                        </h2>
-                        <button
-                            onClick={closeSuccessModal}
-                            className="mt-4 px-6 py-2 bg-deepForestGreen text-white font-semibold rounded-md shadow hover:bg-darkGreen transition duration-300"
-                        >
-                            Tutup
-                        </button>
                     </div>
                 </div>
             )}

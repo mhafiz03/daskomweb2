@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import toast from "react-hot-toast";
 import closeIcon from "../../../../assets/modal/iconClose.svg";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { KELAS_QUERY_KEY } from "@/hooks/useKelasQuery";
@@ -6,7 +7,6 @@ import { send } from "@/lib/wayfinder";
 import { update as updateKelas } from "@/actions/App/Http/Controllers/API/KelasController";
 
 export default function ModalEditPlotting({ onClose, kelas }) {
-    const [showSuccessModal, setShowSuccessModal] = useState(false);
     const [isSwitchOn, setIsSwitchOn] = useState(false);
     const [loading, setLoading] = useState(false);
     const [formData, setFormData] = useState({
@@ -17,22 +17,38 @@ export default function ModalEditPlotting({ onClose, kelas }) {
     });
     const queryClient = useQueryClient();
 
+    const getErrorMessage = (error) => {
+        const responseData = error?.response?.data;
+        if (responseData) {
+            const fieldMessages = Object.values(responseData.errors ?? {}).flat();
+            if (fieldMessages.length > 0) {
+                return fieldMessages[0];
+            }
+            if (typeof responseData.message === "string") {
+                return responseData.message;
+            }
+        }
+
+        return error?.message ?? "Gagal menyimpan data kelas. Silakan coba lagi.";
+    };
+
     const updateKelasMutation = useMutation({
         mutationFn: async ({ id, payload }) => {
-            const { data } = await send(updateKelas(id), payload);
+            const token = localStorage.getItem("token");
+            const config = token
+                ? { headers: { Authorization: `Bearer ${token}` } }
+                : undefined;
+            const { data } = await send(updateKelas(id), payload, config);
             return data;
         },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: KELAS_QUERY_KEY });
-            setShowSuccessModal(true);
-            setTimeout(() => {
-                setShowSuccessModal(false);
-                onClose();
-            }, 3000);
             toast.success("Jadwal berhasil diubah.");
+            onClose();
         },
         onError: (err) => {
             console.error("Error updating data:", err);
+            toast.error(getErrorMessage(err));
         },
         onSettled: () => {
             setLoading(false);
@@ -144,7 +160,7 @@ export default function ModalEditPlotting({ onClose, kelas }) {
 
                 <div className="absolute bottom-4 left-4 flex items-center gap-2">
                     <label className="text-sm font-medium text-gray-700">
-                        isEnglish
+                        English
                     </label>
                     <div
                         onClick={toggleSwitch}
@@ -171,16 +187,6 @@ export default function ModalEditPlotting({ onClose, kelas }) {
                     </button>
                 </div>
             </div>
-
-            {showSuccessModal && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-                    <div className="bg-white rounded-lg p-6 w-[400px] shadow-lg text-center">
-                        <h2 className="text-2xl font-bold text-darkGreen text-center p-3">
-                            Jadwal berhasil diedit!
-                        </h2>
-                    </div>
-                </div>
-            )}
         </div>
     );
 }

@@ -1,15 +1,10 @@
-import { useState } from "react";
+import toast from "react-hot-toast";
 import closeIcon from "../../../../assets/modal/iconClose.svg"
 
 export default function ButtonResetPelanggaran({ onClose }) {
-    const [showSuccessModal, setShowSuccessModal] = useState(false);
-
     const handleSave = () => {
-        setShowSuccessModal(true);
-        setTimeout(() => {
-            setShowSuccessModal(false);
-            onClose();
-        }, 3000);
+        toast.success("Data pelanggaran berhasil direset.");
+        onClose();
     };
 
     return (
@@ -56,18 +51,6 @@ export default function ButtonResetPelanggaran({ onClose }) {
                     </div>
                 </div>
             </div>
-
-            {/* Modal Sukses */}
-            {showSuccessModal && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-                    <div className="bg-white rounded-lg p-4 w-96 shadow-lg text-center">
-                        <h3 className="text-lg font-semibold text-black">Berhasil Disimpan</h3>
-                        <p className="text-redredDark mt-2">
-                            Data telah berhasil direset ke kondisi awal.
-                        </p>
-                    </div>
-                </div>
-            )}
         </>
     );
 }

@@ -242,7 +242,6 @@ export default function PraktikanNav() {
                                 </span>
                             </div>
                         </li>
-                        {isModalOpen && <ModalPasswordPraktikan onClose={closeModal} />}
                         <li>
                             <div
                                 className="flex py-3 px-3 hover:bg-darkGreen items-center cursor-pointer"
@@ -265,12 +264,13 @@ export default function PraktikanNav() {
                                 </span>
                             </div>
                         </li>
-                        {showLogoutModal && (
-                            <ModalLogout onClose={closeLogoutModal} onConfirm={handleLogoutConfirm} />
-                        )}
                     </ul>
                 </div>
             </div>
         </nav>
+        {isModalOpen && <ModalPasswordPraktikan onClose={closeModal} />}
+        {showLogoutModal && (
+            <ModalLogout onClose={closeLogoutModal} onConfirm={handleLogoutConfirm} />
+        )}
     );
 }

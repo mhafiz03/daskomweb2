@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from "react";
+import toast from "react-hot-toast";
 import ModalDeletePlottingan from "../Modals/ModalDeletePlottingan";
 import ModalEditPlotting from "../Modals/ModalEditPlottingan";
 import trashIcon from "../../../../assets/nav/Icon-Delete.svg";
@@ -10,7 +11,6 @@ import { api } from "@/lib/api";
 export default function TablePlottingan() {
     const [isModalOpenDelete, setIsModalOpenDelete] = useState(false);
     const [isModalOpenEdit, setIsModalOpenEdit] = useState(false);
-    const [message, setMessage] = useState("");
     const [selectedKelas, setSelectedKelas] = useState(null);
     const queryClient = useQueryClient();
 
@@ -48,11 +48,11 @@ export default function TablePlottingan() {
         },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: KELAS_QUERY_KEY });
-            setMessage("");
+            toast.success("Kelas berhasil dihapus.");
         },
         onError: (err) => {
             const responseMessage = err?.response?.data?.message ?? "Gagal menghapus kelas. Silakan coba lagi.";
-            setMessage(responseMessage);
+            toast.error(responseMessage);
         },
         onSettled: () => {
             setIsModalOpenDelete(false);
@@ -164,8 +164,6 @@ export default function TablePlottingan() {
                 <ModalDeletePlottingan
                     onClose={handleCloseModalDelete}
                     onConfirm={handleConfirmDelete}
-                    message={message}
-                    isError={message.includes("Gagal")}
                 />
             )}
 

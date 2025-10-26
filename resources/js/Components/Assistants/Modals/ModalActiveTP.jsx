@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import toast from "react-hot-toast";
 import closeIcon from "../../../../assets/modal/iconClose.svg";
 import editIcon from "../../../../assets/nav/Icon-Edit.svg";
 import { useTugasPendahuluanQuery, TUGAS_PENDAHULUAN_QUERY_KEY } from "@/hooks/useTugasPendahuluanQuery";
@@ -9,7 +10,6 @@ import { update as updateTugasPendahuluanRoute } from "@/actions/App/Http/Contro
 export default function ModalActiveTP({ onClose }) {
     const [modul, setModul] = useState([]);
     const [config, setConfig] = useState({});
-    const [showSuccess, setShowSuccess] = useState(false);
     const [showModal, setShowModal] = useState(false);
     const queryClient = useQueryClient();
 
@@ -33,8 +33,9 @@ export default function ModalActiveTP({ onClose }) {
     useEffect(() => {
         if (isError) {
             setShowModal(false);
+            toast.error(error?.message ?? "Gagal memuat data tugas pendahuluan.");
         }
-    }, [isError]);
+    }, [isError, error]);
 
     // Fungsi untuk toggle switch on/off
     const toggleSwitch = (key) => {
@@ -51,14 +52,12 @@ export default function ModalActiveTP({ onClose }) {
         },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: TUGAS_PENDAHULUAN_QUERY_KEY });
-            setShowSuccess(true);
-            setTimeout(() => {
-                setShowSuccess(false);
-                onClose();
-            }, 3000);
+            toast.success("Konfigurasi tugas pendahuluan berhasil disimpan.");
+            onClose();
         },
         onError: (err) => {
             console.error("Error saving configuration:", err);
+            toast.error(err?.response?.data?.message ?? err?.message ?? "Gagal menyimpan konfigurasi.");
         },
     });
 
@@ -202,16 +201,6 @@ export default function ModalActiveTP({ onClose }) {
                                 {updateTugasPendahuluanMutation.isPending ? "Menyimpan..." : "Simpan"}
                             </button>
                         </div>
-                    </div>
-                </div>
-            )}
-
-            {/* Modal Notifikasi Berhasil */}
-            {showSuccess && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-                    <div className="bg-white rounded-lg p-4 w-80 shadow-lg text-center">
-                        <h3 className="text-xl font-bold text-deepForestGreen">Berhasil Disimpan</h3>
-                        <p className="text-darkBrown-500 mt-2">Konfigurasi telah berhasil disimpan.</p>
                     </div>
                 </div>
             )}

@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import toast from "react-hot-toast";
 import closeIcon from "../../../../assets/modal/iconClose.svg";
 import trashIcon from "../../../../assets/nav/Icon-Delete.svg";
 import { usePage } from "@inertiajs/react";
@@ -6,7 +7,6 @@ import { submit } from "@/lib/wayfinder";
 import { update as updateModul } from "@/actions/App/Http/Controllers/API/ModulController";
 
 export default function ButtonEditModule({ onClose, modules, selectedModuleId, onUpdate, initialOpen }) {
-    const [showSuccessModal, setShowSuccessModal] = useState(false);
     const [points, setPoints] = useState(["", "", ""]);
     const [link1, setLink1] = useState("");
     const [link2, setLink2] = useState("");
@@ -15,34 +15,7 @@ export default function ButtonEditModule({ onClose, modules, selectedModuleId, o
     const [isEnglishOn, setIsEnglishOn] = useState(false);
     const [isUnlockedOn, setIsUnlockedOn] = useState(false);
 
-    const { flash, errors } = usePage().props;
-
-    // Reset success modal when selectedModuleId changes
-    useEffect(() => {
-        setShowSuccessModal(false);
-    }, [selectedModuleId]);
-
-    // Show success modal and close after 3 seconds if flash.success is true
-    useEffect(() => {
-        if (flash.success && !initialOpen) {
-            setShowSuccessModal(true);
-            const timer = setTimeout(() => {
-                setShowSuccessModal(false);
-                onClose();
-            }, 3000);
-            return () => clearTimeout(timer); // Cleanup timer
-        }
-    }, [flash, onClose, initialOpen]);
-
-    // Reset initialOpen after 100ms
-    useEffect(() => {
-        if (initialOpen) {
-            const timer = setTimeout(() => {
-                initialOpen = false;
-            }, 100);
-            return () => clearTimeout(timer); // Cleanup timer
-        }
-    }, [initialOpen]);
+    const { errors } = usePage().props;
 
     // Reset form fields when selectedModuleId changes
     useEffect(() => {
@@ -70,7 +43,7 @@ export default function ButtonEditModule({ onClose, modules, selectedModuleId, o
     const handleSave = () => {
         if (!selectedModuleId) {
             console.error('Invalid ID:', selectedModuleId);
-            alert("ID tidak valid.");
+            toast.error("ID modul tidak valid.");
             return;
         }
 
@@ -108,14 +81,13 @@ export default function ButtonEditModule({ onClose, modules, selectedModuleId, o
                     onUpdate(updatedModule); // Pass updated module to parent
                 }
 
-                setShowSuccessModal(true);
-                setTimeout(() => {
-                    setShowSuccessModal(false);
-                    onClose();
-                }, 3000);
+                toast.success("Modul berhasil diperbarui.");
+                onClose();
             },
             onError: (errors) => {
                 console.error("Error updating module:", errors);
+                const message = errors?.response?.data?.message ?? "Gagal memperbarui modul.";
+                toast.error(message);
             },
         });
     };
@@ -142,20 +114,12 @@ export default function ButtonEditModule({ onClose, modules, selectedModuleId, o
         }
     };
 
-    // Toggle isEnglish switch
     const toggleEnglishSwitch = () => {
-        setIsEnglishOn(prev => !prev); // Use functional update to ensure correct state
+        setIsEnglishOn(prev => !prev); 
     };
 
-    // Toggle isUnlocked switch
     const toggleUnlockedSwitch = () => {
-        setIsUnlockedOn(prev => !prev); // Use functional update to ensure correct state
-    };
-
-    // Close success modal manually
-    const closeSuccessModal = () => {
-        setShowSuccessModal(false);
-        onClose();
+        setIsUnlockedOn(prev => !prev);
     };
 
     return (
@@ -281,13 +245,11 @@ export default function ButtonEditModule({ onClose, modules, selectedModuleId, o
                     {errors.modul_link && <p className="text-fireRed text-sm mt-1">{errors.modul_link}</p>}
                 </div>
 
-                {/* Switch and Save Button */}
                 <div className="flex justify-between">
                     <div className="flex justify-start gap-3">
-                        {/* isEnglish Switch */}
                         <div className="flex items-center gap-2">
                             <label className="text-sm font-medium text-gray-700">
-                                isEnglish
+                                English
                             </label>
                             <div
                                 onClick={toggleEnglishSwitch}
@@ -301,10 +263,9 @@ export default function ButtonEditModule({ onClose, modules, selectedModuleId, o
                             </div>
                         </div>
 
-                        {/* isUnlocked Switch */}
                         <div className="flex items-center gap-2">
                             <label className="text-sm font-medium text-gray-700">
-                                isUnlocked
+                                Unlocked
                             </label>
                             <div
                                 onClick={toggleUnlockedSwitch}
@@ -336,23 +297,6 @@ export default function ButtonEditModule({ onClose, modules, selectedModuleId, o
                     </div>
                 </div>
             </div>
-
-            {/* Success Modal */}
-            {showSuccessModal && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-                    <div className="bg-white rounded-lg p-6 w-[400px] shadow-lg text-center">
-                        <h2 className="text-xl font-bold text-darkGreen text-center p-3">
-                            Modul berhasil diedit!
-                        </h2>
-                        <button
-                            onClick={closeSuccessModal}
-                            className="mt-4 px-6 py-2 bg-deepForestGreen text-white font-semibold rounded-md shadow hover:bg-darkGreen transition duration-300"
-                        >
-                            Tutup
-                        </button>
-                    </div>
-                </div>
-            )}
         </div>
     );
 }

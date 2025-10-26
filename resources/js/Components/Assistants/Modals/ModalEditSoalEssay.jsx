@@ -1,4 +1,5 @@
 import { useState } from "react";
+import toast from "react-hot-toast";
 import closeIcon from "../../../../assets/modal/iconClose.svg"
 
 export default function ModalEditSoalEssay({ onClose, soalItem, onSave }) {
@@ -8,7 +9,6 @@ export default function ModalEditSoalEssay({ onClose, soalItem, onSave }) {
     const [isEssay, setIsEssay] = useState(soalItem.is_essay || "");
     const [isProgram, setIsProgram] = useState(soalItem.is_program || "");
     const [isSulit, setIsSulit] = useState(soalItem.is_sulit || "");
-    const [showSuccessModal, setShowSuccessModal] = useState(false);
 
     const handleSave = () => {
         // ini dipanggil
@@ -21,13 +21,8 @@ export default function ModalEditSoalEssay({ onClose, soalItem, onSave }) {
             is_program: isProgram,
             is_sulit: isSulit,
         });
-        // di tunjukin
-        setShowSuccessModal(true);
-
-        // setTimeout(() => {
-        //     setShowSuccessModal(false);
-        //     onClose(); 
-        // }, 3000);
+        toast.success("Soal berhasil diedit!");
+        onClose();
     };
 
     return (
@@ -65,17 +60,6 @@ export default function ModalEditSoalEssay({ onClose, soalItem, onSave }) {
                     </button>
                 </div>
             </div>
-
-            {/* Modal Notifikasi */}
-            {showSuccessModal && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-                    <div className="bg-white rounded-lg p-6 w-[400px] shadow-lg text-center">
-                        <h2 className="text-2xl font-bold text-darkGreen text-center p-3">
-                            Soal berhasil diedit!
-                        </h2>
-                    </div>
-                </div>
-            )}
         </div>
     );
 }

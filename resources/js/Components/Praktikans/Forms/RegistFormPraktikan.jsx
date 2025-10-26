@@ -104,7 +104,7 @@ export default function RegistFormPraktikan({ mode }) {
                     value={values.email}
                     onChange={handleChange}
                 />
-                {localErrors.email && <p className="text-red-500 text-sm mt-1">{localErrors.email}</p>}
+                {localErrors.email && <p className="text-red-500 text-sm -mt-4">{localErrors.email}</p>}
                 <input
                     className="bg-lightGray py-1 px-4 mt-[-10px] rounded-sm border-dustyBlue border-2 placeholder-dustyBlue"
                     type="text"
@@ -113,7 +113,7 @@ export default function RegistFormPraktikan({ mode }) {
                     value={values.nama}
                     onChange={handleChange}
                 />
-                {localErrors.nama && <p className="text-red-500 text-sm mt-1">{localErrors.nama}</p>}
+                {localErrors.nama && <p className="text-red-500 text-sm -mt-4">{localErrors.nama}</p>}
                 <input
                     className="bg-lightGray py-1 px-4 mt-[-10px] rounded-sm border-dustyBlue border-2 placeholder-dustyBlue"
                     type="text"
@@ -122,7 +122,7 @@ export default function RegistFormPraktikan({ mode }) {
                     value={values.nim}
                     onChange={handleChange}
                 />
-                {localErrors.nim && <p className="text-red-500 text-sm mt-1">{localErrors.nim}</p>}
+                {localErrors.nim && <p className="text-red-500 text-sm -mt-4">{localErrors.nim}</p>}
 
                <select
                     className="bg-lightGray py-1 px-4 mt-[-10px] rounded-sm border-dustyBlue border-2 placeholder-dustyBlue w-full"
@@ -147,7 +147,7 @@ export default function RegistFormPraktikan({ mode }) {
                             </option>
                         ))}
                 </select>
-                {localErrors.kelas_id && <p className="text-red-500 text-sm mt-1">{localErrors.kelas_id}</p>}
+                {localErrors.kelas_id && <p className="text-red-500 text-sm -mt-4">{localErrors.kelas_id}</p>}
                 <input
                     className="bg-lightGray py-1 px-4 mt-[-10px] rounded-sm border-dustyBlue border-2 placeholder-dustyBlue"
                     type="text"
@@ -156,7 +156,7 @@ export default function RegistFormPraktikan({ mode }) {
                     value={values.alamat}
                     onChange={handleChange}
                 />
-                {localErrors.alamat && <p className="text-red-500 text-sm mt-1">{localErrors.alamat}</p>}
+                {localErrors.alamat && <p className="text-red-500 text-sm -mt-4">{localErrors.alamat}</p>}
                 <input
                     className="bg-lightGray py-1 px-4 mt-[-10px] rounded-sm border-dustyBlue border-2 placeholder-dustyBlue"
                     type="tel"
@@ -165,7 +165,7 @@ export default function RegistFormPraktikan({ mode }) {
                     value={values.nomor_telepon}
                     onChange={handleChange}
                 />
-                {localErrors.nomor_telepon && <p className="text-red-500 text-sm mt-1">{localErrors.nomor_telepon}</p>}
+                {localErrors.nomor_telepon && <p className="text-red-500 text-sm -mt-4">{localErrors.nomor_telepon}</p>}
                 <div className="relative">
                     <input
                         className="bg-lightGray py-1 px-4 mt-[-10px] mb-5 w-full rounded-sm border-dustyBlue border-2 placeholder-dustyBlue"
@@ -181,7 +181,7 @@ export default function RegistFormPraktikan({ mode }) {
                         alt="Toggle Password Visibility"
                         onClick={togglePasswordVisibility}
                     />
-                    {localErrors.password && <p className="text-red-500 text-sm mt-1">{localErrors.password}</p>}
+                    {localErrors.password && <p className="text-red-500 text-sm -mt-4">{localErrors.password}</p>}
                 </div>
                 <ButtonOption order="register" mode="praktikan" />
             </form>

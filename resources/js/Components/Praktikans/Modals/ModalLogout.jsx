@@ -21,7 +21,7 @@ export default function ModalLogout({ onClose, onConfirm }) {
     };
 
     return (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
+        <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex justify-center items-center">
             <div className="bg-softGray p-6 rounded shadow-lg w-1/4 relative">
                 {/* Close Button */}
                 <button

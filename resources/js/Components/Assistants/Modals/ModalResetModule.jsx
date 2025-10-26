@@ -1,23 +1,19 @@
-import { useState } from "react";
+import toast from "react-hot-toast";
 import closeIcon from "../../../../assets/modal/iconClose.svg"
 import { Inertia } from "@inertiajs/inertia";
 import { api } from "@/lib/api";
 
 
 export default function ButtonResetModule({ onClose }) {
-    const [showSuccessModal, setShowSuccessModal] = useState(false);
-
     const handleSave = async () => {
         try {
             await api.delete(route('moduls.reset-all'));
-            setShowSuccessModal(true);
+            toast.success("Data modul berhasil direset.");
             Inertia.reload();
-            setTimeout(() => {
-                setShowSuccessModal(false);
-                onClose();
-            }, 3000);
+            onClose();
         } catch (error) {
             console.error('Error mereset modul : ', error);
+            toast.error(error?.response?.data?.message ?? error?.message ?? "Gagal mereset data modul.");
         }
     };
 
@@ -66,17 +62,6 @@ export default function ButtonResetModule({ onClose }) {
                 </div>
             </div>
 
-            {/* Modal Sukses */}
-            {showSuccessModal && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-                    <div className="bg-white rounded-lg p-4 w-96 shadow-lg text-center">
-                        <h3 className="text-lg font-semibold text-black">Berhasil Disimpan</h3>
-                        <p className="text-redredDark mt-2">
-                            Data telah berhasil direset ke kondisi awal.
-                        </p>
-                    </div>
-                </div>
-            )}
         </>
     );
 }

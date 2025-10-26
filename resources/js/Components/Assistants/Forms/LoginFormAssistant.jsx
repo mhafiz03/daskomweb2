@@ -47,11 +47,12 @@ export default function LoginFormAssistant({ mode }) {
             data: values,
             preserveScroll: true,
             onSuccess: (page) => {
-                if (page.props.authenticated) {
+                if (page.props.auth.asisten) {
                     toast.success('Login successful!');
                 } else {
                     toast.error('Login failed! Please check your credentials.');
                 }
+                console.log(page.props);
             },
             onError: (error) => {
                 Object.values(error).forEach((errMsg) => {

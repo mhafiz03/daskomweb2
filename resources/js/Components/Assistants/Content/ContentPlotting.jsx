@@ -1,5 +1,5 @@
 import { useState } from "react";
-import ButtonAddPlotting from "../Modals/ModalAddPlotting";
+import ButtonAddPlotting from "../Modals/ModalAddPlottingan";
 // import ButtonResetPlotting from "../Modals/ModalResetPlottingan";
 import TablePlottingan from "../Tables/TablePlottingan";
 

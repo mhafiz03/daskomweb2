@@ -11,7 +11,11 @@ export default defineConfig({
             refresh: true,
         }),
         react(),
-        wayfinder()
+        wayfinder({
+            routes: false,
+            actions: true,
+            formVariants: true,
+        })
     ],
     resolve: {
         alias: {

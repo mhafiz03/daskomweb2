@@ -1,3 +1,4 @@
+import toast from "react-hot-toast";
 import closeIcon from "../../../../assets/modal/iconClose.svg";
 import { submit } from "@/lib/wayfinder";
 import { destroy as logoutAsisten } from "@/actions/App/Http/Controllers/Auth/LoginAsistenController";
@@ -14,14 +15,14 @@ export default function ModalLogout({ onClose, onConfirm }) {
                 onError: (error) => {
                     // Handle any errors during logout
                     console.error('Logout failed:', error);
-                    alert('Something went wrong. Please try again.');
+                    toast.error('Logout gagal. Silakan coba lagi.');
                 },
             });
         }
     };
 
     return (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
+        <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex justify-center items-center">
             <div className="bg-softGray p-6 rounded shadow-lg w-1/4 relative">
                 {/* Close Button */}
                 <button

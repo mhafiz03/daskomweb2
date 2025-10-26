@@ -1,10 +1,10 @@
 import { useState } from "react";
+import toast from "react-hot-toast";
 import closeIcon from "../../../../assets/modal/iconClose.svg";
 import { submit } from "@/lib/wayfinder";
 import { store as storeModul } from "@/actions/App/Http/Controllers/API/ModulController";
 
 export default function ButtonAddModule({ onClose }) {
-    const [showSuccessModal, setShowSuccessModal] = useState(false);
     const [values, setValues] = useState({
         judul: '',
         poin1: '',
@@ -45,15 +45,14 @@ export default function ButtonAddModule({ onClose }) {
                 data: values,
                 onSuccess: () => {
                     console.log('Data berhasil dikirim');
-                    setShowSuccessModal(true);
-                    setTimeout(() => {
-                        setShowSuccessModal(false);
-                        onClose();
-                    }, 2000);
+                    toast.success("Modul berhasil ditambahkan.");
+                    onClose();
                 },
                 onError: (errors) => {
                     console.error('Validation errors:', errors);
                     setLocalErrors(errors);
+                    const message = errors?.response?.data?.message ?? "Gagal menambahkan modul.";
+                    toast.error(message);
                     if (errors.response) {
                         console.error('Error Response:', errors.response.data);
                     }
@@ -61,6 +60,7 @@ export default function ButtonAddModule({ onClose }) {
             });
         } else {
             console.log('Form validation failed');
+            toast.error("Harap lengkapi data yang diperlukan.");
         }
     };
 
@@ -158,9 +158,8 @@ export default function ButtonAddModule({ onClose }) {
 
                     <div className="flex justify-between">
                         <div className="flex justify-start gap-3">
-                            {/* Switch isEnglish */}
                             <div className="flex items-center gap-2">
-                                <label className="text-sm font-medium text-gray-700">isEnglish</label>
+                                <label className="text-sm font-medium text-gray-700">English</label>
                                 <div
                                     onClick={toggleSwitch}
                                     className={`w-10 h-5 flex items-center rounded-full p-1 cursor-pointer transition ${isSwitchOn ? "bg-deepForestGreen" : "bg-fireRed"}`}
@@ -171,9 +170,8 @@ export default function ButtonAddModule({ onClose }) {
                                 </div>
                             </div>
 
-                            {/* Switch isUnlocked */}
                             <div className="flex items-center gap-2">
-                                <label className="text-sm font-medium text-gray-700">isUnlocked</label>
+                                <label className="text-sm font-medium text-gray-700">Unlocked</label>
                                 <div
                                     onClick={toggleUnlockedSwitch}
                                     className={`w-10 h-5 flex items-center rounded-full p-1 cursor-pointer transition ${isUnlockedSwitchOn ? "bg-deepForestGreen" : "bg-fireRed"}`}
@@ -204,17 +202,6 @@ export default function ButtonAddModule({ onClose }) {
                     </div>
                 </form>
             </div>
-
-            {/* Modal Notifikasi */}
-            {showSuccessModal && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-                    <div className="bg-white rounded-lg p-6 w-[400px] shadow-lg text-center">
-                        <h2 className="text-xl font-bold text-darkGreen text-center p-3">
-                            Modul berhasil ditambahkan!
-                        </h2>
-                    </div>
-                </div>
-            )}
         </div>
     );
 }
