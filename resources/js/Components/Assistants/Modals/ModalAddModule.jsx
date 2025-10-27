@@ -6,15 +6,13 @@ import { store as storeModul } from "@/actions/App/Http/Controllers/API/ModulCon
 
 export default function ButtonAddModule({ onClose }) {
     const [values, setValues] = useState({
-        judul: '',
-        poin1: '',
-        poin2: '',
-        poin3: '',
+        judul: "",
+        deskripsi: "",
         isEnglish: 0,
         isUnlocked: 0,
-        modul_link: '',
-        ppt_link: '',
-        video_link: '',
+        modul_link: "",
+        ppt_link: "",
+        video_link: "",
     });
 
     const [isSwitchOn, setIsSwitchOn] = useState(false);
@@ -25,9 +23,7 @@ export default function ButtonAddModule({ onClose }) {
         const newErrors = {};
 
         if (!values.judul.trim()) newErrors.judul = "Judul is required.";
-        if (!values.poin1.trim()) newErrors.poin1 = "Poin 1 is required.";
-        // if (!values.poin2.trim()) newErrors.poin2 = "Poin 2 is required.";
-        // if (!values.poin3.trim()) newErrors.poin3 = "Poin 3 is required.";
+        if (!values.deskripsi.trim()) newErrors.deskripsi = "Poin pembelajaran is required.";
         // if (!values.ppt_link.trim()) newErrors.ppt_link = "Link PPT is required.";
         // if (!values.video_link.trim()) newErrors.video_link = "Link Video Youtube is required.";
         // if (!values.modul_link.trim()) newErrors.modul_link = "Link Modul is required.";
@@ -112,21 +108,19 @@ export default function ButtonAddModule({ onClose }) {
 
                     {/* Input Poin-poin Pembelajaran */}
                     <div className="mb-4">
-                        <label className="block text-darkGreen text-md font-medium">Poin-poin Pembelajaran</label>
-                        {["poin1", "poin2", "poin3"].map((point, index) => (
-                            <div key={point} className="mb-2">
-                                <input
-                                    type="text"
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-darkBrown focus:border-darkBrown"
-                                    placeholder={`Poin ${index + 1}`}
-                                    value={values[point]}
-                                    onChange={(e) => setValues({ ...values, [point]: e.target.value })}
-                                />
-                                {localErrors[point] && (
-                                    <p className="text-red-500 text-sm mt-1">{localErrors[point]}</p>
-                                )}
-                            </div>
-                        ))}
+                        <label className="block text-darkGreen text-md font-medium">
+                            Pencapaian Pembelajaran
+                        </label>
+                        <textarea
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-darkBrown focus:border-darkBrown"
+                            placeholder="Masukkan poin pembelajaran"
+                            value={values.deskripsi}
+                            onChange={(e) => setValues({ ...values, deskripsi: e.target.value })}
+                            rows={4}
+                        />
+                        {localErrors.deskripsi && (
+                            <p className="text-red-500 text-sm mt-1">{localErrors.deskripsi}</p>
+                        )}
                     </div>
 
                     {/* Input Link */}

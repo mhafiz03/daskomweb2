@@ -59,9 +59,7 @@ export default function ModalOpenKJ({ onClose, modules }) {
             const payload = {
                 id: parseInt(mod.idM, 10),
                 judul: mod.judul,
-                poin1: mod.poin1,
-                poin2: mod.poin2 || "",
-                poin3: mod.poin3 || "",
+                deskripsi: mod.deskripsi || "",
                 isEnglish: mod.isEnglish,
                 isUnlocked: config[mod.idM] ? 1 : 0, // Pastikan nilai isUnlocked sesuai toggle
                 modul_link: mod.modul_link,

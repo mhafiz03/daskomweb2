@@ -1,13 +1,12 @@
 import { useState, useEffect } from "react";
 import toast from "react-hot-toast";
 import closeIcon from "../../../../assets/modal/iconClose.svg";
-import trashIcon from "../../../../assets/nav/Icon-Delete.svg";
 import { usePage } from "@inertiajs/react";
 import { submit } from "@/lib/wayfinder";
 import { update as updateModul } from "@/actions/App/Http/Controllers/API/ModulController";
 
 export default function ButtonEditModule({ onClose, modules, selectedModuleId, onUpdate, initialOpen }) {
-    const [points, setPoints] = useState(["", "", ""]);
+    const [learningPoint, setLearningPoint] = useState("");
     const [link1, setLink1] = useState("");
     const [link2, setLink2] = useState("");
     const [link3, setLink3] = useState("");
@@ -26,11 +25,7 @@ export default function ButtonEditModule({ onClose, modules, selectedModuleId, o
 
         if (selectedModule) {
             setTitle(selectedModule.judul || "");
-            setPoints([
-                selectedModule.poin1 || "",
-                selectedModule.poin2 || "",
-                selectedModule.poin3 || ""
-            ]);
+            setLearningPoint(selectedModule.deskripsi || "");
             setLink1(selectedModule.ppt_link || "");
             setLink2(selectedModule.video_link || "");
             setLink3(selectedModule.modul_link || "");
@@ -49,9 +44,7 @@ export default function ButtonEditModule({ onClose, modules, selectedModuleId, o
 
         const payload = {
             judul: title,
-            poin1: points[0] || "",
-            poin2: points[1] || "",
-            poin3: points[2] || "",
+            deskripsi: learningPoint || "",
             isEnglish: isEnglishOn ? 1 : 0, // Ensure correct value is sent
             isUnlocked: isUnlockedOn ? 1 : 0, // Ensure correct value is sent
             modul_link: link3,
@@ -67,9 +60,7 @@ export default function ButtonEditModule({ onClose, modules, selectedModuleId, o
                     ...modules.find(m => m.idM === selectedModuleId),
                     idM: selectedModuleId,
                     judul: title,
-                    poin1: points[0] || "",
-                    poin2: points[1] || "",
-                    poin3: points[2] || "",
+                    deskripsi: learningPoint || "",
                     isEnglish: isEnglishOn ? 1 : 0, // Ensure correct value is updated
                     isUnlocked: isUnlockedOn ? 1 : 0, // Ensure correct value is updated
                     modul_link: link3,
@@ -90,28 +81,6 @@ export default function ButtonEditModule({ onClose, modules, selectedModuleId, o
                 toast.error(message);
             },
         });
-    };
-
-    // Handle point input change
-    const handlePointChange = (index, value) => {
-        const newPoints = [...points];
-        newPoints[index] = value;
-        setPoints(newPoints);
-    };
-
-    // Add a new point
-    const handleAddPoint = () => {
-        if (points.length < 3) {
-            setPoints([...points, ""]);
-        }
-    };
-
-    // Remove a point
-    const handleRemovePoint = (index) => {
-        if (points.length > 1) {
-            const newPoints = points.filter((_, i) => i !== index);
-            setPoints(newPoints);
-        }
     };
 
     const toggleEnglishSwitch = () => {
@@ -164,39 +133,14 @@ export default function ButtonEditModule({ onClose, modules, selectedModuleId, o
                 {/* Learning Points Input */}
                 <div className="mb-4">
                     <label className="block text-darkGreen text-md font-medium">Poin-poin Pembelajaran</label>
-                    {points.map((point, index) => (
-                        <div key={index} className="flex items-center gap-2 mb-2">
-                            <input
-                                type="text"
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-darkBrown focus:border-darkBrown"
-                                placeholder={`Poin ${index + 1}`}
-                                value={point}
-                                onChange={(e) => handlePointChange(index, e.target.value)}
-                            />
-                            {points.length > 1 && (
-                                <button
-                                    type="button"
-                                    onClick={() => handleRemovePoint(index)}
-                                >
-                                    <img
-                                        className="w-6"
-                                        src={trashIcon}
-                                        alt="delete icon"
-                                    />
-                                </button>
-                            )}
-                        </div>
-                    ))}
-                    {errors.poin1 && <p className="text-fireRed text-sm mt-1">{errors.poin1}</p>}
-                    {points.length < 3 && (
-                        <button
-                            type="button"
-                            onClick={handleAddPoint}
-                            className="text-deepForestGreen hover:text-darkGreen hover:underline"
-                        >
-                            Tambah Poin
-                        </button>
-                    )}
+                    <textarea
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-darkBrown focus:border-darkBrown"
+                        placeholder="Masukkan poin pembelajaran"
+                        value={learningPoint}
+                        onChange={(e) => setLearningPoint(e.target.value)}
+                        rows={4}
+                    />
+                    {errors.deskripsi && <p className="text-fireRed text-sm mt-1">{errors.deskripsi}</p>}
                 </div>
 
                 {/* Link Inputs */}

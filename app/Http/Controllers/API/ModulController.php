@@ -4,12 +4,9 @@ namespace App\Http\Controllers\API;
 
 use App\Models\Modul;
 use App\Models\Resource;
-use Illuminate\Http\Request;
 use App\Models\Tugaspendahuluan;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use App\Http\Resources\ModulResource;
-use App\Http\Controllers\API\BaseController as BaseController;
-use PhpParser\Node\Expr\AssignOp\Mod;
 use Illuminate\Support\Facades\Validator;
 
 class ModulController extends BaseController
@@ -20,9 +17,7 @@ class ModulController extends BaseController
             $moduls = Modul::leftJoin('resources', 'resources.modul_id', '=', 'moduls.id')
                 ->select(
                     'judul',
-                    'poin1',
-                    'poin2',
-                    'poin3',
+                    'deskripsi',
                     'isEnglish',
                     'isUnlocked',
                     'moduls.id as idM',
@@ -40,7 +35,7 @@ class ModulController extends BaseController
         } catch (\Exception $e) {
             return response()->json([
                 'message' => 'An error occurred while retrieving moduls.',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
@@ -50,17 +45,18 @@ class ModulController extends BaseController
         try {
             // Mengambil modul dengan eager loading relasi 'resource'
             $modul = Modul::with('resource')
-                ->select('judul', 'poin1', 'poin2', 'poin3', 'isEnglish', 'isUnlocked', 'moduls.id as idM')
+                ->select('judul', 'deskripsi', 'isEnglish', 'isUnlocked', 'moduls.id as idM')
                 ->where('moduls.id', $id)
                 ->first();
-            if (!$modul) {
+            if (! $modul) {
                 return response()->json([
-                    'message' => 'Modul tidak ditemukan.'
+                    'message' => 'Modul tidak ditemukan.',
                 ], 404);
             }
             $modul->resource_id = $modul->resource->id ?? null;
             $modul->modul_link = $modul->resource->modul_link ?? null;
             $modul->ppt_link = $modul->resource->ppt_link ?? null;
+
             return response()->json([
                 'success' => true,
                 'data' => $modul,
@@ -68,7 +64,7 @@ class ModulController extends BaseController
         } catch (\Exception $e) {
             return response()->json([
                 'message' => 'Terjadi kesalahan saat mengambil modul.',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
@@ -78,9 +74,7 @@ class ModulController extends BaseController
         // Validasi input dari request
         $request->validate([
             'judul' => 'required|unique:moduls|string',
-            'poin1' => 'required|string',
-            'poin2' => 'nullable|string',
-            'poin3' => 'nullable|string',
+            'deskripsi' => 'required|string',
             'isEnglish' => 'required|integer',
             'isUnlocked' => 'required|integer',
             'modul_link' => 'nullable|string',
@@ -90,9 +84,7 @@ class ModulController extends BaseController
         try {
             $modul = Modul::create([
                 'judul' => $request->judul,
-                'poin1' => $request->poin1,
-                'poin2' => $request->poin2,
-                'poin3' => $request->poin3,
+                'deskripsi' => $request->deskripsi,
                 'isEnglish' => $request->isEnglish,
                 'isUnlocked' => $request->isUnlocked,
                 'created_at' => now(),
@@ -108,9 +100,10 @@ class ModulController extends BaseController
             ]);
             Tugaspendahuluan::create([
                 'modul_id' => $modul->id,
-                'pembahasan' => "empty",
+                'pembahasan' => 'empty',
                 'isActive' => 0,
             ]);
+
             return redirect()->back()->with('success', 'Modul added successfully.');
         } catch (\Exception $e) {
             return response()->json([
@@ -124,9 +117,7 @@ class ModulController extends BaseController
     {
         $validator = Validator::make($request->all(), [
             'judul' => 'required|string',
-            'poin1' => 'required|string',
-            'poin2' => 'nullable|string',
-            'poin3' => 'nullable|string',
+            'deskripsi' => 'required|string',
             'isEnglish' => 'required|integer',
             'isUnlocked' => 'required|integer',
             'modul_link' => 'required|string',
@@ -145,16 +136,16 @@ class ModulController extends BaseController
                 $existingModul = Modul::where('judul', $request->judul)->first();
                 if ($existingModul) {
                     return redirect()->back()->withErrors([
-                        'judul' => 'Judul "' . $request->judul . '" sudah terdaftar.'
+                        'judul' => 'Judul "'.$request->judul.'" sudah terdaftar.',
                     ])->withInput();
                 }
             }
-            
+
             $resource = Resource::where('modul_id', $modul->id)->first();
 
-            if (!$resource) {
+            if (! $resource) {
                 // Create a new resource if one doesn't exist
-                $resource = new Resource();
+                $resource = new Resource;
                 $resource->modul_id = $modul->id;
                 // Set other required fields
             }
@@ -167,9 +158,7 @@ class ModulController extends BaseController
 
             // Update modul
             $modul->judul = $request->judul;
-            $modul->poin1 = $request->poin1;
-            $modul->poin2 = $request->poin2 ?? '';
-            $modul->poin3 = $request->poin3 ?? '';
+            $modul->deskripsi = $request->deskripsi;
             $modul->isEnglish = $request->isEnglish;
             $modul->isUnlocked = $request->isUnlocked;
             $modul->save();
@@ -183,21 +172,21 @@ class ModulController extends BaseController
             return redirect()->back()->with('success', 'Modul berhasil diupdate.');
         } catch (\Exception $e) {
             return redirect()->back()->withErrors([
-                'general' => 'Terjadi kesalahan saat mengupdate modul: ' . $e->getMessage()
+                'general' => 'Terjadi kesalahan saat mengupdate modul: '.$e->getMessage(),
             ])->withInput();
         }
     }
 
     public function destroy($id)
     {
-        if (!Modul::where('id', $id)->exists()) {
+        if (! Modul::where('id', $id)->exists()) {
             return response()->json(['message' => 'Modul tidak ditemukan'], 404);
         }
         $modul = Modul::findOrFail($id);
         $modul->delete();
 
         return response()->json([
-            'message' => 'modul berhasil dihapus'
+            'message' => 'modul berhasil dihapus',
 
         ], 200);
     }
@@ -221,7 +210,6 @@ class ModulController extends BaseController
     //            ], 500);
     //        }
     //    }
-
 
     public function reset()
     {
@@ -247,6 +235,7 @@ class ModulController extends BaseController
             DB::table('temp_jawabantps')->truncate();
             DB::table('tugaspendahuluans')->truncate();
             DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+
             return response()->json(['message' => 'Modul table and related data reset successfully.'], 200);
         } catch (\Exception $e) {
             return response()->json([
@@ -296,7 +285,7 @@ class ModulController extends BaseController
         } catch (\Exception $e) {
             return response()->json([
                 'status' => 'error',
-                'message' => 'Terjadi kesalahan saat mengupdate status: ' . $e->getMessage(),
+                'message' => 'Terjadi kesalahan saat mengupdate status: '.$e->getMessage(),
             ], 500);
         }
     }

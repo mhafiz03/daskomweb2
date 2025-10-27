@@ -221,6 +221,19 @@ export default function ModalEditPlotting({ onClose, kelas }) {
         }));
     };
 
+    const [leftColumnEntries, rightColumnEntries] = useMemo(() => {
+        if (jadwalEntries.length === 0) {
+            return [[], []];
+        }
+
+        const midpoint = Math.ceil(jadwalEntries.length / 2);
+
+        return [
+            jadwalEntries.slice(0, midpoint),
+            jadwalEntries.slice(midpoint),
+        ];
+    }, [jadwalEntries]);
+
     return (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
             <div className="bg-white rounded-lg p-6 w-[700px] shadow-lg relative">
@@ -322,39 +335,39 @@ export default function ModalEditPlotting({ onClose, kelas }) {
                         {jadwalLoading ? (
                             <p className="text-sm text-gray-500">Memuat daftar asisten jaga...</p>
                         ) : jadwalEntries.length > 0 ? (
-                            <ul className="space-y-2">
-                                {jadwalEntries.map((entry, idx) => {
-                                    const detail =
-                                        entry?.asisten ??
-                                        asistenMap.get(Number(entry?.asisten_id)) ??
-                                        null;
-
-                                    const kode = detail?.kode ?? entry?.kode ?? `AST-${idx + 1}`;
-                                    const nama = detail?.nama ?? entry?.nama ?? "Nama tidak tersedia";
-
-                                    const jadwalId = entry?.id ?? entry?.jadwal_id ?? null;
-
-                                    return (
-                                        <li
-                                            key={jadwalId ?? `${kode}-${idx}`}
-                                            className="flex justify-between items-center border border-lightBrown rounded px-3 py-2 text-sm text-darkBrown bg-white"
-                                        >
-                                            <div>
-                                                <p className="font-semibold">{kode}</p>
-                                                <p className="text-xs text-gray-500">{nama}</p>
-                                            </div>
-                                            <button
-                                                type="button"
-                                                onClick={() => handleRemoveAsisten(jadwalId)}
-                                                className="text-fireRed text-xs font-semibold hover:underline"
-                                                disabled={!jadwalId}
-                                            >
-                                                Hapus
-                                            </button>
-                                        </li>
-                                    );
-                                })}
-                            </ul>
+                            <div className="grid grid-cols-1 gap-1 md:grid-cols-2">
+                                {[leftColumnEntries, rightColumnEntries].map((columnEntries, columnIndex) => (
+                                    <ul key={columnIndex} className="space-y-1">
+                                        {columnEntries.map((entry, idx) => {
+                                            const globalIndex = columnIndex === 0 ? idx : leftColumnEntries.length + idx;
+                                            const detail =
+                                                entry?.asisten ??
+                                                asistenMap.get(Number(entry?.asisten_id)) ??
+                                                null;
+                                            const kode = detail?.kode ?? entry?.kode ?? `AST-${globalIndex + 1}`;
+                                            const jadwalId = entry?.id ?? entry?.jadwal_id ?? null;
+                                            return (
+                                                <li
+                                                    key={jadwalId ?? `${kode}-${columnIndex}-${idx}`}
+                                                    className="flex items-center justify-between rounded border border-lightBrown bg-white px-3 py-2 text-sm text-darkBrown"
+                                                >
+                                                    <div>
+                                                        <p className="font-semibold">{kode}</p>
+                                                    </div>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => handleRemoveAsisten(jadwalId)}
+                                                        className="text-xs font-semibold text-fireRed hover:underline"
+                                                        disabled={!jadwalId}
+                                                    >
+                                                        Hapus
+                                                    </button>
+                                                </li>
+                                            );
+                                        })}
+                                    </ul>
+                                ))}
+                            </div>
                         ) : (
                             <p className="text-sm text-gray-500">Belum ada asisten jaga untuk kelas ini.</p>
                         )}

@@ -12,7 +12,6 @@ export default function SoalInputForm() {
     const [isModalSuccesOpenAddSoal, setIsModalSuccesOpenAddSoal] = useState(false);
     const [kategoriSoal, setKategoriSoal] = useState("");
     const [selectedModul, setSelectedModul] = useState('');
-    const [soalList, setSoalList] = useState([]);
     const {
         data: moduls = [],
         isLoading: modulesLoading,

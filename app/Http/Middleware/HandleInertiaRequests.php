@@ -18,7 +18,7 @@ class HandleInertiaRequests extends Middleware
     /**
      * Determine the current asset version.
      */
-    public function version(Request $request): string|null
+    public function version(Request $request): ?string
     {
         return parent::version($request);
     }
@@ -30,17 +30,23 @@ class HandleInertiaRequests extends Middleware
      */
     public function share(Request $request): array
     {
+        $assistant = $request->user('asisten');
+
+        if ($assistant) {
+            $assistant->loadMissing(['role.permissions']);
+        }
+
         return [
             ...parent::share($request),
             'auth' => [
-                'asisten' => auth()->guard('asisten')->user(),
+                'asisten' => $assistant,
                 'praktikan' => auth()->guard('praktikan')->user(),
             ],
             'flash' => [
                 'success' => fn () => $request->session()->get('success'),
-                'error' => fn () => $request->session()->get('error')
+                'error' => fn () => $request->session()->get('error'),
             ],
-            'ziggy' => fn() => [
+            'ziggy' => fn () => [
                 ...(new Ziggy)->toArray(),
                 'location' => $request->fullUrl(),
             ],

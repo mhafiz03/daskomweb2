@@ -18,15 +18,14 @@ import plottingIcon from "../../../../assets/nav/Icon-Plotting.svg";
 import roleIcon from "../../../../assets/nav/Icon-Piket.svg";
 import praktikanIcon from "../../../../assets/nav/Icon-Praktikan.svg";
 import pelanggaranIcon from "../../../../assets/nav/Icon-Pelanggaran.svg";
-import konfigurasiIcon from "../../../../assets/nav/Icon-Konfigurasi.svg";
 import announcementIcon from "../../../../assets/nav/Icon-Annoucement.svg";
 import changePassIcon from "../../../../assets/nav/Icon-GantiPassword.svg";
 import logoutIcon from "../../../../assets/nav/Icon-Logout.svg";
-import jawabanTP from "../../../../assets/nav/Icon-Rating.svg"
-import moduleIcon from "../../../../assets/nav/Icon-Module.svg"
-import tpModuleIcon from "../../../../assets/nav/Icon-TP.svg"
+import jawabanTP from "../../../../assets/nav/Icon-Rating.svg";
+import moduleIcon from "../../../../assets/nav/Icon-Module.svg";
+import tpModuleIcon from "../../../../assets/nav/Icon-TP.svg";
 
-export default function AssisstantNav({ asisten, permission_name }) {
+export default function AssisstantNav({ asisten, permission_name = [], roleName }) {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [showLogoutModal, setShowLogoutModal] = useState(false);
     const [showConfigModal, setShowConfigModal] = useState(false);
@@ -53,6 +52,25 @@ export default function AssisstantNav({ asisten, permission_name }) {
         closeLogoutModal();
     };
 
+    const permissionSet = new Set(permission_name);
+    const normalizedRole = roleName?.toUpperCase() ?? null;
+    const adminRoles = ["SOFTWARE", "KORDAS", "WAKORDAS", "ADMIN"];
+
+    const isRoleAllowed = (allowedRoles) => {
+        if (!allowedRoles || allowedRoles.length === 0) {
+            return true;
+        }
+
+        if (!normalizedRole) {
+            return false;
+        }
+
+        return allowedRoles.map((role) => role.toUpperCase()).includes(normalizedRole);
+    };
+
+    const canAccess = (permission, allowedRoles) =>
+        permissionSet.has(permission) && isRoleAllowed(allowedRoles);
+
     return (
         <>
             <nav className="h-screen flex items-center">
@@ -60,7 +78,7 @@ export default function AssisstantNav({ asisten, permission_name }) {
                     <div className="">
                         <ul className="py-5">
                             {/* Bagian Profile dan Praktikum */}
-                            {permission_name.includes("manage-profile") && (
+                            {canAccess("manage-profile") && (
                                 <li id="manage-profile">
                                     <Link
                                         href={route('assistant')}
@@ -71,7 +89,7 @@ export default function AssisstantNav({ asisten, permission_name }) {
                                     </Link>
                                 </li>
                             )}
-                            {permission_name.includes("see-history") && (
+                            {canAccess("see-history") && (
                             <li id="manage-praktikum">
                                 <Link href="/start-praktikum" className="flex py-3 px-5 hover:bg-darkGreen">
                                     <img className="w-6" src={praktikumIcon} alt="start praktikum" />
@@ -81,7 +99,7 @@ export default function AssisstantNav({ asisten, permission_name }) {
                             )}
 
                             {/* Bagian History, Laporan, dan Nilai */}
-                            {permission_name.includes("see-history") && (
+                            {canAccess("see-history") && (
                                 <li id="see-history">
                                     <Link href="/history" className="flex py-3 px-5 hover:bg-darkGreen">
                                         <img className="w-6" src={historyIcon} alt="history" />
@@ -97,7 +115,7 @@ export default function AssisstantNav({ asisten, permission_name }) {
                                     </Link>
                                 </li>
                             )} */}
-                            {permission_name.includes("nilai-praktikan") && (
+                            {canAccess("nilai-praktikan") && (
                                 <li id="nilai-praktikan">
                                     <Link href="/nilai-praktikan" className="flex py-3 px-5 hover:bg-darkGreen">
                                         <img className="w-6" src={nilaiIcon} alt="nilai" />
@@ -105,7 +123,7 @@ export default function AssisstantNav({ asisten, permission_name }) {
                                     </Link>
                                 </li>
                             )}
-                            {permission_name.includes("manage-modul") && (
+                            {canAccess("manage-modul") && (
                                 <li id="manage-modul">
                                     <Link href="/modul" className="flex py-3 px-5 hover:bg-darkGreen">
                                         <img className="w-6" src={moduleIcon} alt="moduleIcon" />
@@ -115,7 +133,7 @@ export default function AssisstantNav({ asisten, permission_name }) {
                             )}
 
                             {/* Bagian Soal, Ranking, dan Polling */}
-                            {permission_name.includes("manage-soal") && (
+                            {canAccess("manage-soal") && (
                                 <li id="see-soal">
                                     <Link href="/soal" className="flex py-3 px-5 hover:bg-darkGreen">
                                         <img className="w-6" src={inputSoalIcon} alt="input soal" />
@@ -123,7 +141,7 @@ export default function AssisstantNav({ asisten, permission_name }) {
                                     </Link>
                                 </li>
                             )}
-                            {permission_name.includes("see-ranking") && (
+                            {canAccess("see-ranking") && (
                                 <li id="ranking-praktikan">
                                     <Link href="/ranking" className="flex py-3 px-5 hover:bg-darkGreen">
                                         <img className="w-6" src={rankingIcon} alt="ranking" />
@@ -131,7 +149,7 @@ export default function AssisstantNav({ asisten, permission_name }) {
                                     </Link>
                                 </li>
                             )}
-                            {permission_name.includes("see-polling") && (
+                            {canAccess("see-polling") && (
                                 <li id="see-polling">
                                     <Link href="/polling" className="flex py-3 px-5 hover:bg-darkGreen">
                                         <img className="w-6" src={pollingIcon} alt="polling" />
@@ -141,7 +159,7 @@ export default function AssisstantNav({ asisten, permission_name }) {
                             )}
 
                             {/* Bagian Plottingan, Praktikan, dan Pelanggaran */}
-                            {permission_name.includes("see-plot") && (
+                            {canAccess("see-plot") && (
                                 <li id="see-plot">
                                     <Link href="/plottingan" className="flex py-3 px-5 hover:bg-darkGreen">
                                         <img className="w-6" src={plottingIcon} alt="plotting" />
@@ -149,7 +167,7 @@ export default function AssisstantNav({ asisten, permission_name }) {
                                     </Link>
                                 </li>
                             )}
-                            {permission_name.includes("set-praktikan") && (
+                            {canAccess("set-praktikan") && (
                                 <li id="set-praktikan">
                                     <Link href="/set-praktikan" className="flex py-3 px-5 hover:bg-darkGreen">
                                         <img className="w-6" src={roleIcon} alt="praktikan" />
@@ -157,7 +175,7 @@ export default function AssisstantNav({ asisten, permission_name }) {
                                     </Link>
                                 </li>
                             )}
-                            {permission_name.includes("see-pelanggaran") && (
+                            {canAccess("see-pelanggaran") && (
                                 <li id="see-pelanggaran">
                                     <Link href="/pelanggaran" className="flex py-3 px-5 hover:bg-darkGreen">
                                         <img className="w-6" src={pelanggaranIcon} alt="pelanggaran" />
@@ -167,7 +185,7 @@ export default function AssisstantNav({ asisten, permission_name }) {
                             )}
 
                             {/* Bagian Kunci Jawaban, Role Management, dan Konfigurasi */}
-                            {permission_name.includes("manage-role") && (
+                            {canAccess("manage-role", adminRoles) && (
                                 <li id="manage-role">
                                     <Link href="/manage-role" className="flex py-3 px-5 hover:bg-darkGreen">
                                         <img className="w-6" src={praktikanIcon} alt="manage role" />
@@ -175,7 +193,7 @@ export default function AssisstantNav({ asisten, permission_name }) {
                                     </Link>
                                 </li>
                             )}
-                            {permission_name.includes("check-tugas-pendahuluan") && (
+                            {canAccess("check-tugas-pendahuluan") && (
                                 <li id="check-tugas-pendahuluan">
                                     <Link href="/lihat-tp" className="flex py-3 px-5 hover:bg-darkGreen">
                                         <img className="w-6" src={jawabanTP} alt="lihat tp" />
@@ -183,7 +201,7 @@ export default function AssisstantNav({ asisten, permission_name }) {
                                     </Link>
                                 </li>
                             )}
-                            {permission_name.includes("unlock-jawaban") && (
+                            {canAccess("unlock-jawaban", adminRoles) && (
                                 <li id="unlock-jawaban">
                                     <a onClick={openOpenKJModal} className="flex py-3 px-5 hover:bg-darkGreen cursor-pointer">
                                         <img className="w-6" src={announcementIcon} alt="open-jawaban" />
@@ -195,12 +213,14 @@ export default function AssisstantNav({ asisten, permission_name }) {
 
                         <ul className="py-5">
                             {/* Bagian Pengaturan dan Logout */}
-                            <li id="config">
-                                <a onClick={openConfigModal} className="flex py-3 px-5 hover:bg-darkGreen">
-                                    <img className="w-6" src={tpModuleIcon} alt="change password" />
-                                    <span className="self-center text-sm ml-3">Configuration</span>
-                                </a>
-                            </li>
+                            {canAccess("lms-configuration", adminRoles) && (
+                                <li id="config">
+                                    <a onClick={openConfigModal} className="flex py-3 px-5 hover:bg-darkGreen">
+                                        <img className="w-6" src={tpModuleIcon} alt="change password" />
+                                        <span className="self-center text-sm ml-3">Configuration</span>
+                                    </a>
+                                </li>
+                            )}
                             <li id="change-password">
                                 <a onClick={openModal} className="flex py-3 px-5 hover:bg-darkGreen">
                                     <img className="w-6" src={changePassIcon} alt="change password" />

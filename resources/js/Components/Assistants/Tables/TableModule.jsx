@@ -147,11 +147,11 @@ export default function TableModule() {
                                     <div>
                                         <h4 className="text-lg font-semibold text-black mt-2">Pencapaian Pembelajaran: </h4>
                                         <div className="px-5 py-3 text-md text-black">
-                                            <ol className="list-decimal pl-5">
-                                                {module.poin1 && <li>{module.poin1}</li>}
-                                                {module.poin2 && <li>{module.poin2}</li>}
-                                                {module.poin3 && <li>{module.poin3}</li>}
-                                            </ol>
+                                            {module.deskripsi ? (
+                                                <p>{module.deskripsi}</p>
+                                            ) : (
+                                                <p className="italic text-gray-500">Belum ada poin pembelajaran.</p>
+                                            )}
                                         </div>
 
                                         <h6 className="text-md text-black mt-4">Untuk tutorial lebih lanjut, Anda dapat menonton video berikut:</h6>

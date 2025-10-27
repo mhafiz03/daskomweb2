@@ -15,10 +15,11 @@ export default function AssistantLayout({
     const asisten = auth?.asisten ?? null;
     const permissions = asisten?.role?.permissions ?? [];
     const permissionNames = permissions.map((item) => item.name);
+    const roleName = asisten?.role?.name ?? null;
 
     const renderedChildren =
         typeof children === "function"
-            ? children({ asisten, permissions, permissionNames })
+            ? children({ asisten, permissions, permissionNames, roleName })
             : children;
 
     return (
@@ -28,6 +29,7 @@ export default function AssistantLayout({
                     <AssisstantNav
                         asisten={asisten}
                         permission_name={permissionNames}
+                        roleName={roleName}
                     />
                 </div>
                 <div className={contentClassName}>{renderedChildren}</div>

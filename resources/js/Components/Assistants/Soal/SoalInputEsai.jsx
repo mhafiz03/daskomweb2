@@ -150,7 +150,7 @@ export default function SoalInputEssay({ kategoriSoal, modul, onModalSuccess, on
                                 <div className="flex-1 p-4">
                                     <strong>Soal: {index + 1}</strong>
                                     <br />
-                                    <span className="ml-2 text-sm text-justify">{soalItem.soal}</span>
+                                    <pre className="ml-2 text-sm text-justify">{soalItem.soal}</pre>
                                 </div>
                                 <div className="flex space-x-2 p-2">
                                     <button

@@ -48,7 +48,7 @@ class ImportSqlDump extends Command
         // Prepare temp database if requested
         $tempDb = null;
         if ($importToTemp) {
-            $tempDb = 'import_tmp_' . Str::lower(Str::random(8));
+            $tempDb = 'import_tmp_'.Str::lower(Str::random(8));
             $this->createDatabase($connName, $tempDb, $dryRun);
             $this->info("Created temp database: {$tempDb}");
         }
@@ -70,6 +70,7 @@ class ImportSqlDump extends Command
         } catch (Throwable $e) {
             $this->error("Import failed: {$e->getMessage()}");
             $this->dropDatabase($connName, $tempDb, $dryRun);
+
             return 1;
         }
 
@@ -85,6 +86,7 @@ class ImportSqlDump extends Command
             } catch (Throwable $e) {
                 $this->error("Mapping failed: {$e->getMessage()}");
                 $this->dropDatabase($connName, $tempDb, $dryRun);
+
                 return 1;
             }
         }
@@ -153,7 +155,7 @@ class ImportSqlDump extends Command
 
     private function setForeignKeyChecks(string $connection, bool $enable): void
     {
-        DB::connection($connection)->statement('SET FOREIGN_KEY_CHECKS = ' . ($enable ? '1' : '0'));
+        DB::connection($connection)->statement('SET FOREIGN_KEY_CHECKS = '.($enable ? '1' : '0'));
     }
 
     private function importSqlFile(string $connection, string $database, string $path, bool $dryRun): void
@@ -193,7 +195,7 @@ class ImportSqlDump extends Command
                 if ($dryRun) {
                     // Keep output small: only echo CREATE/ALTER
                     if (preg_match('/^(CREATE|ALTER|INSERT INTO `migrations`)/i', $stmt)) {
-                        $this->line('[dry-run] ' . substr($stmt, 0, 120) . '...');
+                        $this->line('[dry-run] '.substr($stmt, 0, 120).'...');
                     }
 
                     continue;
@@ -203,7 +205,7 @@ class ImportSqlDump extends Command
                     DB::connection($connection)->unprepared($stmt);
                 } catch (Throwable $e) {
                     fclose($handle);
-                    throw new \RuntimeException("SQL error near line {$lineNo}: " . $e->getMessage());
+                    throw new \RuntimeException("SQL error near line {$lineNo}: ".$e->getMessage());
                 }
             }
         }
@@ -222,13 +224,13 @@ class ImportSqlDump extends Command
         $formatSql = static function (string $sql): string {
             $normalized = preg_replace('/\s+/', ' ', trim($sql));
 
-            return substr($normalized, 0, 180) . (strlen($normalized) > 180 ? '…' : '');
+            return substr($normalized, 0, 180).(strlen($normalized) > 180 ? '…' : '');
         };
 
         $runStatement = function (string $sql, string $label = '') use ($conn, $dryRun, $formatSql) {
             $preview = $label !== '' ? $label : $formatSql($sql);
             if ($dryRun) {
-                $this->line('[dry-run] ' . $preview);
+                $this->line('[dry-run] '.$preview);
 
                 return;
             }
@@ -374,17 +376,17 @@ class ImportSqlDump extends Command
 
         $this->info('Seeding permissions');
         if ($dryRun) {
-            $this->line('[dry-run] insert ' . count($permissionSeed) . ' permissions');
+            $this->line('[dry-run] insert '.count($permissionSeed).' permissions');
         } else {
-            $conn->table($newDb . '.permissions')->insert($permissionSeed);
+            $conn->table($newDb.'.permissions')->insert($permissionSeed);
             $conn->statement("ALTER TABLE `{$newDb}`.`permissions` MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT");
         }
 
         $this->info('Seeding roles');
         if ($dryRun) {
-            $this->line('[dry-run] insert ' . count($roleSeed) . ' roles');
+            $this->line('[dry-run] insert '.count($roleSeed).' roles');
         } else {
-            $conn->table($newDb . '.roles')->insert($roleSeed);
+            $conn->table($newDb.'.roles')->insert($roleSeed);
         }
 
         $rolePermissionRows = [];
@@ -412,10 +414,10 @@ class ImportSqlDump extends Command
 
         $this->info('Assigning role permissions');
         if ($dryRun) {
-            $this->line('[dry-run] insert ' . count($rolePermissionRows) . ' role_has_permissions rows');
+            $this->line('[dry-run] insert '.count($rolePermissionRows).' role_has_permissions rows');
         } else {
             foreach (array_chunk($rolePermissionRows, 500) as $chunk) {
-                $conn->table($newDb . '.role_has_permissions')->insert($chunk);
+                $conn->table($newDb.'.role_has_permissions')->insert($chunk);
             }
         }
 
@@ -486,7 +488,7 @@ class ImportSqlDump extends Command
 
             $password = $legacyAsisten->password;
             if (is_string($password) && Str::startsWith($password, '$2a$')) {
-                $password = '$2y$' . substr($password, 4);
+                $password = '$2y$'.substr($password, 4);
             }
 
             $asistenBatch[] = [
@@ -507,10 +509,10 @@ class ImportSqlDump extends Command
         }
 
         if ($dryRun) {
-            $this->line('[dry-run] insert ' . count($asistenBatch) . ' asistens (skipped ' . $skippedAsistens . ')');
+            $this->line('[dry-run] insert '.count($asistenBatch).' asistens (skipped '.$skippedAsistens.')');
         } else {
             foreach (array_chunk($asistenBatch, 500) as $chunk) {
-                $conn->table($newDb . '.asistens')->insert($chunk);
+                $conn->table($newDb.'.asistens')->insert($chunk);
             }
         }
 
@@ -522,7 +524,7 @@ class ImportSqlDump extends Command
         );
 
         $runStatement(
-            'UPDATE `' . $newDb . '`.`asistens`
+            'UPDATE `'.$newDb.'`.`asistens`
              SET `password` = CONCAT(\'$2y$\', SUBSTRING(`password`, 5))
              WHERE `password` LIKE \'$2a$%\'',
             'Normalize asisten password hashes'
@@ -531,7 +533,7 @@ class ImportSqlDump extends Command
         // === CONTINUE WITH REMAINING TABLES ===
         $exec = function (string $sql) use ($conn, $dryRun, $formatSql) {
             if ($dryRun) {
-                $this->line('[dry-run] ' . $formatSql($sql));
+                $this->line('[dry-run] '.$formatSql($sql));
 
                 return;
             }
@@ -550,7 +552,7 @@ class ImportSqlDump extends Command
                FROM `{$legacyDb}`.`praktikans`");
 
         $runStatement(
-            'UPDATE `' . $newDb . '`.`praktikans`
+            'UPDATE `'.$newDb.'`.`praktikans`
              SET `password` = CONCAT(\'$2y$\', SUBSTRING(`password`, 5))
              WHERE `password` LIKE \'$2a$%\'',
             'Normalize praktikan password hashes'
@@ -558,8 +560,8 @@ class ImportSqlDump extends Command
 
         $this->info('Mapping: moduls');
         $exec("INSERT IGNORE INTO `{$newDb}`.`moduls`
-              (`id`,`judul`,`poin1`,`poin2`,`poin3`,`created_at`,`updated_at`,`isEnglish`,`isUnlocked`)
-               SELECT id, judul, COALESCE(deskripsi,'') AS poin1, SUBSTRING(isi,1,65535) AS poin2, NULL AS poin3,
+              (`id`,`judul`,`deskripsi`,`created_at`,`updated_at`,`isEnglish`,`isUnlocked`)
+               SELECT id, judul, isi AS deskripsi,
                       created_at, updated_at, 0 AS isEnglish, 0 AS isUnlocked
                FROM `{$legacyDb}`.`moduls`");
 
@@ -642,7 +644,7 @@ class ImportSqlDump extends Command
 
         $this->info('Mapping: configurations');
         $runStatement(
-            'INSERT INTO `' . $newDb . '`.`configurations` (`id`, `registrationPraktikan_activation`, `registrationAsisten_activation`, `tp_activation`, `tubes_activation`, `secretfeature_activation`, `polling_activation`, `kode_asisten`, `created_at`, `updated_at`)
+            'INSERT INTO `'.$newDb.'`.`configurations` (`id`, `registrationPraktikan_activation`, `registrationAsisten_activation`, `tp_activation`, `tubes_activation`, `secretfeature_activation`, `polling_activation`, `kode_asisten`, `created_at`, `updated_at`)
              VALUES (1, 0, 1, 0, 1, 1, 0, \'ABC\', \'2025-01-21 14:40:32\', \'2025-01-21 14:41:23\')
              ON DUPLICATE KEY UPDATE
                  `registrationPraktikan_activation` = VALUES(`registrationPraktikan_activation`),
@@ -775,7 +777,7 @@ class ImportSqlDump extends Command
             $cases = [];
             $ids = [];
             foreach ($chunk as $id => $optionId) {
-                $cases[] = 'WHEN ' . (int) $id . ' THEN ' . (int) $optionId;
+                $cases[] = 'WHEN '.(int) $id.' THEN '.(int) $optionId;
                 $ids[] = (int) $id;
             }
 
@@ -784,8 +786,8 @@ class ImportSqlDump extends Command
             }
 
             $sql = "UPDATE `{$newDb}`.`{$table}` SET `opsi_id` = CASE `id` "
-                . implode(' ', $cases)
-                . ' END WHERE `id` IN (' . implode(',', $ids) . ')';
+                .implode(' ', $cases)
+                .' END WHERE `id` IN ('.implode(',', $ids).')';
 
             $conn->statement($sql);
         }

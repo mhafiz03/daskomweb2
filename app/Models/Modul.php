@@ -13,7 +13,7 @@ use Illuminate\Database\Eloquent\Model;
 
 /**
  * Class Modul
- * 
+ *
  * @property int $id
  * @property string $judul
  * @property string $deskripsi
@@ -22,7 +22,6 @@ use Illuminate\Database\Eloquent\Model;
  * @property Carbon|null $updated_at
  * @property bool|null $isEnglish
  * @property bool $isUnlocked
- * 
  * @property Collection|JawabanFitb[] $jawaban_fitbs
  * @property Collection|JawabanJurnal[] $jawaban_jurnals
  * @property Collection|JawabanMandiri[] $jawaban_mandiris
@@ -30,11 +29,10 @@ use Illuminate\Database\Eloquent\Model;
  * @property Collection|JawabanTk[] $jawaban_tks
  * @property Collection|JawabanTp[] $jawaban_tps
  * @property Collection|KumpulTp[] $kumpul_tps
- * @property Collection|LaporanPj[] $laporan_pjs
  * @property Collection|LaporanPraktikan[] $laporan_praktikans
  * @property Collection|Nilai[] $nilais
  * @property Collection|Praktikum[] $praktikums
- * @property Collection|Resource[] $resources
+ * @property Collection|resource[] $resources
  * @property Collection|SoalFitb[] $soal_fitbs
  * @property Collection|SoalJurnal[] $soal_jurnals
  * @property Collection|SoalMandiri[] $soal_mandiris
@@ -43,23 +41,22 @@ use Illuminate\Database\Eloquent\Model;
  * @property Collection|SoalTp[] $soal_tps
  * @property Collection|TempJawabantp[] $temp_jawabantps
  * @property Collection|Tugaspendahuluan[] $tugaspendahuluans
- *
- * @package App\Models
  */
 class Modul extends Model
 {
 	use HasFactory;
+
 	protected $table = 'moduls';
-	protected $primaryKey = "id";
-    protected $keyType = "int";
+
+	protected $primaryKey = 'id';
+
+	protected $keyType = 'int';
 
 	protected $fillable = [
 		'judul',
-		'poin1',
-		'poin2',
-		'poin3',
+		'deskripsi',
 		'isEnglish',
-		'isUnlocked'
+		'isUnlocked',
 	];
 
 	public function jawaban_fitbs()
@@ -95,11 +92,6 @@ class Modul extends Model
 	public function kumpul_tps()
 	{
 		return $this->hasMany(KumpulTp::class);
-	}
-
-	public function laporan_pjs()
-	{
-		return $this->hasMany(LaporanPj::class);
 	}
 
 	public function laporan_praktikans()
