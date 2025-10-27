@@ -171,6 +171,18 @@ class PraktikumController extends Controller
 
     private function handleStart(Praktikum $praktikum, string $phase, Carbon $now): void
     {
+        // Check if there's already a running praktikum for the same kelas
+        $runningPraktikum = Praktikum::where('kelas_id', $praktikum->kelas_id)
+            ->where('id', '!=', $praktikum->id)
+            ->whereIn('status', ['running', 'paused'])
+            ->first();
+
+        if ($runningPraktikum) {
+            throw new \InvalidArgumentException(
+                'Tidak dapat memulai praktikum. Terdapat praktikum lain yang sedang berjalan untuk kelas ini.'
+            );
+        }
+
         $praktikum->isActive = true;
         $praktikum->status = 'running';
         $praktikum->current_phase = $phase;
@@ -267,6 +279,46 @@ class PraktikumController extends Controller
         $praktikum->report_submitted_at = $now;
         $praktikum->pj_id = $pjId;
         $praktikum->save();
+    }
+
+    public function checkPraktikum(Request $request): JsonResponse
+    {
+        try {
+            $user = $request->user('praktikan');
+
+            if (! $user) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Unauthorized. Praktikan not authenticated.',
+                ], 401);
+            }
+
+            $kelasId = $user->kelas_id;
+
+            if (! $kelasId) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Praktikan does not have an assigned kelas.',
+                ], 400);
+            }
+
+            $activePraktikum = Praktikum::with(['modul', 'kelas', 'pj'])
+                ->where('kelas_id', $kelasId)
+                ->where('isActive', true)
+                ->whereIn('status', ['running', 'paused'])
+                ->first();
+
+            return response()->json([
+                'status' => 'success',
+                'message' => $activePraktikum
+                    ? 'Active praktikum found.'
+                    : 'No active praktikum for this kelas.',
+                'data' => $activePraktikum,
+                'phases' => self::PHASE_SEQUENCE,
+            ]);
+        } catch (\Throwable $th) {
+            return $this->respondWithServerError($th);
+        }
     }
 
     public function history(Request $request): JsonResponse

@@ -137,8 +137,89 @@ storeForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => (
 store.form = storeForm
 
 /**
+* @see \App\Http\Controllers\API\PraktikumController::checkPraktikum
+* @see app/Http/Controllers/API/PraktikumController.php:284
+* @route '/api-v1/praktikum/check-praktikum'
+*/
+export const checkPraktikum = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: checkPraktikum.url(options),
+    method: 'get',
+})
+
+checkPraktikum.definition = {
+    methods: ["get","head"],
+    url: '/api-v1/praktikum/check-praktikum',
+} satisfies RouteDefinition<["get","head"]>
+
+/**
+* @see \App\Http\Controllers\API\PraktikumController::checkPraktikum
+* @see app/Http/Controllers/API/PraktikumController.php:284
+* @route '/api-v1/praktikum/check-praktikum'
+*/
+checkPraktikum.url = (options?: RouteQueryOptions) => {
+    return checkPraktikum.definition.url + queryParams(options)
+}
+
+/**
+* @see \App\Http\Controllers\API\PraktikumController::checkPraktikum
+* @see app/Http/Controllers/API/PraktikumController.php:284
+* @route '/api-v1/praktikum/check-praktikum'
+*/
+checkPraktikum.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: checkPraktikum.url(options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\API\PraktikumController::checkPraktikum
+* @see app/Http/Controllers/API/PraktikumController.php:284
+* @route '/api-v1/praktikum/check-praktikum'
+*/
+checkPraktikum.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
+    url: checkPraktikum.url(options),
+    method: 'head',
+})
+
+/**
+* @see \App\Http\Controllers\API\PraktikumController::checkPraktikum
+* @see app/Http/Controllers/API/PraktikumController.php:284
+* @route '/api-v1/praktikum/check-praktikum'
+*/
+const checkPraktikumForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: checkPraktikum.url(options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\API\PraktikumController::checkPraktikum
+* @see app/Http/Controllers/API/PraktikumController.php:284
+* @route '/api-v1/praktikum/check-praktikum'
+*/
+checkPraktikumForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: checkPraktikum.url(options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\API\PraktikumController::checkPraktikum
+* @see app/Http/Controllers/API/PraktikumController.php:284
+* @route '/api-v1/praktikum/check-praktikum'
+*/
+checkPraktikumForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: checkPraktikum.url({
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'HEAD',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'get',
+})
+
+checkPraktikum.form = checkPraktikumForm
+
+/**
 * @see \App\Http\Controllers\API\PraktikumController::history
-* @see app/Http/Controllers/API/PraktikumController.php:272
+* @see app/Http/Controllers/API/PraktikumController.php:324
 * @route '/api-v1/praktikum/history'
 */
 export const history = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -153,7 +234,7 @@ history.definition = {
 
 /**
 * @see \App\Http\Controllers\API\PraktikumController::history
-* @see app/Http/Controllers/API/PraktikumController.php:272
+* @see app/Http/Controllers/API/PraktikumController.php:324
 * @route '/api-v1/praktikum/history'
 */
 history.url = (options?: RouteQueryOptions) => {
@@ -162,7 +243,7 @@ history.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\API\PraktikumController::history
-* @see app/Http/Controllers/API/PraktikumController.php:272
+* @see app/Http/Controllers/API/PraktikumController.php:324
 * @route '/api-v1/praktikum/history'
 */
 history.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -172,7 +253,7 @@ history.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 
 /**
 * @see \App\Http\Controllers\API\PraktikumController::history
-* @see app/Http/Controllers/API/PraktikumController.php:272
+* @see app/Http/Controllers/API/PraktikumController.php:324
 * @route '/api-v1/praktikum/history'
 */
 history.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -182,7 +263,7 @@ history.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
 /**
 * @see \App\Http\Controllers\API\PraktikumController::history
-* @see app/Http/Controllers/API/PraktikumController.php:272
+* @see app/Http/Controllers/API/PraktikumController.php:324
 * @route '/api-v1/praktikum/history'
 */
 const historyForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -192,7 +273,7 @@ const historyForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> =>
 
 /**
 * @see \App\Http\Controllers\API\PraktikumController::history
-* @see app/Http/Controllers/API/PraktikumController.php:272
+* @see app/Http/Controllers/API/PraktikumController.php:324
 * @route '/api-v1/praktikum/history'
 */
 historyForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -202,7 +283,7 @@ historyForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => (
 
 /**
 * @see \App\Http\Controllers\API\PraktikumController::history
-* @see app/Http/Controllers/API/PraktikumController.php:272
+* @see app/Http/Controllers/API/PraktikumController.php:324
 * @route '/api-v1/praktikum/history'
 */
 historyForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -400,6 +481,6 @@ updateForm.put = (args: { id: string | number } | [id: string | number ] | strin
 
 update.form = updateForm
 
-const PraktikumController = { index, store, history, show, update }
+const PraktikumController = { index, store, checkPraktikum, history, show, update }
 
 export default PraktikumController

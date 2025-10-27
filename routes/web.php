@@ -204,6 +204,7 @@ Route::prefix('api-v1')->group(function () {
     // Praktikum Sessions
     Route::get('/praktikum', [PraktikumController::class, 'index'])->name('api.get.praktikums')->middleware(['auth:asisten', 'can:manage-praktikum,see-praktikum']);
     Route::post('/praktikum', [PraktikumController::class, 'store'])->name('api.store.praktikums')->middleware(['auth:asisten', 'can:manage-praktikum']);
+    Route::get('/praktikum/check-praktikum', [PraktikumController::class, 'checkPraktikum'])->name('api.check.praktikum')->middleware(['auth:praktikan']);
     Route::get('/praktikum/history', [PraktikumController::class, 'history'])->name('api.history.praktikums')->middleware(['auth:asisten', 'can:manage-praktikum,see-praktikum']);
     Route::get('/praktikum/{idKelas}', [PraktikumController::class, 'show'])->name('api.show.praktikums')->middleware(['auth:asisten', 'can:manage-praktikum,see-praktikum']);
     Route::put('/praktikum/{id}', [PraktikumController::class, 'update'])->name('api.update.praktikums')->middleware(['auth:asisten', 'can:manage-praktikum']);

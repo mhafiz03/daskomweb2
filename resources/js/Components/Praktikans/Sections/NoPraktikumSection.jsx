@@ -186,10 +186,53 @@ export default function NoPraktikumSection({
     }, [kelasId]);
 
     useEffect(() => {
-        if (typeof onPraktikumStateChange === "function") {
+        if (praktikumState) {
             onPraktikumStateChange(praktikumState);
         }
     }, [praktikumState, onPraktikumStateChange]);
+
+    // Fetch initial praktikum state on mount/refresh
+    useEffect(() => {
+        if (!kelasId) {
+            return;
+        }
+
+        const fetchActivePraktikum = async () => {
+            try {
+                const { data } = await api.get('/api-v1/praktikum/check-praktikum');
+                
+                if (data?.status === 'success' && data?.data) {
+                    const praktikumPayload = data.data;
+                    
+                    setPraktikumState({
+                        status: praktikumPayload.status ?? null,
+                        current_phase: praktikumPayload.current_phase ?? null,
+                        modul:
+                            praktikumPayload.modul?.judul ??
+                            praktikumPayload.modul?.nama ??
+                            null,
+                        modul_id: praktikumPayload.modul_id ?? null,
+                        started_at: praktikumPayload.started_at ?? null,
+                        ended_at: praktikumPayload.ended_at ?? null,
+                        pj: praktikumPayload.pj ?? null,
+                        pj_id: praktikumPayload.pj_id ?? null,
+                    });
+
+                    setPraktikumDebug(
+                        `Debug (initial load):\nStatus: ${praktikumPayload.status ?? "-"}\nTahap: ${praktikumPayload.current_phase ?? "-"}\nModul: ${praktikumPayload.modul?.judul ?? "-"}`
+                    );
+                } else {
+                    setPraktikumState(null);
+                    setPraktikumDebug("Debug: Tidak ada praktikum aktif saat ini.");
+                }
+            } catch (error) {
+                console.error('Failed to fetch active praktikum:', error);
+                setPraktikumDebug(`Debug: Error fetching praktikum - ${error.message}`);
+            }
+        };
+
+        fetchActivePraktikum();
+    }, [kelasId]);
 
     useEffect(() => {
         if (typeof window === "undefined") {

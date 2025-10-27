@@ -212,6 +212,22 @@ export default function ContentPraktikum() {
         return [];
     }, [selectedKelasData, jadwalForSelectedKelas]);
 
+    // Get all running praktikum sessions across all classes
+    const {
+        data: allPraktikum = [],
+    } = useQuery({
+        queryKey: ["praktikum-all"],
+        queryFn: async () => {
+            const { data } = await api.get('/api-v1/praktikum');
+            return Array.isArray(data?.data) ? data.data : [];
+        },
+        refetchInterval: 5000, // Refresh every 5 seconds
+    });
+
+    const runningPraktikum = useMemo(() => {
+        return allPraktikum.filter(p => p.status === 'running' || p.status === 'paused');
+    }, [allPraktikum]);
+
     const selectedPraktikumId = selectedPraktikum?.id ?? session?.id ?? null;
     const effectiveSession = session ?? selectedPraktikum ?? null;
     const hasSelection = Boolean(selectedKelas) && Boolean(selectedModul);
@@ -576,6 +592,18 @@ export default function ContentPraktikum() {
         handleAction("report", { report_notes: trimmedNotes });
     }, [reportText, handleAction]);
 
+    const handleSwitchToRunning = useCallback((praktikum) => {
+        if (!praktikum) {
+            return;
+        }
+        
+        setSelectedKelas(String(praktikum.kelas_id));
+        setSelectedModul(String(praktikum.modul_id));
+        
+        // Scroll to top to see the selected praktikum
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }, []);
+
     const isRunning = effectiveSession?.status === "running";
     const isPaused = effectiveSession?.status === "paused";
     const isCompleted = effectiveSession?.status === "completed";
@@ -715,6 +743,56 @@ export default function ContentPraktikum() {
                             </select>
                         </div>
                     </div>
+
+                    {/* Running Praktikum Section */}
+                    {runningPraktikum.length > 0 && (
+                        <div className="mt-4 border-2 border-amber-500 rounded-md p-4 bg-amber-50">
+                            <h3 className="text-md font-semibold text-amber-800 mb-3 flex items-center gap-2">
+                                <span className="relative flex h-3 w-3">
+                                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+                                    <span className="relative inline-flex rounded-full h-3 w-3 bg-amber-500"></span>
+                                </span>
+                                Praktikum Sedang Berjalan ({runningPraktikum.length})
+                            </h3>
+                            <div className="space-y-2">
+                                {runningPraktikum.map((p) => {
+                                    const kelasName = kelas.find(k => k.id === p.kelas_id)?.kelas ?? `Kelas #${p.kelas_id}`;
+                                    const modulName = moduls.find(m => m.idM === p.modul_id)?.judul ?? `Modul #${p.modul_id}`;
+                                    const statusLabel = STATUS_LABELS[p.status] ?? p.status;
+                                    const phaseLabel = PHASE_SEQUENCE.find(phase => phase.key === p.current_phase)?.label ?? p.current_phase;
+                                    
+                                    return (
+                                        <div 
+                                            key={p.id} 
+                                            className="flex items-center justify-between border border-amber-300 rounded px-3 py-2 bg-white hover:bg-amber-50 transition-colors"
+                                        >
+                                            <div className="flex-1">
+                                                <div className="flex items-center gap-2">
+                                                    <span className="font-semibold text-darkBrown">{kelasName}</span>
+                                                    <span className="text-gray-400">•</span>
+                                                    <span className="text-darkBrown">{modulName}</span>
+                                                </div>
+                                                <div className="flex items-center gap-3 mt-1 text-xs text-gray-600">
+                                                    <span className="flex items-center gap-1">
+                                                        <span className={`px-2 py-0.5 rounded text-white ${p.status === 'running' ? 'bg-green-500' : 'bg-amber-500'}`}>
+                                                            {statusLabel}
+                                                        </span>
+                                                    </span>
+                                                    <span>Tahap: {phaseLabel}</span>
+                                                </div>
+                                            </div>
+                                            <button
+                                                onClick={() => handleSwitchToRunning(p)}
+                                                className="ml-3 px-4 py-2 bg-darkBrown text-white rounded hover:bg-darkBrown/90 transition text-sm font-semibold whitespace-nowrap"
+                                            >
+                                                Buka
+                                            </button>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        </div>
+                    )}
 
                     <div className="mt-6">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
