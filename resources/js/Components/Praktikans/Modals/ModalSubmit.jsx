@@ -3,7 +3,7 @@ import Modal from "./Modal";
 import ModalFeedback from "./ModalFeedback";
 import ModalSuccessData from "./ModalSuccessData";
 
-export default function ModalSubmit({ isOpen, onClose, onConfirm, activeTask }) {
+export default function ModalSubmit({ isOpen, onClose, onConfirm, activeTask, isSubmitting = false }) {
     const [isFeedbackModalOpen, setIsFeedbackModalOpen] = useState(false);
     const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
 
@@ -34,14 +34,16 @@ export default function ModalSubmit({ isOpen, onClose, onConfirm, activeTask }) 
                 <button
                     className="mx-2 py-1 px-7 bg-deepForestGreen text-white text-lg font-bold rounded-sm shadow-sm shadow-black hover:bg-deepForestGreenDark hover:shadow-white"
                     onClick={onClose}
+                    disabled={isSubmitting}
                 >
                     Tidak
                 </button>
                 <button
                     className="mx-2 py-1 px-10 bg-softRed text-white text-lg font-bold rounded-sm shadow-sm shadow-black hover:bg-darkRed hover:shadow-white"
                     onClick={handleConfirm}
+                    disabled={isSubmitting}
                 >
-                    Ya
+                    {isSubmitting ? "Memproses..." : "Ya"}
                 </button>
             </div>
 

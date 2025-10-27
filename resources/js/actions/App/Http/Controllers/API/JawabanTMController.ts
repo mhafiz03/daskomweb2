@@ -1,7 +1,7 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../../../wayfinder'
 /**
 * @see \App\Http\Controllers\API\JawabanTMController::store
-* @see app/Http/Controllers/API/JawabanTMController.php:23
+* @see app/Http/Controllers/API/JawabanTMController.php:26
 * @route '/api-v1/jawaban-tm'
 */
 export const store = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -16,7 +16,7 @@ store.definition = {
 
 /**
 * @see \App\Http\Controllers\API\JawabanTMController::store
-* @see app/Http/Controllers/API/JawabanTMController.php:23
+* @see app/Http/Controllers/API/JawabanTMController.php:26
 * @route '/api-v1/jawaban-tm'
 */
 store.url = (options?: RouteQueryOptions) => {
@@ -25,7 +25,7 @@ store.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\API\JawabanTMController::store
-* @see app/Http/Controllers/API/JawabanTMController.php:23
+* @see app/Http/Controllers/API/JawabanTMController.php:26
 * @route '/api-v1/jawaban-tm'
 */
 store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -35,7 +35,7 @@ store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
 /**
 * @see \App\Http\Controllers\API\JawabanTMController::store
-* @see app/Http/Controllers/API/JawabanTMController.php:23
+* @see app/Http/Controllers/API/JawabanTMController.php:26
 * @route '/api-v1/jawaban-tm'
 */
 const storeForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -45,7 +45,7 @@ const storeForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => 
 
 /**
 * @see \App\Http\Controllers\API\JawabanTMController::store
-* @see app/Http/Controllers/API/JawabanTMController.php:23
+* @see app/Http/Controllers/API/JawabanTMController.php:26
 * @route '/api-v1/jawaban-tm'
 */
 storeForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -57,7 +57,7 @@ store.form = storeForm
 
 /**
 * @see \App\Http\Controllers\API\JawabanTMController::show
-* @see app/Http/Controllers/API/JawabanTMController.php:64
+* @see app/Http/Controllers/API/JawabanTMController.php:117
 * @route '/api-v1/jawaban-tm/{idModul}'
 */
 export const show = (args: { idModul: string | number } | [idModul: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -72,7 +72,7 @@ show.definition = {
 
 /**
 * @see \App\Http\Controllers\API\JawabanTMController::show
-* @see app/Http/Controllers/API/JawabanTMController.php:64
+* @see app/Http/Controllers/API/JawabanTMController.php:117
 * @route '/api-v1/jawaban-tm/{idModul}'
 */
 show.url = (args: { idModul: string | number } | [idModul: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -99,7 +99,7 @@ show.url = (args: { idModul: string | number } | [idModul: string | number ] | s
 
 /**
 * @see \App\Http\Controllers\API\JawabanTMController::show
-* @see app/Http/Controllers/API/JawabanTMController.php:64
+* @see app/Http/Controllers/API/JawabanTMController.php:117
 * @route '/api-v1/jawaban-tm/{idModul}'
 */
 show.get = (args: { idModul: string | number } | [idModul: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -109,7 +109,7 @@ show.get = (args: { idModul: string | number } | [idModul: string | number ] | s
 
 /**
 * @see \App\Http\Controllers\API\JawabanTMController::show
-* @see app/Http/Controllers/API/JawabanTMController.php:64
+* @see app/Http/Controllers/API/JawabanTMController.php:117
 * @route '/api-v1/jawaban-tm/{idModul}'
 */
 show.head = (args: { idModul: string | number } | [idModul: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -119,7 +119,7 @@ show.head = (args: { idModul: string | number } | [idModul: string | number ] | 
 
 /**
 * @see \App\Http\Controllers\API\JawabanTMController::show
-* @see app/Http/Controllers/API/JawabanTMController.php:64
+* @see app/Http/Controllers/API/JawabanTMController.php:117
 * @route '/api-v1/jawaban-tm/{idModul}'
 */
 const showForm = (args: { idModul: string | number } | [idModul: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -129,7 +129,7 @@ const showForm = (args: { idModul: string | number } | [idModul: string | number
 
 /**
 * @see \App\Http\Controllers\API\JawabanTMController::show
-* @see app/Http/Controllers/API/JawabanTMController.php:64
+* @see app/Http/Controllers/API/JawabanTMController.php:117
 * @route '/api-v1/jawaban-tm/{idModul}'
 */
 showForm.get = (args: { idModul: string | number } | [idModul: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -139,7 +139,7 @@ showForm.get = (args: { idModul: string | number } | [idModul: string | number ]
 
 /**
 * @see \App\Http\Controllers\API\JawabanTMController::show
-* @see app/Http/Controllers/API/JawabanTMController.php:64
+* @see app/Http/Controllers/API/JawabanTMController.php:117
 * @route '/api-v1/jawaban-tm/{idModul}'
 */
 showForm.head = (args: { idModul: string | number } | [idModul: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({

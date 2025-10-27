@@ -7,18 +7,15 @@
 namespace App\Models;
 
 use Carbon\Carbon;
-use Illuminate\Support\Str;
-use Laravel\Sanctum\HasApiTokens;
-use Spatie\Permission\Models\Role;
-use Laravel\Sanctum\NewAccessToken;
-use Spatie\Permission\Traits\HasRoles;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Notifications\Notifiable;
-use Spatie\Permission\Models\Permission;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Str;
+use Laravel\Sanctum\HasApiTokens;
+use Laravel\Sanctum\NewAccessToken;
+use Spatie\Permission\Models\Role;
+use Spatie\Permission\Traits\HasRoles;
 
 /**
  * Class Asisten
@@ -36,7 +33,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
  * @property string|null $remember_token
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
- *
  * @property Role $role
  * @property Collection|Feedback[] $feedback
  * @property Collection|FotoAsisten[] $foto_asistens
@@ -45,24 +41,23 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
  * @property Collection|Nilai[] $nilais
  * @property Collection|Polling[] $pollings
  * @property Collection|Praktikum[] $praktikums
- *
- * @package App\Models
  */
 class Asisten extends Authenticatable
 {
-	use HasFactory, Notifiable, HasApiTokens, HasRoles;
+	use HasApiTokens, HasFactory, HasRoles, Notifiable;
 
 	protected $guard = 'asisten';
+
 	protected $table = 'asistens';
 
 	protected $casts = [
-		'role_id' => 'int'
+		'role_id' => 'int',
 	];
 
 	protected $hidden = [
 		'password',
 		'api_token',
-		'remember_token'
+		'remember_token',
 	];
 
 	protected $fillable = [
@@ -75,7 +70,7 @@ class Asisten extends Authenticatable
 		'nomor_telepon',
 		'id_line',
 		'instagram',
-		'remember_token'
+		'remember_token',
 	];
 
 	public function createToken(string $name, array $abilities = ['*'])
@@ -128,11 +123,4 @@ class Asisten extends Authenticatable
 	{
 		return $this->hasMany(Polling::class, 'asisten_id');
 	}
-
-	public function laporanPj()
-	{
-		return $this->hasMany(LaporanPj::class, 'pj_id');
-	}
-
-
 }

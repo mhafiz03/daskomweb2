@@ -124,7 +124,7 @@ Route::get('/praktikan', function () {
 })->name('praktikan')->middleware(['auth:praktikan', 'can:lihat-profile']);
 
 Route::get('/praktikum', function () {
-    return Inertia::render('Praktikan/ModulePage');
+    return Inertia::render('Praktikan/PraktikumPage');
 })->name('praktikum')->middleware(['auth:praktikan', 'can:lihat-modul']);
 
 Route::get('/score-praktikan', function () {
@@ -272,7 +272,7 @@ Route::prefix('api-v1')->group(function () {
     Route::get('/nilai/praktikan/{praktikan}/modul/{modul}', [NilaiController::class, 'showAsisten'])->name('showAsisten.nilais')->middleware(['auth:asisten', 'can:nilai-praktikan']);
     Route::put('/nilai/{id}', [NilaiController::class, 'update'])->name('update.nilais')->middleware(['auth:asisten', 'can:nilai-praktikan']);
     Route::get('/nilai', [NilaiController::class, 'show'])->name('show.nilais')->middleware(['auth:praktikan', 'can:lihat-nilai']);
-    
+
     // // Jawaban TM asisten
     // Route::get('/jawaban-mandiri/praktikan/{idPraktikan}/modul/{idModul}', [JawabanTMController::class, 'showAsisten'])->name('showAsisten.jawaban.tm')->middleware(['auth:asisten', 'can:nilai-praktikan']);
 
@@ -289,7 +289,7 @@ Route::prefix('api-v1')->group(function () {
     // set praktikan
     // Route::post('/set-praktikan', [PraktikanController::class, 'setPraktikan'])->name('set.praktikan')->middleware(['auth:asisten', 'can:set-praktikan']);
 
-    //tarik praktikan
+    // tarik praktikan
     Route::post('/tarik-praktikan', [PraktikanController::class, 'setPraktikan'])->name('set.praktikan')->middleware(['auth:asisten', 'can:set-praktikan']);
     Route::get('/praktikan-tertarik', [PraktikanController::class, 'getAssignedPraktikan'])->middleware(['auth:asisten', 'can:nilai-praktikan']);
 
@@ -332,4 +332,4 @@ Route::fallback(function () {
     return redirect('/');
 })->middleware('check.auth');
 
-require __DIR__ . '/auth.php';
+require __DIR__.'/auth.php';

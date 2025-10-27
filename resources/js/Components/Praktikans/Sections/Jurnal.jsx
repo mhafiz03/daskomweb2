@@ -1,69 +1,64 @@
-import { useState, useEffect } from "react";
+import { useEffect, useMemo } from "react";
 
-export default function Jurnal({ 
-    setAnswers, 
-    currentQuestion, 
-    setCurrentQuestion, 
+export default function Jurnal({
+    isLoading = false,
+    errorMessage = null,
+    questions = [],
+    answers = [],
+    setAnswers,
     setQuestionsCount,
-    setQuestions,
-    onNavigate, 
+    onSubmitTask,
 }) {
-    const questions = [
-        "//Lengkapi Codingan di bawah ini!\n#include <___> //(A) Tentukan library\n\nint main(){\n    ___ angka1, angka2; //(B) Tentukan tipe data\n    float hasil;\n\n    // Input\n    printf(\"Masukkan angka pertama (bulat): \");\n    scanf(\"%d\", &angka1);\n    printf(\"Masukkan angka kedua (bulat): \");\n    scanf(\"%d\", &angka2);\n\n    // Operasi Hitung\n    hasil = (float)angka1 / angka2; //(C) Tentukan operasi hitung\n\n    // Output\n    printf(\"Hasil pembagian %d / %d = %.2f\", angka1, angka2, ___); //(D) Tentukan variabel\n    return 0;\n}",
-    
-        "//Lengkapi Codingan di bawah ini!\n#include <___> //(A) Tentukan library\n#define ___ 3.14159 //(B) Tentukan konstanta nilai PI\n\nint main(){\n    float radius, luas;\n\n    // Input\n    printf(\"Masukkan jari-jari lingkaran: \");\n    scanf(\"%f\", &radius);\n\n    // Operasi Hitung\n    luas = ___ * radius * radius; //(C) Gunakan konstanta untuk menghitung luas lingkaran\n\n    // Output\n    printf(\"Luas lingkaran dengan jari-jari %.2f adalah %.2f\", radius, ___); //(D) Tentukan variabel\n    return 0;\n}",
-    
-        "//Lengkapi Codingan di bawah ini!\n#include <___> //(A) Tentukan library\n\nint main(){\n    int i, n, sum = 0;\n\n    // Input\n    printf(\"Masukkan jumlah bilangan: \");\n    scanf(\"%d\", &n);\n\n    // Operasi Perulangan\n    for (i = 1; i <= n; i++) {\n        sum += ___; //(B) Tambahkan angka ke dalam total\n    }\n\n    // Output\n    printf(\"Jumlah total dari 1 sampai %d adalah %d\", n, ___); //(C) Tentukan variabel\n    return 0;\n}",
-    
-        "Jelaskan konsep pointer dalam bahasa C. Apa tujuan penggunaannya, dan bagaimana cara mendeklarasikan serta menggunakannya dalam sebuah program sederhana?",
-    
-        "Dalam bahasa C, apa perbedaan antara array dan pointer? Jelaskan keunggulan masing-masing serta contoh penggunaannya dalam kasus nyata.",
-    
-        "Apa itu struct dalam bahasa C? Jelaskan bagaimana cara mendeklarasikan dan menggunakannya untuk merepresentasikan data sebuah mahasiswa dengan atribut seperti nama, NIM, dan nilai akhir.",
-    ];
-    
-    const [userAnswers, setUserAnswers] = useState(() => {
-        const savedAnswers = localStorage.getItem("jurnalAnswer");
-        return savedAnswers ? JSON.parse(savedAnswers) : Array(questions.length).fill("");
-    });
-    
-    const handleSubmit = () => {
-        localStorage.setItem("jurnalAnswer", JSON.stringify(userAnswers)); 
-        if (setAnswers) setAnswers(userAnswers);
-        onNavigate("JurnalReview");
-    };    
-
     useEffect(() => {
-        setQuestionsCount(questions.length); 
-        setQuestions(questions); 
-        setAnswers(userAnswers); 
-    }, []);
+        setQuestionsCount(Array.isArray(questions) ? questions.length : 0);
+    }, [questions, setQuestionsCount]);
 
-    const handleInputChange = (e) => {
-        const newAnswers = [...userAnswers];
-        newAnswers[currentQuestion - 1] = e.target.value;
-        setUserAnswers(newAnswers);
-        setAnswers(newAnswers);
+    const groupedQuestions = useMemo(() => {
+        if (!Array.isArray(questions)) {
+            return { fitb: [], jurnal: [] };
+        }
+
+        return {
+            fitb: questions.filter((question) => question.questionType === "fitb"),
+            jurnal: questions.filter((question) => question.questionType !== "fitb"),
+        };
+    }, [questions]);
+
+    const handleInputChange = (index, value) => {
+        const updated = [...answers];
+        updated[index] = value;
+        setAnswers(updated);
     };
 
-    const handleNext = () => {
-        if (currentQuestion < questions.length) {
-            setCurrentQuestion(currentQuestion + 1);
+    const handleSubmit = () => {
+        if (onSubmitTask) {
+            onSubmitTask("Jurnal", answers);
         }
     };
 
-    const handlePrevious = () => {
-        if (currentQuestion > 1) {
-            setCurrentQuestion(currentQuestion - 1);
-        }
-    };
+    if (isLoading) {
+        return (
+            <div className="mt-[1vh] p-5 max-w-4xl mx-auto text-center">
+                <p className="text-gray-600">Memuat soal jurnal...</p>
+            </div>
+        );
+    }
 
-    const determineMode = (question) => {
-        const simpleKeywords = [";", "{", "}", "#", "//"];
-        return simpleKeywords.some((keyword) => question.includes(keyword)) 
-            ? "bg-gray-200" 
-            : "bg-softIvory";
-    };
+    if (errorMessage) {
+        return (
+            <div className="mt-[1vh] p-5 max-w-4xl mx-auto text-center">
+                <p className="text-red-600 font-semibold">{errorMessage}</p>
+            </div>
+        );
+    }
+
+    if (!Array.isArray(questions) || questions.length === 0) {
+        return (
+            <div className="mt-[1vh] p-5 max-w-4xl mx-auto text-center">
+                <p className="text-gray-600">Belum ada soal untuk modul ini.</p>
+            </div>
+        );
+    }
 
     return (
         <div className="mt-[1vh] p-5 transition-all duration-300 max-w-4xl mx-auto rounded-lg">
@@ -72,51 +67,69 @@ export default function Jurnal({
                     Jurnal
                 </h1>
             </div>
-    
-            <div className="mt-5 max-h-[55vh] p-4 rounded-lg border-4 bg-softIvory border-softPearl transition-colors duration-300 overflow-y-auto overflow-x-hidden">
-                <p className="text-lg font-medium mb-4">
-                    <b>Soal: {currentQuestion}</b>
-                </p>
-    
-                <pre
-                    className={`p-4 rounded-lg text-sm overflow-x-hidden overflow-y-auto shadow-lg ${determineMode(questions[currentQuestion - 1])}`}
-                    style={{ whiteSpace: "pre-wrap" }}
-                >
-                    <code>{questions[currentQuestion - 1]}</code>
-                </pre>
-    
-                <textarea
-                    className="mt-5 shadow-lg w-full bg-gainsboro h-24 p-2 border border-gray-300 rounded-md"
-                    placeholder="Jawaban"
-                    value={userAnswers[currentQuestion - 1]}
-                    onChange={handleInputChange}
-                ></textarea>
-            </div>
-    
-            <div className="mt-5 flex justify-between">
-                <button
-                    onClick={handlePrevious}
-                    className="px-4 py-2 bg-softIvory border-midGray text-black font-bold rounded-md shadow hover:bg-softGray disabled:bg-gray-100 disabled:cursor-not-allowed"
-                    disabled={currentQuestion === 1}
-                >
-                    Previous
-                </button>
-                {currentQuestion === questions.length ? (
-                    <button
-                        onClick={handleSubmit}
-                        className="px-4 py-2 bg-deepForestGreen text-white font-bold rounded-md shadow hover:bg-deepForestGreenDark"
-                    >
-                        Submit
-                    </button>
-                ) : (
-                    <button
-                        onClick={handleNext}
-                        className="px-4 py-2 bg-softIvory border-midGray text-black font-bold rounded-md shadow hover:bg-softGray disabled:bg-gray-100 disabled:cursor-not-allowed"
-                    >
-                        Next
-                    </button>
+
+            <div className="space-y-6 max-h-[55vh] p-4 rounded-lg border-4 bg-softIvory border-softPearl transition-colors duration-300 overflow-y-auto overflow-x-hidden">
+                {groupedQuestions.fitb.length > 0 && (
+                    <section className="space-y-4">
+                        {groupedQuestions.fitb.map((question) => {
+                            const index = questions.findIndex((item) => item.id === question.id);
+
+                            if (index === -1) {
+                                return null;
+                            }
+
+                            return (
+                                <div key={question.id ?? `fitb-${index}`} className="space-y-3">
+                                    <pre className="text-sm font-semibold text-darkBrown">
+                                        {index + 1}. {question.text}
+                                    </pre>
+                                    <input
+                                        type="text"
+                                        className="shadow-lg w-full bg-gainsboro p-2 border border-gray-300 rounded-md"
+                                        placeholder="Jawaban singkat"
+                                        value={answers[index] ?? ""}
+                                        onChange={(event) => handleInputChange(index, event.target.value)}
+                                    />
+                                </div>
+                            );
+                        })}
+                    </section>
+                )}
+
+                {groupedQuestions.jurnal.length > 0 && (
+                    <section className="space-y-4">
+                        {groupedQuestions.jurnal.map((question) => {
+                            const index = questions.findIndex((item) => item.id === question.id);
+
+                            if (index === -1) {
+                                return null;
+                            }
+                            return (
+                                <div key={question.id ?? `jurnal-${index}`} className="space-y-3">
+                                    <pre className="text-sm font-semibold text-darkBrown">
+                                        {index + 1}. {question.text}
+                                    </pre>
+                                    <textarea
+                                        className="shadow-lg w-full bg-gainsboro min-h-[96px] p-2 border border-gray-300 rounded-md"
+                                        placeholder="Jawaban"
+                                        value={answers[index] ?? ""}
+                                        onChange={(event) => handleInputChange(index, event.target.value)}
+                                    ></textarea>
+                                </div>
+                            );
+                        })}
+                    </section>
                 )}
             </div>
+
+            <div className="mt-5 flex justify-end">
+                <button
+                    onClick={handleSubmit}
+                    className="px-6 py-2 bg-deepForestGreen text-white font-bold rounded-md shadow hover:bg-deepForestGreenDark"
+                >
+                    Submit
+                </button>
+            </div>
         </div>
-    );    
+    );
 }

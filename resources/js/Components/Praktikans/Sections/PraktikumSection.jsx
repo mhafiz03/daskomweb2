@@ -1,8 +1,5 @@
 import { useState, useEffect } from "react";
 import { api } from "@/lib/api";
-import { Link } from "@inertiajs/react";
-import iconPPT from "../../../../assets/practicum/iconPPT.svg";
-import iconVideo from "../../../../assets/practicum/iconVideo.svg";
 import iconModule from "../../../../assets/practicum/iconModule.svg";
 import iconCeklistboxFalse from "../../../../assets/practicum/iconCeklistboxFalse.svg";
 import iconCeklistboxTrue from "../../../../assets/practicum/iconCeklistboxTrue.svg";
@@ -25,14 +22,15 @@ const STATUS_LABELS = {
     idle: "Siap",
 };
 
-export default function ModuleSection({
+export default function PraktikumSection({
     onNavigate,
     completedCategories,
     setCompletedCategories,
     onReviewTask,
     kelasId = null,
+    onPraktikumStateChange,
+    moduleMeta,
 }) {
-    const [expandedRows, setExpandedRows] = useState([]);
     const [openModalAttempt, setOpenModalAttempt] = useState(null);
     const [openModalReview, setOpenModalReview] = useState(null);
     const [praktikumDebug, setPraktikumDebug] = useState("Debug: menunggu konfigurasi...");
@@ -63,21 +61,6 @@ export default function ModuleSection({
         Jurnal: "Jurnal",
         Mandiri: "Mandiri",
         TesKeterampilan: "Tes Keterampilan",
-    };
-
-    const [categories, setCategories] = useState({
-        TugasPendahuluan: { isSubmitted: false },
-        TesAwal: { isSubmitted: false },
-        Jurnal: { isSubmitted: false },
-        Mandiri: { isSubmitted: false },
-        TesKeterampilan: { isSubmitted: false },
-    });
-
-    const handleSubmission = (categoryName) => {
-        setCategories((prev) => ({
-            ...prev,
-            [categoryName]: { ...prev[categoryName], isSubmitted: true },
-        }));
     };
 
     const handleOpenModalAttempt = (key) => {
@@ -121,124 +104,6 @@ export default function ModuleSection({
             handleOpenModalAttempt(key);
         } else {
             handleOpenModalReview(key);
-        }
-    };
-
-    const rows = [
-        {
-            id: 1,
-            moduleName: (
-                <span className="font-bold text-xl">Pengenalan Algoritma dan Pemrograman</span>
-            ),
-            details: (
-                <>
-                    <h3 className="font-semibold text-lg pl-[26px]">
-                        Pencapaian Pembelajaran
-                    </h3>
-                    <ol className="list-decimal list-inside pl-[26px]">
-                        <li>Mampu mendefinisikan apa itu algoritma dan mengapa penting dalam pemrograman.</li>
-                        <li>Mampu menjelaskan struktur dasar dari program C.</li>
-                        <li>Mampu mengidentifikasi komponen utama dari sebuah program C.</li>
-                        <li>Mampu mengatur lingkungan pengembangan untuk pemrograman C.</li>
-                    </ol>
-                    <br />
-                    <p className="pl-[26px]">
-                        Untuk tutorial lebih lanjut, Anda dapat menonton video berikut:
-                    </p>
-                    <div className="flex items-center mt-2 pl-[26px]">
-                        <img src={iconPPT} alt="Icon PPT" className="w-6 h-6 p-[2px] bg-green-700 rounded-full" />
-                        <Link
-                            href=""
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-green-700 underline ml-2"
-                        >
-                            PPT
-                        </Link>
-                    </div>
-                    <div className="flex items-center mt-2 pl-[26px]">
-                        <img src={iconVideo} alt="Icon Video" className="w-6 h-6 p-[2px] bg-red-700 rounded-full" />
-                        <Link
-                            href=""
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-red-700 underline ml-2"
-                        >
-                            Video YouTube
-                        </Link>
-                    </div>
-                    <div className="flex items-center mt-2 pl-[26px]">
-                        <img src={iconModule} alt="Icon Module" className="w-6 h-6 p-[2px] bg-blue-700 rounded-full" />
-                        <Link
-                            href=""
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-blue-700 underline ml-2"
-                        >
-                            Module
-                        </Link>
-                    </div>
-                    <br />
-                    {Object.keys(completedCategories).map((key) => (
-                        <div
-                            key={key}
-                            className="flex items-center justify-between mt-2 pl-[26px]"
-                            onClick={() => handleCategoryClick(key)}
-                        >
-                            <div className="flex items-center">
-                                <img
-                                    src={completedCategories[key] ? iconCeklistboxTrue : iconCeklistboxFalse}
-                                    alt="Checkbox"
-                                    className="w-5 h-5 cursor-pointer"
-                                />
-                                <p className="pl-2 text-black cursor-pointer">
-                                    {categoryLabels[key] || key}
-                                </p>
-                            </div>
-
-                            {completedCategories[key] && (
-                                <div className="mr-[42vw]">
-                                    <span
-                                        className="text-darkGray underline hover:text-dustyBlue cursor-pointer"
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            handleOpenModalReview(key);
-                                        }}
-                                    >
-                                        Review
-                                    </span>
-                                </div>
-                            )}
-
-                            {openModalReview === key && (
-                                <Modal isOpen={!!openModalReview} onClose={closeModal} width="w-[370px]">
-                                    <ModalReview
-                                        taskKey={openModalReview}
-                                        onReviewNavigate={() => handleReviewNavigate(key)}
-                                    />
-                                </Modal>
-                            )}
-
-                            {openModalAttempt === key && (
-                                <Modal isOpen={!!openModalAttempt} onClose={closeModal} width="w-[370px]">
-                                    <ModalAttempt
-                                        taskKey={openModalAttempt}
-                                        onAttemptComplete={(taskKey) => handleAttemptComplete(taskKey)}
-                                    />
-                                </Modal>
-                            )}
-                        </div>
-                    ))}
-                </>
-            ),
-        },
-    ];
-
-    const toggleRow = (id) => {
-        if (expandedRows.includes(id)) {
-            setExpandedRows(expandedRows.filter((rowId) => rowId !== id));
-        } else {
-            setExpandedRows([...expandedRows, id]);
         }
     };
 
@@ -289,6 +154,7 @@ export default function ModuleSection({
                         modul_id: active?.modul_id ?? null,
                         started_at: active?.started_at ?? null,
                         ended_at: active?.ended_at ?? null,
+                        pj: active?.pj ?? active?.pj_asisten ?? null,
                     });
 
                     setPraktikumDebug(
@@ -318,6 +184,12 @@ export default function ModuleSection({
             cancelled = true;
         };
     }, [kelasId]);
+
+    useEffect(() => {
+        if (typeof onPraktikumStateChange === "function") {
+            onPraktikumStateChange(praktikumState);
+        }
+    }, [praktikumState, onPraktikumStateChange]);
 
     useEffect(() => {
         if (typeof window === "undefined") {
@@ -407,10 +279,41 @@ export default function ModuleSection({
     const startedDisplay = formatTimestamp(praktikumState?.started_at);
     const endedDisplay = formatTimestamp(praktikumState?.ended_at);
 
+    const resolveDisplayText = (value, fallback = "-") => {
+        if (value === null || value === undefined) {
+            return fallback;
+        }
+
+        if (typeof value === "string" || typeof value === "number") {
+            return String(value);
+        }
+
+        if (typeof value === "object") {
+            return (
+                value.judul ??
+                value.nama ??
+                value.name ??
+                value.title ??
+                value.email ??
+                fallback
+            );
+        }
+
+        return fallback;
+    };
+
+    const modulId = moduleMeta?.modul_id ?? praktikumState?.modul_id ?? null;
+    const modulTitle = resolveDisplayText(
+        moduleMeta?.modul ??
+            praktikumState?.modul ??
+            (modulId ? `Modul #${modulId}` : null)
+    );
+    const pjName = resolveDisplayText(moduleMeta?.pj ?? praktikumState?.pj);
+
     return (
         <div className="ml-[3vw] bg-white rounded-lg py-4 px-4 w-[896px] mx-auto">
             <div className="flex bg-deepForestGreen rounded-lg py-2 px-2 mb-4 justify-center">
-                <h1 className="text-white text-center font-bold text-2xl bg-deepForestGreen hover:bg-darkOliveGreen rounded-lg p-1 w-[50%]">MODUL PRAKTIKUM</h1>
+                <h1 className="text-white text-center font-bold text-2xl bg-deepForestGreen hover:bg-darkOliveGreen rounded-lg p-1 w-[50%]">PRAKTIKUM</h1>
             </div>
             <div className="mb-4 grid gap-3 rounded-md border border-lightBrown bg-softIvory p-4 text-sm text-darkBrown">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -451,35 +354,102 @@ export default function ModuleSection({
                 </pre>
             </div>
             <div
-                className="space-y-2 overflow-y-auto"
+                className="space-y-4 overflow-y-auto"
                 style={{ maxHeight: "69vh" }}
             >
-                {rows.map((row) => (
-                    <div
-                        key={row.id}
-                        className="border border-black rounded-md overflow-hidden"
-                    >
-                        <div className="flex justify-between items-center px-4 py-2 bg-white">
-                            <div className="flex items-center space-x-4">
-                                <span className="text-center font-bold text-xl">
-                                    {row.id}.
-                                </span>
-                                <span>{row.moduleName}</span>
-                            </div>
-                            <button
-                                onClick={() => toggleRow(row.id)}
-                                className="focus:outline-none"
-                            >
-                                {expandedRows.includes(row.id) ? "▲" : "▼"}
-                            </button>
+                <div className="rounded-lg border border-lightBrown bg-softIvory p-4 text-sm text-darkBrown shadow-sm">
+                    <div className="flex flex-col gap-3 md:flex-row md:items-start md:gap-6">
+                        <div className="flex-1">
+                            <p className="text-xs font-semibold uppercase text-gray-500">Modul Aktif</p>
+                            <p className="text-lg font-bold text-darkBrown">{modulTitle || "-"}</p>
+                            <p className="text-xs text-gray-500 mt-1">
+                                Penanggung jawab: <span className="font-semibold text-darkBrown">{pjName || "-"}</span>
+                            </p>
                         </div>
-                        {expandedRows.includes(row.id) && (
-                            <div className="px-4 py-2 bg-gray-50 space-y-2">
-                                {row.details}
+                        {modulId && (
+                            <div className="flex items-center gap-3">
+                                <img src={iconModule} alt="Modul" className="w-8 h-8" />
+                                <span className="text-xs text-gray-500">ID Modul: {modulId}</span>
                             </div>
                         )}
                     </div>
-                ))}
+                </div>
+
+                <div className="rounded-lg border border-lightBrown bg-softIvory p-4 text-sm text-darkBrown shadow-sm">
+                    <h2 className="text-base font-semibold text-darkBrown mb-3">Tahapan Praktikum</h2>
+                    <div className="space-y-3">
+                        {Object.keys(categoryLabels).map((key) => {
+                            const isCompleted = Boolean(completedCategories[key]);
+                            const icon = isCompleted ? iconCeklistboxTrue : iconCeklistboxFalse;
+
+                            return (
+                                <div
+                                    key={key}
+                                    className="flex items-center justify-between rounded-md border border-transparent bg-white px-4 py-3 shadow-sm transition hover:border-dustyBlue hover:bg-softPearl cursor-pointer"
+                                    onClick={() => handleCategoryClick(key)}
+                                >
+                                    <div className="flex items-center gap-3">
+                                        <img
+                                            src={icon}
+                                            alt={isCompleted ? "Sudah selesai" : "Belum selesai"}
+                                            className="w-6 h-6"
+                                        />
+                                        <div>
+                                            <p className="text-sm font-semibold text-darkBrown">{categoryLabels[key]}</p>
+                                            <p className="text-xs text-gray-500">
+                                                {isCompleted
+                                                    ? "Jawaban tersimpan. Klik untuk melihat review."
+                                                    : "Klik untuk mulai mengerjakan."}
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div className="flex items-center gap-3">
+                                        {isCompleted && (
+                                            <button
+                                                type="button"
+                                                onClick={(event) => {
+                                                    event.stopPropagation();
+                                                    handleOpenModalReview(key);
+                                                }}
+                                                className="text-xs font-semibold text-dustyBlue underline hover:text-darkOliveGreen"
+                                            >
+                                                Review
+                                            </button>
+                                        )}
+                                        <button
+                                            type="button"
+                                            onClick={(event) => {
+                                                event.stopPropagation();
+                                                handleOpenModalAttempt(key);
+                                            }}
+                                            className="rounded-md bg-deepForestGreen px-3 py-1 text-xs font-semibold text-white shadow hover:bg-deepForestGreenDark"
+                                        >
+                                            Attempt
+                                        </button>
+                                    </div>
+
+                                    {openModalReview === key && (
+                                        <Modal isOpen={!!openModalReview} onClose={closeModal} width="w-[370px]">
+                                            <ModalReview
+                                                taskKey={openModalReview}
+                                                onReviewNavigate={() => handleReviewNavigate(key)}
+                                            />
+                                        </Modal>
+                                    )}
+
+                                    {openModalAttempt === key && (
+                                        <Modal isOpen={!!openModalAttempt} onClose={closeModal} width="w-[370px]">
+                                            <ModalAttempt
+                                                taskKey={openModalAttempt}
+                                                onAttemptComplete={(taskKey) => handleAttemptComplete(taskKey)}
+                                            />
+                                        </Modal>
+                                    )}
+                                </div>
+                            );
+                        })}
+                    </div>
+                </div>
             </div>
         </div>
     );

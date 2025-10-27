@@ -6,7 +6,6 @@ import iconSwipeLeftHover from "../../../../assets/timer/iconSwipeLeftHover.svg"
 import iconSwipeRightHover from "../../../../assets/timer/iconSwipeRightHover.svg";
 import Modal from "../Modals/Modal";
 import ModalSubmit from "../Modals/ModalSubmit";
-import ModalFeedback from "../Modals/ModalFeedback";
 
 export default function TimerPraktikan({
     isRunning,
@@ -21,6 +20,8 @@ export default function TimerPraktikan({
     onTaskSubmit,
     taskQuestions,
     activeTask,
+    submissionError,
+    isSubmitting = false,
 }) {
     const [isHidden, setIsHidden] = useState(false);
     const [isHovered, setIsHovered] = useState(false);
@@ -54,8 +55,14 @@ export default function TimerPraktikan({
     }, [isRunning, setIsRunning]);
 
     useEffect(() => {
-        if (!answers || answers.length === 0 || answers.length !== questions.length) {
-            const initializedAnswers = Array(questions.length).fill(null);
+        if (!Array.isArray(questions) || questions.length === 0) {
+            return;
+        }
+
+        if (!Array.isArray(answers) || answers.length !== questions.length) {
+            const initializedAnswers = questions.map((question) =>
+                question?.questionType === "multiple-choice" ? null : ""
+            );
             setAnswers(initializedAnswers);
         }
     }, [questions]);
@@ -80,6 +87,10 @@ export default function TimerPraktikan({
     };
 
     const confirmTaskSubmission = () => {
+        if (isSubmitting) {
+            return;
+        }
+
         if (onTaskSubmit && Array.isArray(answers)) {
             onTaskSubmit(activeTask, answers);
         }
@@ -90,11 +101,6 @@ export default function TimerPraktikan({
         setIsRunning(false);
         setIsHidden(true);
     };
-
-    const handleFeedbackSubmit = () => {
-        setIsFeedbackModalOpen(true);
-        navigateToModuleSection();
-    };    
 
     return (
         <div>
@@ -129,10 +135,12 @@ export default function TimerPraktikan({
 
                 <div className="grid grid-cols-5 gap-2 text-center pt-[5vh] mb-10">
                     {Array.from({ length: questionsCount }, (_, index) => {
-                        const isAnswered =
-                            (activeTask === "TesAwal" || activeTask === "TesKeterampilan")
-                                ? answers[index] !== undefined && answers[index] !== null
-                                : typeof answers[index] === "string" && answers[index].trim().length > 0;
+                        const answerValue = answers[index];
+                        const question = questions[index] ?? null;
+                        const isMultipleChoice = question?.questionType === "multiple-choice";
+                        const isAnswered = isMultipleChoice
+                            ? answerValue !== undefined && answerValue !== null
+                            : typeof answerValue === "string" && answerValue.trim().length > 0;
 
                         return (
                             <div
@@ -156,11 +164,18 @@ export default function TimerPraktikan({
                     <button
                         id="timer-submit-button"
                         onClick={handleSubmit}
+                        disabled={isSubmitting}
                         className="w-[70%] py-2 rounded bg-deepForestGreen text-white font-bold shadow-md hover:bg-deepForestGreenDark transition-colors duration-300"
                     >
-                        Submit
+                        {isSubmitting ? "Menyimpan..." : "Submit"}
                     </button>
                 </div>
+
+                {submissionError && (
+                    <p className="mt-4 text-center text-sm text-red-600">
+                        {submissionError}
+                    </p>
+                )}
             </div>
 
             {isSubmitModalOpen && (
@@ -170,6 +185,7 @@ export default function TimerPraktikan({
                         onClose={closeSubmitModal}
                         onConfirm={confirmTaskSubmission}
                         activeTask={activeTask} 
+                        isSubmitting={isSubmitting}
                     />
                 </Modal>
             )}

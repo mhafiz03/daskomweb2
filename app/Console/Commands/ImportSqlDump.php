@@ -558,6 +558,19 @@ class ImportSqlDump extends Command
             'Normalize praktikan password hashes'
         );
 
+        $praktikanRoleId = $roleNameToId['PRAKTIKAN'] ?? null;
+        if ($praktikanRoleId) {
+            $this->info('Assigning praktikan roles');
+            $runStatement(
+                "INSERT IGNORE INTO `{$newDb}`.`model_has_roles` (`role_id`, `model_type`, `model_id`)
+                 SELECT {$praktikanRoleId} AS role_id, 'App\\\\Models\\\\Praktikan' AS model_type, p.id
+                 FROM `{$newDb}`.`praktikans` AS p",
+                'Populate praktikan roles'
+            );
+        } else {
+            $this->warn('Skipping praktikan role assignment because PRAKTIKAN role is missing.');
+        }
+
         $this->info('Mapping: moduls');
         $exec("INSERT IGNORE INTO `{$newDb}`.`moduls`
               (`id`,`judul`,`deskripsi`,`created_at`,`updated_at`,`isEnglish`,`isUnlocked`)

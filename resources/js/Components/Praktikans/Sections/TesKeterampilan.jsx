@@ -1,93 +1,62 @@
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 
-export default function TesKeterampilan({ 
-    setAnswers, 
-    currentQuestion, 
-    setCurrentQuestion, 
+const determineMode = (questionText) => {
+    if (!questionText) {
+        return "bg-softIvory";
+    }
+
+    const simpleKeywords = [";", "{", "}", "#", "//"];
+    return simpleKeywords.some((keyword) => questionText.includes(keyword)) ? "bg-gray-200" : "bg-softIvory";
+};
+
+export default function TesKeterampilan({
+    isLoading = false,
+    errorMessage = null,
+    questions = [],
+    answers = [],
+    setAnswers,
     setQuestionsCount,
-    setQuestions,
-    onNavigate,
-    correctAnswers, 
+    onSubmitTask,
 }) {
-    const questions = [
-        {
-            question: "Naon perbedaan 'int' dan 'float' dalam bahasa C?",
-            options: [
-                "int digunakan untuk bilangan bulat, float untuk bilangan desimal",
-                "int digunakan untuk string, float untuk bilangan desimal",
-                "int untuk variabel statis, float untuk variabel dinamis",
-                "Tidak ada perbedaan",
-            ],
-        },
-        {
-            question: "KUNAON //Lengkapi Codingan di bawah ini!\n#include <___> //(A) Tentukan library\n\nint main(){\n    int i, n, sum = 0;\n\n    // Input\n    printf(\"Masukkan jumlah bilangan: \");\n    scanf(\"%d\", &n);\n\n    // Operasi Perulangan\n    for (i = 1; i <= n; i++) {\n        sum += ___; //(B) Tambahkan angka ke dalam total\n    }\n\n    // Output\n    printf(\"Jumlah total dari 1 sampai %d adalah %d\", n, ___); //(C) Tentukan variabel\n    return 0;\n}",
-            options: [
-                "Variabel untuk menyimpan alamat memori",
-                "Variabel untuk menyimpan nilai statis",
-                "Fungsi khusus untuk array",
-                "Tidak ada konsep pointer di bahasa C",
-            ],
-        },
-        {
-            question: "Jelaskeun konsep array multidimensi dalam bahasa C.",
-            options: [
-                "Array dengan satu dimensi saja",
-                "Array yang dapat menyimpan tipe data berbeda",
-                "Array yang memiliki lebih dari satu indeks",
-                "Array yang hanya menyimpan string",
-            ],
-        },
-    ];
-
-    const [userAnswers, setUserAnswers] = useState(() => {
-        const savedAnswers = localStorage.getItem("tkAnswers");
-        return savedAnswers ? JSON.parse(savedAnswers) : Array(questions.length).fill(null); 
-    });
-
     useEffect(() => {
-        setQuestionsCount(questions.length);
-        setQuestions(questions.map(q => q.question)); 
-        setAnswers(userAnswers);
-    
-        localStorage.setItem("tkQuestions", JSON.stringify(questions));
-    }, []);
+        setQuestionsCount(Array.isArray(questions) ? questions.length : 0);
+    }, [questions, setQuestionsCount]);
 
-    useEffect(() => {
-        const correctAnswers = [0, 0, 2]; 
-        localStorage.setItem("tkCorrectAnswers", JSON.stringify(correctAnswers));
-    }, []);   
-
-    const handleOptionChange = (optionIndex) => {
-        const newAnswers = [...userAnswers];
-        newAnswers[currentQuestion - 1] = optionIndex;
-        setUserAnswers(newAnswers);
-        setAnswers(newAnswers);
+    const handleOptionChange = (index, optionId) => {
+        const updated = [...answers];
+        updated[index] = optionId;
+        setAnswers(updated);
     };
 
     const handleSubmit = () => {
-        localStorage.setItem("tkAnswers", JSON.stringify(userAnswers)); 
-        if (setAnswers) setAnswers(userAnswers);
-        onNavigate("TKReview");
-    };
-
-    const handleNext = () => {
-        if (currentQuestion < questions.length) {
-            setCurrentQuestion(currentQuestion + 1);
+        if (onSubmitTask) {
+            onSubmitTask("TesKeterampilan", answers);
         }
     };
 
-    const handlePrevious = () => {
-        if (currentQuestion > 1) {
-            setCurrentQuestion(currentQuestion - 1);
-        }
-    };
+    if (isLoading) {
+        return (
+            <div className="mt-[1vh] p-5 max-w-4xl mx-auto text-center">
+                <p className="text-gray-600">Memuat soal tes keterampilan...</p>
+            </div>
+        );
+    }
 
-    const determineMode = (question) => {
-        const simpleKeywords = [";", "{", "}", "#", "//"];
-        return simpleKeywords.some((keyword) => question.includes(keyword)) 
-            ? "bg-gray-200" 
-            : "bg-softIvory";
-    };
+    if (errorMessage) {
+        return (
+            <div className="mt-[1vh] p-5 max-w-4xl mx-auto text-center">
+                <p className="text-red-600 font-semibold">{errorMessage}</p>
+            </div>
+        );
+    }
+
+    if (!Array.isArray(questions) || questions.length === 0) {
+        return (
+            <div className="mt-[1vh] p-5 max-w-4xl mx-auto text-center">
+                <p className="text-gray-600">Belum ada soal tes keterampilan untuk modul ini.</p>
+            </div>
+        );
+    }
 
     return (
         <div className="mt-[1vh] p-5 transition-all duration-300 max-w-4xl mx-auto rounded-lg">
@@ -97,63 +66,55 @@ export default function TesKeterampilan({
                 </h1>
             </div>
 
-            <div className="mt-5 max-h-[56vh] p-4 rounded-lg border-4 bg-softIvory border-softPearl transition-colors duration-300">
-                <p className="text-lg font-medium mb-4">
-                    <b>Soal: {currentQuestion}</b>
-                </p>
-
-                <pre
-                    className={`max-h-[20vh] p-4 rounded-lg text-sm overflow-y-auto overflow-x-hidden shadow-lg ${determineMode(
-                        questions[currentQuestion - 1].question
-                    )}`}
-                    style={{ whiteSpace: "pre-wrap" }}
-                >
-                    {questions[currentQuestion - 1].question}
-                </pre>
-
-                <div className="mt-3 p-1">
-                    {questions[currentQuestion - 1].options.map((option, index) => (
-                        <div 
-                            key={index} 
-                            className="flex items-center space-x-3 mb-2 cursor-pointer"
-                            onClick={() => handleOptionChange(index)}
+            <div className="space-y-6 max-h-[56vh] p-4 rounded-lg border-4 bg-softIvory border-softPearl transition-colors duration-300 overflow-y-auto overflow-x-hidden">
+                {questions.map((question, index) => (
+                    <div key={question.id ?? index} className="space-y-3">
+                        <pre
+                            className={`p-4 rounded-lg text-sm overflow-y-auto overflow-x-hidden shadow-lg ${determineMode(
+                                question.text
+                            )}`}
+                            style={{ whiteSpace: "pre-wrap" }}
                         >
-                            <div
-                                className={`w-4 h-4 flex items-center justify-center rounded-full border-2 cursor-pointer transition-colors ${
-                                    userAnswers[currentQuestion - 1] === index
-                                        ? "bg-black border-black"
-                                        : "bg-softIvory border-gray-400"
-                                }`}
-                            />
-                            <span className="text-gray-800">{option}</span>
+                            {index + 1}. {question.text}
+                        </pre>
+
+                        <div className="mt-3 space-y-2">
+                            {(question.options ?? []).map((option) => {
+                                const isSelected = answers[index] === option.id;
+
+                                return (
+                                    <label
+                                        key={option.id}
+                                        className={`flex items-center gap-3 rounded-md border px-3 py-2 text-sm transition ${
+                                            isSelected
+                                                ? "border-deepForestGreen bg-emerald-50"
+                                                : "border-transparent bg-white hover:border-dustyBlue"
+                                        }`}
+                                    >
+                                        <input
+                                            type="radio"
+                                            name={`tes-keterampilan-${question.id}`}
+                                            value={option.id}
+                                            checked={isSelected}
+                                            onChange={() => handleOptionChange(index, option.id)}
+                                            className="h-4 w-4 border-gray-300 text-deepForestGreen focus:ring-deepForestGreen"
+                                        />
+                                        <span className="text-gray-800">{option.text}</span>
+                                    </label>
+                                );
+                            })}
                         </div>
-                    ))}
-                </div>
+                    </div>
+                ))}
             </div>
 
-            <div className="mt-5 flex justify-between">
+            <div className="mt-5 flex justify-end">
                 <button
-                    onClick={handlePrevious}
-                    className="px-4 py-2 bg-softIvory border-midGray text-black font-bold rounded-md shadow hover:bg-softGray disabled:bg-gray-100 disabled:cursor-not-allowed"
-                    disabled={currentQuestion === 1}
+                    onClick={handleSubmit}
+                    className="px-6 py-2 bg-deepForestGreen text-white font-bold rounded-md shadow hover:bg-deepForestGreenDark"
                 >
-                    Previous
+                    Submit
                 </button>
-                {currentQuestion === questions.length ? (
-                    <button
-                        onClick={handleSubmit}
-                        className="px-4 py-2 bg-deepForestGreen text-white font-bold rounded-md shadow hover:bg-deepForestGreenDark"
-                    >
-                        Submit
-                    </button>
-                ) : (
-                    <button
-                        onClick={handleNext}
-                        className="px-4 py-2 bg-softIvory border-midGray text-black font-bold rounded-md shadow hover:bg-softGray disabled:bg-gray-100 disabled:cursor-not-allowed"
-                    >
-                        Next
-                    </button>
-                )}
             </div>
         </div>
     );

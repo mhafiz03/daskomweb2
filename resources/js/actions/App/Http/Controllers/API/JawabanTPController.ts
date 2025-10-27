@@ -1,7 +1,7 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../../../wayfinder'
 /**
 * @see \App\Http\Controllers\API\JawabanTPController::getJawabanTP
-* @see app/Http/Controllers/API/JawabanTPController.php:94
+* @see app/Http/Controllers/API/JawabanTPController.php:149
 * @route '/api-v1/jawaban-tp/{nim}/{modulId}'
 */
 export const getJawabanTP = (args: { nim: string | number, modulId: string | number } | [nim: string | number, modulId: string | number ], options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -16,7 +16,7 @@ getJawabanTP.definition = {
 
 /**
 * @see \App\Http\Controllers\API\JawabanTPController::getJawabanTP
-* @see app/Http/Controllers/API/JawabanTPController.php:94
+* @see app/Http/Controllers/API/JawabanTPController.php:149
 * @route '/api-v1/jawaban-tp/{nim}/{modulId}'
 */
 getJawabanTP.url = (args: { nim: string | number, modulId: string | number } | [nim: string | number, modulId: string | number ], options?: RouteQueryOptions) => {
@@ -42,7 +42,7 @@ getJawabanTP.url = (args: { nim: string | number, modulId: string | number } | [
 
 /**
 * @see \App\Http\Controllers\API\JawabanTPController::getJawabanTP
-* @see app/Http/Controllers/API/JawabanTPController.php:94
+* @see app/Http/Controllers/API/JawabanTPController.php:149
 * @route '/api-v1/jawaban-tp/{nim}/{modulId}'
 */
 getJawabanTP.get = (args: { nim: string | number, modulId: string | number } | [nim: string | number, modulId: string | number ], options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -52,7 +52,7 @@ getJawabanTP.get = (args: { nim: string | number, modulId: string | number } | [
 
 /**
 * @see \App\Http\Controllers\API\JawabanTPController::getJawabanTP
-* @see app/Http/Controllers/API/JawabanTPController.php:94
+* @see app/Http/Controllers/API/JawabanTPController.php:149
 * @route '/api-v1/jawaban-tp/{nim}/{modulId}'
 */
 getJawabanTP.head = (args: { nim: string | number, modulId: string | number } | [nim: string | number, modulId: string | number ], options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -62,7 +62,7 @@ getJawabanTP.head = (args: { nim: string | number, modulId: string | number } | 
 
 /**
 * @see \App\Http\Controllers\API\JawabanTPController::getJawabanTP
-* @see app/Http/Controllers/API/JawabanTPController.php:94
+* @see app/Http/Controllers/API/JawabanTPController.php:149
 * @route '/api-v1/jawaban-tp/{nim}/{modulId}'
 */
 const getJawabanTPForm = (args: { nim: string | number, modulId: string | number } | [nim: string | number, modulId: string | number ], options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -72,7 +72,7 @@ const getJawabanTPForm = (args: { nim: string | number, modulId: string | number
 
 /**
 * @see \App\Http\Controllers\API\JawabanTPController::getJawabanTP
-* @see app/Http/Controllers/API/JawabanTPController.php:94
+* @see app/Http/Controllers/API/JawabanTPController.php:149
 * @route '/api-v1/jawaban-tp/{nim}/{modulId}'
 */
 getJawabanTPForm.get = (args: { nim: string | number, modulId: string | number } | [nim: string | number, modulId: string | number ], options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -82,7 +82,7 @@ getJawabanTPForm.get = (args: { nim: string | number, modulId: string | number }
 
 /**
 * @see \App\Http\Controllers\API\JawabanTPController::getJawabanTP
-* @see app/Http/Controllers/API/JawabanTPController.php:94
+* @see app/Http/Controllers/API/JawabanTPController.php:149
 * @route '/api-v1/jawaban-tp/{nim}/{modulId}'
 */
 getJawabanTPForm.head = (args: { nim: string | number, modulId: string | number } | [nim: string | number, modulId: string | number ], options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -99,7 +99,7 @@ getJawabanTP.form = getJawabanTPForm
 
 /**
 * @see \App\Http\Controllers\API\JawabanTPController::store
-* @see app/Http/Controllers/API/JawabanTPController.php:27
+* @see app/Http/Controllers/API/JawabanTPController.php:29
 * @route '/api-v1/jawaban-tp'
 */
 export const store = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -114,7 +114,7 @@ store.definition = {
 
 /**
 * @see \App\Http\Controllers\API\JawabanTPController::store
-* @see app/Http/Controllers/API/JawabanTPController.php:27
+* @see app/Http/Controllers/API/JawabanTPController.php:29
 * @route '/api-v1/jawaban-tp'
 */
 store.url = (options?: RouteQueryOptions) => {
@@ -123,7 +123,7 @@ store.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\API\JawabanTPController::store
-* @see app/Http/Controllers/API/JawabanTPController.php:27
+* @see app/Http/Controllers/API/JawabanTPController.php:29
 * @route '/api-v1/jawaban-tp'
 */
 store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -133,7 +133,7 @@ store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
 /**
 * @see \App\Http\Controllers\API\JawabanTPController::store
-* @see app/Http/Controllers/API/JawabanTPController.php:27
+* @see app/Http/Controllers/API/JawabanTPController.php:29
 * @route '/api-v1/jawaban-tp'
 */
 const storeForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -143,7 +143,7 @@ const storeForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => 
 
 /**
 * @see \App\Http\Controllers\API\JawabanTPController::store
-* @see app/Http/Controllers/API/JawabanTPController.php:27
+* @see app/Http/Controllers/API/JawabanTPController.php:29
 * @route '/api-v1/jawaban-tp'
 */
 storeForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -155,7 +155,7 @@ store.form = storeForm
 
 /**
 * @see \App\Http\Controllers\API\JawabanTPController::show
-* @see app/Http/Controllers/API/JawabanTPController.php:67
+* @see app/Http/Controllers/API/JawabanTPController.php:122
 * @route '/api-v1/jawaban-tp/{idModul}'
 */
 export const show = (args: { idModul: string | number } | [idModul: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -170,7 +170,7 @@ show.definition = {
 
 /**
 * @see \App\Http\Controllers\API\JawabanTPController::show
-* @see app/Http/Controllers/API/JawabanTPController.php:67
+* @see app/Http/Controllers/API/JawabanTPController.php:122
 * @route '/api-v1/jawaban-tp/{idModul}'
 */
 show.url = (args: { idModul: string | number } | [idModul: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -197,7 +197,7 @@ show.url = (args: { idModul: string | number } | [idModul: string | number ] | s
 
 /**
 * @see \App\Http\Controllers\API\JawabanTPController::show
-* @see app/Http/Controllers/API/JawabanTPController.php:67
+* @see app/Http/Controllers/API/JawabanTPController.php:122
 * @route '/api-v1/jawaban-tp/{idModul}'
 */
 show.get = (args: { idModul: string | number } | [idModul: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -207,7 +207,7 @@ show.get = (args: { idModul: string | number } | [idModul: string | number ] | s
 
 /**
 * @see \App\Http\Controllers\API\JawabanTPController::show
-* @see app/Http/Controllers/API/JawabanTPController.php:67
+* @see app/Http/Controllers/API/JawabanTPController.php:122
 * @route '/api-v1/jawaban-tp/{idModul}'
 */
 show.head = (args: { idModul: string | number } | [idModul: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -217,7 +217,7 @@ show.head = (args: { idModul: string | number } | [idModul: string | number ] | 
 
 /**
 * @see \App\Http\Controllers\API\JawabanTPController::show
-* @see app/Http/Controllers/API/JawabanTPController.php:67
+* @see app/Http/Controllers/API/JawabanTPController.php:122
 * @route '/api-v1/jawaban-tp/{idModul}'
 */
 const showForm = (args: { idModul: string | number } | [idModul: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -227,7 +227,7 @@ const showForm = (args: { idModul: string | number } | [idModul: string | number
 
 /**
 * @see \App\Http\Controllers\API\JawabanTPController::show
-* @see app/Http/Controllers/API/JawabanTPController.php:67
+* @see app/Http/Controllers/API/JawabanTPController.php:122
 * @route '/api-v1/jawaban-tp/{idModul}'
 */
 showForm.get = (args: { idModul: string | number } | [idModul: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -237,7 +237,7 @@ showForm.get = (args: { idModul: string | number } | [idModul: string | number ]
 
 /**
 * @see \App\Http\Controllers\API\JawabanTPController::show
-* @see app/Http/Controllers/API/JawabanTPController.php:67
+* @see app/Http/Controllers/API/JawabanTPController.php:122
 * @route '/api-v1/jawaban-tp/{idModul}'
 */
 showForm.head = (args: { idModul: string | number } | [idModul: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
