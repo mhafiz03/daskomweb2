@@ -108,15 +108,6 @@ export default function TesAwal({
                     </div>
                 ))}
             </div>
-
-            <div className="mt-5 flex justify-end">
-                <button
-                    onClick={handleSubmit}
-                    className="px-6 py-2 bg-deepForestGreen text-white font-bold rounded-md shadow hover:bg-deepForestGreenDark"
-                >
-                    Submit
-                </button>
-            </div>
         </div>
     );
 }

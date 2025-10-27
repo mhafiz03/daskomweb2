@@ -9,11 +9,6 @@ import TesAwal from "@/Components/Praktikans/Sections/TesAwal";
 import Jurnal from "@/Components/Praktikans/Sections/Jurnal";
 import Mandiri from "@/Components/Praktikans/Sections/Mandiri";
 import TesKeterampilan from "@/Components/Praktikans/Sections/TesKeterampilan";
-import TPReview from "@/Components/Praktikans/Sections/TPReview";
-import TAReview from "@/Components/Praktikans/Sections/TAReview";
-import JurnalReview from "@/Components/Praktikans/Sections/JurnalReview";
-import MandiriReview from "@/Components/Praktikans/Sections/MandiriReview";
-import TKReview from "@/Components/Praktikans/Sections/TKReview";
 import { api } from "@/lib/api";
 
 const ATTEMPT_COMPONENTS = [
@@ -23,18 +18,6 @@ const ATTEMPT_COMPONENTS = [
     "Mandiri",
     "TesKeterampilan",
 ];
-
-const REVIEW_COMPONENT_BY_TASK = {
-    TugasPendahuluan: "TPReview",
-    TesAwal: "TAReview",
-    Jurnal: "JurnalReview",
-    Mandiri: "MandiriReview",
-    TesKeterampilan: "TKReview",
-};
-
-const TASK_BY_REVIEW_COMPONENT = Object.fromEntries(
-    Object.entries(REVIEW_COMPONENT_BY_TASK).map(([task, review]) => [review, task])
-);
 
 const TASK_CONFIG = {
     TugasPendahuluan: {
@@ -123,11 +106,6 @@ export default function PraktikumPage({ auth }) {
                 "Jurnal",
                 "Mandiri",
                 "TesKeterampilan",
-                "TPReview",
-                "TAReview",
-                "JurnalReview",
-                "MandiriReview",
-                "TKReview",
             ].includes(activeComponent)
         ) {
             setActiveComponent("NoPraktikumSection");
@@ -371,8 +349,7 @@ export default function PraktikumPage({ auth }) {
                     setCurrentQuestion(0);
                 }
             } else {
-                const taskFromReview = TASK_BY_REVIEW_COMPONENT[componentName] ?? null;
-                setActiveTask(taskFromReview);
+                setActiveTask(null);
                 setShowTimer(false);
             }
         },
@@ -641,21 +618,6 @@ export default function PraktikumPage({ auth }) {
                                 setQuestionsCount={setQuestionsCount}
                                 onSubmitTask={handleTaskSubmit}
                             />
-                        )}
-                        {activeComponent === "TPReview" && activeTask && (
-                            <TPReview modulId={activeModulId} onNavigate={handleNavigate} />
-                        )}
-                        {activeComponent === "TAReview" && activeTask && (
-                            <TAReview modulId={activeModulId} onNavigate={handleNavigate} />
-                        )}
-                        {activeComponent === "JurnalReview" && activeTask && (
-                            <JurnalReview modulId={activeModulId} onNavigate={handleNavigate} />
-                        )}
-                        {activeComponent === "MandiriReview" && activeTask && (
-                            <MandiriReview modulId={activeModulId} onNavigate={handleNavigate} />
-                        )}
-                        {activeComponent === "TKReview" && activeTask && (
-                            <TKReview modulId={activeModulId} onNavigate={handleNavigate} />
                         )}
                     </div>
                 </div>
