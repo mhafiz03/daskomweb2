@@ -149,88 +149,90 @@ export default function TableManageRole({ asisten }) {
                 </div>
             </div>
 
-            <div className="overflow-hidden rounded-lg border border-forestGreen bg-white shadow">
-                <table className="min-w-full divide-y divide-forestGreen/30 text-sm text-darkBrown">
-                    <thead className="bg-softIvory">
-                        <tr className="text-left">
-                            <th scope="col" className="px-4 py-3">
-                                <div className="flex items-center gap-2">
-                                    <input
-                                        type="checkbox"
-                                        checked={isAllChecked}
-                                        onChange={toggleSelectAll}
-                                        className="h-4 w-4"
-                                    />
-                                    <span>Pilih</span>
-                                </div>
-                            </th>
-                            <th scope="col" className="px-4 py-3">Nama</th>
-                            <th scope="col" className="px-4 py-3">Kode</th>
-                            <th scope="col" className="px-4 py-3">Role</th>
-                            <th scope="col" className="px-4 py-3 text-center">Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody className="divide-y divide-forestGreen/15">
-                        {isFetching && (
-                            <tr>
-                                <td colSpan={5} className="px-4 py-8 text-center text-darkBrown">
-                                    Memuat data asisten...
-                                </td>
-                            </tr>
-                        )}
-
-                        {isError && !isFetching && (
-                            <tr>
-                                <td colSpan={5} className="px-4 py-8 text-center text-fireRed">
-                                    Gagal memuat data asisten.
-                                </td>
-                            </tr>
-                        )}
-
-                        {!isFetching && !isError && filteredAsistens.length === 0 && (
-                            <tr>
-                                <td colSpan={5} className="px-4 py-8 text-center text-darkBrown/70">
-                                    Tidak ada data yang cocok dengan pencarian kamu.
-                                </td>
-                            </tr>
-                        )}
-
-                        {!isFetching && !isError && filteredAsistens.map((item) => {
-                            const isChecked = checkedAsistens.includes(item.kode);
-                            const badgeTone = ROLE_BADGE[item.role] ?? "bg-slate-100 text-slate-800";
-
-                            return (
-                                <tr key={item.kode} className="hover:bg-softIvory/70">
-                                    <td className="px-4 py-3">
+            <div className="rounded-lg border border-forestGreen bg-white shadow">
+                <div className="max-h-[70vh] overflow-y-auto overflow-x-auto lg:max-h-[48rem]">
+                    <table className="min-w-full divide-y divide-forestGreen/30 text-sm text-darkBrown">
+                        <thead className="bg-softIvory">
+                            <tr className="text-left">
+                                <th scope="col" className="px-4 py-3">
+                                    <div className="flex items-center gap-2">
                                         <input
                                             type="checkbox"
-                                            checked={isChecked}
-                                            onChange={() => toggleCheckedAsisten(item.kode)}
+                                            checked={isAllChecked}
+                                            onChange={toggleSelectAll}
                                             className="h-4 w-4"
                                         />
-                                    </td>
-                                    <td className="px-4 py-3 font-medium">{item.nama}</td>
-                                    <td className="px-4 py-3 font-semibold text-darkBrown/80">{item.kode}</td>
-                                    <td className="px-4 py-3">
-                                        <span className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold ${badgeTone}`}>
-                                            {item.role ?? "-"}
-                                        </span>
-                                    </td>
-                                    <td className="px-4 py-3 text-center">
-                                        <button
-                                            type="button"
-                                            onClick={() => handleOpenModalEdit(item.kode)}
-                                            className="inline-flex items-center gap-1 rounded-md border border-forestGreen px-3 py-1 text-xs font-semibold text-darkBrown transition hover:bg-softBrown"
-                                        >
-                                            <img src={editIcon} alt="Edit" className="h-4 w-4" />
-                                            Edit Role
-                                        </button>
+                                        <span>Pilih</span>
+                                    </div>
+                                </th>
+                                <th scope="col" className="px-4 py-3">Nama</th>
+                                <th scope="col" className="px-4 py-3">Kode</th>
+                                <th scope="col" className="px-4 py-3">Role</th>
+                                <th scope="col" className="px-4 py-3 text-center">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y divide-forestGreen/15">
+                            {isFetching && (
+                                <tr>
+                                    <td colSpan={5} className="px-4 py-8 text-center text-darkBrown">
+                                        Memuat data asisten...
                                     </td>
                                 </tr>
-                            );
-                        })}
-                    </tbody>
-                </table>
+                            )}
+
+                            {isError && !isFetching && (
+                                <tr>
+                                    <td colSpan={5} className="px-4 py-8 text-center text-fireRed">
+                                        Gagal memuat data asisten.
+                                    </td>
+                                </tr>
+                            )}
+
+                            {!isFetching && !isError && filteredAsistens.length === 0 && (
+                                <tr>
+                                    <td colSpan={5} className="px-4 py-8 text-center text-darkBrown/70">
+                                        Tidak ada data yang cocok dengan pencarian kamu.
+                                    </td>
+                                </tr>
+                            )}
+
+                            {!isFetching && !isError && filteredAsistens.map((item) => {
+                                const isChecked = checkedAsistens.includes(item.kode);
+                                const badgeTone = ROLE_BADGE[item.role] ?? "bg-slate-100 text-slate-800";
+
+                                return (
+                                    <tr key={item.kode} className="hover:bg-softIvory/70">
+                                        <td className="px-4 py-3">
+                                            <input
+                                                type="checkbox"
+                                                checked={isChecked}
+                                                onChange={() => toggleCheckedAsisten(item.kode)}
+                                                className="h-4 w-4"
+                                            />
+                                        </td>
+                                        <td className="px-4 py-3 font-medium">{item.nama}</td>
+                                        <td className="px-4 py-3 font-semibold text-darkBrown/80">{item.kode}</td>
+                                        <td className="px-4 py-3">
+                                            <span className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold ${badgeTone}`}>
+                                                {item.role ?? "-"}
+                                            </span>
+                                        </td>
+                                        <td className="px-4 py-3 text-center">
+                                            <button
+                                                type="button"
+                                                onClick={() => handleOpenModalEdit(item.kode)}
+                                                className="inline-flex items-center gap-1 rounded-md border border-forestGreen px-3 py-1 text-xs font-semibold text-darkBrown transition hover:bg-softBrown"
+                                            >
+                                                <img src={editIcon} alt="Edit" className="h-4 w-4" />
+                                                Edit Role
+                                            </button>
+                                        </td>
+                                    </tr>
+                                );
+                            })}
+                        </tbody>
+                    </table>
+                </div>
             </div>
 
             {isModalOpenConfirmDelete && (
