@@ -15,6 +15,12 @@ window.Echo = new Echo({
   wssPort: import.meta.env.VITE_REVERB_PORT ?? 443,
   forceTLS: (import.meta.env.VITE_REVERB_SCHEME ?? 'https') === 'https',
   enabledTransports: ['ws'],
+  authEndpoint: '/broadcasting/auth',
+  auth: {
+    headers: {
+      'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content'),
+    },
+  },
 });
 /**
  * Echo exposes an expressive API for subscribing to channels and listening

@@ -22,7 +22,7 @@ const STATUS_LABELS = {
     idle: "Siap",
 };
 
-export default function PraktikumSection({
+export default function NoPraktikumSection({
     onNavigate,
     completedCategories,
     setCompletedCategories,
@@ -372,82 +372,6 @@ export default function PraktikumSection({
                                 <span className="text-xs text-gray-500">ID Modul: {modulId}</span>
                             </div>
                         )}
-                    </div>
-                </div>
-
-                <div className="rounded-lg border border-lightBrown bg-softIvory p-4 text-sm text-darkBrown shadow-sm">
-                    <h2 className="text-base font-semibold text-darkBrown mb-3">Tahapan Praktikum</h2>
-                    <div className="space-y-3">
-                        {Object.keys(categoryLabels).map((key) => {
-                            const isCompleted = Boolean(completedCategories[key]);
-                            const icon = isCompleted ? iconCeklistboxTrue : iconCeklistboxFalse;
-
-                            return (
-                                <div
-                                    key={key}
-                                    className="flex items-center justify-between rounded-md border border-transparent bg-white px-4 py-3 shadow-sm transition hover:border-dustyBlue hover:bg-softPearl cursor-pointer"
-                                    onClick={() => handleCategoryClick(key)}
-                                >
-                                    <div className="flex items-center gap-3">
-                                        <img
-                                            src={icon}
-                                            alt={isCompleted ? "Sudah selesai" : "Belum selesai"}
-                                            className="w-6 h-6"
-                                        />
-                                        <div>
-                                            <p className="text-sm font-semibold text-darkBrown">{categoryLabels[key]}</p>
-                                            <p className="text-xs text-gray-500">
-                                                {isCompleted
-                                                    ? "Jawaban tersimpan. Klik untuk melihat review."
-                                                    : "Klik untuk mulai mengerjakan."}
-                                            </p>
-                                        </div>
-                                    </div>
-                                    <div className="flex items-center gap-3">
-                                        {isCompleted && (
-                                            <button
-                                                type="button"
-                                                onClick={(event) => {
-                                                    event.stopPropagation();
-                                                    handleOpenModalReview(key);
-                                                }}
-                                                className="text-xs font-semibold text-dustyBlue underline hover:text-darkOliveGreen"
-                                            >
-                                                Review
-                                            </button>
-                                        )}
-                                        <button
-                                            type="button"
-                                            onClick={(event) => {
-                                                event.stopPropagation();
-                                                handleOpenModalAttempt(key);
-                                            }}
-                                            className="rounded-md bg-deepForestGreen px-3 py-1 text-xs font-semibold text-white shadow hover:bg-deepForestGreenDark"
-                                        >
-                                            Attempt
-                                        </button>
-                                    </div>
-
-                                    {openModalReview === key && (
-                                        <Modal isOpen={!!openModalReview} onClose={closeModal} width="w-[370px]">
-                                            <ModalReview
-                                                taskKey={openModalReview}
-                                                onReviewNavigate={() => handleReviewNavigate(key)}
-                                            />
-                                        </Modal>
-                                    )}
-
-                                    {openModalAttempt === key && (
-                                        <Modal isOpen={!!openModalAttempt} onClose={closeModal} width="w-[370px]">
-                                            <ModalAttempt
-                                                taskKey={openModalAttempt}
-                                                onAttemptComplete={(taskKey) => handleAttemptComplete(taskKey)}
-                                            />
-                                        </Modal>
-                                    )}
-                                </div>
-                            );
-                        })}
                     </div>
                 </div>
             </div>

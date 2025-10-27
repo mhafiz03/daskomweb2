@@ -2,12 +2,12 @@
 
 namespace App\Providers;
 
-use ImageKit\ImageKit;
 use App\Adapter\ImageKitAdapter;
-use League\Flysystem\Filesystem;
+use Illuminate\Filesystem\FilesystemAdapter;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\ServiceProvider;
-use Illuminate\Filesystem\FilesystemAdapter;
+use ImageKit\ImageKit;
+use League\Flysystem\Filesystem;
 
 class AppServiceProvider extends ServiceProvider
 {

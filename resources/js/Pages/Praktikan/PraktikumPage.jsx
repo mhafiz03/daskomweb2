@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import PraktikanAuthenticated from "@/Layouts/PraktikanAuthenticatedLayout";
 import Clock from "@/Components/Assistants/Common/Clock";
 import ModalSoftware from "@/Components/Assistants/Modals/ModalSoftware";
-import PraktikumSection from "@/Components/Praktikans/Sections/PraktikumSection";
+import NoPraktikumSection from "@/Components/Praktikans/Sections/NoPraktikumSection";
 import TimerPraktikan from "@/Components/Praktikans/Sections/TimerPraktikan";
 import TugasPendahuluan from "@/Components/Praktikans/Sections/TugasPendahuluan";
 import TesAwal from "@/Components/Praktikans/Sections/TesAwal";
@@ -90,7 +90,7 @@ const INITIAL_COMPLETED_STATE = {
 };
 
 export default function PraktikumPage({ auth }) {
-    const [activeComponent, setActiveComponent] = useState("ModuleSection");
+    const [activeComponent, setActiveComponent] = useState("NoPraktikumSection");
     const [showTimer, setShowTimer] = useState(false);
     const [contentShift, setContentShift] = useState("0px");
     const [answers, setAnswers] = useState([]);
@@ -117,7 +117,7 @@ export default function PraktikumPage({ auth }) {
     useEffect(() => {
         if (
             ![
-                "ModuleSection",
+                "NoPraktikumSection",
                 "TugasPendahuluan",
                 "TesAwal",
                 "Jurnal",
@@ -130,7 +130,7 @@ export default function PraktikumPage({ auth }) {
                 "TKReview",
             ].includes(activeComponent)
         ) {
-            setActiveComponent("ModuleSection");
+            setActiveComponent("NoPraktikumSection");
         }
     }, [activeComponent]);
 
@@ -487,7 +487,7 @@ export default function PraktikumPage({ auth }) {
 
                 setCompletedCategories((prev) => ({ ...prev, [taskName]: true }));
 
-                setActiveComponent("ModuleSection");
+                setActiveComponent("NoPraktikumSection");
                 setShowTimer(false);
             } catch (error) {
                 console.error("Failed to submit answers", error);
@@ -506,7 +506,7 @@ export default function PraktikumPage({ auth }) {
         }
 
         setActiveTask(taskKey);
-        const reviewComponent = REVIEW_COMPONENT_BY_TASK[taskKey] ?? "ModuleSection";
+        const reviewComponent = REVIEW_COMPONENT_BY_TASK[taskKey] ?? "NoPraktikumSection";
         setActiveComponent(reviewComponent);
         setShowTimer(false);
     }, []);
@@ -540,6 +540,25 @@ export default function PraktikumPage({ auth }) {
         handleNavigate(targetComponent);
     }, [moduleMeta?.current_phase, activeModulId, handleNavigate]);
 
+    // Join presence channel for online status tracking
+    useEffect(() => {
+        if (!window.Echo || !kelasId || !praktikanId) {
+            return undefined;
+        }
+
+        const presenceChannelName = `presence-kelas.${kelasId}`;
+        const presenceChannel = window.Echo.join(presenceChannelName);
+
+        presenceChannel
+            .error((error) => {
+                console.error('Presence channel error:', error);
+            });
+
+        return () => {
+            window.Echo.leave(presenceChannelName);
+        };
+    }, [kelasId, praktikanId]);
+
     return (
         <>
             <PraktikanAuthenticated
@@ -557,8 +576,8 @@ export default function PraktikumPage({ auth }) {
                         className="flex-1 transition-all duration-300"
                         style={{ marginRight: contentShift }}
                     >
-                        {activeComponent === "ModuleSection" && (
-                            <PraktikumSection
+                        {activeComponent === "NoPraktikumSection" && (
+                            <NoPraktikumSection
                                 onNavigate={handleNavigate}
                                 completedCategories={completedCategories}
                                 setCompletedCategories={setCompletedCategories}

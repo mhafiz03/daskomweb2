@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Auth;
 
 class PraktikumController extends Controller
 {
-    private const PHASE_SEQUENCE = ['ta', 'fitb_jurnal', 'mandiri', 'tk'];
+    private const PHASE_SEQUENCE = ['preparation', 'ta', 'fitb_jurnal', 'mandiri', 'tk'];
 
     public function index(Request $request): JsonResponse
     {
@@ -105,7 +105,7 @@ class PraktikumController extends Controller
         ]);
 
         $phase = $validated['phase'] ?? null;
-        if ($phase !== null && !in_array($phase, self::PHASE_SEQUENCE, true)) {
+        if ($phase !== null && ! in_array($phase, self::PHASE_SEQUENCE, true)) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'Phase is not valid.',
@@ -114,7 +114,7 @@ class PraktikumController extends Controller
 
         $praktikum = Praktikum::with(['modul', 'kelas', 'pj'])->find($id);
 
-        if (!$praktikum) {
+        if (! $praktikum) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'Praktikum not found.',

@@ -9,6 +9,7 @@ import { useJadwalJagaQuery } from "@/hooks/useJadwalJagaQuery";
 import { PRAKTIKUM_HISTORY_QUERY_KEY } from "@/hooks/usePraktikumHistoryQuery";
 
 const PHASE_SEQUENCE = [
+    { key: "preparation", label: "Preparation" },
     { key: "ta", label: "TA" },
     { key: "fitb_jurnal", label: "FITB + Jurnal" },
     { key: "mandiri", label: "Mandiri" },
@@ -80,6 +81,7 @@ export default function ContentPraktikum() {
     const [displaySeconds, setDisplaySeconds] = useState(0);
     const [reportText, setReportText] = useState("");
     const [pendingAction, setPendingAction] = useState(null);
+    const [onlinePraktikan, setOnlinePraktikan] = useState(new Set());
 
     const queryClient = useQueryClient();
 
@@ -347,6 +349,52 @@ export default function ContentPraktikum() {
         };
     }, [selectedPraktikumId, selectedKelas, computeElapsedSeconds, queryClient]);
 
+    // Presence channel for online praktikan tracking
+    useEffect(() => {
+        if (!window.Echo || !selectedKelas) {
+            setOnlinePraktikan(new Set());
+            return undefined;
+        }
+
+        const presenceChannelName = `presence-kelas.${selectedKelas}`;
+        const presenceChannel = window.Echo.join(presenceChannelName);
+
+        presenceChannel
+            .here((users) => {
+                // Initialize with users already in the channel
+                const praktikanIds = new Set(
+                    users
+                        .filter(user => user.type === 'praktikan')
+                        .map(user => user.id)
+                );
+                setOnlinePraktikan(praktikanIds);
+            })
+            .joining((user) => {
+                // Someone joined the channel
+                if (user.type === 'praktikan') {
+                    setOnlinePraktikan(prev => new Set([...prev, user.id]));
+                }
+            })
+            .leaving((user) => {
+                // Someone left the channel
+                if (user.type === 'praktikan') {
+                    setOnlinePraktikan(prev => {
+                        const next = new Set(prev);
+                        next.delete(user.id);
+                        return next;
+                    });
+                }
+            })
+            .error((error) => {
+                console.error('Presence channel error:', error);
+            });
+
+        return () => {
+            window.Echo.leave(presenceChannelName);
+            setOnlinePraktikan(new Set());
+        };
+    }, [selectedKelas]);
+
     const createPraktikumMutation = useMutation({
         mutationFn: async () => {
             if (!selectedKelas || !selectedModul) {
@@ -537,7 +585,7 @@ export default function ContentPraktikum() {
     const hasSession = Boolean(effectiveSession);
     const reportSubmitted = Boolean(
         typeof effectiveSession?.report_notes === "string" &&
-            effectiveSession.report_notes.trim().length > 0
+        effectiveSession.report_notes.trim().length > 0
     );
     const showReportForm = isCompleted && !reportSubmitted;
     const showReportPreview = isCompleted && reportSubmitted;
@@ -577,8 +625,8 @@ export default function ContentPraktikum() {
     const reportOwnerDisplay = pjData
         ? [pjData.nama, pjData.kode].filter(Boolean).join(" • ") || `Asisten #${pjData.id}`
         : effectiveSession?.pj_id
-        ? `Asisten #${effectiveSession.pj_id}`
-        : "-";
+            ? `Asisten #${effectiveSession.pj_id}`
+            : "-";
 
     const startLabel = isTerminal && !isCompleted ? "Restart" : "Start";
     const statusLabel =
@@ -702,15 +750,29 @@ export default function ContentPraktikum() {
                                 {selectedKelas ? (
                                     praktikanList.length > 0 ? (
                                         <ul className="space-y-2 max-h-60 overflow-y-auto pr-1">
-                                            {praktikanList.map((praktikan) => (
-                                                <li
-                                                    key={praktikan?.id ?? praktikan?.nim}
-                                                    className="flex justify-between items-center border border-lightBrown rounded px-3 py-2 text-sm text-darkBrown"
-                                                >
-                                                    <span className="font-semibold">{praktikan?.nim ?? "NIM tidak tersedia"}</span>
-                                                    <span className="text-right ml-3">{praktikan?.nama ?? praktikan?.name ?? "Nama tidak tersedia"}</span>
-                                                </li>
-                                            ))}
+                                            {praktikanList.map((praktikan) => {
+                                                const isOnline = onlinePraktikan.has(praktikan?.id);
+
+                                                return (
+                                                    <li
+                                                        key={praktikan?.id ?? praktikan?.nim}
+                                                        className="flex justify-between items-center border border-lightBrown rounded px-3 py-2 text-sm text-darkBrown"
+                                                    >
+                                                        <div className="flex items-center gap-2">
+                                                            <div className="relative">
+                                                                {isOnline && (
+                                                                    <span className="absolute -left-2 top-1/2 -translate-y-1/2 flex h-2.5 w-2.5">
+                                                                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                                                                        <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-green-500"></span>
+                                                                    </span>
+                                                                )}
+                                                            </div>
+                                                            <span className="font-semibold">{praktikan?.nim ?? "NIM tidak tersedia"}</span>
+                                                        </div>
+                                                        <span className="text-right ml-3">{praktikan?.nama ?? praktikan?.name ?? "Nama tidak tersedia"}</span>
+                                                    </li>
+                                                );
+                                            })}
                                         </ul>
                                     ) : (
                                         <p className="text-sm text-gray-500">Belum ada data praktikan untuk kelas ini.</p>
@@ -753,8 +815,8 @@ export default function ContentPraktikum() {
                                         {reportSubmitted
                                             ? "Sudah dikirim"
                                             : isCompleted
-                                            ? "Menunggu laporan"
-                                            : "-"}
+                                                ? "Menunggu laporan"
+                                                : "-"}
                                     </p>
                                 </div>
                                 <div>
@@ -838,8 +900,8 @@ export default function ContentPraktikum() {
                                                     : undefined
                                             }
                                             className={`px-5 py-2 rounded-md font-semibold text-white shadow transition ${reportSubmitDisabled
-                                                    ? "bg-gray-400 cursor-not-allowed"
-                                                    : "bg-deepForestGreen hover:bg-darkGreen"
+                                                ? "bg-gray-400 cursor-not-allowed"
+                                                : "bg-deepForestGreen hover:bg-darkGreen"
                                                 }`}
                                         >
                                             {isSubmittingReport ? "Mengirim..." : "Kirim Laporan"}
@@ -877,8 +939,8 @@ export default function ContentPraktikum() {
                                     onClick={() => handleAction("start")}
                                     disabled={startDisabled}
                                     className={`px-6 py-2 rounded-md font-semibold text-white shadow transition ${startDisabled
-                                            ? "bg-gray-400 cursor-not-allowed"
-                                            : "bg-deepForestGreen hover:bg-darkGreen"
+                                        ? "bg-gray-400 cursor-not-allowed"
+                                        : "bg-deepForestGreen hover:bg-darkGreen"
                                         }`}
                                 >
                                     {startLabel}
@@ -888,8 +950,8 @@ export default function ContentPraktikum() {
                                     onClick={() => handleAction("pause")}
                                     disabled={pauseDisabled}
                                     className={`px-6 py-2 rounded-md font-semibold text-white shadow transition ${pauseDisabled
-                                            ? "bg-gray-400 cursor-not-allowed"
-                                            : "bg-amber-500 hover:bg-amber-600"
+                                        ? "bg-gray-400 cursor-not-allowed"
+                                        : "bg-amber-500 hover:bg-amber-600"
                                         }`}
                                 >
                                     Pause
@@ -899,8 +961,8 @@ export default function ContentPraktikum() {
                                     onClick={() => handleAction("resume")}
                                     disabled={resumeDisabled}
                                     className={`px-6 py-2 rounded-md font-semibold text-white shadow transition ${resumeDisabled
-                                            ? "bg-gray-400 cursor-not-allowed"
-                                            : "bg-sky-600 hover:bg-sky-700"
+                                        ? "bg-gray-400 cursor-not-allowed"
+                                        : "bg-sky-600 hover:bg-sky-700"
                                         }`}
                                 >
                                     Resume
@@ -910,8 +972,8 @@ export default function ContentPraktikum() {
                                     onClick={() => handleAction("next")}
                                     disabled={nextDisabled}
                                     className={`px-6 py-2 rounded-md font-semibold text-white shadow transition ${nextDisabled
-                                            ? "bg-gray-400 cursor-not-allowed"
-                                            : "bg-darkBrown hover:bg-darkBrown/90"
+                                        ? "bg-gray-400 cursor-not-allowed"
+                                        : "bg-darkBrown hover:bg-darkBrown/90"
                                         }`}
                                 >
                                     Next
@@ -921,8 +983,8 @@ export default function ContentPraktikum() {
                                     onClick={() => handleAction("exit")}
                                     disabled={exitDisabled}
                                     className={`px-6 py-2 rounded-md font-semibold text-white shadow transition ${exitDisabled
-                                            ? "bg-gray-400 cursor-not-allowed"
-                                            : "bg-red-600 hover:bg-red-700"
+                                        ? "bg-gray-400 cursor-not-allowed"
+                                        : "bg-red-600 hover:bg-red-700"
                                         }`}
                                 >
                                     Exit
