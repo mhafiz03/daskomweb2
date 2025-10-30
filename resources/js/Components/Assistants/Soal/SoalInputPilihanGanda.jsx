@@ -3,10 +3,10 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { send } from "@/lib/wayfinder";
 import { useSoalQuery, soalQueryKey } from "@/hooks/useSoalQuery";
 import { getSoalController } from "@/lib/soalControllers";
-import ModalDeleteSoal from "../Modals/ModalDeleteSoal";
 import ModalEditSoalPG from "../Modals/ModalEditSoalPG";
 import trashIcon from "../../../../assets/nav/Icon-Delete.svg";
 import editIcon from "../../../../assets/nav/Icon-Edit.svg";
+import toast from "react-hot-toast";
 
 const OPTION_COUNT = 4;
 const EMPTY_OPTIONS = Array.from({ length: OPTION_COUNT }, () => "");
@@ -48,7 +48,6 @@ export default function SoalInputPG({ kategoriSoal, modul, onModalSuccess, onMod
         options: [...EMPTY_OPTIONS],
         correctIndex: 0,
     });
-    const [isModalOpenDelete, setIsModalOpenDelete] = useState(false);
     const [isModalOpenEdit, setIsModalOpenEdit] = useState(false);
     const [editingSoal, setEditingSoal] = useState(null);
 
@@ -69,6 +68,9 @@ export default function SoalInputPG({ kategoriSoal, modul, onModalSuccess, onMod
         },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: soalQueryKey(kategoriSoal, modul) });
+            if (typeof onModalSuccess === "function") {
+                onModalSuccess();
+            }
         },
     });
 
@@ -81,8 +83,17 @@ export default function SoalInputPG({ kategoriSoal, modul, onModalSuccess, onMod
             const { data } = await send(controller.update(soalId), payload);
             return data;
         },
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: soalQueryKey(kategoriSoal, modul) });
+        onSuccess: (_, variables) => {
+            const previousKey = variables?.previousModulKey ?? modul;
+            const nextKey = variables?.nextModulKey ?? previousKey;
+
+            if (previousKey) {
+                queryClient.invalidateQueries({ queryKey: soalQueryKey(kategoriSoal, previousKey) });
+            }
+
+            if (nextKey && nextKey !== previousKey) {
+                queryClient.invalidateQueries({ queryKey: soalQueryKey(kategoriSoal, nextKey) });
+            }
         },
     });
 
@@ -137,16 +148,11 @@ export default function SoalInputPG({ kategoriSoal, modul, onModalSuccess, onMod
             correctIndex: 0,
         });
 
-        onModalSuccess();
     };
 
     const handleOpenModalDelete = (soalId) => {
         deleteSoalMutation.mutate(soalId);
-        setIsModalOpenDelete(true);
-    };
-
-    const handleCloseModalDelete = () => {
-        setIsModalOpenDelete(false);
+        toast.success('Soal berhasil dihapus!');
     };
 
     const handleOpenModalEdit = (soalItem) => {
@@ -160,14 +166,37 @@ export default function SoalInputPG({ kategoriSoal, modul, onModalSuccess, onMod
     };
 
     const handleConfirmEdit = (updatedSoal) => {
+        const previousModulKey =
+            editingSoal?.modul_id !== undefined && editingSoal?.modul_id !== null
+                ? String(editingSoal.modul_id)
+                : modul;
+        const parsedNextModulId =
+            updatedSoal.modul_id !== undefined && updatedSoal.modul_id !== null
+                ? Number(updatedSoal.modul_id)
+                : Number.NaN;
+        const nextModulId = Number.isNaN(parsedNextModulId)
+            ? editingSoal?.modul_id ?? (modul ? Number(modul) : undefined)
+            : parsedNextModulId;
+        const nextModulKey =
+            nextModulId !== undefined && nextModulId !== null
+                ? String(nextModulId)
+                : previousModulKey;
+
+        if (nextModulId === undefined || nextModulId === null) {
+            toast.error("Pilih modul untuk soal ini.");
+            return;
+        }
+
         putSoalMutation.mutate({
             soalId: updatedSoal.id,
             payload: {
-                modul_id: updatedSoal.modul_id,
+                modul_id: nextModulId,
                 pertanyaan: updatedSoal.pertanyaan,
                 options: updatedSoal.options,
                 correct_option: updatedSoal.correct_option,
             },
+            previousModulKey,
+            nextModulKey,
         });
 
         handleCloseModalEdit();
@@ -233,9 +262,9 @@ export default function SoalInputPG({ kategoriSoal, modul, onModalSuccess, onMod
                             >
                                 <div className="mb-3">
                                     <strong>Soal: {index + 1}</strong>
-                                    <p className="ml-4 mt-1 text-sm text-justify">
+                                    <pre className="ml-4 mt-1 text-sm text-justify whitespace-pre-wrap break-words">
                                         {soalItem.pertanyaan}
-                                    </p>
+                                    </pre>
                                 </div>
 
                                 <div className="mb-2">
@@ -282,10 +311,6 @@ export default function SoalInputPG({ kategoriSoal, modul, onModalSuccess, onMod
                     </ul>
                 )}
             </div>
-
-            {isModalOpenDelete && (
-                <ModalDeleteSoal onClose={handleCloseModalDelete} onConfirm={handleCloseModalDelete} />
-            )}
             {isModalOpenEdit && (
                 <ModalEditSoalPG
                     soalItem={editingSoal}

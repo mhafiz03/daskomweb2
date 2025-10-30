@@ -2,16 +2,13 @@ import { useState, useEffect } from 'react';
 import SoalInputPG from "../Soal/SoalInputPilihanGanda";
 import SoalInputEssay from "../Soal/SoalInputEsai";
 import ModalSaveSoal from "../Modals/ModalSaveSoal";
-import ModalValidationAddSoal from "../Modals/ModalValidationAddSoal";
-import ModalSuccesAddSoal from "../Modals/ModalSuccessAddSoal";
 import { useModulesQuery } from "@/hooks/useModulesQuery";
+import toast from "react-hot-toast";
 
 export default function SoalInputForm() {
     const [isModalSaveOpen, setIsModalSaveOpen] = useState(false);
-    const [isModalValidationOpen, setIsModalValidationOpen] = useState(false);
-    const [isModalSuccesOpenAddSoal, setIsModalSuccesOpenAddSoal] = useState(false);
     const [kategoriSoal, setKategoriSoal] = useState("");
-    const [selectedModul, setSelectedModul] = useState('');
+    const [selectedModul, setSelectedModul] = useState("");
     const {
         data: moduls = [],
         isLoading: modulesLoading,
@@ -33,16 +30,12 @@ export default function SoalInputForm() {
         setSelectedModul("");
     };
 
-    const handleCloseModalValidation = () => {
-        setIsModalValidationOpen(false);
+    const handleValidationError = () => {
+        toast.error("Soal belum ditambahkan!!");
     };
 
-    const handleOpenModalAddSuccesSoal = () => {
-        setIsModalSuccesOpenAddSoal(true);
-    };
-
-    const handleCloseModalAddSuccesSoal = () => {
-        setIsModalSuccesOpenAddSoal(false);
+    const handleSuccessNotification = () => {
+        toast.success("Soal berhasil ditambahkan!!");
     };
 
     return (
@@ -98,8 +91,8 @@ export default function SoalInputForm() {
                         <SoalInputEssay
                             kategoriSoal={kategoriSoal}
                             modul={selectedModul}
-                            onModalSuccess={handleOpenModalAddSuccesSoal}
-                            onModalValidation={() => setIsModalValidationOpen(true)}
+                            onModalSuccess={handleSuccessNotification}
+                            onModalValidation={handleValidationError}
                         />
                     );
                 }
@@ -108,8 +101,8 @@ export default function SoalInputForm() {
                         <SoalInputPG
                             kategoriSoal={kategoriSoal}
                             modul={selectedModul}
-                            onModalSuccess={handleOpenModalAddSuccesSoal}
-                            onModalValidation={() => setIsModalValidationOpen(true)}
+                            onModalSuccess={handleSuccessNotification}
+                            onModalValidation={handleValidationError}
                         />
                     );
                 }
@@ -117,10 +110,6 @@ export default function SoalInputForm() {
             })()}
 
             {isModalSaveOpen && <ModalSaveSoal onClose={handleCloseModalSave} />}
-            {/* Modal Validasi Soal */}
-            {isModalValidationOpen && <ModalValidationAddSoal onClose={handleCloseModalValidation} />}
-            {/* Modal Sukses Tambah Soal */}
-            {isModalSuccesOpenAddSoal && <ModalSuccesAddSoal onClose={handleCloseModalAddSuccesSoal} />}
         </div>
     );
 }

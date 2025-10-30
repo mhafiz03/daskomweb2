@@ -1,5 +1,4 @@
 import { useState } from "react";
-import ModalDeleteSoal from "../Modals/ModalDeleteSoal";
 import ModalEditSoalEssay from "../Modals/ModalEditSoalEssay";
 import trashIcon from "../../../../assets/nav/Icon-Delete.svg";
 import editIcon from "../../../../assets/nav/Icon-Edit.svg";
@@ -7,10 +6,10 @@ import { useSoalQuery, soalQueryKey } from "@/hooks/useSoalQuery";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { send } from "@/lib/wayfinder";
 import { getSoalController } from "@/lib/soalControllers";
+import toast from "react-hot-toast";
 
 export default function SoalInputEssay({ kategoriSoal, modul, onModalSuccess, onModalValidation }) {
     const [addSoal, setAddSoal] = useState({ soal: "" });
-    const [isModalOpenDelete, setIsModalOpenDelete] = useState(false);
     const [isModalOpenEdit, setIsModalOpenEdit] = useState(false);
     const [editingSoal, setEditingSoal] = useState(null);
 
@@ -33,6 +32,9 @@ export default function SoalInputEssay({ kategoriSoal, modul, onModalSuccess, on
         },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: soalQueryKey(kategoriSoal, modul) });
+            if (typeof onModalSuccess === "function") {
+                onModalSuccess();
+            }
         },
         onError: (err) => {
             console.error("Error posting soal:", err);
@@ -47,8 +49,21 @@ export default function SoalInputEssay({ kategoriSoal, modul, onModalSuccess, on
             const { data } = await send(controller.update(soalId), payload);
             return data;
         },
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: soalQueryKey(kategoriSoal, modul) });
+        onSuccess: (_, variables) => {
+            const previousKey = variables?.previousModulKey ?? modul;
+            const nextKey = variables?.nextModulKey ?? previousKey;
+
+            if (previousKey) {
+                queryClient.invalidateQueries({
+                    queryKey: soalQueryKey(kategoriSoal, previousKey),
+                });
+            }
+
+            if (nextKey && nextKey !== previousKey) {
+                queryClient.invalidateQueries({
+                    queryKey: soalQueryKey(kategoriSoal, nextKey),
+                });
+            }
         },
         onError: (err) => {
             console.error("Error updating soal:", err);
@@ -78,16 +93,11 @@ export default function SoalInputEssay({ kategoriSoal, modul, onModalSuccess, on
 
         postSoalMutation.mutate({ soal: addSoal.soal.trim() });
         setAddSoal({ soal: "" });
-        onModalSuccess();
     };
 
     const handleOpenModalDelete = (soalId) => {
         deleteSoalMutation.mutate(soalId);
-        setIsModalOpenDelete(true);
-    };
-
-    const handleCloseModalDelete = () => {
-        setIsModalOpenDelete(false);
+        toast.success("Soal berhasil dihapus!");
     };
 
     const handleOpenModalEdit = (soalItem) => {
@@ -101,12 +111,36 @@ export default function SoalInputEssay({ kategoriSoal, modul, onModalSuccess, on
     };
 
     const handleConfirmEdit = (updatedSoal) => {
+        const previousModulKey =
+            editingSoal?.modul_id !== undefined && editingSoal?.modul_id !== null
+                ? String(editingSoal.modul_id)
+                : modul;
+        const parsedNextModulId =
+            updatedSoal.modul_id !== undefined && updatedSoal.modul_id !== null
+                ? Number(updatedSoal.modul_id)
+                : Number.NaN;
+        const nextModulId = Number.isNaN(parsedNextModulId)
+            ? editingSoal?.modul_id ?? (modul ? Number(modul) : undefined)
+            : parsedNextModulId;
+        const nextModulKey =
+            nextModulId !== undefined && nextModulId !== null
+                ? String(nextModulId)
+                : previousModulKey;
+
+        if (nextModulId === undefined || nextModulId === null) {
+            toast.error("Pilih modul untuk soal ini.");
+            return;
+        }
+
         putSoalMutation.mutate({
             soalId: updatedSoal.id,
             payload: {
-                modul_id: updatedSoal.modul_id,
+                modul_id: nextModulId,
                 soal: updatedSoal.soal,
+                oldSoal: editingSoal?.soal ?? updatedSoal.soal,
             },
+            previousModulKey,
+            nextModulKey,
         });
         handleCloseModalEdit();
     };
@@ -150,7 +184,9 @@ export default function SoalInputEssay({ kategoriSoal, modul, onModalSuccess, on
                                 <div className="flex-1 p-4">
                                     <strong>Soal: {index + 1}</strong>
                                     <br />
-                                    <pre className="ml-2 text-sm text-justify">{soalItem.soal}</pre>
+                                    <pre className="ml-2 text-sm text-justify whitespace-pre-wrap break-words">
+                                        {soalItem.soal}
+                                    </pre>
                                 </div>
                                 <div className="flex space-x-2 p-2">
                                     <button
@@ -172,9 +208,6 @@ export default function SoalInputEssay({ kategoriSoal, modul, onModalSuccess, on
                 )}
             </div>
 
-            {isModalOpenDelete && (
-                <ModalDeleteSoal onClose={handleCloseModalDelete} onConfirm={handleCloseModalDelete} />
-            )}
             {isModalOpenEdit && (
                 <ModalEditSoalEssay
                     soalItem={editingSoal}

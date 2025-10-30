@@ -1,6 +1,7 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import toast from "react-hot-toast";
 import closeIcon from "../../../../assets/modal/iconClose.svg";
+import { useModulesQuery } from "@/hooks/useModulesQuery";
 
 const determineIsCorrect = (soalItem, option, optionIndex) => {
     if (typeof option?.is_correct === "boolean") {
@@ -49,6 +50,21 @@ export default function ModalEditSoalPG({ soalItem, onClose, onConfirm }) {
         return index >= 0 ? index : 0;
     });
 
+    const [selectedModul, setSelectedModul] = useState(
+        soalItem.modul_id ? String(soalItem.modul_id) : ""
+    );
+    const {
+        data: moduls = [],
+        isLoading: modulesLoading,
+        isError: modulesError,
+        error: modulesQueryError,
+    } = useModulesQuery();
+
+    useEffect(() => {
+        setPertanyaan(soalItem.pertanyaan || "");
+        setSelectedModul(soalItem.modul_id ? String(soalItem.modul_id) : "");
+    }, [soalItem]);
+
     const handleOptionChange = (index, value) => {
         setOptions((prev) =>
             prev.map((option, optIndex) =>
@@ -74,6 +90,12 @@ export default function ModalEditSoalPG({ soalItem, onClose, onConfirm }) {
             return;
         }
 
+
+        if (!selectedModul) {
+            toast.error("Pilih modul untuk soal ini.");
+            return;
+        }
+
         onConfirm({
             ...soalItem,
             pertanyaan: pertanyaan.trim(),
@@ -82,6 +104,7 @@ export default function ModalEditSoalPG({ soalItem, onClose, onConfirm }) {
                 text: option.text.trim(),
             })),
             correct_option: correctIndex,
+            modul_id: Number(selectedModul),
         });
 
         toast.success("Soal berhasil diperbarui.");
@@ -131,7 +154,32 @@ export default function ModalEditSoalPG({ soalItem, onClose, onConfirm }) {
                     ))}
                 </div>
 
-                <div className="modal-actions flex justify-end gap-4 mt-6">
+                <div className="mt-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                    <label className="font-medium text-lg mb-1" htmlFor="modul_id">
+                        Modul
+                    </label>
+                    <select
+                        id="modul_id"
+                        className="w-full border border-deepForestGreen rounded-md p-2 shadow-sm"
+                        value={selectedModul}
+                        onChange={(e) => setSelectedModul(e.target.value)}
+                    >
+                        <option value="">- Pilih Modul -</option>
+                        {modulesLoading && <option disabled>Memuat modul...</option>}
+                        {modulesError && (
+                            <option disabled>
+                                {modulesQueryError?.message ?? "Gagal memuat modul"}
+                            </option>
+                        )}
+                        {!modulesLoading && !modulesError && moduls.length > 0
+                            ? moduls.map((modul) => (
+                                <option key={modul.idM} value={String(modul.idM)}>
+                                    {modul.judul}
+                                </option>
+                            ))
+                            : null}
+                    </select>
+
                     <button
                         onClick={handleConfirm}
                         className="px-6 py-2 bg-deepForestGreen text-white font-semibold rounded-md shadow hover:bg-darkGreen transition duration-300"
