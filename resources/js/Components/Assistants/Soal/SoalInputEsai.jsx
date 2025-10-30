@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import ModalEditSoalEssay from "../Modals/ModalEditSoalEssay";
 import trashIcon from "../../../../assets/nav/Icon-Delete.svg";
 import editIcon from "../../../../assets/nav/Icon-Edit.svg";
@@ -7,11 +7,13 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { send } from "@/lib/wayfinder";
 import { getSoalController } from "@/lib/soalControllers";
 import toast from "react-hot-toast";
+import ModalBatchEditSoal from "../Modals/ModalBatchEditSoal";
 
 export default function SoalInputEssay({ kategoriSoal, modul, onModalSuccess, onModalValidation }) {
     const [addSoal, setAddSoal] = useState({ soal: "" });
     const [isModalOpenEdit, setIsModalOpenEdit] = useState(false);
     const [editingSoal, setEditingSoal] = useState(null);
+    const [isBatchModalOpen, setIsBatchModalOpen] = useState(false);
 
     const queryClient = useQueryClient();
     const soalQuery = useSoalQuery(kategoriSoal, modul);
@@ -145,6 +147,19 @@ export default function SoalInputEssay({ kategoriSoal, modul, onModalSuccess, on
         handleCloseModalEdit();
     };
 
+    const batchContent = useMemo(() => {
+        if (!Array.isArray(soalList) || soalList.length === 0) {
+            return "## Daftar Soal\n\n_Belum ada soal untuk ditampilkan._";
+        }
+
+        return soalList
+            .map(
+                (item, index) =>
+                    `Soal ${index + 1}\n\n${item.soal?.trim() ?? "_(kosong)_"}\n`,
+            )
+            .join("\n\n");
+    }, [soalList]);
+
     return (
         <div>
             <label className="block mb-2 font-medium">Soal</label>
@@ -157,6 +172,13 @@ export default function SoalInputEssay({ kategoriSoal, modul, onModalSuccess, on
             />
 
             <div className="flex justify-end space-x-3 mt-3">
+                <button
+                    className="text-md py-1 px-8 font-bold border text-white rounded-md shadow-sm bg-blue-500"
+                    onClick={() => setIsBatchModalOpen(true)}
+                    disabled={soalLoading || soalList.length === 0}
+                >
+                    ++ Batch Edit
+                </button>
                 <button
                     className="text-md py-1 px-8 font-bold border text-white rounded-md shadow-sm bg-deepForestGreen border-deepForestGreen"
                     onClick={handleTambahSoal}
@@ -213,6 +235,14 @@ export default function SoalInputEssay({ kategoriSoal, modul, onModalSuccess, on
                     soalItem={editingSoal}
                     onClose={handleCloseModalEdit}
                     onSave={handleConfirmEdit}
+                />
+            )}
+            {isBatchModalOpen && (
+                <ModalBatchEditSoal
+                    title="Batch Edit Soal Essay"
+                    initialValue={batchContent}
+                    variant="essay"
+                    onClose={() => setIsBatchModalOpen(false)}
                 />
             )}
         </div>

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { send } from "@/lib/wayfinder";
 import { useSoalQuery, soalQueryKey } from "@/hooks/useSoalQuery";
@@ -7,6 +7,7 @@ import ModalEditSoalPG from "../Modals/ModalEditSoalPG";
 import trashIcon from "../../../../assets/nav/Icon-Delete.svg";
 import editIcon from "../../../../assets/nav/Icon-Edit.svg";
 import toast from "react-hot-toast";
+import ModalBatchEditSoal from "../Modals/ModalBatchEditSoal";
 
 const OPTION_COUNT = 4;
 const EMPTY_OPTIONS = Array.from({ length: OPTION_COUNT }, () => "");
@@ -50,6 +51,7 @@ export default function SoalInputPG({ kategoriSoal, modul, onModalSuccess, onMod
     });
     const [isModalOpenEdit, setIsModalOpenEdit] = useState(false);
     const [editingSoal, setEditingSoal] = useState(null);
+    const [isBatchModalOpen, setIsBatchModalOpen] = useState(false);
 
     const queryClient = useQueryClient();
     const soalQuery = useSoalQuery(kategoriSoal, modul);
@@ -202,6 +204,30 @@ export default function SoalInputPG({ kategoriSoal, modul, onModalSuccess, onMod
         handleCloseModalEdit();
     };
 
+    const batchContent = useMemo(() => {
+        if (!Array.isArray(soalList) || soalList.length === 0) {
+            return "## Daftar Soal\n\n_Belum ada soal untuk ditampilkan._";
+        }
+
+        return soalList
+            .map((soalItem, index) => {
+                const options = normalizeOptionsForDisplay(soalItem);
+                const optionsMarkdown = options
+                    .map((option, optionIndex) => {
+                        const isCorrect = isOptionCorrect(soalItem, option, optionIndex);
+                        const indicator = isCorrect ? "[x]" : "[ ]";
+                        const text = option.text?.trim() || "_(kosong)_";
+                        return `- ${indicator} ${text}`;
+                    })
+                    .join("\n");
+
+                const pertanyaan = soalItem.pertanyaan?.trim() ?? "_(kosong)_";
+
+                return `Soal ${index + 1}\n\nPertanyaan:\n${pertanyaan}\n\nPilihan:\n${optionsMarkdown}`;
+            })
+            .join("\n\n");
+    }, [soalList]);
+
     return (
         <div>
             <label className="block font-semibold text-lg mb-2">Soal</label>
@@ -236,6 +262,13 @@ export default function SoalInputPG({ kategoriSoal, modul, onModalSuccess, onMod
             </div>
 
             <div className="flex justify-end space-x-3 mt-4">
+                <button
+                    className="text-md py-1 px-8 font-bold border text-white rounded-md shadow-sm bg-blue-600 disabled:opacity-70"
+                    onClick={() => setIsBatchModalOpen(true)}
+                    disabled={soalQuery.isLoading || soalList.length === 0}
+                >
+                    ++ Batch Edit
+                </button>
                 <button
                     className="text-md py-1 px-8 font-bold border text-white bg-deepForestGreen border-deepForestGreen rounded-md shadow-sm disabled:opacity-70"
                     onClick={handleTambahSoal}
@@ -316,6 +349,14 @@ export default function SoalInputPG({ kategoriSoal, modul, onModalSuccess, onMod
                     soalItem={editingSoal}
                     onClose={handleCloseModalEdit}
                     onConfirm={handleConfirmEdit}
+                />
+            )}
+            {isBatchModalOpen && (
+                <ModalBatchEditSoal
+                    title="Batch Edit Soal Pilihan Ganda"
+                    initialValue={batchContent}
+                    variant="pg"
+                    onClose={() => setIsBatchModalOpen(false)}
                 />
             )}
         </div>
