@@ -87,6 +87,53 @@ export default function SoalInputEssay({ kategoriSoal, modul, onModalSuccess, on
         },
     });
 
+    const batchUpdateMutation = useMutation({
+        mutationFn: async ({ items }) => {
+            if (!controller) {
+                throw new Error(`Kategori soal tidak didukung: ${kategoriSoal}`);
+            }
+
+            const existingItems = soalList ?? [];
+            const maxLength = Math.max(existingItems.length, items?.length ?? 0);
+
+            for (let i = 0; i < maxLength; i += 1) {
+                const existingItem = existingItems[i] ?? null;
+                const desiredItem = items?.[i] ?? null;
+                const desiredText = desiredItem?.soal?.trim() ?? "";
+
+                if (existingItem && desiredText) {
+                    if (existingItem.soal !== desiredText) {
+                        await send(controller.update(existingItem.id), {
+                            modul_id: existingItem.modul_id,
+                            soal: desiredText,
+                            oldSoal: existingItem.soal,
+                        });
+                    }
+                } else if (existingItem && !desiredText) {
+                    await send(controller.destroy(existingItem.id));
+                } else if (!existingItem && desiredText) {
+                    if (!modul) {
+                        throw new Error("Modul belum dipilih.");
+                    }
+
+                    await send(controller.store(modul), { soal: desiredText });
+                }
+            }
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: soalQueryKey(kategoriSoal, modul) });
+            toast.success("Soal berhasil diperbarui.");
+        },
+        onError: (error) => {
+            console.error("Error batch updating soal:", error);
+            toast.error(
+                error?.response?.data?.message ??
+                    error?.message ??
+                    "Gagal memperbarui soal.",
+            );
+        },
+    });
+
     const handleTambahSoal = () => {
         if (!addSoal.soal.trim()) {
             onModalValidation();
@@ -160,6 +207,16 @@ export default function SoalInputEssay({ kategoriSoal, modul, onModalSuccess, on
             .join("\n\n");
     }, [soalList]);
 
+    const handleBatchSubmit = async ({ items }) => {
+        const normalizedItems = Array.isArray(items)
+            ? items.map((item) => ({
+                  soal: (item?.soal ?? "").trim(),
+              }))
+            : [];
+
+        await batchUpdateMutation.mutateAsync({ items: normalizedItems });
+    };
+
     return (
         <div>
             <label className="block mb-2 font-medium">Soal</label>
@@ -173,11 +230,11 @@ export default function SoalInputEssay({ kategoriSoal, modul, onModalSuccess, on
 
             <div className="flex justify-end space-x-3 mt-3">
                 <button
-                    className="text-md py-1 px-8 font-bold border text-white rounded-md shadow-sm bg-blue-500"
+                    className="text-md py-1 px-8 font-bold border text-white rounded-md shadow-sm bg-softRed disabled:opacity-60"
                     onClick={() => setIsBatchModalOpen(true)}
                     disabled={soalLoading || soalList.length === 0}
                 >
-                    ++ Batch Edit
+                    Batch Edit
                 </button>
                 <button
                     className="text-md py-1 px-8 font-bold border text-white rounded-md shadow-sm bg-deepForestGreen border-deepForestGreen"
@@ -243,6 +300,7 @@ export default function SoalInputEssay({ kategoriSoal, modul, onModalSuccess, on
                     initialValue={batchContent}
                     variant="essay"
                     onClose={() => setIsBatchModalOpen(false)}
+                    onSubmit={handleBatchSubmit}
                 />
             )}
         </div>

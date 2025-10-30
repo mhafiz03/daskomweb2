@@ -15,9 +15,10 @@ const tabs = [
 const proseClassName =
     "prose max-w-none prose-headings:text-darkGreen prose-strong:text-darkBrown prose-li:marker:text-darkBrown whitespace-pre-wrap break-words";
 
-export default function ModalBatchEditSoal({ title, initialValue, variant = "essay", onClose }) {
+export default function ModalBatchEditSoal({ title, initialValue, variant = "essay", onClose, onSubmit }) {
     const [activeTab, setActiveTab] = useState("text");
     const [content, setContent] = useState(initialValue ?? "");
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     useEffect(() => {
         setContent(initialValue ?? "");
@@ -37,12 +38,14 @@ export default function ModalBatchEditSoal({ title, initialValue, variant = "ess
                 }
 
                 if (!match) {
+                    const rawCode = String(children).replace(/\n$/, "");
+
                     return (
                         <pre
                             className="whitespace-pre-wrap rounded-xl bg-gray-900 px-5 py-4 text-sm text-gray-100"
                             {...props}
                         >
-                            <code>{children}</code>
+                            <code>{rawCode}</code>
                         </pre>
                     );
                 }
@@ -50,7 +53,7 @@ export default function ModalBatchEditSoal({ title, initialValue, variant = "ess
                 return (
                     <SyntaxHighlighter
                         style={oneDark}
-                        language='c'
+                        language={match[1] ?? "text"}
                         showLineNumbers
                         PreTag="div"
                         customStyle={{
@@ -171,6 +174,26 @@ export default function ModalBatchEditSoal({ title, initialValue, variant = "ess
         />
     );
 
+    const handleSubmit = async () => {
+        if (!onSubmit) {
+            onClose();
+            return;
+        }
+
+        setIsSubmitting(true);
+        try {
+            await onSubmit({
+                rawContent: content,
+                items: previewItems,
+            });
+            onClose();
+        } catch (error) {
+            console.error("Batch edit submission failed:", error);
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+
     return (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
             <div className="bg-white rounded-lg w-full max-w-5xl max-h-[90vh] shadow-2xl overflow-hidden flex flex-col">
@@ -209,6 +232,18 @@ export default function ModalBatchEditSoal({ title, initialValue, variant = "ess
                         </div>
                     )}
                 </div>
+                {typeof onSubmit === "function" && (
+                    <div className="border-t border-softGray px-6 py-4 flex justify-end">
+                        <button
+                            type="button"
+                            onClick={handleSubmit}
+                            disabled={isSubmitting}
+                            className="px-5 py-2 rounded-md bg-deepForestGreen text-white font-semibold disabled:opacity-60"
+                        >
+                            {isSubmitting ? "Menyimpan..." : "Simpan Perubahan"}
+                        </button>
+                    </div>
+                )}
             </div>
         </div>
     );
