@@ -259,7 +259,7 @@ export default function AssisstantNav({ asisten, permission_name = [], roleName 
                 <div
                     className={`flex h-[91vh] flex-col ${
                         isCollapsed ? "w-12" : "w-[260px]"
-                    } border border-depth bg-depth-card text-left text-depth-primary font-depth font-semibold shadow-depth-lg transition-all duration-300 ml-12 my-[27px] rounded-depth-lg`}
+                    } border border-depth glass-surface text-left text-depth-primary font-depth font-semibold shadow-depth-lg transition-all duration-300 ml-12 my-[27px] rounded-depth-lg`}
                 >
                     <div className="relative flex h-12 items-center justify-end">
                         <button

@@ -23,6 +23,8 @@
         --depth-button-text: #ffffff;
         --depth-heading-gradient-start: hsl(166, 80%, 32%);
         --depth-heading-gradient-end: hsl(46, 90%, 48%);
+        --typewriter-cursor-color: hsla(166, 80%, 30%, 0.9);
+        --typewriter-icon-color: hsl(166, 80%, 38%);
         --depth-shadow-sm: inset 0 1px 1px #ffffff80, 0 1px 2px #0000001a, 0 2px 4px #0000001a;
         --depth-shadow-md: inset 0 1px 1px #ffffff80, 0 2px 4px #0000001a, 0 4px 8px #0000001a;
         --depth-shadow-lg: inset 0 1px 1px #ffffff80, 0 4px 6px #0000001a, 0 8px 16px #0000001a;
@@ -53,6 +55,8 @@
         --depth-button-text: hsl(0, 0%, 95%);
         --depth-heading-gradient-start: hsl(166, 80%, 68%);
         --depth-heading-gradient-end: hsl(46, 90%, 70%);
+        --typewriter-cursor-color: hsla(166, 80%, 88%, 0.9);
+        --typewriter-icon-color: hsl(166, 80%, 74%);
         --depth-shadow-sm: inset 0 1px 1px #ffffff1a, 0 1px 2px #0000004d, 0 2px 4px #0000004d;
         --depth-shadow-md: inset 0 1px 1px #ffffff1a, 0 2px 4px #0000004d, 0 4px 8px #0000004d;
         --depth-shadow-lg: inset 0 1px 1px #ffffff1a, 0 4px 6px #0000004d, 0 8px 16px #0000004d;
@@ -109,6 +113,46 @@
         -webkit-background-clip: text;
         background-clip: text;
         color: transparent;
+    }
+
+    .typewriter-wrapper {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .typewriter-text {
+        display: inline-block;
+        white-space: nowrap;
+    }
+
+    .typewriter-cursor {
+        display: inline-block;
+        width: 0.4em;
+        height: 1.1em;
+        background: var(--typewriter-cursor-color);
+        box-shadow: 0 0 0.75rem rgba(0, 0, 0, 0.18);
+        animation: typewriter-blink 1s steps(1, end) infinite;
+    }
+
+    .typewriter-terminal-icon {
+        color: var(--typewriter-icon-color);
+        filter: drop-shadow(0 0.55rem 1.4rem rgba(0, 0, 0, 0.18));
+        transition: color 300ms ease, filter 300ms ease;
+    }
+
+    .typewriter-wrapper:hover .typewriter-terminal-icon {
+        filter: drop-shadow(0 0.75rem 1.8rem rgba(0, 0, 0, 0.24));
+    }
+}
+
+@keyframes typewriter-blink {
+    0%, 45% {
+        opacity: 1;
+    }
+
+    50%, 100% {
+        opacity: 0;
     }
 }
 
