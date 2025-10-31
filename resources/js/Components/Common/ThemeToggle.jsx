@@ -56,7 +56,7 @@ export default function ThemeToggle({ className = "", storageKey = DEFAULT_THEME
         <button
             type="button"
             onClick={toggleTheme}
-            className={`flex h-10 w-10 items-center justify-center rounded-depth-lg border border-depth bg-depth-interactive text-depth-primary shadow-depth-sm transition hover:shadow-depth-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[var(--depth-color-primary)] focus:ring-offset-[var(--depth-color-card)] ${className}`}
+            className={`glass-button flex h-10 w-10 items-center justify-center rounded-depth-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[var(--depth-color-primary)] focus:ring-offset-[var(--depth-color-card)] ${className}`}
             aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
         >
             {isDark ? (

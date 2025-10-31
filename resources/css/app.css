@@ -14,6 +14,15 @@
         --depth-text-primary: hsl(220, 25%, 20%);
         --depth-text-secondary: hsl(220, 10%, 45%);
         --depth-border: hsl(220, 15%, 90%);
+        --depth-gradient-background: radial-gradient(circle at 20% 20%, hsla(166, 80%, 30%, 0.15), transparent 55%), radial-gradient(circle at 80% 0%, hsla(46, 80%, 45%, 0.18), transparent 55%);
+        --depth-gradient-surface-start: hsla(166, 80%, 35%, 0.2);
+        --depth-gradient-surface-end: hsla(106, 50%, 96%, 0.65);
+        --depth-glass-border: hsla(166, 45%, 35%, 0.35);
+        --depth-button-gradient-start: hsla(166, 80%, 35%, 0.92);
+        --depth-button-gradient-end: hsla(46, 90%, 52%, 0.92);
+        --depth-button-text: #ffffff;
+        --depth-heading-gradient-start: hsl(166, 80%, 32%);
+        --depth-heading-gradient-end: hsl(46, 90%, 48%);
         --depth-shadow-sm: inset 0 1px 1px #ffffff80, 0 1px 2px #0000001a, 0 2px 4px #0000001a;
         --depth-shadow-md: inset 0 1px 1px #ffffff80, 0 2px 4px #0000001a, 0 4px 8px #0000001a;
         --depth-shadow-lg: inset 0 1px 1px #ffffff80, 0 4px 6px #0000001a, 0 8px 16px #0000001a;
@@ -35,6 +44,15 @@
         --depth-text-primary: hsl(220, 15%, 95%);
         --depth-text-secondary: hsl(220, 10%, 65%);
         --depth-border: hsl(220, 25%, 25%);
+        --depth-gradient-background: radial-gradient(circle at 5% 10%, hsla(166, 80%, 70%, 0.12), transparent 55%), radial-gradient(circle at 90% 0%, hsla(46, 80%, 70%, 0.12), transparent 55%);
+        --depth-gradient-surface-start: hsla(166, 80%, 65%, 0.12);
+        --depth-gradient-surface-end: hsla(106, 50%, 15%, 0.7);
+        --depth-glass-border: hsla(166, 70%, 65%, 0.25);
+        --depth-button-gradient-start: hsla(166, 80%, 62%, 0.65);
+        --depth-button-gradient-end: hsla(46, 90%, 60%, 0.65);
+        --depth-button-text: hsl(0, 0%, 95%);
+        --depth-heading-gradient-start: hsl(166, 80%, 68%);
+        --depth-heading-gradient-end: hsl(46, 90%, 70%);
         --depth-shadow-sm: inset 0 1px 1px #ffffff1a, 0 1px 2px #0000004d, 0 2px 4px #0000004d;
         --depth-shadow-md: inset 0 1px 1px #ffffff1a, 0 2px 4px #0000004d, 0 4px 8px #0000004d;
         --depth-shadow-lg: inset 0 1px 1px #ffffff1a, 0 4px 6px #0000004d, 0 8px 16px #0000004d;
@@ -45,35 +63,84 @@
 
     body {
         background-color: var(--depth-color-background);
+        background-image: var(--depth-gradient-background);
+        background-repeat: no-repeat;
+        background-size: 160% 160%;
+        background-attachment: fixed;
         color: var(--depth-text-primary);
         font-family: var(--depth-font-family);
-        transition: background-color 300ms ease, color 300ms ease;
+        transition: background-color 300ms ease, color 300ms ease, background-image 400ms ease;
+    }
+}
+
+@layer components {
+    .glass-surface {
+        background: linear-gradient(135deg, var(--depth-gradient-surface-start), var(--depth-gradient-surface-end));
+        border: 1px solid var(--depth-glass-border);
+        box-shadow: var(--depth-shadow-md);
+        backdrop-filter: blur(18px);
+        -webkit-backdrop-filter: blur(18px);
+        transition: border-color 300ms ease, box-shadow 300ms ease, background 400ms ease;
+    }
+
+    .glass-surface:hover {
+        box-shadow: var(--depth-shadow-lg);
+    }
+
+    .glass-button {
+        background-image: linear-gradient(135deg, var(--depth-button-gradient-start), var(--depth-button-gradient-end));
+        background-size: 180% 180%;
+        color: var(--depth-button-text);
+        border: 1px solid var(--depth-glass-border);
+        box-shadow: var(--depth-shadow-sm);
+        backdrop-filter: blur(14px);
+        -webkit-backdrop-filter: blur(14px);
+        transition: transform 250ms ease, box-shadow 300ms ease, background-position 450ms ease, filter 300ms ease;
+    }
+
+    .glass-button:hover {
+        background-position: 100% 0;
+        box-shadow: var(--depth-shadow-md);
+        filter: brightness(1.05);
+    }
+
+    .gradient-heading {
+        background-image: linear-gradient(120deg, var(--depth-heading-gradient-start), var(--depth-heading-gradient-end));
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
     }
 }
 
 @layer utilities {
     .bg-depth-background {
         background-color: var(--depth-color-background);
+        transition: background-color 300ms ease;
     }
 
     .bg-depth-card {
         background-color: var(--depth-color-card);
+        transition: background-color 300ms ease;
     }
 
     .bg-depth-interactive {
         background-color: var(--depth-color-interactive);
+        transition: background-color 300ms ease;
     }
 
     .text-depth-primary {
         color: var(--depth-text-primary);
+        transition: color 300ms ease;
     }
 
     .text-depth-secondary {
         color: var(--depth-text-secondary);
+        transition: color 300ms ease;
     }
 
     .border-depth {
         border-color: var(--depth-border);
+        transition: border-color 300ms ease;
     }
 
     .shadow-depth-sm {

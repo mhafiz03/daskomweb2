@@ -85,12 +85,12 @@ export default function LandingPage() {
 
     return (
         <>
-            <Head title="Landing Page - Daskom Laboratory" />
+            <Head title="Daskom Laboratory" />
             <Toaster />
             <LandingNavbar onAboutClick={openAboutModal} onContactClick={openContactModal} />
             <MainLanding onGetStartedClick={() => openAuthModal('login')} />
             <LandingSosmed />
-            <LandingFooter />
+            {/* <LandingFooter /> */}
             
             <AuthModal 
                 isOpen={authModal.isOpen}

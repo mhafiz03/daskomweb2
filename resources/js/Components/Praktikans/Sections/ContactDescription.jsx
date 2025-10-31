@@ -8,7 +8,7 @@ export default function ContactDescription() {
                     <h1 className="flex mt-2 mb-2 font-bold">{section.name}</h1>
                     {section.details.map((detail, detailIndex) => (
                         <div key={detailIndex} className="flex items-center mb-1">
-                            <img className="w-auto h-7 mr-3" src={detail.src} alt={detail.alt} />
+                            <img className="w-auto h-7 mr-3 dark:invert" src={detail.src} alt={detail.alt} />
                             <span className="text-sm">{detail.text}</span>
                         </div>
                     ))}
