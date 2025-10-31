@@ -55,19 +55,18 @@ export default function ThemeToggle({ className = "" }) {
         <button
             type="button"
             onClick={toggleTheme}
-            className={`flex items-center gap-2 rounded-depth-full bg-depth-interactive px-3 py-2 text-sm font-medium text-depth-primary shadow-depth-sm transition duration-200 hover:shadow-depth-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[var(--depth-color-primary)] focus:ring-offset-[var(--depth-color-card)] ${className}`}
+            className={`flex items-center justify-center rounded-depth-full bg-depth-interactive p-2 text-depth-primary shadow-depth-sm transition duration-200 hover:shadow-depth-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[var(--depth-color-primary)] focus:ring-offset-[var(--depth-color-card)] ${className}`}
             aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
         >
-            <span className="relative h-5 w-10 rounded-depth-full bg-depth-card shadow-depth-inset transition">
-                <span
-                    className={`absolute top-1/2 h-4 w-4 -translate-y-1/2 transform rounded-depth-full bg-depth-interactive shadow-depth-sm transition-all ${
-                        isDark ? "-translate-x-5" : "translate-x-1"
-                    }`}
-                />
-            </span>
-            <span className="ml-1 text-xs uppercase tracking-wide text-depth-secondary">
-                {isDark ? "Dark" : "Light"}
-            </span>
+            {isDark ? (
+                <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                </svg>
+            ) : (
+                <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                </svg>
+            )}
         </button>
     );
 }

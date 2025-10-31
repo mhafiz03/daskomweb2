@@ -17,11 +17,11 @@ const PHASE_SEQUENCE = [
 ];
 
 const STATUS_LABELS = {
-    running: "Sedang berjalan",
-    paused: "Terjeda",
-    completed: "Selesai",
-    exited: "Dihentikan",
-    idle: "Belum dimulai",
+    running: "Running",
+    paused: "Paused",
+    completed: "Finished",
+    exited: "Stopped",
+    idle: "Not Yet Started",
 };
 
 const formatDuration = (totalSeconds = 0) => {
@@ -797,9 +797,22 @@ export default function ContentPraktikum() {
                                             </div>
                                             <button
                                                 onClick={() => handleSwitchToRunning(p)}
-                                                className="ml-3 whitespace-nowrap rounded-depth-md bg-[var(--depth-color-primary)] px-4 py-2 text-sm font-semibold text-white shadow-depth-sm transition hover:-translate-y-0.5 hover:shadow-depth-md"
+                                                className="ml-3 rounded-depth-md bg-[var(--depth-color-primary)] px-3 py-2 text-sm font-semibold text-white shadow-depth-sm transition hover:-translate-y-0.5 hover:shadow-depth-md"
                                             >
-                                                Buka
+                                                <svg
+                                                    xmlns="http://www.w3.org/2000/svg"
+                                                    fill="none"
+                                                    viewBox="0 0 24 24"
+                                                    strokeWidth={2}
+                                                    stroke="currentColor"
+                                                    className="h-4 w-4"
+                                                >
+                                                    <path
+                                                        strokeLinecap="round"
+                                                        strokeLinejoin="round"
+                                                        d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"
+                                                    />
+                                                </svg>
                                             </button>
                                         </div>
                                     );
