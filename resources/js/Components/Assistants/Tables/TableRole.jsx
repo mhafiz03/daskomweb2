@@ -224,7 +224,7 @@ export default function TableManageRole({ asisten }) {
                                                 onClick={() => handleOpenModalEdit(item.kode)}
                                                 className="inline-flex items-center gap-2 rounded-depth-md border border-depth bg-depth-interactive px-3 py-1.5 text-xs font-semibold text-depth-primary shadow-depth-sm transition hover:-translate-y-0.5 hover:shadow-depth-md"
                                             >
-                                                <img src={editIcon} alt="Edit" className="h-4 w-4" />
+                                                <img src={editIcon} alt="Edit" className="edit-icon-filter h-4 w-4" />
                                             </button>
                                         </td>
                                     </tr>

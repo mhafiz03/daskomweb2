@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import toast from "react-hot-toast";
 import closeIcon from "../../../../assets/modal/iconClose.svg";
+import deleteIcon from "../../../../assets/nav/Icon-Delete.svg";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { send } from "@/lib/wayfinder";
 import { update as updateKelas } from "@/actions/App/Http/Controllers/API/KelasController";
@@ -284,31 +285,16 @@ export default function ModalEditPlotting({ onClose, kelas }) {
                                 }
                             }}
                             placeholder="Masukkan kode asisten"
-                            className="w-full rounded-depth-md border border-depth bg-depth-card px-3 py-2 text-sm text-depth-primary shadow-depth-sm transition focus:border-[var(--depth-color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)] focus:ring-offset-0 uppercase md:w-1/2"
+                            className="w-full rounded-depth-md border border-depth bg-depth-card px-3 py-2 text-sm text-depth-primary shadow-depth-sm transition focus:border-[var(--depth-color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)] focus:ring-offset-0 uppercase"
                         />
                         <button
                             type="button"
                             onClick={handleAddAsisten}
-                            className="rounded-depth-md bg-[var(--depth-color-primary)] px-4 py-2 text-sm font-semibold text-white shadow-depth-sm transition hover:-translate-y-0.5 hover:shadow-depth-md"
+                            className="w-full rounded-depth-md bg-[var(--depth-color-primary)] px-4 py-2 text-sm font-semibold text-white shadow-depth-sm transition hover:-translate-y-0.5 hover:shadow-depth-md md:w-auto"
                         >
                             Tambah
                         </button>
-                        <div className="flex items-center gap-2 md:ml-auto">
-                            <span className="text-xs font-semibold text-depth-secondary">English</span>
-                            <button
-                                type="button"
-                                onClick={toggleEnglish}
-                                className={`flex h-6 w-11 items-center rounded-depth-full border border-depth bg-depth-card p-1 transition ${
-                                    isEnglish ? "text-white" : "text-depth-secondary"
-                                }`}
-                            >
-                                <span
-                                    className={`h-4 w-4 rounded-depth-full bg-depth-interactive shadow-depth-sm transition-transform ${
-                                        isEnglish ? "translate-x-5 bg-[var(--depth-color-primary)]" : "translate-x-0"
-                                    }`}
-                                />
-                            </button>
-                        </div>
+                        
                     </div>
 
                     <div className="max-h-48 overflow-y-auto">
@@ -338,10 +324,14 @@ export default function ModalEditPlotting({ onClose, kelas }) {
                                                     <button
                                                         type="button"
                                                         onClick={() => handleRemoveAsisten(jadwalId)}
-                                                        className="text-xs font-semibold text-red-400 hover:underline"
+                                                        className="group rounded-depth-md p-1 transition hover:bg-red-50 dark:hover:bg-red-900/20"
                                                         disabled={!jadwalId}
                                                     >
-                                                        Hapus
+                                                        <img 
+                                                            src={deleteIcon} 
+                                                            alt="Hapus" 
+                                                            className="h-4 w-4 opacity-70 transition group-hover:opacity-100" 
+                                                        />
                                                     </button>
                                                 </li>
                                             );
@@ -356,6 +346,22 @@ export default function ModalEditPlotting({ onClose, kelas }) {
                 </div>
 
                 <div className="flex justify-end gap-3">
+                    <div className="flex items-center gap-2 md:ml-auto">
+                            <span className="text-xs font-semibold text-depth-secondary">English</span>
+                            <button
+                                type="button"
+                                onClick={toggleEnglish}
+                                className={`flex h-6 w-11 items-center rounded-depth-full border border-depth bg-depth-card p-1 transition ${
+                                    isEnglish ? "text-white" : "text-depth-secondary"
+                                }`}
+                            >
+                                <span
+                                    className={`h-4 w-4 rounded-depth-full bg-depth-interactive shadow-depth-sm transition-transform ${
+                                        isEnglish ? "translate-x-5 bg-[var(--depth-color-primary)]" : "translate-x-0"
+                                    }`}
+                                />
+                            </button>
+                        </div>
                     <button
                         type="button"
                         onClick={onClose}

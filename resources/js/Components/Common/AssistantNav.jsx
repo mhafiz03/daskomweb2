@@ -234,13 +234,17 @@ export default function AssisstantNav({ asisten, permission_name = [], roleName 
     const activeLinkClass =
         "bg-[var(--depth-color-primary)] text-white shadow-depth-md hover:bg-[var(--depth-color-primary)]";
     const inactiveLinkClass = "text-depth-primary hover:bg-depth-interactive";
-    const labelVisibilityClass = ''; isCollapsed
+    const labelVisibilityClass = isCollapsed
         ? "opacity-0 delay-0"
         : isAnimating
         ? "opacity-0"
         : "opacity-100 delay-300";
     const navLabelBaseClass = `text-sm font-medium transition-opacity duration-300 whitespace-nowrap ${labelVisibilityClass}`;
-    const navIconClass = "h-6 w-6 flex-shrink-0 transition-opacity duration-300";
+    const navIconClass = "h-6 w-6 flex-shrink-0 transition-all duration-300";
+
+    // Helper function to get icon filter classes based on state
+    const getIconFilterClass = (isActive) =>
+        isActive ? "nav-icon-filter-active" : "nav-icon-filter";
 
     const isActiveItem = (item) => {
         const matchesComponent = item.components?.some((name) => component === name);
@@ -255,7 +259,7 @@ export default function AssisstantNav({ asisten, permission_name = [], roleName 
                 <div
                     className={`flex h-[91vh] flex-col ${
                         isCollapsed ? "w-12" : "w-[260px]"
-                    } border border-depth bg-depth-card text-left text-depth-primary font-depth font-semibold shadow-depth-lg transition-all duration-300 mx-[8px] my-[27px] rounded-depth-lg`}
+                    } border border-depth bg-depth-card text-left text-depth-primary font-depth font-semibold shadow-depth-lg transition-all duration-300 ml-12 my-[27px] rounded-depth-lg`}
                 >
                     <div className="relative flex h-12 items-center justify-end">
                         <button
@@ -299,7 +303,7 @@ export default function AssisstantNav({ asisten, permission_name = [], roleName 
                                 }`;
                                 const iconClasses = `${navIconClass} ${
                                     isActive ? "opacity-100" : "opacity-70 group-hover:opacity-100"
-                                }`;
+                                } ${getIconFilterClass(isActive)}`;
                                 const labelClasses = `${navLabelBaseClass} ${
                                     isActive ? "text-white" : "text-depth-primary"
                                 }`;
@@ -328,7 +332,7 @@ export default function AssisstantNav({ asisten, permission_name = [], roleName 
                                         className={`${navLinkBaseClass} ${inactiveLinkClass}`}
                                     >
                                         <img
-                                            className={`${navIconClass} opacity-80 group-hover:opacity-100`}
+                                            className={`${navIconClass} opacity-80 group-hover:opacity-100 ${getIconFilterClass(false)}`}
                                             src={announcementIcon}
                                             alt="open jawaban"
                                         />
@@ -348,7 +352,7 @@ export default function AssisstantNav({ asisten, permission_name = [], roleName 
                                         className={`${navLinkBaseClass} ${inactiveLinkClass}`}
                                     >
                                         <img
-                                            className={`${navIconClass} opacity-80 group-hover:opacity-100`}
+                                            className={`${navIconClass} opacity-80 group-hover:opacity-100 ${getIconFilterClass(false)}`}
                                             src={tpModuleIcon}
                                             alt="configuration"
                                         />
@@ -363,7 +367,7 @@ export default function AssisstantNav({ asisten, permission_name = [], roleName 
                                     className={`${navLinkBaseClass} ${inactiveLinkClass}`}
                                 >
                                     <img
-                                        className={`${navIconClass} opacity-80 group-hover:opacity-100`}
+                                        className={`${navIconClass} opacity-80 group-hover:opacity-100 ${getIconFilterClass(false)}`}
                                         src={changePassIcon}
                                         alt="change password"
                                     />
@@ -379,7 +383,7 @@ export default function AssisstantNav({ asisten, permission_name = [], roleName 
                                     className={`${navLinkBaseClass} ${inactiveLinkClass}`}
                                 >
                                     <img
-                                        className={`${navIconClass} opacity-80 group-hover:opacity-100`}
+                                        className={`${navIconClass} opacity-80 group-hover:opacity-100 ${getIconFilterClass(false)}`}
                                         src={logoutIcon}
                                         alt="logout"
                                     />

@@ -122,7 +122,7 @@ export default function ModalKonfigurasi({ onClose }) {
                     {/* Header */}
                     <div className="depth-modal-header">
                         <h2 className="depth-modal-title flex items-center gap-2">
-                            <img className="h-6 w-6" src={editIcon} alt="praktikum" /> Configuration
+                            <img className="edit-icon-filter h-6 w-6" src={editIcon} alt="praktikum" /> Configuration
                         </h2>
                         {/* Tombol X untuk tutup */}
                         <button onClick={onClose} type="button" className="depth-modal-close">

@@ -168,4 +168,26 @@
         color: var(--depth-text-primary);
         transform: translateY(-1px);
     }
+
+    .nav-icon-filter {
+        filter: brightness(0) saturate(100%);
+    }
+
+    :root[data-theme="dark"] .nav-icon-filter,
+    [data-theme="dark"] .nav-icon-filter {
+        filter: none;
+    }
+
+    .nav-icon-filter-active {
+        filter: brightness(0) invert(1);
+    }
+
+    .edit-icon-filter {
+        filter: none;
+    }
+
+    :root[data-theme="dark"] .edit-icon-filter,
+    [data-theme="dark"] .edit-icon-filter {
+        filter: brightness(0) invert(1);
+    }
 }

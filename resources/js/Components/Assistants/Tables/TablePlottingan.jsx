@@ -128,7 +128,7 @@ export default function TablePlottingan() {
                                         onClick={() => handleOpenModalEdit(kelasItem)}
                                         className="flex h-9 w-9 items-center justify-center rounded-depth-md border border-depth bg-depth-interactive shadow-depth-sm transition hover:-translate-y-0.5 hover:shadow-depth-md"
                                     >
-                                        <img className="h-4 w-4" src={editIcon} alt="edit icon" />
+                                        <img className="edit-icon-filter h-4 w-4" src={editIcon} alt="edit icon" />
                                     </button>
                                     <button
                                         type="button"

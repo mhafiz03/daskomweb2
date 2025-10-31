@@ -46,7 +46,7 @@ export default function CardAssistant({ asisten }) {
                             className="group inline-flex items-center gap-2 rounded-depth-full border border-transparent bg-depth-interactive px-4 py-2 text-sm font-semibold text-depth-secondary shadow-depth-sm transition hover:-translate-y-0.5 hover:shadow-depth-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--depth-color-primary)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--depth-color-card)]"
                         >
                             <img
-                                className="h-4 w-4 opacity-70 transition group-hover:opacity-100"
+                                className="edit-icon-filter h-4 w-4 opacity-70 transition group-hover:opacity-100"
                                 src={editIcon}
                                 alt="Edit profil"
                             />

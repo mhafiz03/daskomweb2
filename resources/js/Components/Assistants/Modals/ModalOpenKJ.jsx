@@ -91,7 +91,7 @@ export default function ModalOpenKJ({ onClose, modules }) {
                 <div className="depth-modal-container max-w-4xl">
                     <div className="depth-modal-header">
                         <h2 className="depth-modal-title flex items-center gap-2">
-                            <img className="h-6 w-6" src={editIcon} alt="praktikum" /> LOCK / UNLOCK
+                            <img className="edit-icon-filter h-6 w-6" src={editIcon} alt="praktikum" /> LOCK / UNLOCK
                         </h2>
                         <button
                             onClick={onClose}

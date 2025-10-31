@@ -103,7 +103,11 @@ export default function PraktikanNav({ praktikan }) {
         ? "opacity-0"
         : "opacity-100 delay-300";
     const navLabelBaseClass = `text-sm font-medium transition-opacity duration-300 whitespace-nowrap ${labelVisibilityClass}`;
-    const navIconClass = "h-6 w-6 flex-shrink-0 transition-opacity duration-300";
+    const navIconClass = "h-6 w-6 flex-shrink-0 transition-all duration-300";
+
+    // Helper function to get icon filter classes based on state
+    const getIconFilterClass = (isActive) =>
+        isActive ? "nav-icon-filter-active" : "nav-icon-filter";
 
     const genericHamburgerLine = `h-1 w-6 my-1 rounded-full bg-white transition ease transform duration-300`;
 
@@ -149,7 +153,7 @@ export default function PraktikanNav({ praktikan }) {
                                 }`;
                                 const iconClasses = `${navIconClass} ${
                                     isActive ? "opacity-100" : "opacity-70 group-hover:opacity-100"
-                                }`;
+                                } ${getIconFilterClass(isActive)}`;
                                 const labelClasses = `${navLabelBaseClass} ${
                                     isActive ? "text-white" : "text-depth-primary"
                                 }`;
@@ -184,7 +188,7 @@ export default function PraktikanNav({ praktikan }) {
                                     onClick={() => setIsPasswordModalOpen(true)}
                                 >
                                     <img
-                                        className={`${navIconClass} opacity-70 group-hover:opacity-100`}
+                                        className={`${navIconClass} opacity-70 group-hover:opacity-100 ${getIconFilterClass(false)}`}
                                         src={changePassIcon}
                                         alt="change password"
                                     />
@@ -201,7 +205,7 @@ export default function PraktikanNav({ praktikan }) {
                                     onClick={() => setShowLogoutModal(true)}
                                 >
                                     <img
-                                        className={`${navIconClass} opacity-70 group-hover:opacity-100`}
+                                        className={`${navIconClass} opacity-70 group-hover:opacity-100 ${getIconFilterClass(false)}`}
                                         src={logoutIcon}
                                         alt="logout"
                                     />

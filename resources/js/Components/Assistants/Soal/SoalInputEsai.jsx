@@ -302,7 +302,7 @@ export default function SoalInputEssay({ kategoriSoal, modul, modules = [], onMo
                                         className="flex h-9 w-9 items-center justify-center rounded-depth-md border border-depth bg-depth-interactive shadow-depth-sm transition duration-150 hover:shadow-depth-md"
                                         type="button"
                                     >
-                                        <img className="h-4 w-4" src={editIcon} alt="Edit" />
+                                        <img className="edit-icon-filter h-4 w-4" src={editIcon} alt="Edit" />
                                     </button>
                                     <button
                                         onClick={() => handleOpenModalDelete(soalItem.id)}
