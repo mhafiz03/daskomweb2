@@ -9,7 +9,7 @@ import { getSoalController } from "@/lib/soalControllers";
 import toast from "react-hot-toast";
 import ModalBatchEditSoal from "../Modals/ModalBatchEditSoal";
 
-export default function SoalInputEssay({ kategoriSoal, modul, onModalSuccess, onModalValidation }) {
+export default function SoalInputEssay({ kategoriSoal, modul, modules = [], onModalSuccess, onModalValidation, onChangeModul }) {
     const [addSoal, setAddSoal] = useState({ soal: "" });
     const [isModalOpenEdit, setIsModalOpenEdit] = useState(false);
     const [editingSoal, setEditingSoal] = useState(null);
@@ -88,9 +88,14 @@ export default function SoalInputEssay({ kategoriSoal, modul, onModalSuccess, on
     });
 
     const batchUpdateMutation = useMutation({
-        mutationFn: async ({ items }) => {
+        mutationFn: async ({ items, modulId }) => {
             if (!controller) {
                 throw new Error(`Kategori soal tidak didukung: ${kategoriSoal}`);
+            }
+
+            const targetModulId = Number(modulId ?? modul);
+            if (!targetModulId || Number.isNaN(targetModulId)) {
+                throw new Error("Modul belum dipilih.");
             }
 
             const existingItems = soalList ?? [];
@@ -102,9 +107,9 @@ export default function SoalInputEssay({ kategoriSoal, modul, onModalSuccess, on
                 const desiredText = desiredItem?.soal?.trim() ?? "";
 
                 if (existingItem && desiredText) {
-                    if (existingItem.soal !== desiredText) {
+                    if (existingItem.soal !== desiredText || existingItem.modul_id !== targetModulId) {
                         await send(controller.update(existingItem.id), {
-                            modul_id: existingItem.modul_id,
+                            modul_id: targetModulId,
                             soal: desiredText,
                             oldSoal: existingItem.soal,
                         });
@@ -112,16 +117,22 @@ export default function SoalInputEssay({ kategoriSoal, modul, onModalSuccess, on
                 } else if (existingItem && !desiredText) {
                     await send(controller.destroy(existingItem.id));
                 } else if (!existingItem && desiredText) {
-                    if (!modul) {
-                        throw new Error("Modul belum dipilih.");
-                    }
-
-                    await send(controller.store(modul), { soal: desiredText });
+                    await send(controller.store(targetModulId), { soal: desiredText });
                 }
             }
         },
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: soalQueryKey(kategoriSoal, modul) });
+        onSuccess: (_, variables) => {
+            const targetModulId = String(variables?.modulId ?? modul ?? "");
+            const currentModulId = String(modul ?? "");
+
+            if (currentModulId) {
+                queryClient.invalidateQueries({ queryKey: soalQueryKey(kategoriSoal, currentModulId) });
+            }
+
+            if (targetModulId && targetModulId !== currentModulId) {
+                queryClient.invalidateQueries({ queryKey: soalQueryKey(kategoriSoal, targetModulId) });
+            }
+
             toast.success("Soal berhasil diperbarui.");
         },
         onError: (error) => {
@@ -135,8 +146,16 @@ export default function SoalInputEssay({ kategoriSoal, modul, onModalSuccess, on
     });
 
     const handleTambahSoal = () => {
+        if (!modul) {
+            onModalValidation?.({ message: "Pilih modul terlebih dahulu.", includeModuleNotice: false });
+            return;
+        }
+
         if (!addSoal.soal.trim()) {
-            onModalValidation();
+            onModalValidation?.({
+                message: "Isi soal terlebih dahulu sebelum menyimpan.",
+                includeModuleNotice: false,
+            });
             return;
         }
 
@@ -196,7 +215,7 @@ export default function SoalInputEssay({ kategoriSoal, modul, onModalSuccess, on
 
     const batchContent = useMemo(() => {
         if (!Array.isArray(soalList) || soalList.length === 0) {
-            return "## Daftar Soal\n\n_Belum ada soal untuk ditampilkan._";
+            return "Daftar Soal\n\n_Belum ada soal untuk ditampilkan._";
         }
 
         return soalList
@@ -207,14 +226,19 @@ export default function SoalInputEssay({ kategoriSoal, modul, onModalSuccess, on
             .join("\n\n");
     }, [soalList]);
 
-    const handleBatchSubmit = async ({ items }) => {
+    const handleBatchSubmit = async ({ items, modulId }) => {
         const normalizedItems = Array.isArray(items)
             ? items.map((item) => ({
                   soal: (item?.soal ?? "").trim(),
               }))
             : [];
 
-        await batchUpdateMutation.mutateAsync({ items: normalizedItems });
+        const targetModulId = modulId ?? modul;
+        await batchUpdateMutation.mutateAsync({ items: normalizedItems, modulId: targetModulId });
+
+        if (targetModulId && onChangeModul && String(targetModulId) !== String(modul ?? "")) {
+            onChangeModul(String(targetModulId));
+        }
     };
 
     return (
@@ -230,7 +254,7 @@ export default function SoalInputEssay({ kategoriSoal, modul, onModalSuccess, on
 
             <div className="flex justify-end space-x-3 mt-3">
                 <button
-                    className="text-md py-1 px-8 font-bold border text-white rounded-md shadow-sm bg-softRed disabled:opacity-60"
+                    className="text-md py-1 px-8 font-bold border text-white rounded-md shadow-sm bg-blue-500 disabled:opacity-60"
                     onClick={() => setIsBatchModalOpen(true)}
                     disabled={soalLoading || soalList.length === 0}
                 >
@@ -299,6 +323,8 @@ export default function SoalInputEssay({ kategoriSoal, modul, onModalSuccess, on
                     title="Batch Edit Soal Essay"
                     initialValue={batchContent}
                     variant="essay"
+                    moduleOptions={modules}
+                    initialModuleId={modul}
                     onClose={() => setIsBatchModalOpen(false)}
                     onSubmit={handleBatchSubmit}
                 />

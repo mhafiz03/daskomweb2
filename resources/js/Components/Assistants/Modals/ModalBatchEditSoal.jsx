@@ -15,45 +15,64 @@ const tabs = [
 const proseClassName =
     "prose max-w-none prose-headings:text-darkGreen prose-strong:text-darkBrown prose-li:marker:text-darkBrown whitespace-pre-wrap break-words";
 
-export default function ModalBatchEditSoal({ title, initialValue, variant = "essay", onClose, onSubmit }) {
+export default function ModalBatchEditSoal({
+    title,
+    initialValue,
+    variant = "essay",
+    onClose,
+    onSubmit,
+    moduleOptions = [],
+    initialModuleId = "",
+}) {
     const [activeTab, setActiveTab] = useState("text");
     const [content, setContent] = useState(initialValue ?? "");
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const normalizedModuleOptions = useMemo(
+        () =>
+            (moduleOptions ?? [])
+                .map((option) => {
+                    const value = option?.idM ?? option?.id ?? option?.value ?? option?.uuid ?? option?.ID;
+                    if (value === undefined || value === null) {
+                        return null;
+                    }
+
+                    return {
+                        value: String(value),
+                        label: option?.judul ?? option?.name ?? option?.label ?? option?.title ?? String(value),
+                    };
+                })
+                .filter(Boolean),
+        [moduleOptions],
+    );
+
+    const [selectedModuleId, setSelectedModuleId] = useState(() => {
+        if (initialModuleId) {
+            return String(initialModuleId);
+        }
+
+        return normalizedModuleOptions[0]?.value ?? "";
+    });
 
     useEffect(() => {
         setContent(initialValue ?? "");
     }, [initialValue]);
 
+    useEffect(() => {
+        if (initialModuleId) {
+            setSelectedModuleId(String(initialModuleId));
+        } else if (normalizedModuleOptions.length > 0) {
+            setSelectedModuleId((prev) => prev || normalizedModuleOptions[0]?.value || "");
+        }
+    }, [initialModuleId, normalizedModuleOptions]);
+
     const markdownComponents = useMemo(
         () => ({
             code({ inline, className, children, ...props }) {
-                const match = /language-(\w+)/.exec(className ?? "");
-
-                if (inline) {
-                    return (
-                        <code className={className} {...props}>
-                            {children}
-                        </code>
-                    );
-                }
-
-                if (!match) {
-                    const rawCode = String(children).replace(/\n$/, "");
-
-                    return (
-                        <pre
-                            className="whitespace-pre-wrap rounded-xl bg-gray-900 px-5 py-4 text-sm text-gray-100"
-                            {...props}
-                        >
-                            <code>{rawCode}</code>
-                        </pre>
-                    );
-                }
 
                 return (
                     <SyntaxHighlighter
                         style={oneDark}
-                        language={match[1] ?? "text"}
+                        language='c'
                         showLineNumbers
                         PreTag="div"
                         customStyle={{
@@ -182,12 +201,13 @@ export default function ModalBatchEditSoal({ title, initialValue, variant = "ess
 
         setIsSubmitting(true);
         try {
-            await onSubmit({
-                rawContent: content,
-                items: previewItems,
-            });
-            onClose();
-        } catch (error) {
+        await onSubmit({
+            rawContent: content,
+            items: previewItems,
+            modulId: selectedModuleId,
+        });
+        onClose();
+    } catch (error) {
             console.error("Batch edit submission failed:", error);
         } finally {
             setIsSubmitting(false);
@@ -203,6 +223,23 @@ export default function ModalBatchEditSoal({ title, initialValue, variant = "ess
                         <img className="w-8" src={closeIcon} alt="Tutup" />
                     </button>
                 </div>
+
+                {normalizedModuleOptions.length > 0 && (
+                    <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 px-6 py-3 border-b border-softGray bg-softIvory">
+                        <span className="text-sm font-semibold text-darkBrown">Modul</span>
+                        <select
+                            className="w-full md:w-auto border border-darkBrown rounded-md px-3 py-2 shadow-sm"
+                            value={selectedModuleId}
+                            onChange={(event) => setSelectedModuleId(event.target.value)}
+                        >
+                            {normalizedModuleOptions.map((option) => (
+                                <option key={option.value} value={option.value}>
+                                    {option.label}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+                )}
 
                 <div className="flex gap-2 border-b border-softGray px-6 py-3">
                     {tabs.map((tab) => (

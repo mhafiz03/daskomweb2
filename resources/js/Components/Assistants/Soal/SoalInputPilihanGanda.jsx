@@ -43,7 +43,7 @@ const normalizeOptionsForDisplay = (soalItem) => {
     return normalized;
 };
 
-export default function SoalInputPG({ kategoriSoal, modul, onModalSuccess, onModalValidation }) {
+export default function SoalInputPG({ kategoriSoal, modul, modules = [], onModalSuccess, onModalValidation, onChangeModul }) {
     const [formState, setFormState] = useState({
         pertanyaan: "",
         options: [...EMPTY_OPTIONS],
@@ -113,12 +113,13 @@ export default function SoalInputPG({ kategoriSoal, modul, onModalSuccess, onMod
     });
 
     const batchUpdateMutation = useMutation({
-        mutationFn: async ({ items }) => {
+        mutationFn: async ({ items, modulId }) => {
             if (!controller) {
                 throw new Error(`Kategori soal tidak didukung: ${kategoriSoal}`);
             }
 
-            if (!modul) {
+            const targetModulId = Number(modulId ?? modul);
+            if (!targetModulId || Number.isNaN(targetModulId)) {
                 throw new Error("Modul belum dipilih.");
             }
 
@@ -163,9 +164,14 @@ export default function SoalInputPG({ kategoriSoal, modul, onModalSuccess, onMod
                     const hasCorrectChanged =
                         finalCorrectIndex !== (existingCorrectIndex >= 0 ? existingCorrectIndex : 0);
 
-                    if (hasQuestionChanged || hasOptionChanged || hasCorrectChanged) {
+                    if (
+                        hasQuestionChanged ||
+                        hasOptionChanged ||
+                        hasCorrectChanged ||
+                        existingItem.modul_id !== targetModulId
+                    ) {
                         await send(controller.update(existingItem.id), {
-                            modul_id: existingItem.modul_id,
+                            modul_id: targetModulId,
                             pertanyaan: desiredQuestion,
                             options: payloadOptions,
                             correct_option: finalCorrectIndex,
@@ -185,7 +191,7 @@ export default function SoalInputPG({ kategoriSoal, modul, onModalSuccess, onMod
                     const correctIndex = desiredOptions.findIndex((option) => option.isCorrect);
                     const finalCorrectIndex = correctIndex >= 0 ? correctIndex : 0;
 
-                    await send(controller.store(modul), {
+                    await send(controller.store(targetModulId), {
                         pertanyaan: desiredQuestion,
                         options: desiredOptions.map((option) => ({ text: option.text })),
                         correct_option: finalCorrectIndex,
@@ -193,8 +199,18 @@ export default function SoalInputPG({ kategoriSoal, modul, onModalSuccess, onMod
                 }
             }
         },
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: soalQueryKey(kategoriSoal, modul) });
+        onSuccess: (_, variables) => {
+            const targetModulId = String(variables?.modulId ?? modul ?? "");
+            const currentModulId = String(modul ?? "");
+
+            if (currentModulId) {
+                queryClient.invalidateQueries({ queryKey: soalQueryKey(kategoriSoal, currentModulId) });
+            }
+
+            if (targetModulId && targetModulId !== currentModulId) {
+                queryClient.invalidateQueries({ queryKey: soalQueryKey(kategoriSoal, targetModulId) });
+            }
+
             toast.success("Soal berhasil diperbarui.");
         },
         onError: (error) => {
@@ -220,16 +236,26 @@ export default function SoalInputPG({ kategoriSoal, modul, onModalSuccess, onMod
     };
 
     const handleTambahSoal = () => {
+        if (!modul) {
+            onModalValidation?.({ message: "Pilih modul terlebih dahulu.", includeModuleNotice: false });
+            return;
+        }
+
         const { pertanyaan, options, correctIndex } = formState;
 
-        if (!pertanyaan.trim() || options.some((option) => !option.trim())) {
-            onModalValidation();
+        if (!pertanyaan.trim()) {
+            onModalValidation?.({ message: "Pertanyaan tidak boleh kosong." });
+            return;
+        }
+
+        if (options.some((option) => !option.trim())) {
+            onModalValidation?.({ message: "Semua pilihan jawaban harus diisi." });
             return;
         }
 
         const uniqueOptions = new Set(options.map((option) => option.trim()));
         if (uniqueOptions.size !== options.length) {
-            onModalValidation();
+            onModalValidation?.({ message: "Teks pilihan tidak boleh duplikat." });
             return;
         }
 
@@ -301,7 +327,7 @@ export default function SoalInputPG({ kategoriSoal, modul, onModalSuccess, onMod
 
     const batchContent = useMemo(() => {
         if (!Array.isArray(soalList) || soalList.length === 0) {
-            return "## Daftar Soal\n\n_Belum ada soal untuk ditampilkan._";
+            return "Daftar Soal\n\n_Belum ada soal untuk ditampilkan._";
         }
 
         return soalList
@@ -323,7 +349,7 @@ export default function SoalInputPG({ kategoriSoal, modul, onModalSuccess, onMod
             .join("\n\n");
     }, [soalList]);
 
-    const handleBatchSubmit = async ({ items }) => {
+    const handleBatchSubmit = async ({ items, modulId }) => {
         const normalizedItems = Array.isArray(items)
             ? items.map((item) => ({
                   pertanyaan: (item?.pertanyaan ?? "").trim(),
@@ -334,7 +360,12 @@ export default function SoalInputPG({ kategoriSoal, modul, onModalSuccess, onMod
               }))
             : [];
 
-        await batchUpdateMutation.mutateAsync({ items: normalizedItems });
+        const targetModulId = modulId ?? modul;
+        await batchUpdateMutation.mutateAsync({ items: normalizedItems, modulId: targetModulId });
+
+        if (targetModulId && onChangeModul && String(targetModulId) !== String(modul ?? "")) {
+            onChangeModul(String(targetModulId));
+        }
     };
 
     return (
@@ -372,7 +403,7 @@ export default function SoalInputPG({ kategoriSoal, modul, onModalSuccess, onMod
 
             <div className="flex justify-end space-x-3 mt-4">
                 <button
-                    className="text-md py-1 px-8 font-bold border text-white rounded-md shadow-sm bg-softRed disabled:opacity-60"
+                    className="text-md py-1 px-8 font-bold border text-white rounded-md shadow-sm bg-blue-500 disabled:opacity-60"
                     onClick={() => setIsBatchModalOpen(true)}
                     disabled={soalQuery.isLoading || soalList.length === 0}
                 >
@@ -465,6 +496,8 @@ export default function SoalInputPG({ kategoriSoal, modul, onModalSuccess, onMod
                     title="Batch Edit Soal Pilihan Ganda"
                     initialValue={batchContent}
                     variant="pg"
+                    moduleOptions={modules}
+                    initialModuleId={modul}
                     onClose={() => setIsBatchModalOpen(false)}
                     onSubmit={handleBatchSubmit}
                 />

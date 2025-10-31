@@ -30,8 +30,10 @@ export default function SoalInputForm() {
         setSelectedModul("");
     };
 
-    const handleValidationError = () => {
-        toast.error("Soal belum ditambahkan!!");
+    const handleValidationError = ({ message, includeModuleNotice = false } = {}) => {
+        const baseMessage = message ?? "Soal belum ditambahkan!!";
+        const notice = includeModuleNotice ? " Pastikan memilih modul terlebih dahulu." : "";
+        toast.error(`${baseMessage}${notice}`.trim());
     };
 
     const handleSuccessNotification = () => {
@@ -91,8 +93,10 @@ export default function SoalInputForm() {
                         <SoalInputEssay
                             kategoriSoal={kategoriSoal}
                             modul={selectedModul}
+                            modules={moduls}
                             onModalSuccess={handleSuccessNotification}
                             onModalValidation={handleValidationError}
+                            onChangeModul={setSelectedModul}
                         />
                     );
                 }
@@ -103,6 +107,8 @@ export default function SoalInputForm() {
                             modul={selectedModul}
                             onModalSuccess={handleSuccessNotification}
                             onModalValidation={handleValidationError}
+                            modules={moduls}
+                            onChangeModul={setSelectedModul}
                         />
                     );
                 }
