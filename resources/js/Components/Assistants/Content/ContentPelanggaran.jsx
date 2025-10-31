@@ -12,14 +12,14 @@ export default function ContentPelanggaran() {
         <section>
             {/* button pelanggaran */}
             <div className="flex gap-4 items-start">
-                <div className="border-2 border-darkBrown rounded-md shadow-md ">
-                    <h6 className="text-md text-darkBrown text-center py-1 font-semibold px-24">Pelanggaran Assistant</h6>
+                <div className="rounded-depth-md border border-depth bg-depth-card px-24 py-2 shadow-depth-md">
+                    <h6 className="text-center text-sm font-semibold text-depth-primary">Pelanggaran Assistant</h6>
                 </div>
 
                  {/* Button Reset Plottingan */}
                  <button
                     onClick={handleOpenModalReset}
-                    className="text-white text-md font-semibold px-4 py-1 rounded-md shadow-md bg-redredDark hover:bg-rustyRed transition mt-[2px]"
+                    className="mt-0.5 rounded-depth-md border border-red-500/60 bg-red-500/15 px-4 py-2 text-sm font-semibold text-red-400 shadow-depth-sm transition hover:-translate-y-0.5 hover:shadow-depth-md"
                 >
                     Reset Pelanggaran
                 </button>

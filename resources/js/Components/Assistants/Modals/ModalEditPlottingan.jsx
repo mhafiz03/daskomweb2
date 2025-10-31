@@ -1,25 +1,22 @@
-import { useState, useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import toast from "react-hot-toast";
 import closeIcon from "../../../../assets/modal/iconClose.svg";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { KELAS_QUERY_KEY } from "@/hooks/useKelasQuery";
 import { send } from "@/lib/wayfinder";
 import { update as updateKelas } from "@/actions/App/Http/Controllers/API/KelasController";
+import { KELAS_QUERY_KEY } from "@/hooks/useKelasQuery";
 import { useAsistensQuery } from "@/hooks/useAsistensQuery";
 import { useJadwalJagaQuery, JADWAL_JAGA_QUERY_KEY } from "@/hooks/useJadwalJagaQuery";
-import { store as storeJadwalJaga, destroy as destroyJadwalJaga } from "@/actions/App/Http/Controllers/API/JadwalJagaController";
+import {
+    destroy as destroyJadwalJaga,
+    store as storeJadwalJaga,
+} from "@/actions/App/Http/Controllers/API/JadwalJagaController";
 
 export default function ModalEditPlotting({ onClose, kelas }) {
-    const [isSwitchOn, setIsSwitchOn] = useState(false);
-    const [loading, setLoading] = useState(false);
-    const [formData, setFormData] = useState({
-        kelas: "",
-        hari: "",
-        shift: "",
-        totalGroup: "",
-    });
-    const queryClient = useQueryClient();
+    const [formData, setFormData] = useState({ kelas: "", hari: "", shift: "", totalGroup: "" });
     const [newAsistenCode, setNewAsistenCode] = useState("");
+    const [isEnglish, setIsEnglish] = useState(false);
+    const queryClient = useQueryClient();
 
     const { data: asistens = [] } = useAsistensQuery();
 
@@ -41,12 +38,9 @@ export default function ModalEditPlotting({ onClose, kelas }) {
         data: jadwalData = [],
         isFetching: jadwalLoading,
         refetch: refetchJadwal,
-    } = useJadwalJagaQuery(
-        kelas?.id ? { kelas_id: kelas.id } : {},
-        {
-            enabled: Boolean(kelas?.id),
-        }
-    );
+    } = useJadwalJagaQuery(kelas?.id ? { kelas_id: kelas.id } : {}, {
+        enabled: Boolean(kelas?.id),
+    });
 
     const jadwalEntries = useMemo(() => {
         if (!kelas?.id) {
@@ -77,7 +71,28 @@ export default function ModalEditPlotting({ onClose, kelas }) {
         return [];
     }, [jadwalData, kelas]);
 
-    const handleAddAsistenToJadwal = async () => {
+    useEffect(() => {
+        if (kelas) {
+            setFormData({
+                kelas: kelas.kelas ?? "",
+                hari: kelas.hari ?? "",
+                shift: kelas.shift ?? "",
+                totalGroup: kelas.totalGroup ?? "",
+            });
+            setIsEnglish(Boolean(kelas.isEnglish));
+        }
+    }, [kelas]);
+
+    const handleInputChange = (event) => {
+        const { id, value } = event.target;
+        setFormData((prev) => ({ ...prev, [id]: value }));
+    };
+
+    const toggleEnglish = () => {
+        setIsEnglish((prev) => !prev);
+    };
+
+    const handleAddAsisten = async () => {
         const trimmed = newAsistenCode.trim().toUpperCase();
 
         if (!trimmed) {
@@ -87,8 +102,7 @@ export default function ModalEditPlotting({ onClose, kelas }) {
 
         const numericKey = Number(trimmed);
         const asistenDetail =
-            asistenMap.get(trimmed) ??
-            (!Number.isNaN(numericKey) ? asistenMap.get(numericKey) : undefined);
+            asistenMap.get(trimmed) ?? (!Number.isNaN(numericKey) ? asistenMap.get(numericKey) : undefined);
 
         if (!asistenDetail) {
             toast.error("Asisten tidak ditemukan.");
@@ -111,9 +125,7 @@ export default function ModalEditPlotting({ onClose, kelas }) {
         } catch (error) {
             console.error("Gagal menambahkan asisten jaga:", error);
             const message =
-                error?.response?.data?.message ??
-                error?.response?.data?.error ??
-                "Gagal menambahkan asisten jaga.";
+                error?.response?.data?.message ?? error?.response?.data?.error ?? "Gagal menambahkan asisten jaga.";
             toast.error(message);
         }
     };
@@ -134,34 +146,15 @@ export default function ModalEditPlotting({ onClose, kelas }) {
         } catch (error) {
             console.error("Gagal menghapus asisten jaga:", error);
             const message =
-                error?.response?.data?.message ??
-                error?.response?.data?.error ??
-                "Gagal menghapus asisten jaga.";
+                error?.response?.data?.message ?? error?.response?.data?.error ?? "Gagal menghapus asisten jaga.";
             toast.error(message);
         }
-    };
-
-    const getErrorMessage = (error) => {
-        const responseData = error?.response?.data;
-        if (responseData) {
-            const fieldMessages = Object.values(responseData.errors ?? {}).flat();
-            if (fieldMessages.length > 0) {
-                return fieldMessages[0];
-            }
-            if (typeof responseData.message === "string") {
-                return responseData.message;
-            }
-        }
-
-        return error?.message ?? "Gagal menyimpan data kelas. Silakan coba lagi.";
     };
 
     const updateKelasMutation = useMutation({
         mutationFn: async ({ id, payload }) => {
             const token = localStorage.getItem("token");
-            const config = token
-                ? { headers: { Authorization: `Bearer ${token}` } }
-                : undefined;
+            const config = token ? { headers: { Authorization: `Bearer ${token}` } } : undefined;
             const { data } = await send(updateKelas(id), payload, config);
             return data;
         },
@@ -170,55 +163,33 @@ export default function ModalEditPlotting({ onClose, kelas }) {
             toast.success("Jadwal berhasil diubah.");
             onClose();
         },
-        onError: (err) => {
-            console.error("Error updating data:", err);
-            toast.error(getErrorMessage(err));
-        },
-        onSettled: () => {
-            setLoading(false);
+        onError: (error) => {
+            const responseData = error?.response?.data;
+            if (responseData?.errors) {
+                const message = Object.values(responseData.errors).flat()[0];
+                toast.error(message ?? "Gagal menyimpan data kelas. Silakan coba lagi.");
+            } else {
+                toast.error(responseData?.message ?? error.message ?? "Gagal menyimpan data kelas. Silakan coba lagi.");
+            }
         },
     });
 
-    useEffect(() => {
-        if (kelas) {
-            setFormData({
-                kelas: kelas.kelas || "",
-                hari: kelas.hari || "",
-                shift: kelas.shift || "",
-                totalGroup: kelas.totalGroup || "",
-            });
-            setIsSwitchOn(kelas.isEnglish || false);
-        }
-    }, [kelas]);
-
-    const handleSave = async () => {
+    const handleSave = () => {
         if (!formData.kelas || !formData.hari || !formData.shift || !formData.totalGroup) {
             toast.error("Harap isi semua field yang diperlukan.");
             return;
         }
 
-        const dataToSend = {
-            kelas: formData.kelas,
-            hari: formData.hari,
-            shift: parseInt(formData.shift, 10),
-            totalGroup: parseInt(formData.totalGroup, 10),
-            isEnglish: isSwitchOn ? 1 : 0,
-        };
-
-        setLoading(true);
-        updateKelasMutation.mutate({ id: kelas.id, payload: dataToSend });
-    };
-
-    const toggleSwitch = () => {
-        setIsSwitchOn(!isSwitchOn);
-    };
-
-    const handleInputChange = (e) => {
-        const { id, value } = e.target;
-        setFormData((prevData) => ({
-            ...prevData,
-            [id]: value,
-        }));
+        updateKelasMutation.mutate({
+            id: kelas.id,
+            payload: {
+                kelas: formData.kelas,
+                hari: formData.hari,
+                shift: Number(formData.shift),
+                totalGroup: Number(formData.totalGroup),
+                isEnglish: isEnglish ? 1 : 0,
+            },
+        });
     };
 
     const [leftColumnEntries, rightColumnEntries] = useMemo(() => {
@@ -227,26 +198,25 @@ export default function ModalEditPlotting({ onClose, kelas }) {
         }
 
         const midpoint = Math.ceil(jadwalEntries.length / 2);
-
-        return [
-            jadwalEntries.slice(0, midpoint),
-            jadwalEntries.slice(midpoint),
-        ];
+        return [jadwalEntries.slice(0, midpoint), jadwalEntries.slice(midpoint)];
     }, [jadwalEntries]);
 
     return (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-            <div className="bg-white rounded-lg p-6 w-[700px] shadow-lg relative">
-                <div className="flex justify-between items-center mb-6 border-b border-deepForestGreen">
-                    <h2 className="text-2xl font-bold text-darkGreen">Edit Jadwal</h2>
-                    <button onClick={onClose} className="absolute top-2 right-2">
-                        <img className="w-9" src={closeIcon} alt="closeIcon" />
+        <div className="depth-modal-overlay z-50">
+            <div
+                className="depth-modal-container space-y-6"
+                style={{ "--depth-modal-max-width": "56rem" }}
+            >
+                <div className="depth-modal-header">
+                    <h2 className="depth-modal-title">Edit Jadwal</h2>
+                    <button onClick={onClose} type="button" className="depth-modal-close">
+                        <img className="h-6 w-6" src={closeIcon} alt="Tutup" />
                     </button>
                 </div>
 
-                <div className="grid grid-cols-4 gap-4 mb-4">
-                    <div>
-                        <label htmlFor="kelas" className="block text-black text-sm font-medium">
+                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+                    <div className="space-y-2">
+                        <label htmlFor="kelas" className="text-sm font-semibold text-depth-secondary">
                             Kelas
                         </label>
                         <input
@@ -254,36 +224,29 @@ export default function ModalEditPlotting({ onClose, kelas }) {
                             type="text"
                             value={formData.kelas}
                             onChange={handleInputChange}
-                            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-darkBrown focus:border-darkBrown"
+                            className="w-full rounded-depth-md border border-depth bg-depth-card px-3 py-2 text-sm text-depth-primary shadow-depth-sm transition focus:border-[var(--depth-color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)] focus:ring-offset-0"
                         />
                     </div>
-                    <div>
-                        <label htmlFor="hari" className="block text-black text-sm font-medium">
+                    <div className="space-y-2">
+                        <label htmlFor="hari" className="text-sm font-semibold text-depth-secondary">
                             Hari
                         </label>
                         <select
                             id="hari"
                             value={formData.hari}
                             onChange={handleInputChange}
-                            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-darkBrown focus:border-darkBrown"
+                            className="w-full rounded-depth-md border border-depth bg-depth-card px-3 py-2 text-sm text-depth-primary shadow-depth-sm transition focus:border-[var(--depth-color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)] focus:ring-offset-0"
                         >
                             <option value="">- Pilih Hari -</option>
-                            {[
-                                "SENIN",
-                                "SELASA",
-                                "RABU",
-                                "KAMIS",
-                                "JUMAT",
-                                "SABTU",
-                            ].map((day) => (
+                            {["SENIN", "SELASA", "RABU", "KAMIS", "JUMAT", "SABTU"].map((day) => (
                                 <option key={day} value={day}>
                                     {day}
                                 </option>
                             ))}
                         </select>
                     </div>
-                    <div>
-                        <label htmlFor="shift" className="block text-black text-sm font-medium">
+                    <div className="space-y-2">
+                        <label htmlFor="shift" className="text-sm font-semibold text-depth-secondary">
                             Shift
                         </label>
                         <input
@@ -291,11 +254,11 @@ export default function ModalEditPlotting({ onClose, kelas }) {
                             type="number"
                             value={formData.shift}
                             onChange={handleInputChange}
-                            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-darkBrown focus:border-darkBrown"
+                            className="w-full rounded-depth-md border border-depth bg-depth-card px-3 py-2 text-sm text-depth-primary shadow-depth-sm transition focus:border-[var(--depth-color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)] focus:ring-offset-0"
                         />
                     </div>
-                    <div>
-                        <label htmlFor="totalGroup" className="block text-black text-sm font-medium">
+                    <div className="space-y-2">
+                        <label htmlFor="totalGroup" className="text-sm font-semibold text-depth-secondary">
                             Kelompok
                         </label>
                         <input
@@ -303,41 +266,58 @@ export default function ModalEditPlotting({ onClose, kelas }) {
                             type="number"
                             value={formData.totalGroup}
                             onChange={handleInputChange}
-                            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-darkBrown focus:border-darkBrown"
+                            className="w-full rounded-depth-md border border-depth bg-depth-card px-3 py-2 text-sm text-depth-primary shadow-depth-sm transition focus:border-[var(--depth-color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)] focus:ring-offset-0"
                         />
                     </div>
                 </div>
 
-                <div className="mt-6 border border-darkBrown rounded-md p-4 bg-softGray mb-6">
-                    <div className="flex flex-col gap-2 md:flex-row md:items-center">
+                <div className="rounded-depth-lg border border-depth bg-depth-interactive/40 p-4 shadow-depth-sm">
+                    <div className="mb-4 flex flex-col gap-2 md:flex-row md:items-center">
                         <input
                             type="text"
                             value={newAsistenCode}
-                            onChange={(e) => setNewAsistenCode(e.target.value.toUpperCase())}
-                            onKeyDown={(e) => {
-                                if (e.key === "Enter") {
-                                    e.preventDefault();
-                                    handleAddAsistenToJadwal();
+                            onChange={(event) => setNewAsistenCode(event.target.value.toUpperCase())}
+                            onKeyDown={(event) => {
+                                if (event.key === "Enter") {
+                                    event.preventDefault();
+                                    handleAddAsisten();
                                 }
                             }}
-                            placeholder="asisten jaga"
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-darkBrown focus:border-darkBrown uppercase"
+                            placeholder="Masukkan kode asisten"
+                            className="w-full rounded-depth-md border border-depth bg-depth-card px-3 py-2 text-sm text-depth-primary shadow-depth-sm transition focus:border-[var(--depth-color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)] focus:ring-offset-0 uppercase md:w-1/2"
                         />
                         <button
                             type="button"
-                            onClick={handleAddAsistenToJadwal}
-                            className="px-4 py-2 bg-deepForestGreen text-white rounded-md shadow hover:bg-darkGreen transition duration-300"
+                            onClick={handleAddAsisten}
+                            className="rounded-depth-md bg-[var(--depth-color-primary)] px-4 py-2 text-sm font-semibold text-white shadow-depth-sm transition hover:-translate-y-0.5 hover:shadow-depth-md"
                         >
                             Tambah
                         </button>
+                        <div className="flex items-center gap-2 md:ml-auto">
+                            <span className="text-xs font-semibold text-depth-secondary">English</span>
+                            <button
+                                type="button"
+                                onClick={toggleEnglish}
+                                className={`flex h-6 w-11 items-center rounded-depth-full border border-depth bg-depth-card p-1 transition ${
+                                    isEnglish ? "text-white" : "text-depth-secondary"
+                                }`}
+                            >
+                                <span
+                                    className={`h-4 w-4 rounded-depth-full bg-depth-interactive shadow-depth-sm transition-transform ${
+                                        isEnglish ? "translate-x-5 bg-[var(--depth-color-primary)]" : "translate-x-0"
+                                    }`}
+                                />
+                            </button>
+                        </div>
                     </div>
-                    <div className="mt-3 max-h-40 overflow-y-auto">
+
+                    <div className="max-h-48 overflow-y-auto">
                         {jadwalLoading ? (
-                            <p className="text-sm text-gray-500">Memuat daftar asisten jaga...</p>
+                            <p className="text-sm text-depth-secondary">Memuat daftar asisten jaga...</p>
                         ) : jadwalEntries.length > 0 ? (
-                            <div className="grid grid-cols-1 gap-1 md:grid-cols-2">
+                            <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
                                 {[leftColumnEntries, rightColumnEntries].map((columnEntries, columnIndex) => (
-                                    <ul key={columnIndex} className="space-y-1">
+                                    <ul key={columnIndex} className="space-y-2">
                                         {columnEntries.map((entry, idx) => {
                                             const globalIndex = columnIndex === 0 ? idx : leftColumnEntries.length + idx;
                                             const detail =
@@ -346,10 +326,11 @@ export default function ModalEditPlotting({ onClose, kelas }) {
                                                 null;
                                             const kode = detail?.kode ?? entry?.kode ?? `AST-${globalIndex + 1}`;
                                             const jadwalId = entry?.id ?? entry?.jadwal_id ?? null;
+
                                             return (
                                                 <li
                                                     key={jadwalId ?? `${kode}-${columnIndex}-${idx}`}
-                                                    className="flex items-center justify-between rounded border border-lightBrown bg-white px-3 py-2 text-sm text-darkBrown"
+                                                    className="flex items-center justify-between rounded-depth-md border border-depth bg-depth-card px-3 py-2 text-sm text-depth-primary shadow-depth-sm"
                                                 >
                                                     <div>
                                                         <p className="font-semibold">{kode}</p>
@@ -357,7 +338,7 @@ export default function ModalEditPlotting({ onClose, kelas }) {
                                                     <button
                                                         type="button"
                                                         onClick={() => handleRemoveAsisten(jadwalId)}
-                                                        className="text-xs font-semibold text-fireRed hover:underline"
+                                                        className="text-xs font-semibold text-red-400 hover:underline"
                                                         disabled={!jadwalId}
                                                     >
                                                         Hapus
@@ -369,35 +350,23 @@ export default function ModalEditPlotting({ onClose, kelas }) {
                                 ))}
                             </div>
                         ) : (
-                            <p className="text-sm text-gray-500">Belum ada asisten jaga untuk kelas ini.</p>
+                            <p className="text-sm text-depth-secondary">Belum ada asisten jaga untuk kelas ini.</p>
                         )}
                     </div>
                 </div>
 
-                <div className="absolute bottom-4 left-4 flex items-center gap-2">
-                    <label className="text-sm font-medium text-gray-700">
-                        English
-                    </label>
-                    <div
-                        onClick={toggleSwitch}
-                        className={`w-10 h-5 flex items-center rounded-full p-1 cursor-pointer transition ${isSwitchOn ? "bg-deepForestGreen" : "bg-fireRed"}`}
-                    >
-                        <div
-                            className={`w-4 h-4 bg-white rounded-full shadow-md transform transition ${isSwitchOn ? "translate-x-5" : "translate-x-0"}`}
-                        />
-                    </div>
-                </div>
-
-                <div className="mt-4 text-right">
+                <div className="flex justify-end gap-3">
                     <button
+                        type="button"
                         onClick={onClose}
-                        className="px-6 py-2 bg-gray-300 text-darkBrown font-semibold rounded-md shadow hover:bg-gray-400 transition duration-300 mr-2"
+                        className="rounded-depth-md border border-depth bg-depth-interactive px-5 py-2 text-sm font-semibold text-depth-primary shadow-depth-sm transition hover:-translate-y-0.5 hover:shadow-depth-md"
                     >
                         Batal
                     </button>
                     <button
+                        type="button"
                         onClick={handleSave}
-                        className="px-6 py-2 bg-deepForestGreen text-white font-semibold rounded-md shadow hover:bg-darkGreen transition duration-300"
+                        className="rounded-depth-md bg-[var(--depth-color-primary)] px-5 py-2 text-sm font-semibold text-white shadow-depth-sm transition hover:-translate-y-0.5 hover:shadow-depth-md"
                     >
                         Simpan
                     </button>

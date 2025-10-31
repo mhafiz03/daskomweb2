@@ -9,7 +9,7 @@ import { submit } from '@/lib/wayfinder';
 import { store as registerPraktikan } from '@/actions/App/Http/Controllers/Auth/RegisteredPraktikanController';
 
 
-export default function RegistFormPraktikan({ mode }) {
+export default function RegistFormPraktikan({ mode, onSwitchToLogin }) {
 
     const [values, setValues] = useState({
         email: '',
@@ -94,38 +94,38 @@ export default function RegistFormPraktikan({ mode }) {
 
     return (
         <div className="w-1/2 my-1 px-10">
-            <p className="font-bold text-lg text-center">Let’s Get Started..</p>
-            <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+            <p className="font-bold text-lg text-depth-secondary text-center">Let's Get Started..</p>
+            <form onSubmit={handleSubmit} className="flex flex-col gap-3">
                 <input
-                    className="bg-lightGray py-1 px-4 mt-3 rounded-sm border-dustyBlue border-2 placeholder-dustyBlue"
+                    className="bg-depth-card py-2 px-4 mt-3 rounded-depth-md border border-depth placeholder-depth-secondary focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)] focus:border-transparent transition-all shadow-depth-sm"
                     type="email"
                     id="email"
                     placeholder="Email"
                     value={values.email}
                     onChange={handleChange}
                 />
-                {localErrors.email && <p className="text-red-500 text-sm -mt-4">{localErrors.email}</p>}
+                {localErrors.email && <p className="text-red-400 text-sm -mt-2">{localErrors.email}</p>}
                 <input
-                    className="bg-lightGray py-1 px-4 mt-[-10px] rounded-sm border-dustyBlue border-2 placeholder-dustyBlue"
+                    className="bg-depth-card py-2 px-4 rounded-depth-md border border-depth placeholder-depth-secondary focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)] focus:border-transparent transition-all shadow-depth-sm"
                     type="text"
                     id="nama"
                     placeholder="Nama Lengkap"
                     value={values.nama}
                     onChange={handleChange}
                 />
-                {localErrors.nama && <p className="text-red-500 text-sm -mt-4">{localErrors.nama}</p>}
+                {localErrors.nama && <p className="text-red-400 text-sm -mt-2">{localErrors.nama}</p>}
                 <input
-                    className="bg-lightGray py-1 px-4 mt-[-10px] rounded-sm border-dustyBlue border-2 placeholder-dustyBlue"
+                    className="bg-depth-card py-2 px-4 rounded-depth-md border border-depth placeholder-depth-secondary focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)] focus:border-transparent transition-all shadow-depth-sm"
                     type="text"
                     id="nim"
                     placeholder="NIM"
                     value={values.nim}
                     onChange={handleChange}
                 />
-                {localErrors.nim && <p className="text-red-500 text-sm -mt-4">{localErrors.nim}</p>}
+                {localErrors.nim && <p className="text-red-400 text-sm -mt-2">{localErrors.nim}</p>}
 
                <select
-                    className="bg-lightGray py-1 px-4 mt-[-10px] rounded-sm border-dustyBlue border-2 placeholder-dustyBlue w-full"
+                    className="bg-depth-card py-2 px-4 rounded-depth-md border border-depth placeholder-depth-secondary text-depth-primary focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)] focus:border-transparent transition-all shadow-depth-sm w-full"
                     id="kelas_id"
                     value={values.kelas_id}
                     onChange={handleChange}
@@ -147,28 +147,28 @@ export default function RegistFormPraktikan({ mode }) {
                             </option>
                         ))}
                 </select>
-                {localErrors.kelas_id && <p className="text-red-500 text-sm -mt-4">{localErrors.kelas_id}</p>}
+                {localErrors.kelas_id && <p className="text-red-400 text-sm -mt-2">{localErrors.kelas_id}</p>}
                 <input
-                    className="bg-lightGray py-1 px-4 mt-[-10px] rounded-sm border-dustyBlue border-2 placeholder-dustyBlue"
+                    className="bg-depth-card py-2 px-4 rounded-depth-md border border-depth placeholder-depth-secondary focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)] focus:border-transparent transition-all shadow-depth-sm"
                     type="text"
                     id="alamat"
                     placeholder="Alamat"
                     value={values.alamat}
                     onChange={handleChange}
                 />
-                {localErrors.alamat && <p className="text-red-500 text-sm -mt-4">{localErrors.alamat}</p>}
+                {localErrors.alamat && <p className="text-red-400 text-sm -mt-2">{localErrors.alamat}</p>}
                 <input
-                    className="bg-lightGray py-1 px-4 mt-[-10px] rounded-sm border-dustyBlue border-2 placeholder-dustyBlue"
+                    className="bg-depth-card py-2 px-4 rounded-depth-md border border-depth placeholder-depth-secondary focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)] focus:border-transparent transition-all shadow-depth-sm"
                     type="tel"
                     id="nomor_telepon"
                     placeholder="No. Telepon"
                     value={values.nomor_telepon}
                     onChange={handleChange}
                 />
-                {localErrors.nomor_telepon && <p className="text-red-500 text-sm -mt-4">{localErrors.nomor_telepon}</p>}
+                {localErrors.nomor_telepon && <p className="text-red-400 text-sm -mt-2">{localErrors.nomor_telepon}</p>}
                 <div className="relative">
                     <input
-                        className="bg-lightGray py-1 px-4 mt-[-10px] mb-5 w-full rounded-sm border-dustyBlue border-2 placeholder-dustyBlue"
+                        className="bg-depth-card py-2 px-4 mb-3 w-full rounded-depth-md border border-depth placeholder-depth-secondary focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)] focus:border-transparent transition-all shadow-depth-sm"
                         type={passwordVisible ? 'text' : 'password'}
                         id="password"
                         placeholder="Password"
@@ -176,15 +176,16 @@ export default function RegistFormPraktikan({ mode }) {
                         onChange={handleChange}
                     />
                     <img
-                        className="w-4 cursor-pointer absolute top-[25%] right-3 transform -translate-y-1/2"
+                        className="w-4 cursor-pointer absolute top-[30%] right-3 transform -translate-y-1/2 opacity-70 hover:opacity-100 transition-opacity"
                         src={passwordVisible ? eyeOpen : eyeClose}
                         alt="Toggle Password Visibility"
                         onClick={togglePasswordVisibility}
                     />
-                    {localErrors.password && <p className="text-red-500 text-sm -mt-4">{localErrors.password}</p>}
+                    {localErrors.password && <p className="text-red-400 text-sm -mt-2">{localErrors.password}</p>}
                 </div>
-                <ButtonOption order="register" mode="praktikan" />
+                <ButtonOption order="register" mode="praktikan" onSwitchToLogin={onSwitchToLogin} />
             </form>
         </div>
     );
 }
+

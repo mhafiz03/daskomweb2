@@ -9,18 +9,18 @@ import { submit } from "@/lib/wayfinder";
 import { destroy as destroyAsistens } from "@/actions/App/Http/Controllers/API/AsistenController";
 
 const ROLE_BADGE = {
-    SOFTWARE: "bg-blue-100 text-blue-800",
-    KORDAS: "bg-emerald-100 text-emerald-800",
-    WAKORDAS: "bg-amber-100 text-amber-800",
-    KOORPRAK: "bg-purple-100 text-purple-800",
-    ADMIN: "bg-rose-100 text-rose-800",
-    HARDWARE: "bg-teal-100 text-teal-800",
-    DDC: "bg-indigo-100 text-indigo-800",
-    ATC: "bg-pink-100 text-pink-800",
-    RDC: "bg-slate-100 text-slate-800",
-    HRD: "bg-orange-100 text-orange-800",
-    CMD: "bg-cyan-100 text-cyan-800",
-    MLC: "bg-lime-100 text-lime-800",
+    SOFTWARE: "border border-blue-400/40 bg-blue-400/15 text-blue-300",
+    KORDAS: "border border-emerald-400/40 bg-emerald-400/15 text-emerald-300",
+    WAKORDAS: "border border-amber-400/40 bg-amber-400/15 text-amber-300",
+    KOORPRAK: "border border-purple-400/40 bg-purple-400/15 text-purple-300",
+    ADMIN: "border border-rose-400/40 bg-rose-400/15 text-rose-300",
+    HARDWARE: "border border-teal-400/40 bg-teal-400/15 text-teal-300",
+    DDC: "border border-indigo-400/40 bg-indigo-400/15 text-indigo-300",
+    ATC: "border border-pink-400/40 bg-pink-400/15 text-pink-300",
+    RDC: "border border-slate-400/40 bg-slate-400/15 text-slate-300",
+    HRD: "border border-orange-400/40 bg-orange-400/15 text-orange-300",
+    CMD: "border border-cyan-400/40 bg-cyan-400/15 text-cyan-300",
+    MLC: "border border-lime-400/40 bg-lime-400/15 text-lime-300",
 };
 
 export default function TableManageRole({ asisten }) {
@@ -121,27 +121,27 @@ export default function TableManageRole({ asisten }) {
         : "Tidak ada asisten yang dipilih";
 
     return (
-        <div className="mt-5 space-y-4">
+        <div className="mt-5 space-y-4 text-depth-primary">
             <Toaster />
 
-            <div className="flex flex-col gap-3 rounded-lg bg-deepForestGreen p-4 text-white shadow">
+            <div className="flex flex-col gap-3 rounded-depth-lg border border-depth bg-depth-card p-4 shadow-depth-md">
                 <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-                    <div className="text-sm text-white/80">{assistenCountLabel}</div>
+                    <div className="text-sm text-depth-secondary">{assistenCountLabel}</div>
                     <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
                         <div className="relative sm:w-64">
                             <input
                                 value={search}
                                 onChange={(event) => setSearch(event.target.value)}
                                 placeholder="Cari nama, kode, role..."
-                                className="w-full rounded-md border border-white/20 bg-white py-2 pl-3 pr-10 text-sm text-darkBrown focus:border-softBrown focus:outline-none focus:ring-1 focus:ring-softBrown"
+                                className="w-full rounded-depth-full border border-depth bg-depth-interactive py-2.5 pl-4 pr-11 text-sm text-depth-primary shadow-depth-inset transition focus:border-[var(--depth-color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)] focus:ring-offset-0"
                             />
-                            <span className="absolute inset-y-0 right-3 flex items-center text-softBrown">🔍</span>
+                            <span className="pointer-events-none absolute inset-y-0 right-4 flex items-center text-depth-secondary">🔍</span>
                         </div>
                         <button
                             type="button"
                             onClick={handleOpenModalDelete}
                             disabled={isSubmittingDelete || checkedAsistens.length === 0}
-                            className="inline-flex items-center justify-center rounded-md bg-redredDark px-5 py-2 text-sm font-semibold text-white transition hover:bg-softRed disabled:cursor-not-allowed disabled:bg-redredDark/60"
+                            className="inline-flex items-center justify-center rounded-depth-md border border-red-500/60 bg-red-500/15 px-5 py-2 text-sm font-semibold text-red-400 shadow-depth-sm transition hover:-translate-y-0.5 hover:shadow-depth-md disabled:cursor-not-allowed disabled:border-red-500/30 disabled:text-red-300"
                         >
                             {isSubmittingDelete ? "Menghapus..." : "Delete"}
                         </button>
@@ -149,18 +149,18 @@ export default function TableManageRole({ asisten }) {
                 </div>
             </div>
 
-            <div className="rounded-lg border border-forestGreen bg-white shadow">
-                <div className="max-h-[70vh] overflow-y-auto overflow-x-auto lg:max-h-[48rem]">
-                    <table className="min-w-full divide-y divide-forestGreen/30 text-sm text-darkBrown">
-                        <thead className="bg-softIvory">
-                            <tr className="text-left">
+            <div className="rounded-depth-lg border border-depth bg-depth-card shadow-depth-lg">
+                <div className="max-h-[70vh] overflow-auto lg:max-h-[48rem]">
+                    <table className="min-w-full divide-y divide-[color:var(--depth-border)] text-sm text-depth-primary">
+                        <thead className="bg-depth-interactive/60">
+                            <tr className="text-left text-depth-secondary">
                                 <th scope="col" className="px-4 py-3">
                                     <div className="flex items-center gap-2">
                                         <input
                                             type="checkbox"
                                             checked={isAllChecked}
                                             onChange={toggleSelectAll}
-                                            className="h-4 w-4"
+                                            className="h-4 w-4 rounded border-depth text-[var(--depth-color-primary)] focus:ring-[var(--depth-color-primary)]"
                                         />
                                         <span>Pilih</span>
                                     </div>
@@ -171,10 +171,10 @@ export default function TableManageRole({ asisten }) {
                                 <th scope="col" className="px-4 py-3 text-center">Aksi</th>
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-forestGreen/15">
+                        <tbody className="divide-y divide-[color:var(--depth-border)]">
                             {isFetching && (
                                 <tr>
-                                    <td colSpan={5} className="px-4 py-8 text-center text-darkBrown">
+                                    <td colSpan={5} className="px-4 py-8 text-center text-depth-secondary">
                                         Memuat data asisten...
                                     </td>
                                 </tr>
@@ -182,7 +182,7 @@ export default function TableManageRole({ asisten }) {
 
                             {isError && !isFetching && (
                                 <tr>
-                                    <td colSpan={5} className="px-4 py-8 text-center text-fireRed">
+                                    <td colSpan={5} className="px-4 py-8 text-center text-red-500">
                                         Gagal memuat data asisten.
                                     </td>
                                 </tr>
@@ -190,7 +190,7 @@ export default function TableManageRole({ asisten }) {
 
                             {!isFetching && !isError && filteredAsistens.length === 0 && (
                                 <tr>
-                                    <td colSpan={5} className="px-4 py-8 text-center text-darkBrown/70">
+                                    <td colSpan={5} className="px-4 py-8 text-center text-depth-secondary">
                                         Tidak ada data yang cocok dengan pencarian kamu.
                                     </td>
                                 </tr>
@@ -198,22 +198,23 @@ export default function TableManageRole({ asisten }) {
 
                             {!isFetching && !isError && filteredAsistens.map((item) => {
                                 const isChecked = checkedAsistens.includes(item.kode);
-                                const badgeTone = ROLE_BADGE[item.role] ?? "bg-slate-100 text-slate-800";
+                                const badgeTone = ROLE_BADGE[item.role] ??
+                                    "border border-slate-400/40 bg-slate-400/15 text-slate-300";
 
                                 return (
-                                    <tr key={item.kode} className="hover:bg-softIvory/70">
+                                    <tr key={item.kode} className="hover:bg-depth-interactive/60">
                                         <td className="px-4 py-3">
                                             <input
                                                 type="checkbox"
                                                 checked={isChecked}
                                                 onChange={() => toggleCheckedAsisten(item.kode)}
-                                                className="h-4 w-4"
+                                                className="h-4 w-4 rounded border-depth text-[var(--depth-color-primary)] focus:ring-[var(--depth-color-primary)]"
                                             />
                                         </td>
                                         <td className="px-4 py-3 font-medium">{item.nama}</td>
-                                        <td className="px-4 py-3 font-semibold text-darkBrown/80">{item.kode}</td>
+                                        <td className="px-4 py-3 font-semibold text-depth-secondary">{item.kode}</td>
                                         <td className="px-4 py-3">
-                                            <span className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold ${badgeTone}`}>
+                                            <span className={`inline-flex items-center rounded-depth-full px-3 py-1 text-xs font-semibold ${badgeTone}`}>
                                                 {item.role ?? "-"}
                                             </span>
                                         </td>
@@ -221,10 +222,9 @@ export default function TableManageRole({ asisten }) {
                                             <button
                                                 type="button"
                                                 onClick={() => handleOpenModalEdit(item.kode)}
-                                                className="inline-flex items-center gap-1 rounded-md border border-forestGreen px-3 py-1 text-xs font-semibold text-darkBrown transition hover:bg-softBrown"
+                                                className="inline-flex items-center gap-2 rounded-depth-md border border-depth bg-depth-interactive px-3 py-1.5 text-xs font-semibold text-depth-primary shadow-depth-sm transition hover:-translate-y-0.5 hover:shadow-depth-md"
                                             >
                                                 <img src={editIcon} alt="Edit" className="h-4 w-4" />
-                                                Edit Role
                                             </button>
                                         </td>
                                     </tr>

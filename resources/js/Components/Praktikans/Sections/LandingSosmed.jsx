@@ -3,8 +3,8 @@ import SocialMediaIcon from './SocialMediaIcon';
 
 export default function LandingSosmed() {
     return (
-        <div className="relative">
-            <div className="flex absolute left-1/2 transform -translate-x-1/2 -top-3">
+        <div className="relative mb-20">
+            <div className="flex absolute left-1/2 transform -translate-x-1/2 -top-3 gap-2">
                 {socialMediaLinks.map((link, index) => (
                     <SocialMediaIcon 
                         key={index} 

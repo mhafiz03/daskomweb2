@@ -9,31 +9,23 @@ export default function ContentManageRole({ asisten }) {
     const handleCloseModal = () => setShowModal(false);
 
     return (
-        <section>
-            {/* Button Praktikan - Kelas */}
-            <div className="flex gap-4 items-start">
-                <div className="border-2 border-darkBrown rounded-md shadow-md">
-                    <h6 className="text-md text-darkBrown text-center py-1 font-semibold px-16">
-                        Manage Role
-                    </h6>
+        <section className="space-y-6 text-depth-primary">
+            <div className="flex flex-wrap items-center gap-4">
+                <div className="rounded-depth-lg border border-depth bg-depth-card px-10 py-3 shadow-depth-sm">
+                    <h6 className="text-lg font-semibold text-depth-primary">Manage Role</h6>
                 </div>
 
-                {/* Button Add role */}
                 <button
                     onClick={handleOpenModal}
-                    className="text-darkBrown text-md font-semibold px-4 py-1 border-2 border-darkBrown rounded-md shadow-md hover:bg-softBrown transition"
+                    type="button"
+                    className="rounded-depth-md border border-depth bg-depth-interactive px-4 py-2 text-sm font-semibold text-depth-primary shadow-depth-sm transition hover:-translate-y-0.5 hover:shadow-depth-md"
                 >
                     + Role
                 </button>
-
             </div>
 
-            {/* Table Data role asistant */}
-            <div className="">
-                <TableManageRole asisten={asisten}/>
-            </div>
+            <TableManageRole asisten={asisten} />
 
-            {/* Modal Add role */}
             {showModal && <ButtonAddRole onClose={handleCloseModal} />}
         </section>
     );

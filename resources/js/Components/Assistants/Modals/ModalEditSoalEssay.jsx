@@ -43,34 +43,30 @@ export default function ModalEditSoalEssay({ onClose, soalItem, onSave }) {
     };
 
     return (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-            <div className="bg-white rounded-lg p-6 w-[800px] shadow-lg relative">
-                <div className="flex justify-between items-center mb-6 border-b border-deepForestGreen">
-                    <h2 className="text-2xl font-bold text-darkGreen">Edit Soal</h2>
-                    <button
-                        onClick={onClose}
-                        className="absolute top-2 right-2 flex justify-center items-center"
-                    >
-                        <img className="w-9" src={closeIcon} alt="Tutup" />
+        <div className="depth-modal-overlay">
+            <div className="depth-modal-container max-w-3xl">
+                <div className="depth-modal-header">
+                    <h2 className="depth-modal-title">Edit Soal</h2>
+                    <button onClick={onClose} type="button" className="depth-modal-close">
+                        <img className="h-6 w-6" src={closeIcon} alt="Tutup" />
                     </button>
                 </div>
 
                 <textarea
-                    className="w-full p-2 border rounded"
+                    className="h-64 w-full rounded-depth-lg border border-depth bg-depth-card p-4 text-sm text-depth-primary shadow-depth-sm transition focus:border-[var(--depth-color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)] focus:ring-offset-0"
                     rows="10"
                     placeholder="Edit soal..."
                     value={soal}
                     onChange={(e) => setSoal(e.target.value)}
                 />
 
-
-                <div className="mt-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-                    <label className="font-medium text-lg mb-1" htmlFor="modul_id">
+                <div className="mt-6 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                    <label className="text-sm font-semibold text-depth-secondary" htmlFor="modul_id">
                         Modul
                     </label>
                     <select
                         id="modul_id"
-                        className="w-full border border-deepForestGreen rounded-md p-2 shadow-sm"
+                        className="w-full rounded-depth-md border border-depth bg-depth-card p-2 text-sm text-depth-primary shadow-depth-sm transition focus:border-[var(--depth-color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)] focus:ring-offset-0 md:w-60"
                         value={selectedModul}
                         onChange={(e) => setSelectedModul(e.target.value)}
                     >
@@ -81,18 +77,18 @@ export default function ModalEditSoalEssay({ onClose, soalItem, onSave }) {
                                 {modulesQueryError?.message ?? "Gagal memuat modul"}
                             </option>
                         )}
-                        {!modulesLoading && !modulesError && moduls.length > 0
-                            ? moduls.map((modul) => (
+                        {!modulesLoading && !modulesError &&
+                            moduls.map((modul) => (
                                 <option key={modul.idM} value={String(modul.idM)}>
                                     {modul.judul}
                                 </option>
-                            ))
-                            : null}
+                            ))}
                     </select>
 
                     <button
                         onClick={handleSave}
-                        className="px-6 py-2 bg-deepForestGreen text-white font-semibold rounded-md shadow hover:bg-darkGreen transition duration-300 md:self-end"
+                        type="button"
+                        className="rounded-depth-md bg-[var(--depth-color-primary)] px-6 py-2 text-sm font-semibold text-white shadow-depth-sm transition hover:-translate-y-0.5 hover:shadow-depth-md md:self-end"
                         disabled={modulesLoading}
                     >
                         Simpan

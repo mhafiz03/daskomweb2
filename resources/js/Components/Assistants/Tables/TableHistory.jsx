@@ -59,39 +59,29 @@ export default function TableHistory() {
     };
 
     return (
-        <div className="mt-5">
-            <div className="bg-deepForestGreen rounded-lg py-2 px-2 mb-2">
-                <div className="grid grid-cols-5 gap-1">
-                    <div className="bg-deepForestGreen rounded-lg p-1">
-                        <h1 className="font-bold text-white text-center">Tanggal</h1>
-                    </div>
-                    <div className="bg-deepForestGreen rounded-lg p-1">
-                        <h1 className="font-bold text-white text-center">Modul</h1>
-                    </div>
-                    <div className="bg-deepForestGreen rounded-lg p-1">
-                        <h1 className="font-bold text-white text-center">Kelas</h1>
-                    </div>
-                    <div className="bg-deepForestGreen rounded-lg p-1">
-                        <h1 className="font-bold text-white text-center">Laporan</h1>
-                    </div>
-                    <div className="bg-deepForestGreen rounded-lg p-1">
-                        <h1 className="font-bold text-white text-center">PJ</h1>
-                    </div>
+        <div className="space-y-4">
+            <div className="rounded-depth-lg border border-depth bg-depth-card p-3 shadow-depth-md">
+                <div className="grid grid-cols-5 gap-2 text-xs font-semibold uppercase tracking-wide text-depth-secondary">
+                    <span className="rounded-depth-md bg-depth-interactive px-3 py-2 text-center shadow-depth-inset">Tanggal</span>
+                    <span className="rounded-depth-md bg-depth-interactive px-3 py-2 text-center shadow-depth-inset">Modul</span>
+                    <span className="rounded-depth-md bg-depth-interactive px-3 py-2 text-center shadow-depth-inset">Kelas</span>
+                    <span className="rounded-depth-md bg-depth-interactive px-3 py-2 text-center shadow-depth-inset">Laporan</span>
+                    <span className="rounded-depth-md bg-depth-interactive px-3 py-2 text-center shadow-depth-inset">PJ</span>
                 </div>
             </div>
 
-            <div className="overflow-x-auto lg:max-h-[48rem] md:max-h-96 border border-lightBrown rounded-lg bg-softIvory">
+            <div className="overflow-x-auto rounded-depth-lg border border-depth bg-depth-card shadow-depth-lg">
                 <div className="grid grid-cols-5 gap-1">
                     {isLoading ? (
-                        <div className="col-span-5 flex items-center justify-center py-6 px-4 text-darkBrown">
+                        <div className="col-span-5 flex items-center justify-center px-4 py-6 text-depth-secondary">
                             Memuat history praktikum...
                         </div>
                     ) : isError ? (
-                        <div className="col-span-5 flex items-center justify-center py-6 px-4 text-red-600">
+                        <div className="col-span-5 flex items-center justify-center px-4 py-6 text-red-500">
                             {errorMessage}
                         </div>
                     ) : !hasData ? (
-                        <div className="col-span-5 flex items-center justify-center py-6 px-4 text-darkBrown">
+                        <div className="col-span-5 flex items-center justify-center px-4 py-6 text-depth-secondary">
                             Belum ada laporan praktikum yang dikumpulkan.
                         </div>
                     ) : (
@@ -101,32 +91,32 @@ export default function TableHistory() {
                             const kelasName = item?.kelas?.kelas ?? "-";
                             const hasReport = Boolean(item?.report_notes);
                             const pjName = item?.pj
-                                ? [item.pj.nama, item.pj.kode].filter(Boolean).join(" • ") ||
-                                  `Asisten #${item.pj.id}`
+                                ? [item.pj.nama, item.pj.kode].filter(Boolean).join(" • ") || `Asisten #${item.pj.id}`
                                 : item?.pj_id
                                 ? `Asisten #${item.pj_id}`
                                 : "-";
 
                             return (
                                 <Fragment key={item?.id ?? `${item?.kelas_id ?? "kelas"}-${item?.modul_id ?? "modul"}`}>
-                                    <div className="flex items-center justify-center h-full py-2 px-4 text-darkBrown border border-forestGreen text-sm text-center">
+                                    <div className="flex h-full items-center justify-center rounded-depth-md bg-depth-card px-4 py-2 text-center text-sm text-depth-primary shadow-depth-sm">
                                         {submittedAt}
                                     </div>
-                                    <div className="flex items-center justify-center h-full py-2 px-4 text-darkBrown border border-forestGreen text-sm text-center">
+                                    <div className="flex h-full items-center justify-center rounded-depth-md bg-depth-card px-4 py-2 text-center text-sm text-depth-primary shadow-depth-sm">
                                         {modulName}
                                     </div>
-                                    <div className="flex items-center justify-center h-full py-2 px-4 text-darkBrown border border-forestGreen text-sm text-center">
+                                    <div className="flex h-full items-center justify-center rounded-depth-md bg-depth-card px-4 py-2 text-center text-sm text-depth-primary shadow-depth-sm">
                                         {kelasName}
                                     </div>
-                                    <div className="flex items-center justify-center h-full py-2 px-2 border border-forestGreen">
+                                    <div className="flex h-full items-center justify-center rounded-depth-md bg-depth-card px-2 py-2 shadow-depth-sm">
                                         <button
                                             type="button"
                                             onClick={() => handleOpenModal(item)}
                                             disabled={!hasReport}
-                                            className={`flex justify-center items-center w-8 h-8 rounded transition-all ${hasReport
-                                                    ? "bg-forestGreen text-white hover:bg-deepForestGreen"
-                                                    : "bg-gray-300 text-gray-500 cursor-not-allowed"
-                                                }`}
+                                            className={`flex h-9 w-9 items-center justify-center rounded-depth-md border border-depth shadow-depth-sm transition ${
+                                                hasReport
+                                                    ? "bg-[var(--depth-color-primary)] text-white hover:-translate-y-0.5 hover:shadow-depth-md"
+                                                    : "cursor-not-allowed bg-depth-interactive text-depth-secondary"
+                                            }`}
                                             aria-label="Lihat laporan praktikum"
                                         >
                                             <svg
@@ -135,13 +125,9 @@ export default function TableHistory() {
                                                 viewBox="0 0 24 24"
                                                 strokeWidth="2"
                                                 stroke="currentColor"
-                                                className="w-4 h-4"
+                                                className="h-4 w-4"
                                             >
-                                                <path
-                                                    strokeLinecap="round"
-                                                    strokeLinejoin="round"
-                                                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                                                />
+                                                <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                                                 <path
                                                     strokeLinecap="round"
                                                     strokeLinejoin="round"
@@ -150,7 +136,7 @@ export default function TableHistory() {
                                             </svg>
                                         </button>
                                     </div>
-                                    <div className="flex items-center justify-center h-full py-2 px-4 text-darkBrown border border-forestGreen text-sm text-center">
+                                    <div className="flex h-full items-center justify-center rounded-depth-md bg-depth-card px-4 py-2 text-center text-sm text-depth-primary shadow-depth-sm">
                                         {pjName}
                                     </div>
                                 </Fragment>
@@ -160,9 +146,7 @@ export default function TableHistory() {
                 </div>
             </div>
 
-            {selectedReport && (
-                <ModalLaporan report={selectedReport} onClose={handleCloseModal} />
-            )}
+            {selectedReport && <ModalLaporan report={selectedReport} onClose={handleCloseModal} />}
         </div>
     );
 }

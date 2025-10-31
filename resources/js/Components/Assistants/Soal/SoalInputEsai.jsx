@@ -242,26 +242,30 @@ export default function SoalInputEssay({ kategoriSoal, modul, modules = [], onMo
     };
 
     return (
-        <div>
-            <label className="block mb-2 font-medium">Soal</label>
-            <textarea
-                className="w-full p-2 border rounded"
-                rows="8"
-                placeholder="Masukkan soal..."
-                value={addSoal.soal}
-                onChange={(e) => setAddSoal({ soal: e.target.value })}
-            />
+        <div className="space-y-6 text-depth-primary">
+            <div className="space-y-2">
+                <label className="block text-xs font-semibold uppercase tracking-wide text-depth-secondary">
+                    Soal
+                </label>
+                <textarea
+                    className="h-48 w-full rounded-depth-lg border border-depth bg-depth-card p-4 text-sm text-depth-primary shadow-depth-sm transition duration-200 placeholder:text-depth-secondary focus:border-transparent focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)] focus:ring-offset-2 focus:ring-offset-[var(--depth-color-card)]"
+                    rows="8"
+                    placeholder="Masukkan soal..."
+                    value={addSoal.soal}
+                    onChange={(e) => setAddSoal({ soal: e.target.value })}
+                />
+            </div>
 
-            <div className="flex justify-end space-x-3 mt-3">
+            <div className="flex justify-end gap-3">
                 <button
-                    className="text-md py-1 px-8 font-bold border text-white rounded-md shadow-sm bg-blue-500 disabled:opacity-60"
+                    className="rounded-depth-md border border-depth bg-depth-card px-6 py-2 text-sm font-semibold text-depth-primary shadow-depth-sm transition duration-200 hover:-translate-y-0.5 hover:shadow-depth-md disabled:opacity-60"
                     onClick={() => setIsBatchModalOpen(true)}
                     disabled={soalLoading || soalList.length === 0}
                 >
                     Batch Edit
                 </button>
                 <button
-                    className="text-md py-1 px-8 font-bold border text-white rounded-md shadow-sm bg-deepForestGreen border-deepForestGreen"
+                    className="rounded-depth-md bg-[var(--depth-color-primary)] px-6 py-2 text-sm font-semibold text-white shadow-depth-sm transition duration-200 hover:-translate-y-0.5 hover:shadow-depth-md focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)] focus:ring-offset-2 focus:ring-offset-[var(--depth-color-card)] disabled:opacity-70"
                     onClick={handleTambahSoal}
                     disabled={postSoalMutation.isPending}
                 >
@@ -269,40 +273,43 @@ export default function SoalInputEssay({ kategoriSoal, modul, modules = [], onMo
                 </button>
             </div>
 
-            <div className="mt-4">
-                <h3 className="font-bold text-lg mb-3">Daftar Soal</h3>
-                {soalLoading && <p>Memuat soal...</p>}
+            <div className="space-y-4">
+                <h3 className="text-base font-semibold text-depth-secondary">Daftar Soal</h3>
+                {soalLoading && <p className="text-sm text-depth-secondary">Memuat soal...</p>}
                 {soalError && (
-                    <p className="text-red-500">
+                    <p className="text-sm text-red-500">
                         {soalQueryError?.message ?? "Gagal memuat soal"}
                     </p>
                 )}
                 {!soalLoading && !soalError && (
-                    <ul className="space-y-3">
+                    <ul className="space-y-4">
                         {soalList.map((soalItem, index) => (
                             <li
                                 key={soalItem.id ?? index}
-                                className="border border-gray-300 rounded-lg flex items-baseline bg-softIvory shadow-lg justify-between"
+                                className="relative flex items-start justify-between gap-4 rounded-depth-lg border border-depth bg-depth-card p-5 shadow-depth-md transition duration-200 hover:shadow-depth-lg"
                             >
-                                <div className="flex-1 p-4">
-                                    <strong>Soal: {index + 1}</strong>
-                                    <br />
-                                    <pre className="ml-2 text-sm text-justify whitespace-pre-wrap break-words">
+                                <div className="flex-1 space-y-2">
+                                    <div className="text-sm font-semibold text-depth-secondary">
+                                        Soal {index + 1}
+                                    </div>
+                                    <pre className="whitespace-pre-wrap break-words rounded-depth-md bg-depth-interactive p-3 text-sm text-depth-primary shadow-depth-inset">
                                         {soalItem.soal}
                                     </pre>
                                 </div>
-                                <div className="flex space-x-2 p-2">
+                                <div className="flex gap-2">
                                     <button
                                         onClick={() => handleOpenModalEdit(soalItem)}
-                                        className="flex justify-center items-center p-1 border-2 border-darkBrown rounded bg-white"
+                                        className="flex h-9 w-9 items-center justify-center rounded-depth-md border border-depth bg-depth-interactive shadow-depth-sm transition duration-150 hover:shadow-depth-md"
+                                        type="button"
                                     >
-                                        <img className="w-5" src={editIcon} alt="Edit" />
+                                        <img className="h-4 w-4" src={editIcon} alt="Edit" />
                                     </button>
                                     <button
                                         onClick={() => handleOpenModalDelete(soalItem.id)}
-                                        className="flex justify-center items-center p-1 border-2 border-fireRed rounded bg-white"
+                                        className="flex h-9 w-9 items-center justify-center rounded-depth-md border border-red-300 bg-depth-interactive text-red-500 shadow-depth-sm transition duration-150 hover:border-red-400 hover:shadow-depth-md"
+                                        type="button"
                                     >
-                                        <img className="w-5 h-5" src={trashIcon} alt="Delete" />
+                                        <img className="h-4 w-4" src={trashIcon} alt="Delete" />
                                     </button>
                                 </div>
                             </li>

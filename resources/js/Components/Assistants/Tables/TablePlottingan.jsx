@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import toast from "react-hot-toast";
 import ModalDeletePlottingan from "../Modals/ModalDeletePlottingan";
 import ModalEditPlotting from "../Modals/ModalEditPlottingan";
@@ -93,73 +93,61 @@ export default function TablePlottingan() {
     // };
 
     return (
-        <div className="mt-5">
-            {/* Header dengan div */}
-            <div className="bg-deepForestGreen rounded-lg py-2 px-2 mb-2">
-                <div className="grid grid-cols-5 gap-1">
-                    <div className="bg-deepForestGreen hover:bg-darkOliveGreen rounded-lg p-1">
-                        <h1 className="font-bold text-white text-center">Kelas</h1>
-                    </div>
-                    <div className="bg-deepForestGreen hover:bg-darkOliveGreen rounded-lg p-1">
-                        <h1 className="font-bold text-white text-center">Hari</h1>
-                    </div>
-                    <div className="bg-deepForestGreen hover:bg-darkOliveGreen rounded-lg p-1">
-                        <h1 className="font-bold text-white text-center">Shift</h1>
-                    </div>
-                    <div className="bg-deepForestGreen hover:bg-darkOliveGreen rounded-lg p-1">
-                        <h1 className="font-bold text-white text-center">Kelompok</h1>
-                    </div>
-                    <div className="bg-deepForestGreen hover:bg-darkOliveGreen rounded-lg p-1">
-                        <h1 className="font-bold text-white text-center">Review</h1>
-                    </div>
+        <div className="space-y-4">
+            <div className="rounded-depth-lg border border-depth bg-depth-card p-3 shadow-depth-md">
+                <div className="grid grid-cols-5 gap-2 text-xs font-semibold uppercase tracking-wide text-white">
+                    <div className="rounded-depth-md bg-[var(--depth-color-primary)] px-3 py-2 text-center shadow-depth-sm">Kelas</div>
+                    <div className="rounded-depth-md bg-[var(--depth-color-primary)] px-3 py-2 text-center shadow-depth-sm">Hari</div>
+                    <div className="rounded-depth-md bg-[var(--depth-color-primary)] px-3 py-2 text-center shadow-depth-sm">Shift</div>
+                    <div className="rounded-depth-md bg-[var(--depth-color-primary)] px-3 py-2 text-center shadow-depth-sm">Kelompok</div>
+                    <div className="rounded-depth-md bg-[var(--depth-color-primary)] px-3 py-2 text-center shadow-depth-sm">Aksi</div>
                 </div>
             </div>
 
-            {/* Kontainer untuk scroll tabel */}
-            <div className="overflow-x-auto lg:max-h-[48rem] md:max-h-96">
+            <div className="rounded-depth-lg border border-depth bg-depth-card shadow-depth-lg">
                 {isLoading ? (
-                    <div className="text-center py-10 text-gray-500">Memuat data...</div>
+                    <div className="px-6 py-10 text-center text-depth-secondary">Memuat data...</div>
                 ) : isError ? (
-                    <div className="text-center py-10 text-red-500">Error: {error?.message ?? "Gagal memuat data"}</div>
+                    <div className="px-6 py-10 text-center text-red-500">
+                        Error: {error?.message ?? "Gagal memuat data"}
+                    </div>
                 ) : kelas.length > 0 ? (
-                    <div className="grid grid-cols-5 gap-1 bg-softIvory">
+                    <div className="divide-y divide-[color:var(--depth-border)]">
                         {kelas.map((kelasItem) => (
-                            <React.Fragment key={kelasItem.id}>
-                                <div className="flex items-center justify-center h-full py-1 px-4 text-darkBrown border border-forestGreen">
-                                    {kelasItem.kelas}
-                                </div>
-                                <div className="flex items-center justify-center h-full py-1 px-4 text-darkBrown border border-forestGreen">
-                                    {kelasItem.hari}
-                                </div>
-                                <div className="flex items-center justify-center h-full py-1 px-4 text-darkBrown border border-forestGreen">
-                                    {kelasItem.shift}
-                                </div>
-                                <div className="flex items-center justify-center h-full py-1 px-4 text-darkBrown border border-forestGreen">
-                                    {kelasItem.totalGroup}
-                                </div>
-                                <div className="flex items-center justify-center h-full py-1 px-2 border border-forestGreen space-x-2">
+                            <div
+                                key={kelasItem.id}
+                                className="grid grid-cols-5 items-center gap-2 px-4 py-3 text-sm text-depth-primary"
+                            >
+                                <span className="text-center font-semibold">{kelasItem.kelas}</span>
+                                <span className="text-center text-depth-secondary">{kelasItem.hari}</span>
+                                <span className="text-center text-depth-secondary">{kelasItem.shift}</span>
+                                <span className="text-center text-depth-secondary">{kelasItem.totalGroup}</span>
+                                <div className="flex items-center justify-center gap-2">
                                     <button
-                                        onClick={() => handleOpenModalDelete(kelasItem)}
-                                        className="flex justify-center items-center p-1 border-2 border-fireRed rounded"
-                                    >
-                                        <img className="w-4" src={trashIcon} alt="delete icon" />
-                                    </button>
-                                    <button
+                                        type="button"
                                         onClick={() => handleOpenModalEdit(kelasItem)}
-                                        className="flex justify-center items-center p-1 border-2 border-darkBrown rounded"
+                                        className="flex h-9 w-9 items-center justify-center rounded-depth-md border border-depth bg-depth-interactive shadow-depth-sm transition hover:-translate-y-0.5 hover:shadow-depth-md"
                                     >
-                                        <img className="w-4" src={editIcon} alt="edit icon" />
+                                        <img className="h-4 w-4" src={editIcon} alt="edit icon" />
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => handleOpenModalDelete(kelasItem)}
+                                        className="flex h-9 w-9 items-center justify-center rounded-depth-md border border-red-400/60 bg-red-400/15 text-red-500 shadow-depth-sm transition hover:-translate-y-0.5 hover:shadow-depth-md"
+                                    >
+                                        <img className="h-4 w-4" src={trashIcon} alt="delete icon" />
                                     </button>
                                 </div>
-                            </React.Fragment>
+                            </div>
                         ))}
                     </div>
                 ) : (
-                    <div className="text-center py-10 text-gray-500">Tidak ada data kelas yang tersedia</div>
+                    <div className="px-6 py-10 text-center text-depth-secondary">
+                        Tidak ada data kelas yang tersedia.
+                    </div>
                 )}
             </div>
 
-            {/* Modal components */}
             {isModalOpenDelete && (
                 <ModalDeletePlottingan
                     onClose={handleCloseModalDelete}

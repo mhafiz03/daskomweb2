@@ -33,45 +33,44 @@ export default function ModalJawabanTP({ onClose, nim, modulId, assignment }) {
     const jawabanList = data?.jawabanData ?? [];
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
-            <div className="relative w-full max-w-4xl rounded-lg bg-white p-6 shadow-2xl">
-                <button
-                    type="button"
-                    onClick={onClose}
-                    className="absolute right-3 top-3 rounded-full p-1 hover:bg-gray-100"
-                    aria-label="Tutup"
-                >
-                    <img className="h-8 w-8" src={closeIcon} alt="Tutup" />
-                </button>
+        <div className="depth-modal-overlay z-50">
+            <div className="depth-modal-container max-w-6xl" style={{ "--depth-modal-max-width": "56rem" }}>
+                <div className="depth-modal-header">
+                    <div className="text-center flex-1">
+                        <h3 className="depth-modal-title">Jawaban Tugas Pendahuluan</h3>
+                        <p className="text-sm text-depth-secondary mt-1">
+                            {praktikan?.nim ?? "-"} · {praktikan?.nama ?? "Praktikan"}
+                        </p>
+                        <p className="text-xs uppercase tracking-wide text-depth-secondary mt-0.5">
+                            {modul?.judul ?? "Modul tidak ditemukan"}
+                        </p>
+                    </div>
+                    <button
+                        type="button"
+                        onClick={onClose}
+                        className="depth-modal-close"
+                        aria-label="Tutup"
+                    >
+                        <img className="h-6 w-6" src={closeIcon} alt="Tutup" />
+                    </button>
+                </div>
 
-                <header className="mb-4 space-y-1 text-center">
-                    <h3 className="text-2xl font-bold text-deepForestGreen">Jawaban Tugas Pendahuluan</h3>
-                    <p className="text-sm text-darkBrown/70">
-                        {praktikan?.nim ?? "-"} · {praktikan?.nama ?? "Praktikan"}
-                    </p>
-                    <p className="text-xs uppercase tracking-wide text-darkBrown/60">
-                        {modul?.judul ?? "Modul tidak ditemukan"}
-                    </p>
-                </header>
-
-                <hr className="mb-4 border-darkBrown/20" />
-
-                <div className="max-h-[32rem] overflow-y-auto pr-1 text-sm">
+                <div className="max-h-[32rem] overflow-y-auto pr-1">
                     {!nim || !modulId ? (
-                        <div className="py-10 text-center text-darkBrown/70">
+                        <div className="py-10 text-center text-depth-secondary">
                             Data praktikan atau modul tidak lengkap.
                         </div>
                     ) : isLoading ? (
-                        <div className="flex items-center justify-center gap-2 py-10 text-darkBrown">
-                            <span className="inline-block h-5 w-5 animate-spin rounded-full border-2 border-darkBrown border-t-transparent" />
+                        <div className="flex items-center justify-center gap-2 py-10 text-depth-primary">
+                            <span className="inline-block h-5 w-5 animate-spin rounded-full border-2 border-[var(--depth-color-primary)] border-t-transparent" />
                             Memuat jawaban...
                         </div>
                     ) : isError ? (
-                        <div className="py-10 text-center text-fireRed">
+                        <div className="py-10 text-center text-red-500">
                             {error?.message ?? "Gagal memuat jawaban."}
                         </div>
                     ) : jawabanList.length === 0 ? (
-                        <div className="py-10 text-center text-darkBrown/70">
+                        <div className="py-10 text-center text-depth-secondary">
                             Belum ada jawaban yang disubmit untuk modul ini.
                         </div>
                     ) : (
@@ -79,18 +78,18 @@ export default function ModalJawabanTP({ onClose, nim, modulId, assignment }) {
                             {jawabanList.map((item, index) => (
                                 <article
                                     key={`${item.soal_id}-${index}`}
-                                    className="rounded-lg border border-forestGreen/30 bg-softIvory p-4 shadow-sm"
+                                    className="rounded-depth-lg border border-depth bg-depth-card p-5 shadow-depth-md transition-shadow hover:shadow-depth-lg"
                                 >
-                                    <h4 className="font-semibold text-darkBrown">
+                                    <h4 className="font-semibold text-depth-primary text-md mb-3">
                                         {index + 1}. {item.soal_text ?? "Soal tidak tersedia"}
                                     </h4>
-                                    <div className="mt-2 rounded-md bg-white p-3 text-darkBrown">
+                                    <div className="rounded-depth-md border border-depth bg-depth-interactive/40 p-4 text-depth-primary shadow-depth-sm">
                                         {item.jawaban && item.jawaban !== "-" ? (
-                                            <pre className="whitespace-pre-wrap break-words text-sm">
+                                            <pre className="whitespace-pre-wrap break-words text-md font-sans leading-relaxed">
                                                 {item.jawaban}
                                             </pre>
                                         ) : (
-                                            <span className="text-darkBrown/60">Belum ada jawaban</span>
+                                            <span className="text-depth-secondary italic">Belum ada jawaban</span>
                                         )}
                                     </div>
                                 </article>
@@ -103,7 +102,7 @@ export default function ModalJawabanTP({ onClose, nim, modulId, assignment }) {
                     <button
                         type="button"
                         onClick={onClose}
-                        className="inline-flex items-center justify-center rounded-md bg-deepForestGreen px-5 py-2 text-sm font-semibold text-white transition hover:bg-darkGreen"
+                        className="rounded-depth-md bg-[var(--depth-color-primary)] px-5 py-2 text-sm font-semibold text-white shadow-depth-sm transition hover:-translate-y-0.5 hover:shadow-depth-md"
                     >
                         Tutup
                     </button>

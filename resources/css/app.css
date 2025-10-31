@@ -3,3 +3,169 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+    :root {
+        --depth-font-family: "Inter", sans-serif;
+        --depth-color-background: hsl(220, 15%, 96%);
+        --depth-color-card: hsl(220, 15%, 100%);
+        --depth-color-interactive: hsl(220, 15%, 94%);
+        --depth-color-primary: #304d30;
+        --depth-text-primary: hsl(220, 25%, 20%);
+        --depth-text-secondary: hsl(220, 10%, 45%);
+        --depth-border: hsl(220, 15%, 90%);
+        --depth-shadow-sm: inset 0 1px 1px #ffffff80, 0 1px 2px #0000001a, 0 2px 4px #0000001a;
+        --depth-shadow-md: inset 0 1px 1px #ffffff80, 0 2px 4px #0000001a, 0 4px 8px #0000001a;
+        --depth-shadow-lg: inset 0 1px 1px #ffffff80, 0 4px 6px #0000001a, 0 8px 16px #0000001a;
+        --depth-shadow-inset: inset 0 2px 4px #0000001a;
+        --depth-radius-sm: 0.375rem;
+        --depth-radius-md: 0.5rem;
+        --depth-radius-lg: 0.75rem;
+        --depth-radius-full: 9999px;
+        --depth-modal-max-width: 42rem;
+        color-scheme: light;
+    }
+
+    :root[data-theme="dark"],
+    [data-theme="dark"] {
+        --depth-color-background: hsl(220, 25%, 10%);
+        --depth-color-card: hsl(220, 25%, 14%);
+        --depth-color-interactive: hsl(220, 25%, 22%);
+        --depth-color-primary: #4c7a4c;
+        --depth-text-primary: hsl(220, 15%, 95%);
+        --depth-text-secondary: hsl(220, 10%, 65%);
+        --depth-border: hsl(220, 25%, 25%);
+        --depth-shadow-sm: inset 0 1px 1px #ffffff1a, 0 1px 2px #0000004d, 0 2px 4px #0000004d;
+        --depth-shadow-md: inset 0 1px 1px #ffffff1a, 0 2px 4px #0000004d, 0 4px 8px #0000004d;
+        --depth-shadow-lg: inset 0 1px 1px #ffffff1a, 0 4px 6px #0000004d, 0 8px 16px #0000004d;
+        --depth-shadow-inset: inset 0 2px 4px #0000004d;
+        --depth-modal-max-width: 42rem;
+        color-scheme: dark;
+    }
+
+    body {
+        background-color: var(--depth-color-background);
+        color: var(--depth-text-primary);
+        font-family: var(--depth-font-family);
+        transition: background-color 300ms ease, color 300ms ease;
+    }
+}
+
+@layer utilities {
+    .bg-depth-background {
+        background-color: var(--depth-color-background);
+    }
+
+    .bg-depth-card {
+        background-color: var(--depth-color-card);
+    }
+
+    .bg-depth-interactive {
+        background-color: var(--depth-color-interactive);
+    }
+
+    .text-depth-primary {
+        color: var(--depth-text-primary);
+    }
+
+    .text-depth-secondary {
+        color: var(--depth-text-secondary);
+    }
+
+    .border-depth {
+        border-color: var(--depth-border);
+    }
+
+    .shadow-depth-sm {
+        box-shadow: var(--depth-shadow-sm);
+    }
+
+    .shadow-depth-md {
+        box-shadow: var(--depth-shadow-md);
+    }
+
+    .shadow-depth-lg {
+        box-shadow: var(--depth-shadow-lg);
+    }
+
+    .shadow-depth-inset {
+        box-shadow: var(--depth-shadow-inset);
+    }
+
+    .rounded-depth-sm {
+        border-radius: var(--depth-radius-sm);
+    }
+
+    .rounded-depth-md {
+        border-radius: var(--depth-radius-md);
+    }
+
+    .rounded-depth-lg {
+        border-radius: var(--depth-radius-lg);
+    }
+
+    .rounded-depth-full {
+        border-radius: var(--depth-radius-full);
+    }
+
+    .font-depth {
+        font-family: var(--depth-font-family);
+    }
+
+    .depth-modal-overlay {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: fixed;
+        inset: 0;
+        z-index: 50;
+        padding: 1.5rem;
+        background: rgba(10, 14, 25, 0.7);
+        backdrop-filter: blur(8px);
+    }
+
+    .depth-modal-container {
+        width: 100%;
+        max-width: var(--depth-modal-max-width, 42rem);
+        background-color: var(--depth-color-card);
+        color: var(--depth-text-primary);
+        border: 1px solid var(--depth-border);
+        border-radius: var(--depth-radius-lg);
+        box-shadow: var(--depth-shadow-lg);
+        padding: 1.75rem;
+        position: relative;
+    }
+
+    .depth-modal-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        padding-bottom: 1rem;
+        margin-bottom: 1.5rem;
+        border-bottom: 1px solid var(--depth-border);
+    }
+
+    .depth-modal-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: var(--depth-text-primary);
+    }
+
+    .depth-modal-close {
+        border: none;
+        background: transparent;
+        color: var(--depth-text-secondary);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: var(--depth-radius-full);
+        padding: 0.25rem;
+        transition: transform 150ms ease, color 150ms ease;
+    }
+
+    .depth-modal-close:hover {
+        color: var(--depth-text-primary);
+        transform: translateY(-1px);
+    }
+}

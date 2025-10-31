@@ -153,43 +153,39 @@ export default function ModalAddPlottingan({ onClose, fetchKelas }) {
     };
 
     return (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-            {/* Modal Utama */}
-            <div className="bg-white rounded-lg p-6 w-[700px] shadow-lg relative">
-                {/* Header */}
-                <div className="flex justify-between items-center mb-6 border-b border-deepForestGreen">
-                    <h2 className="text-2xl font-bold text-darkGreen">Tambah Jadwal</h2>
-                    {/* Tombol X untuk tutup */}
-                    <button
-                        onClick={onClose}
-                        className="absolute top-2 right-2 flex justify-center items-center"
-                    >
-                        <img className="w-9" src={closeIcon} alt="closeIcon" />
+        <div className="depth-modal-overlay z-50">
+            <div
+                className="depth-modal-container space-y-6"
+                style={{ "--depth-modal-max-width": "56rem" }}
+            >
+                <div className="depth-modal-header">
+                    <h2 className="depth-modal-title">Tambah Jadwal</h2>
+                    <button onClick={onClose} type="button" className="depth-modal-close">
+                        <img className="h-6 w-6" src={closeIcon} alt="Tutup" />
                     </button>
                 </div>
 
-                {/* Input Informasi Jadwal */}
-                <div className="grid grid-cols-4 gap-4 mb-4">
-                    <div>
-                        <label htmlFor="kelas" className="block text-black text-sm font-medium">
+                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+                    <div className="space-y-2">
+                        <label htmlFor="kelas" className="text-sm font-semibold text-depth-secondary">
                             Kelas
                         </label>
                         <input
                             id="kelas"
                             type="text"
-                            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-darkBrown focus:border-darkBrown"
+                            className="w-full rounded-depth-md border border-depth bg-depth-card px-3 py-2 text-sm text-depth-primary shadow-depth-sm transition focus:border-[var(--depth-color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)] focus:ring-offset-0"
                             placeholder="Kelas"
                             value={formData.kelas}
                             onChange={handleInputChange}
                         />
                     </div>
-                    <div>
-                        <label htmlFor="hari" className="block text-black text-sm font-medium">
+                    <div className="space-y-2">
+                        <label htmlFor="hari" className="text-sm font-semibold text-depth-secondary">
                             Hari
                         </label>
                         <select
                             id="hari"
-                            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-darkBrown focus:border-darkBrown"
+                            className="w-full rounded-depth-md border border-depth bg-depth-card px-3 py-2 text-sm text-depth-primary shadow-depth-sm transition focus:border-[var(--depth-color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)] focus:ring-offset-0"
                             value={formData.hari}
                             onChange={handleInputChange}
                         >
@@ -208,27 +204,27 @@ export default function ModalAddPlottingan({ onClose, fetchKelas }) {
                             ))}
                         </select>
                     </div>
-                    <div>
-                        <label htmlFor="shift" className="block text-black text-sm font-medium">
+                    <div className="space-y-2">
+                        <label htmlFor="shift" className="text-sm font-semibold text-depth-secondary">
                             Shift
                         </label>
                         <input
                             id="shift"
                             type="number"
-                            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-darkBrown focus:border-darkBrown"
+                            className="w-full rounded-depth-md border border-depth bg-depth-card px-3 py-2 text-sm text-depth-primary shadow-depth-sm transition focus:border-[var(--depth-color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)] focus:ring-offset-0"
                             placeholder="Shift"
                             value={formData.shift}
                             onChange={handleInputChange}
                         />
                     </div>
-                    <div>
-                        <label htmlFor="totalGroup" className="block text-black text-sm font-medium">
+                    <div className="space-y-2">
+                        <label htmlFor="totalGroup" className="text-sm font-semibold text-depth-secondary">
                             Kelompok
                         </label>
                         <input
                             id="totalGroup"
                             type="number"
-                            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-darkBrown focus:border-darkBrown"
+                            className="w-full rounded-depth-md border border-depth bg-depth-card px-3 py-2 text-sm text-depth-primary shadow-depth-sm transition focus:border-[var(--depth-color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)] focus:ring-offset-0"
                             placeholder="Kelompok"
                             value={formData.totalGroup}
                             onChange={handleInputChange}
@@ -236,10 +232,8 @@ export default function ModalAddPlottingan({ onClose, fetchKelas }) {
                     </div>
                 </div>
 
-                {/* Asisten Jaga */}
-                <div className="mt-6 border border-darkBrown rounded-md p-4 bg-softGray">
-                    <h3 className="text-lg font-semibold text-darkBrown mb-3">Asisten Jaga</h3>
-                    <div className="flex flex-col gap-2 md:flex-row md:items-center">
+                <div className="rounded-depth-lg border border-depth bg-depth-interactive/40 p-4 shadow-depth-sm">
+                    <div className="mb-3 flex flex-col gap-2 md:flex-row md:items-center">
                         <input
                             type="text"
                             value={asistenInput}
@@ -251,34 +245,52 @@ export default function ModalAddPlottingan({ onClose, fetchKelas }) {
                                 }
                             }}
                             placeholder="Masukkan kode asisten"
-                            className="w-full md:w-1/2 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-darkBrown focus:border-darkBrown uppercase"
+                            className="w-full rounded-depth-md border border-depth bg-depth-card px-3 py-2 text-sm text-depth-primary shadow-depth-sm transition focus:border-[var(--depth-color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)] focus:ring-offset-0 uppercase md:w-1/2"
                         />
                         <button
                             type="button"
                             onClick={handleAddPendingAsisten}
-                            className="px-4 py-2 bg-deepForestGreen text-white rounded-md shadow hover:bg-darkGreen transition duration-300"
+                            className="rounded-depth-md bg-[var(--depth-color-primary)] px-4 py-2 text-sm font-semibold text-white shadow-depth-sm transition hover:-translate-y-0.5 hover:shadow-depth-md"
                         >
                             Tambah
                         </button>
+                        <div className="flex items-center gap-2 md:ml-auto">
+                            <span className="text-xs font-semibold text-depth-secondary">English</span>
+                            <button
+                                type="button"
+                                onClick={toggleSwitch}
+                                className={`flex h-6 w-11 items-center rounded-depth-full border border-depth bg-depth-card p-1 transition ${
+                                    isSwitchOn === 1 ? "text-white" : "text-depth-secondary"
+                                }`}
+                            >
+                                <span
+                                    className={`h-4 w-4 rounded-depth-full bg-depth-interactive shadow-depth-sm transition-transform ${
+                                        isSwitchOn === 1 ? "translate-x-5 bg-[var(--depth-color-primary)]" : "translate-x-0"
+                                    }`}
+                                />
+                            </button>
+                        </div>
                     </div>
-                    <p className="text-xs text-gray-600 mt-1">Gunakan kode asisten (contoh: AST-01). Asisten akan ditambahkan setelah jadwal tersimpan.</p>
+                    <p className="text-xs text-depth-secondary">
+                        Gunakan kode asisten (contoh: AST-01). Asisten akan ditambahkan setelah jadwal tersimpan.
+                    </p>
 
-                    <div className="mt-3 max-h-40 overflow-y-auto">
+                    <div className="mt-4 max-h-48 overflow-y-auto">
                         {pendingAsistens.length > 0 ? (
                             <ul className="space-y-2">
                                 {pendingAsistens.map((asisten) => (
                                     <li
                                         key={asisten.id}
-                                        className="flex justify-between items-center border border-lightBrown rounded px-3 py-2 text-sm text-darkBrown bg-white"
+                                        className="flex items-center justify-between rounded-depth-md border border-depth bg-depth-card px-3 py-2 text-sm text-depth-primary shadow-depth-sm"
                                     >
                                         <div>
                                             <p className="font-semibold">{asisten.kode}</p>
-                                            <p className="text-xs text-gray-500">{asisten.nama}</p>
+                                            <p className="text-xs text-depth-secondary">{asisten.nama}</p>
                                         </div>
                                         <button
                                             type="button"
                                             onClick={() => handleRemovePendingAsisten(asisten.id)}
-                                            className="text-fireRed text-xs font-semibold hover:underline"
+                                            className="text-xs font-semibold text-red-400 hover:underline"
                                         >
                                             Hapus
                                         </button>
@@ -286,43 +298,27 @@ export default function ModalAddPlottingan({ onClose, fetchKelas }) {
                                 ))}
                             </ul>
                         ) : (
-                            <p className="text-sm text-gray-500">Belum ada asisten jaga yang ditambahkan.</p>
+                            <p className="text-sm text-depth-secondary">Belum ada asisten jaga yang ditambahkan.</p>
                         )}
                     </div>
                 </div>
 
-                {/* Tombol Simpan */}
-                <div className="mt-4 text-right">
+                <div className="flex justify-end gap-3">
                     <button
+                        type="button"
                         onClick={onClose}
-                        className="px-6 py-2 bg-gray-300 text-darkBrown font-semibold rounded-md shadow hover:bg-gray-400 transition duration-300 mr-2"
+                        className="rounded-depth-md border border-depth bg-depth-interactive px-5 py-2 text-sm font-semibold text-depth-primary shadow-depth-sm transition hover:-translate-y-0.5 hover:shadow-depth-md"
                     >
                         Batal
                     </button>
                     <button
+                        type="button"
                         onClick={handleSave}
                         disabled={addKelasMutation.isPending}
-                        className="px-6 py-2 bg-deepForestGreen text-white font-semibold rounded-md shadow hover:bg-darkGreen transition duration-300 disabled:opacity-50"
+                        className="rounded-depth-md bg-[var(--depth-color-primary)] px-5 py-2 text-sm font-semibold text-white shadow-depth-sm transition hover:-translate-y-0.5 hover:shadow-depth-md disabled:cursor-not-allowed disabled:opacity-60"
                     >
                         {addKelasMutation.isPending ? "Menyimpan..." : "Simpan"}
                     </button>
-                </div>
-
-                {/* Switch On/Off */}
-                <div className="absolute bottom-4 left-4 flex items-center gap-2">
-                    <label className="text-sm font-medium text-gray-700">
-                        English
-                    </label>
-                    <div
-                        onClick={toggleSwitch}
-                        className={`w-10 h-5 flex items-center rounded-full p-1 cursor-pointer transition ${isSwitchOn === 1 ? "bg-deepForestGreen" : "bg-fireRed"
-                            }`}
-                    >
-                        <div
-                            className={`w-4 h-4 bg-white rounded-full shadow-md transform transition ${isSwitchOn === 1 ? "translate-x-5" : "translate-x-0"
-                                }`}
-                        />
-                    </div>
                 </div>
             </div>
         </div>

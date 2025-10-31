@@ -85,11 +85,11 @@ export default function FormTarikPraktikan() {
     };
 
     return (
-        <div className="bg-softIvory p-6 rounded shadow-lg shadow-deepForestGreen w-[750px]">
-            <h2 className="text-xl font-bold mb-6 text-start text-black">Tarik Praktikan</h2>
+        <div className="w-[750px] rounded-depth-lg border border-depth bg-depth-card p-6 shadow-depth-lg">
+            <h2 className="mb-6 text-start text-xl font-bold text-depth-primary">Tarik Praktikan</h2>
             <div className="flex items-center gap-4">
                 <div className="flex-1">
-                    <label htmlFor="nim" className="block text-sm font-medium mb-2">
+                    <label htmlFor="nim" className="mb-2 block text-sm font-medium text-depth-primary">
                         NIM
                     </label>
                     <input
@@ -98,18 +98,18 @@ export default function FormTarikPraktikan() {
                         value={nim}
                         onChange={(e) => setNim(e.target.value)}
                         placeholder="1101223083"
-                        className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-green-500"
+                        className="w-full rounded-depth-md border border-depth bg-depth-card p-2 text-sm text-depth-primary shadow-depth-sm transition focus:border-[var(--depth-color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)] focus:ring-offset-0"
                     />
                 </div>
                 <div className="flex-1">
-                    <label htmlFor="module" className="block text-sm font-medium mb-2">
+                    <label htmlFor="module" className="mb-2 block text-sm font-medium text-depth-primary">
                         Modul
                     </label>
                     <select
                         id="module"
                         value={module}
                         onChange={(e) => setModule(e.target.value)}
-                        className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-green-500"
+                        className="w-full rounded-depth-md border border-depth bg-depth-card p-2 text-sm text-depth-primary shadow-depth-sm transition focus:border-[var(--depth-color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)] focus:ring-offset-0"
                         disabled={modulesLoading}
                     >
                         <option value="" disabled>
@@ -129,11 +129,11 @@ export default function FormTarikPraktikan() {
                             ))}
                     </select>
                 </div>
-                <div className="flex-shrink-0 mt-6">
+                <div className="mt-6 flex-shrink-0">
                     <button
                         onClick={handleSubmit}
                         disabled={tarikPraktikanMutation.isPending || modulesLoading}
-                        className="h-10 px-6 bg-deepForestGreen text-white font-semibold rounded hover:bg-darkGreen transition duration-200 disabled:bg-gray-400"
+                        className="h-10 rounded-depth-md bg-[var(--depth-color-primary)] px-6 text-sm font-semibold text-white shadow-depth-sm transition hover:-translate-y-0.5 hover:shadow-depth-md disabled:cursor-not-allowed disabled:opacity-60"
                     >
                         {tarikPraktikanMutation.isPending ? "Menarik..." : "Tarik"}
                     </button>
@@ -141,16 +141,16 @@ export default function FormTarikPraktikan() {
             </div>
 
             {isModalOpen && (
-                <div className="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50">
-                    <div className="bg-white p-8 rounded shadow-lg w-[30%]">
-                        <h3 className="text-2xl font-bold mb-4 text-center">
+                <div className="depth-modal-overlay">
+                    <div className="depth-modal-container max-w-md">
+                        <h3 className="mb-4 text-center text-2xl font-bold text-depth-primary">
                             {isSuccess ? "Berhasil Ditambahkan" : "Gagal Ditambahkan"}
                         </h3>
-                        <p className="text-center text-md mt-6">{modalMessage}</p>
+                        <p className="mt-6 text-center text-sm text-depth-primary">{modalMessage}</p>
                         <div className="mt-6 text-center">
                             <button
                                 onClick={closeModal}
-                                className="px-4 py-1 bg-deepForestGreen text-white rounded hover:bg-darkGreen"
+                                className="rounded-depth-md bg-[var(--depth-color-primary)] px-5 py-2 text-sm font-semibold text-white shadow-depth-sm transition hover:-translate-y-0.5 hover:shadow-depth-md"
                             >
                                 Tutup
                             </button>

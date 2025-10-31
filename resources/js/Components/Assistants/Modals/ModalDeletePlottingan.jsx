@@ -1,20 +1,24 @@
 export default function ModalDeletePlottingan({ onClose, message, isError, onConfirm }) {
     return (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
-            <div className="bg-softGray p-6 rounded-lg shadow-xl w-96 text-center relative">
-                <h3 className={`text-xl font-bold ${isError ? 'text-fireRed' : 'text-black'} mt-2`}>
-                    {message || "Apakah Anda yakin ingin menghapus data ini?"}
-                </h3>
-                <div className="mt-6 flex justify-center space-x-4">
+        <div className="depth-modal-overlay z-50">
+            <div className="depth-modal-container max-w-sm text-center">
+                <div className="depth-modal-header justify-center">
+                    <h3 className={`depth-modal-title text-center ${isError ? "text-red-500" : ""}`}>
+                        {message || "Apakah Anda yakin ingin menghapus data ini?"}
+                    </h3>
+                </div>
+                <div className="mt-4 flex justify-center gap-3">
                     <button
+                        type="button"
                         onClick={onClose}
-                        className="px-6 py-2 bg-gray-300 text-darkBrown font-semibold rounded-md shadow hover:bg-gray-400 transition duration-300"
+                        className="rounded-depth-md border border-depth bg-depth-interactive px-5 py-2 text-sm font-semibold text-depth-primary shadow-depth-sm transition hover:-translate-y-0.5 hover:shadow-depth-md"
                     >
                         Batal
                     </button>
                     <button
+                        type="button"
                         onClick={onConfirm}
-                        className="text-md font-bold text-white bg-fireRed hover:bg-softRed rounded-md px-6 py-1"
+                        className="rounded-depth-md border border-red-500/60 bg-red-500/15 px-5 py-2 text-sm font-semibold text-red-400 shadow-depth-sm transition hover:-translate-y-0.5 hover:shadow-depth-md"
                     >
                         Hapus
                     </button>

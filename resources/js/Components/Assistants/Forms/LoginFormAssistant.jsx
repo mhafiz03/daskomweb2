@@ -8,7 +8,7 @@ import ModalForgotPass from '../Modals/ModalForgotPass';
 import { submit } from '@/lib/wayfinder';
 import { store as loginAsisten } from '@/actions/App/Http/Controllers/Auth/LoginAsistenController';
 
-export default function LoginFormAssistant({ mode }) {
+export default function LoginFormAssistant({ mode, onSwitchToRegister }) {
     const [values, setValues] = useState({
         kode: '',
         password: '',
@@ -64,15 +64,15 @@ export default function LoginFormAssistant({ mode }) {
 
     return (
         <div className="w-1/2 my-10 px-10">
-            <h1 className="font-bold text-3xl text-darkGreen text-shadow-md text-center">
+            <h1 className="font-bold text-3xl text-depth-primary text-center">
                 WELCOME!
             </h1>
-            <p className="font-bold text-lg text-center">
+            <p className="font-bold text-lg text-depth-secondary text-center">
                 Please login to start practicum.
             </p>
             <form className="flex flex-col gap-2" onSubmit={handleSubmit}>
                 <input
-                    className="bg-lightGray py-1 px-4 mt-10 rounded-sm border-dustyBlue border-2 placeholder-dustyBlue uppercase w-full"
+                    className="bg-depth-card py-2 px-4 mt-10 rounded-depth-md border border-depth placeholder-depth-secondary w-full focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)] focus:border-transparent transition-all uppercase shadow-depth-sm"
                     type="text"
                     id="kode"
                     value={values.kode}
@@ -84,7 +84,7 @@ export default function LoginFormAssistant({ mode }) {
 
                 <div className="relative">
                     <input
-                        className="bg-lightGray py-1 px-4 mt-1 w-full rounded-sm border-dustyBlue border-2 placeholder-dustyBlue"
+                        className="bg-depth-card py-2 px-4 mt-1 w-full rounded-depth-md border border-depth placeholder-depth-secondary focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)] focus:border-transparent transition-all shadow-depth-sm"
                         type={passwordVisible ? 'text' : 'password'}
                         id="password"
                         value={values.password}
@@ -93,7 +93,7 @@ export default function LoginFormAssistant({ mode }) {
                         placeholder="Password"
                     />
                     <img
-                        className="w-4 cursor-pointer absolute top-[55%] right-3 transform -translate-y-1/2"
+                        className="w-4 cursor-pointer absolute top-[55%] right-3 transform -translate-y-1/2 opacity-70 hover:opacity-100 transition-opacity"
                         src={passwordVisible ? eyeOpen : eyeClose}
                         alt="Toggle Password Visibility"
                         onClick={togglePasswordVisibility}
@@ -103,20 +103,20 @@ export default function LoginFormAssistant({ mode }) {
                 <div className="relative items-center" >
                     {/* Error Message */}
                     {errorMessage && (
-                        <p className="text-red-500 justify-center text-sm mt-2">{errorMessage}</p>
+                        <p className="text-red-400 justify-center text-sm mt-2">{errorMessage}</p>
                     )}
                 </div>
 
 
-                <ButtonOption order="login" mode={mode} />
+                <ButtonOption order="login" mode={mode} onSwitchToRegister={onSwitchToRegister} />
             </form>
             <div className="relative my-1 text-right">
                 <p
-                    className="inline-block relative text-sm text-deepForestGreen font-semibold cursor-pointer group"
+                    className="inline-block relative text-sm text-depth-primary font-semibold cursor-pointer group hover:opacity-80 transition-opacity"
                     onClick={openModal}
                 >
                     Forgot Password?
-                    <span className="absolute bottom-[-1px] left-0 right-0 h-0.5 bg-deepForestGreenDark transform scale-x-0 origin-left transition-transform duration-300 group-hover:scale-x-100" />
+                    <span className="absolute bottom-[-1px] left-0 right-0 h-0.5 bg-[var(--depth-color-primary)] transform scale-x-0 origin-left transition-transform duration-300 group-hover:scale-x-100" />
                 </p>
             </div>
 

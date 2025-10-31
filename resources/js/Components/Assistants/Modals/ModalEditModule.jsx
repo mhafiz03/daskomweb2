@@ -1,246 +1,217 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import closeIcon from "../../../../assets/modal/iconClose.svg";
 import { usePage } from "@inertiajs/react";
 import { submit } from "@/lib/wayfinder";
 import { update as updateModul } from "@/actions/App/Http/Controllers/API/ModulController";
 
-export default function ButtonEditModule({ onClose, modules, selectedModuleId, onUpdate, initialOpen }) {
-    const [learningPoint, setLearningPoint] = useState("");
-    const [link1, setLink1] = useState("");
-    const [link2, setLink2] = useState("");
-    const [link3, setLink3] = useState("");
-    const [title, setTitle] = useState("");
+export default function ModalEditModule({ onClose, modules, selectedModuleId, onUpdate }) {
+    const [values, setValues] = useState({
+        judul: "",
+        deskripsi: "",
+        modul_link: "",
+        ppt_link: "",
+        video_link: "",
+        isEnglish: 0,
+        isUnlocked: 0,
+    });
     const [isEnglishOn, setIsEnglishOn] = useState(false);
     const [isUnlockedOn, setIsUnlockedOn] = useState(false);
 
     const { errors } = usePage().props;
 
-    // Reset form fields when selectedModuleId changes
     useEffect(() => {
-        const selectedModule = modules.find(module => module.idM === selectedModuleId);
-        console.log("Selected module:", selectedModule);
-        console.log("Selected module ID:", selectedModuleId);
-        console.log("All modules:", modules);
-
-        if (selectedModule) {
-            setTitle(selectedModule.judul || "");
-            setLearningPoint(selectedModule.deskripsi || "");
-            setLink1(selectedModule.ppt_link || "");
-            setLink2(selectedModule.video_link || "");
-            setLink3(selectedModule.modul_link || "");
-            setIsEnglishOn(selectedModule.isEnglish === 1); // Ensure boolean conversion
-            setIsUnlockedOn(selectedModule.isUnlocked === 1); // Ensure boolean conversion
+        const selected = modules.find((module) => module.idM === selectedModuleId);
+        if (selected) {
+            setValues({
+                judul: selected.judul ?? "",
+                deskripsi: selected.deskripsi ?? "",
+                modul_link: selected.modul_link ?? "",
+                ppt_link: selected.ppt_link ?? "",
+                video_link: selected.video_link ?? "",
+                isEnglish: selected.isEnglish ?? 0,
+                isUnlocked: selected.isUnlocked ?? 0,
+            });
+            setIsEnglishOn(selected.isEnglish === 1);
+            setIsUnlockedOn(selected.isUnlocked === 1);
         }
-    }, [selectedModuleId, modules]);
+    }, [modules, selectedModuleId]);
 
-    // Handle save button click
     const handleSave = () => {
         if (!selectedModuleId) {
-            console.error('Invalid ID:', selectedModuleId);
             toast.error("ID modul tidak valid.");
             return;
         }
 
-        const payload = {
-            judul: title,
-            deskripsi: learningPoint || "",
-            isEnglish: isEnglishOn ? 1 : 0, // Ensure correct value is sent
-            isUnlocked: isUnlockedOn ? 1 : 0, // Ensure correct value is sent
-            modul_link: link3,
-            ppt_link: link1,
-            video_link: link2,
-        };
-
         submit(updateModul(selectedModuleId), {
-            data: payload,
+            data: values,
             preserveScroll: true,
-            onSuccess: (page) => {
+            onSuccess: () => {
                 const updatedModule = {
-                    ...modules.find(m => m.idM === selectedModuleId),
+                    ...(modules.find((m) => m.idM === selectedModuleId) ?? {}),
                     idM: selectedModuleId,
-                    judul: title,
-                    deskripsi: learningPoint || "",
-                    isEnglish: isEnglishOn ? 1 : 0, // Ensure correct value is updated
-                    isUnlocked: isUnlockedOn ? 1 : 0, // Ensure correct value is updated
-                    modul_link: link3,
-                    ppt_link: link1,
-                    video_link: link2
+                    ...values,
                 };
 
-                if (typeof onUpdate === 'function') {
-                    onUpdate(updatedModule); // Pass updated module to parent
+                if (typeof onUpdate === "function") {
+                    onUpdate(updatedModule);
                 }
 
                 toast.success("Modul berhasil diperbarui.");
                 onClose();
             },
-            onError: (errors) => {
-                console.error("Error updating module:", errors);
-                const message = errors?.response?.data?.message ?? "Gagal memperbarui modul.";
+            onError: (error) => {
+                const message = error?.response?.data?.message ?? "Gagal memperbarui modul.";
                 toast.error(message);
             },
         });
     };
 
-    const toggleEnglishSwitch = () => {
-        setIsEnglishOn(prev => !prev); 
-    };
-
-    const toggleUnlockedSwitch = () => {
-        setIsUnlockedOn(prev => !prev);
-    };
+    const linkFields = [
+        { key: "ppt_link", label: "Link PPT", tone: "green" },
+        { key: "video_link", label: "Link Video Youtube", tone: "red" },
+        { key: "modul_link", label: "Link Modul", tone: "blue" },
+    ];
 
     return (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-            {/* Main Modal */}
-            <div className="bg-white rounded-lg p-6 w-[700px] shadow-lg relative overflow-y-auto max-h-[80vh]">
-                {/* Header */}
-                <div className="flex justify-between items-center mb-6 border-b border-deepForestGreen">
-                    <h2 className="text-2xl font-bold text-deepForestGreen">Edit Modul</h2>
-                    {/* Close Button */}
-                    <button
-                        onClick={onClose}
-                        className="absolute top-2 right-2 flex justify-center items-center"
-                    >
-                        <img className="w-9" src={closeIcon} alt="closeIcon" />
+        <div className="depth-modal-overlay z-50">
+            <div
+                className="depth-modal-container max-h-[80vh] w-full max-w-3xl space-y-6 overflow-y-auto"
+            >
+                <div className="depth-modal-header">
+                    <h2 className="depth-modal-title">Edit Modul</h2>
+                    <button onClick={onClose} type="button" className="depth-modal-close">
+                        <img className="h-6 w-6" src={closeIcon} alt="Tutup" />
                     </button>
                 </div>
 
-                {/* General Errors */}
-                {errors.general && (
-                    <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
+                {errors?.general && (
+                    <div className="rounded-depth-md border border-red-400 bg-red-500/10 px-3 py-2 text-sm text-red-500">
                         {errors.general}
                     </div>
                 )}
 
-                {/* Title Input */}
-                <div className="mb-4">
-                    <label htmlFor="judul" className="block text-darkGreen text-md font-medium">
-                        Judul Modul
-                    </label>
-                    <input
-                        id="judul"
-                        type="text"
-                        className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-darkBrown focus:border-darkBrown"
-                        placeholder="Masukkan judul modul"
-                        value={title}
-                        onChange={(e) => setTitle(e.target.value)}
-                    />
-                    {errors.judul && <p className="text-fireRed text-sm mt-1">{errors.judul}</p>}
-                </div>
+                <div className="space-y-6">
+                    <FieldGroup label="Judul Modul" error={errors?.judul}>
+                        <input
+                            id="judul"
+                            type="text"
+                            className="w-full rounded-depth-md border border-depth bg-depth-card px-3 py-2 text-sm text-depth-primary shadow-depth-sm transition focus:border-[var(--depth-color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)] focus:ring-offset-0"
+                            placeholder="Masukkan judul modul"
+                            value={values.judul}
+                            onChange={(event) => setValues({ ...values, judul: event.target.value })}
+                        />
+                    </FieldGroup>
 
-                {/* Learning Points Input */}
-                <div className="mb-4">
-                    <label className="block text-darkGreen text-md font-medium">Poin-poin Pembelajaran</label>
-                    <textarea
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-darkBrown focus:border-darkBrown"
-                        placeholder="Masukkan poin pembelajaran"
-                        value={learningPoint}
-                        onChange={(e) => setLearningPoint(e.target.value)}
-                        rows={4}
-                    />
-                    {errors.deskripsi && <p className="text-fireRed text-sm mt-1">{errors.deskripsi}</p>}
-                </div>
+                    <FieldGroup label="Pencapaian Pembelajaran" error={errors?.deskripsi}>
+                        <textarea
+                            className="w-full rounded-depth-lg border border-depth bg-depth-card px-3 py-2 text-sm text-depth-primary shadow-depth-sm transition focus:border-[var(--depth-color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)] focus:ring-offset-0"
+                            placeholder="Masukkan poin pembelajaran"
+                            rows={4}
+                            value={values.deskripsi}
+                            onChange={(event) => setValues({ ...values, deskripsi: event.target.value })}
+                        />
+                    </FieldGroup>
 
-                {/* Link Inputs */}
-                <div className="mb-4">
-                    <label htmlFor="link1" className="block text-green-700 text-md font-medium">
-                        Link PPT
-                    </label>
-                    <input
-                        id="link1"
-                        type="url"
-                        className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-darkBrown focus:border-darkBrown"
-                        placeholder="Masukkan link PPT"
-                        value={link1}
-                        onChange={(e) => setLink1(e.target.value)}
-                    />
-                    {errors.ppt_link && <p className="text-fireRed text-sm mt-1">{errors.ppt_link}</p>}
-                </div>
-
-                <div className="mb-4">
-                    <label htmlFor="link2" className="block text-red-700 text-md font-medium">
-                        Link Video Youtube
-                    </label>
-                    <input
-                        id="link2"
-                        type="url"
-                        className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-darkBrown focus:border-darkBrown"
-                        placeholder="Masukkan link video youtube"
-                        value={link2}
-                        onChange={(e) => setLink2(e.target.value)}
-                    />
-                    {errors.video_link && <p className="text-fireRed text-sm mt-1">{errors.video_link}</p>}
-                </div>
-
-                <div className="mb-4">
-                    <label htmlFor="link3" className="block text-blue-700 text-md font-medium">
-                        Link Modul
-                    </label>
-                    <input
-                        id="link3"
-                        type="url"
-                        className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-darkBrown focus:border-darkBrown"
-                        placeholder="Masukkan modul"
-                        value={link3}
-                        onChange={(e) => setLink3(e.target.value)}
-                    />
-                    {errors.modul_link && <p className="text-fireRed text-sm mt-1">{errors.modul_link}</p>}
-                </div>
-
-                <div className="flex justify-between">
-                    <div className="flex justify-start gap-3">
-                        <div className="flex items-center gap-2">
-                            <label className="text-sm font-medium text-gray-700">
-                                English
-                            </label>
-                            <div
-                                onClick={toggleEnglishSwitch}
-                                className={`w-10 h-5 flex items-center rounded-full p-1 cursor-pointer transition ${isEnglishOn ? "bg-deepForestGreen" : "bg-fireRed"
-                                    }`}
-                            >
-                                <div
-                                    className={`w-4 h-4 bg-white rounded-full shadow-md transform transition ${isEnglishOn ? "translate-x-5" : "translate-x-0"
-                                        }`}
+                    <div className="space-y-4">
+                        {linkFields.map(({ key, label, tone }) => (
+                            <FieldGroup key={key} label={label} tone={tone} error={errors?.[key]}>
+                                <input
+                                    id={key}
+                                    type="url"
+                                    className="w-full rounded-depth-md border border-depth bg-depth-card px-3 py-2 text-sm text-depth-primary shadow-depth-sm transition focus:border-[var(--depth-color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)] focus:ring-offset-0"
+                                    placeholder={`Masukkan ${label.toLowerCase()}`}
+                                    value={values[key]}
+                                    onChange={(event) => setValues({ ...values, [key]: event.target.value })}
                                 />
-                            </div>
-                        </div>
-
-                        <div className="flex items-center gap-2">
-                            <label className="text-sm font-medium text-gray-700">
-                                Unlocked
-                            </label>
-                            <div
-                                onClick={toggleUnlockedSwitch}
-                                className={`w-10 h-5 flex items-center rounded-full p-1 cursor-pointer transition ${isUnlockedOn ? "bg-deepForestGreen" : "bg-fireRed"
-                                    }`}
-                            >
-                                <div
-                                    className={`w-4 h-4 bg-white rounded-full shadow-md transform transition ${isUnlockedOn ? "translate-x-5" : "translate-x-0"
-                                        }`}
-                                />
-                            </div>
-                        </div>
+                            </FieldGroup>
+                        ))}
                     </div>
 
-                    {/* Save and Cancel Buttons */}
-                    <div className="mt-4 text-right">
-                        <button
-                            onClick={onClose}
-                            className="px-6 py-2 bg-gray-300 text-darkBrown font-semibold rounded-md shadow hover:bg-gray-400 transition duration-300 mr-2"
-                        >
-                            Batal
-                        </button>
-                        <button
-                            onClick={handleSave}
-                            className="px-6 py-2 bg-deepForestGreen text-white font-semibold rounded-md shadow hover:bg-darkGreen transition duration-300"
-                        >
-                            Simpan
-                        </button>
+                    <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                        <div className="flex gap-4">
+                            <DepthToggle
+                                label="English"
+                                isOn={isEnglishOn}
+                                onToggle={() =>
+                                    setIsEnglishOn((prev) => {
+                                        const next = !prev;
+                                        setValues((current) => ({ ...current, isEnglish: next ? 1 : 0 }));
+                                        return next;
+                                    })
+                                }
+                            />
+                            <DepthToggle
+                                label="Unlocked"
+                                isOn={isUnlockedOn}
+                                onToggle={() =>
+                                    setIsUnlockedOn((prev) => {
+                                        const next = !prev;
+                                        setValues((current) => ({ ...current, isUnlocked: next ? 1 : 0 }));
+                                        return next;
+                                    })
+                                }
+                            />
+                        </div>
+
+                        <div className="flex justify-end gap-3">
+                            <button
+                                type="button"
+                                onClick={onClose}
+                                className="rounded-depth-md border border-depth bg-depth-interactive px-5 py-2 text-sm font-semibold text-depth-primary shadow-depth-sm transition hover:-translate-y-0.5 hover:shadow-depth-md"
+                            >
+                                Batal
+                            </button>
+                            <button
+                                type="button"
+                                onClick={handleSave}
+                                className="rounded-depth-md bg-[var(--depth-color-primary)] px-5 py-2 text-sm font-semibold text-white shadow-depth-sm transition hover:-translate-y-0.5 hover:shadow-depth-md"
+                            >
+                                Simpan
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
+        </div>
+    );
+}
+
+function FieldGroup({ label, children, error, tone }) {
+    const toneClasses = {
+        green: "text-green-500",
+        red: "text-red-500",
+        blue: "text-blue-500",
+    }[tone];
+
+    return (
+        <div className="space-y-2">
+            <label className={`text-sm font-semibold text-depth-secondary ${toneClasses ?? ""}`}>
+                {label}
+            </label>
+            {children}
+            {error && <p className="text-sm text-red-500">{error}</p>}
+        </div>
+    );
+}
+
+function DepthToggle({ label, isOn, onToggle }) {
+    return (
+        <div className="flex items-center gap-2">
+            <span className="text-xs font-semibold text-depth-secondary">{label}</span>
+            <button
+                type="button"
+                onClick={onToggle}
+                className={`flex h-6 w-11 items-center rounded-depth-full border border-depth bg-depth-card p-1 transition ${
+                    isOn ? "text-white" : "text-depth-secondary"
+                }`}
+            >
+                <span
+                    className={`h-4 w-4 rounded-depth-full bg-depth-interactive shadow-depth-sm transition-transform ${
+                        isOn ? "translate-x-5 bg-[var(--depth-color-primary)]" : "translate-x-0"
+                    }`}
+                />
+            </button>
         </div>
     );
 }

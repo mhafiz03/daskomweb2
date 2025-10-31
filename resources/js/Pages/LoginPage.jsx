@@ -22,18 +22,20 @@ export default function LoginPage() {
         <>
             <Head title={mode === 'praktikan' ? "Login - Praktikan" : "Login - Asisten"} />
 
-            <div className="bg-lightGainsboro flex items-center mt-14 mx-auto rounded-lg shadow-xl max-w-4xl p-5">
-                 < Toaster />
-                {mode === 'praktikan' ? (           
-                    <LoginFormPraktikan mode={mode} />
-                ) : (
-                    <LoginFormAssistant mode={mode} />
-                )}
+            <div className="bg-depth-background min-h-screen flex items-center justify-center p-4">
+                <Toaster />
+                <div className="bg-depth-card flex items-center rounded-depth-lg shadow-depth-lg max-w-4xl w-full p-5 border border-depth">
+                    {mode === 'praktikan' ? (           
+                        <LoginFormPraktikan mode={mode} />
+                    ) : (
+                        <LoginFormAssistant mode={mode} />
+                    )}
 
-                <div className="w-1/2 flex flex-col items-center justify-center">
-                    <Vector size="w-[410px]" />
-                    <div className="flex flex-col items-center mt-4 w-full">
-                        <ButtonGroup currentMode={mode} />
+                    <div className="w-1/2 flex flex-col items-center justify-center">
+                        <Vector size="w-[410px]" />
+                        <div className="flex flex-col items-center mt-4 w-full">
+                            <ButtonGroup currentMode={mode} />
+                        </div>
                     </div>
                 </div>
             </div>

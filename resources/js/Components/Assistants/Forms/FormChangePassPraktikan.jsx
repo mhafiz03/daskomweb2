@@ -80,12 +80,12 @@ export default function FormChangePassPraktikan() {
     };
 
     return (
-        <div className="bg-softIvory p-6 rounded shadow-lg shadow-deepForestGreen w-full max-w-3xl">
-            <h2 className="text-xl font-bold mb-6 text-start text-black">Ganti Password Praktikan</h2>
+        <div className="w-full max-w-3xl rounded-depth-lg border border-depth bg-depth-card p-6 shadow-depth-lg">
+            <h2 className="mb-6 text-start text-xl font-bold text-depth-primary">Ganti Password Praktikan</h2>
             <form onSubmit={handleSave} className="flex items-center gap-4">
                 {/* Input NIM */}
                 <div className="flex-1">
-                    <label htmlFor="nim" className="block text-sm font-medium mb-2">
+                    <label htmlFor="nim" className="mb-2 block text-sm font-medium text-depth-primary">
                         NIM
                     </label>
                     <input
@@ -94,13 +94,13 @@ export default function FormChangePassPraktikan() {
                         value={values.nim}
                         onChange={handleChange}
                         placeholder="1101223083"
-                        className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full rounded-depth-md border border-depth bg-depth-card p-2 text-sm text-depth-primary shadow-depth-sm transition focus:border-[var(--depth-color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)] focus:ring-offset-0"
                     />
-                    {errors.nim && <p className="text-red-500 text-xs mt-1">{errors.nim}</p>}
+                    {errors.nim && <p className="mt-1 text-xs text-red-500">{errors.nim}</p>}
                 </div>
                 {/* Input Password Baru */}
                 <div className="flex-1">
-                    <label htmlFor="password" className="block text-sm font-medium mb-2">
+                    <label htmlFor="password" className="mb-2 block text-sm font-medium text-depth-primary">
                         Password Baru
                     </label>
                     <input
@@ -109,16 +109,16 @@ export default function FormChangePassPraktikan() {
                         value={values.password}
                         onChange={handleChange}
                         placeholder="Jangan Lupa ya"
-                        className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full rounded-depth-md border border-depth bg-depth-card p-2 text-sm text-depth-primary shadow-depth-sm transition focus:border-[var(--depth-color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)] focus:ring-offset-0"
                     />
-                    {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password}</p>}
+                    {errors.password && <p className="mt-1 text-xs text-red-500">{errors.password}</p>}
                 </div>
                 {/* Tombol Simpan */}
-                <div className="flex-shrink-0 mt-6">
+                <div className="mt-6 flex-shrink-0">
                     <button
                         type="submit"
                         disabled={isLoading}
-                        className="h-10 px-6 bg-deepForestGreen text-white font-semibold rounded hover:bg-darkGreen transition duration-200"
+                        className="h-10 rounded-depth-md bg-[var(--depth-color-primary)] px-6 text-sm font-semibold text-white shadow-depth-sm transition hover:-translate-y-0.5 hover:shadow-depth-md disabled:cursor-not-allowed disabled:opacity-60"
                     >
                         {isLoading ? 'Menyimpan...' : 'Simpan'}
                     </button>
@@ -127,16 +127,16 @@ export default function FormChangePassPraktikan() {
 
             {/* Modal */}
             {isModalOpen && (
-                <div className="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50">
-                    <div className="bg-white p-8 rounded shadow-lg w-96">
-                        <h3 className="text-2xl font-bold mb-4 text-center">
+                <div className="depth-modal-overlay">
+                    <div className="depth-modal-container max-w-md">
+                        <h3 className="mb-4 text-center text-2xl font-bold text-depth-primary">
                             {isSuccess ? 'Berhasil Disimpan' : 'Gagal Disimpan'}
                         </h3>
-                        <p className="text-center text-md mt-6">{modalMessage}</p>
+                        <p className="mt-6 text-center text-sm text-depth-primary">{modalMessage}</p>
                         <div className="mt-6 text-center">
                             <button
                                 onClick={closeModal}
-                                className="px-4 py-1 bg-deepForestGreen text-white rounded hover:bg-darkGreen"
+                                className="rounded-depth-md bg-[var(--depth-color-primary)] px-5 py-2 text-sm font-semibold text-white shadow-depth-sm transition hover:-translate-y-0.5 hover:shadow-depth-md"
                             >
                                 Tutup
                             </button>

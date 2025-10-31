@@ -22,31 +22,38 @@ export default function ModalLogout({ onClose, onConfirm }) {
     };
 
     return (
-        <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex justify-center items-center">
-            <div className="bg-softGray p-6 rounded shadow-lg w-1/4 relative">
-                {/* Close Button */}
-                <button
-                    onClick={onClose}
-                    className="absolute top-2 right-2 flex justify-center items-center"
-                >
-                    <img className="w-9" src={closeIcon} alt="Close Icon" />
-                </button>
-
-                <h2 className="text-2xl font-bold text-center mt-8 mb-5">Apakah Kamu Yakin?</h2>
-
-                {/* Yes and No Buttons */}
-                <div className="flex justify-center gap-2 mt-6">
-                    <button
-                        onClick={handleConfirm}
-                        className="w-1/3 p-2 bg-deepForestGreen text-white font-semibold rounded hover:bg-darkGreen"
-                    >
-                        Ya
-                    </button>
+        <div className="depth-modal-overlay">
+            <div className="depth-modal-container max-w-md">
+                <div className="depth-modal-header">
+                    <h2 className="depth-modal-title">Apakah Kamu Yakin?</h2>
                     <button
                         onClick={onClose}
-                        className="w-1/3 p-2 bg-softRed text-white font-semibold rounded hover:bg-rustyRed"
+                        type="button"
+                        className="depth-modal-close"
+                    >
+                        <img className="h-6 w-6" src={closeIcon} alt="Close Icon" />
+                    </button>
+                </div>
+
+                <p className="text-center text-depth-secondary mb-6">
+                    Anda akan keluar dari sistem. Pastikan semua perubahan telah disimpan.
+                </p>
+
+                {/* Yes and No Buttons */}
+                <div className="flex justify-center gap-3">
+                    <button
+                        onClick={onClose}
+                        type="button"
+                        className="rounded-depth-md border border-depth bg-depth-interactive px-6 py-2 text-sm font-semibold text-depth-primary shadow-depth-sm transition hover:-translate-y-0.5 hover:shadow-depth-md"
                     >
                         Tidak
+                    </button>
+                    <button
+                        onClick={handleConfirm}
+                        type="button"
+                        className="rounded-depth-md border border-red-500/60 bg-red-500/15 px-6 py-2 text-sm font-semibold text-red-400 shadow-depth-sm transition hover:-translate-y-0.5 hover:shadow-depth-md"
+                    >
+                        Ya, Keluar
                     </button>
                 </div>
             </div>

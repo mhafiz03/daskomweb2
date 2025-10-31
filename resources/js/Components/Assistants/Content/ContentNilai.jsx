@@ -44,8 +44,8 @@ const toDisplayTime = (value) => {
 };
 
 const STATUS_CLASS = {
-    success: "bg-emerald-100 text-emerald-800",
-    pending: "bg-amber-100 text-amber-800",
+    success: "border border-emerald-400/50 bg-emerald-400/15 text-emerald-400",
+    pending: "border border-amber-400/50 bg-amber-400/15 text-amber-400",
 };
 
 export default function ContentNilai({ asisten }) {
@@ -101,50 +101,50 @@ export default function ContentNilai({ asisten }) {
     };
 
     return (
-        <div className="mt-5 space-y-4">
-            <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-                <div className="border-2 border-darkBrown rounded-md shadow-md ">
-                    <h6 className="text-md text-darkBrown text-center py-1 font-semibold px-16">Input Nilai Praktikan</h6>
+        <div className="space-y-6 text-depth-primary">
+            <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                <div className="rounded-depth-lg border border-depth bg-depth-card px-10 py-4 shadow-depth-sm">
+                    <h6 className="text-lg font-semibold text-depth-primary">Input Nilai Praktikan</h6>
                 </div>
-                <div className="relative w-full md:w-72">
+                <div className="relative w-full md:w-80">
                     <input
                         type="search"
                         value={search}
                         onChange={(event) => setSearch(event.target.value)}
                         placeholder="Cari nama, NIM, modul..."
-                        className="w-full rounded-md border border-forestGreen bg-white py-2 pl-3 pr-10 text-sm text-darkBrown focus:border-darkGreen focus:outline-none focus:ring-1 focus:ring-darkGreen"
+                        className="w-full rounded-depth-full border border-depth bg-depth-interactive py-2.5 pl-4 pr-11 text-sm text-depth-primary shadow-depth-inset transition focus:border-[var(--depth-color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)] focus:ring-offset-0 placeholder:text-depth-secondary"
                     />
-                    <span className="absolute inset-y-0 right-3 flex items-center text-forestGreen">
+                    <span className="pointer-events-none absolute inset-y-0 right-4 flex items-center text-depth-secondary">
                         🔍
                     </span>
                 </div>
             </div>
 
-            <div className="rounded-lg bg-deepForestGreen px-2 py-2 shadow">
-                <div className="grid grid-cols-5 gap-1 text-sm font-semibold text-white">
-                    <div className="rounded-lg px-2 py-1 text-center">Tanggal</div>
-                    <div className="rounded-lg px-2 py-1 text-center">Praktikan</div>
-                    <div className="rounded-lg px-2 py-1 text-center">Kelas</div>
-                    <div className="rounded-lg px-2 py-1 text-center">Waktu</div>
-                    <div className="rounded-lg px-2 py-1 text-center">Review</div>
+            <div className="rounded-depth-lg border border-depth bg-depth-card p-3 shadow-depth-md">
+                <div className="grid grid-cols-5 gap-2 text-xs font-semibold uppercase tracking-wide text-white">
+                    <div className="rounded-depth-md bg-[var(--depth-color-primary)] px-3 py-2 text-center shadow-depth-sm">Tanggal</div>
+                    <div className="rounded-depth-md bg-[var(--depth-color-primary)] px-3 py-2 text-center shadow-depth-sm">Praktikan</div>
+                    <div className="rounded-depth-md bg-[var(--depth-color-primary)] px-3 py-2 text-center shadow-depth-sm">Kelas</div>
+                    <div className="rounded-depth-md bg-[var(--depth-color-primary)] px-3 py-2 text-center shadow-depth-sm">Waktu</div>
+                    <div className="rounded-depth-md bg-[var(--depth-color-primary)] px-3 py-2 text-center shadow-depth-sm">Review</div>
                 </div>
             </div>
 
-            <div className="overflow-y-auto rounded-lg border border-forestGreen bg-softIvory shadow-inner lg:max-h-[48rem]">
+            <div className="overflow-y-auto rounded-depth-lg border border-depth bg-depth-card shadow-depth-lg lg:max-h-[48rem]">
                 {isLoading && (
-                    <div className="flex items-center justify-center py-10 text-darkBrown">
-                        <span className="mr-3 inline-block h-5 w-5 animate-spin rounded-full border-2 border-darkGreen border-t-transparent" />
+                    <div className="flex items-center justify-center gap-3 py-10 text-depth-secondary">
+                        <span className="inline-block h-5 w-5 animate-spin rounded-full border-2 border-[var(--depth-color-primary)] border-t-transparent" />
                         Memuat data praktikan...
                     </div>
                 )}
 
                 {isError && !isLoading && (
-                    <div className="flex flex-col items-center justify-center gap-2 py-10 text-center text-fireRed">
+                    <div className="flex flex-col items-center justify-center gap-3 py-10 text-center text-red-400">
                         <p>{error?.message ?? "Gagal memuat data praktikan."}</p>
                         <button
                             type="button"
                             onClick={() => queryClient.invalidateQueries({ queryKey: ASSIGNED_PRAKTIKAN_QUERY_KEY })}
-                            className="rounded-md bg-fireRed px-4 py-1 text-sm font-semibold text-white hover:bg-softRed"
+                            className="rounded-depth-md bg-[var(--depth-color-primary)] px-4 py-2 text-sm font-semibold text-white shadow-depth-sm transition hover:-translate-y-0.5 hover:shadow-depth-md"
                         >
                             Coba Lagi
                         </button>
@@ -152,30 +152,30 @@ export default function ContentNilai({ asisten }) {
                 )}
 
                 {!isLoading && !isError && filteredAssignments.length === 0 && (
-                    <div className="py-12 text-center text-darkBrown/70">
+                    <div className="py-12 text-center text-depth-secondary">
                         Belum ada praktikan yang siap dinilai.
                     </div>
                 )}
 
                 {!isLoading && !isError && filteredAssignments.length > 0 && (
-                    <div className="divide-y divide-forestGreen/40">
+                    <div className="divide-y divide-[color:var(--depth-border)] border-t border-[color:var(--depth-border)]">
                         {filteredAssignments.map((assignment) => {
                             const isReviewed = Boolean(assignment?.nilai);
                             const status = isReviewed
-                                ? { label: "Sudah dinilai", tone: STATUS_CLASS.success }
-                                : { label: "Belum dinilai", tone: STATUS_CLASS.pending };
+                                ? { label: "Done", tone: STATUS_CLASS.success }
+                                : { label: "Unmarked", tone: STATUS_CLASS.pending };
 
                             return (
                                 <div
                                     key={assignment.id}
-                                    className="grid grid-cols-5 items-center gap-1 bg-white px-2 py-3 text-sm text-darkBrown"
+                                    className="grid grid-cols-5 items-center gap-2 bg-depth-card px-4 py-4 text-sm text-depth-primary transition hover:bg-depth-interactive even:bg-depth-interactive"
                                 >
                                     <div className="text-center font-medium">
                                         {toDisplayDate(assignment?.datetime?.date ?? assignment?.timestamps?.updated_at)}
                                     </div>
                                     <div className="text-center">
                                         <div className="font-semibold">{assignment?.praktikan?.nim ?? "-"}</div>
-                                        <div className="text-xs text-darkBrown/70">
+                                        <div className="text-xs text-depth-secondary">
                                             {assignment?.praktikan?.nama ?? "Tidak diketahui"}
                                         </div>
                                     </div>
@@ -187,17 +187,17 @@ export default function ContentNilai({ asisten }) {
                                     </div>
                                     <div className="flex items-center justify-center gap-3">
                                         <span
-                                            className={`rounded-full px-2 py-1 text-xs font-semibold text-center ${status.tone}`}
+                                            className={`rounded-depth-full px-3 py-1 text-xs font-semibold text-center ${status.tone}`}
                                         >
                                             {status.label}
                                         </span>
                                         <button
                                             type="button"
                                             onClick={() => handleOpenModalInput(assignment)}
-                                            className="flex items-center gap-1 rounded-md border border-forestGreen px-3 py-1 text-sm font-semibold text-darkBrown transition hover:bg-softBrown"
+                                            className="flex items-center gap-2 rounded-depth-md border border-depth bg-depth-interactive px-3 py-2 text-xs font-semibold text-depth-primary shadow-depth-sm transition hover:-translate-y-0.5 hover:shadow-depth-md"
                                         >
                                             <img src={editIcon} alt="edit icon" className="h-4 w-4" />
-                                            {isReviewed ? "Edit Nilai" : "Input Nilai"}
+                                            {/* {isReviewed ? "Edit Nilai" : "Input Nilai"} */}
                                         </button>
                                     </div>
                                 </div>
@@ -218,4 +218,3 @@ export default function ContentNilai({ asisten }) {
         </div>
     );
 }
-

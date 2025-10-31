@@ -87,44 +87,45 @@ export default function ModalOpenKJ({ onClose, modules }) {
 
     return (
         <>
-            <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-                <div className="bg-white rounded-lg p-6 w-[800px] shadow-lg relative">
-                    <div className="flex justify-between items-center mb-4 border-b border-gray-300">
-                        <h2 className="text-xl font-semibold flex items-center gap-2">
-                            <img className="w-8" src={editIcon} alt="praktikum" /> LOCK / UNLOCK
+            <div className="depth-modal-overlay">
+                <div className="depth-modal-container max-w-4xl">
+                    <div className="depth-modal-header">
+                        <h2 className="depth-modal-title flex items-center gap-2">
+                            <img className="h-6 w-6" src={editIcon} alt="praktikum" /> LOCK / UNLOCK
                         </h2>
                         <button
                             onClick={onClose}
-                            className="absolute top-2 right-2 flex justify-center items-center"
+                            type="button"
+                            className="depth-modal-close"
                         >
-                            <img className="w-9" src={closeIcon} alt="closeIcon" />
+                            <img className="h-6 w-6" src={closeIcon} alt="closeIcon" />
                         </button>
                     </div>
 
-                    <div className="max-h-[350px] overflow-y-auto">
+                    <div className="max-h-[450px] overflow-y-auto rounded-depth-md border border-depth bg-depth-card shadow-depth-sm">
                         <table className="w-full border-collapse">
-                            <thead>
+                            <thead className="sticky top-0 bg-depth-card z-10">
                                 <tr>
-                                    <th className="text-left py-2 px-4 border-b">Module</th>
-                                    <th className="text-left py-2 px-4 border-b">Status</th>
+                                    <th className="text-left py-3 px-4 border-b border-depth text-depth-primary font-semibold">Module</th>
+                                    <th className="text-left py-3 px-4 border-b border-depth text-depth-primary font-semibold">Status</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {modulesLoading ? (
                                     <tr>
-                                        <td colSpan="2" className="text-center py-4">Loading...</td>
+                                        <td colSpan="2" className="text-center py-6 text-depth-secondary">Loading...</td>
                                     </tr>
                                 ) : modulesError ? (
                                     <tr>
-                                        <td colSpan="2" className="text-center py-4 text-red-500">
+                                        <td colSpan="2" className="text-center py-6 text-red-500">
                                             {modulesQueryError?.message ?? "Gagal memuat modul"}
                                         </td>
                                     </tr>
                                 ) : (
                                     modul.map((m) => (
-                                        <tr key={m.idM} className="even:bg-gray-100">
-                                            <td className="py-2 px-4">{m.judul}</td>
-                                            <td className="py-2 px-4">
+                                        <tr key={m.idM} className="hover:bg-depth-interactive transition-colors">
+                                            <td className="py-3 px-4 border-b border-depth/50 text-depth-primary">{m.judul}</td>
+                                            <td className="py-3 px-4 border-b border-depth/50">
                                                 <label className="inline-flex items-center cursor-pointer">
                                                     <input
                                                         type="checkbox"
@@ -133,11 +134,11 @@ export default function ModalOpenKJ({ onClose, modules }) {
                                                         className="hidden"
                                                     />
                                                     <div
-                                                        className={`w-20 h-8 flex items-center rounded-full px-2 transition-all duration-300 ${config[m.idM] ? "bg-deepForestGreen" : "bg-fireRed"
+                                                        className={`w-20 h-8 flex items-center rounded-depth-full px-2 transition-all duration-300 shadow-depth-sm ${config[m.idM] ? "bg-[var(--depth-color-primary)]" : "bg-red-500"
                                                             }`}
                                                     >
                                                         <div
-                                                            className={`w-6 h-6 bg-white rounded-full shadow-md transform transition-transform ${config[m.idM] ? "translate-x-10" : "translate-x-0"
+                                                            className={`w-6 h-6 bg-white rounded-depth-full shadow-depth-md transform transition-transform ${config[m.idM] ? "translate-x-10" : "translate-x-0"
                                                                 }`}
                                                         ></div>
                                                     </div>
@@ -153,7 +154,7 @@ export default function ModalOpenKJ({ onClose, modules }) {
                     <div className="flex justify-center mt-5">
                         <button
                             onClick={handleSave}
-                            className="w-1/4 py-2 bg-deepForestGreen text-white font-semibold rounded-lg shadow-md hover:bg-darkGreen transition"
+                            className="w-full rounded-depth-md bg-[var(--depth-color-primary)] px-5 py-2 text-sm font-semibold text-white shadow-depth-sm transition hover:-translate-y-0.5 hover:shadow-depth-md sm:w-auto sm:px-8"
                         >
                             Simpan
                         </button>

@@ -20,15 +20,17 @@ export default function RegistPage() {
     return (
         <>
             <Head title={mode === 'praktikan' ? "Register - Praktikan" : "Register - Asisten"} />
-            < Toaster />
-            <div className="bg-lightGainsboro flex mt-8 mx-auto rounded-lg shadow-xl max-w-4xl p-5">
-
-                {mode === 'praktikan' ? (
-                    <RegistFormPraktikan mode={mode} />
-                ) : (
-                    <RegistFormAssistant mode={mode} />
-                )}
-                <Vector />
+            
+            <div className="bg-depth-background min-h-screen flex items-center justify-center p-4">
+                <Toaster />
+                <div className="bg-depth-card flex rounded-depth-lg shadow-depth-lg max-w-4xl w-full p-5 border border-depth">
+                    {mode === 'praktikan' ? (
+                        <RegistFormPraktikan mode={mode} />
+                    ) : (
+                        <RegistFormAssistant mode={mode} />
+                    )}
+                    <Vector />
+                </div>
             </div>
         </>
     );

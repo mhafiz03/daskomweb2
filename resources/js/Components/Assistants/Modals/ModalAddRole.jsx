@@ -1,6 +1,6 @@
 import { useState } from "react";
 import toast from "react-hot-toast";
-import closeIcon from "../../../../assets/modal/iconClose.svg"
+import closeIcon from "../../../../assets/modal/iconClose.svg";
 import { submit } from "@/lib/wayfinder";
 import { store as storeRole } from "@/actions/App/Http/Controllers/API/RoleController";
 
@@ -41,7 +41,6 @@ export default function ButtonAddRole({ onClose, defaultChecked = ['asisten'] })
                     paket: checkedPermissions,
                 },
                 onSuccess: () => {
-                    setShowSuccessModal(true);
                     toast.success("Role berhasil ditambahkan.");
                     setTimeout(() => {
                         onClose();
@@ -57,24 +56,17 @@ export default function ButtonAddRole({ onClose, defaultChecked = ['asisten'] })
     };
 
     return (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-            {/* Modal Utama */}
-            <div className="bg-white rounded-lg p-6 w-[700px] shadow-lg relative">
-                {/* Header */}
-                <div className="flex justify-between items-center mb-6 border-b border-deepForestGreen">
-                    <h2 className="text-2xl font-bold text-darkGreen">Tambah Role</h2>
-                    {/* Tombol X untuk tutup */}
-                    <button
-                        onClick={onClose}
-                        className="absolute top-2 right-2 flex justify-center items-center"
-                    >
-                        <img className="w-9" src={closeIcon} alt="closeIcon" />
+        <div className="depth-modal-overlay">
+            <div className="depth-modal-container max-w-3xl">
+                <div className="depth-modal-header">
+                    <h2 className="depth-modal-title">Tambah Role</h2>
+                    <button onClick={onClose} className="depth-modal-close" type="button">
+                        <img className="h-6 w-6" src={closeIcon} alt="Tutup" />
                     </button>
                 </div>
 
-                {/* Input Nama Role */}
-                <div className="mb-4">
-                    <label htmlFor="roleName" className="block text-black text-sm font-medium">
+                <div className="mb-4 space-y-2">
+                    <label htmlFor="roleName" className="text-sm font-medium text-depth-secondary">
                         Nama Role
                     </label>
                     <input
@@ -82,45 +74,47 @@ export default function ButtonAddRole({ onClose, defaultChecked = ['asisten'] })
                         type="text"
                         value={roleName}
                         onChange={(e) => setRoleName(e.target.value)}
-                        className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-darkBrown focus:border-darkBrown"
+                        className="w-full rounded-depth-md border border-depth bg-depth-card px-3 py-2 text-sm text-depth-primary shadow-depth-sm transition focus:border-[var(--depth-color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)] focus:ring-offset-0"
                         placeholder="ex: DDC"
                     />
                 </div>
 
-                {/* Daftar Kuasa Role (Checkbox) */}
-                <div className="max-h-60 overflow-y-auto border-t border-gray-300 pt-4">
+                <div className="max-h-60 overflow-y-auto rounded-depth-md border border-depth bg-depth-interactive/40 p-4">
                     {rolePermissions.map((permission) => (
-                        <div key={permission.paket} className="flex items-center gap-2 p-2 border rounded-md mb-2">
+                        <div
+                            key={permission.paket}
+                            className="mb-2 flex items-center gap-3 rounded-depth-md border border-transparent bg-depth-card px-3 py-2 text-sm text-depth-primary shadow-depth-sm"
+                        >
                             <input
                                 type="checkbox"
                                 id={`permission-${permission.paket}`}
-                                className="w-4 h-4"
-                                checked={checkedPermissions.includes(permission.paket)&& permission}
+                                className="h-4 w-4 rounded border-depth text-[var(--depth-color-primary)] focus:ring-[var(--depth-color-primary)]"
+                                checked={checkedPermissions.includes(permission.paket)}
                                 onChange={() => toggleCheckedPermission(permission.paket)}
                             />
-                            <label htmlFor={`permission-${permission.paket}`} className="text-gray-700">
+                            <label htmlFor={`permission-${permission.paket}`} className="text-depth-secondary">
                                 {permission.name}
                             </label>
                         </div>
                     ))}
                 </div>
 
-                 {/* Error Message */}
                 {errorMessage && (
-                    <p className="text-red-500 text-sm mt-2">{errorMessage}</p>
+                    <p className="mt-2 text-sm text-red-500">{errorMessage}</p>
                 )}
 
-                {/* Tombol Simpan & Batal */}
-                <div className="mt-4 text-right">
+                <div className="mt-6 flex justify-end gap-3">
                     <button
                         onClick={onClose}
-                        className="px-6 py-2 bg-gray-300 text-darkBrown font-semibold rounded-md shadow hover:bg-gray-400 transition duration-300 mr-2"
+                        type="button"
+                        className="rounded-depth-md border border-depth bg-depth-interactive px-5 py-2 text-sm font-semibold text-depth-primary shadow-depth-sm transition hover:-translate-y-0.5 hover:shadow-depth-md"
                     >
                         Batal
                     </button>
                     <button
                         onClick={handleSave}
-                        className="px-6 py-2 bg-deepForestGreen text-white font-semibold rounded-md shadow hover:bg-darkGreen transition duration-300"
+                        type="button"
+                        className="rounded-depth-md bg-[var(--depth-color-primary)] px-5 py-2 text-sm font-semibold text-white shadow-depth-sm transition hover:-translate-y-0.5 hover:shadow-depth-md"
                     >
                         Simpan
                     </button>

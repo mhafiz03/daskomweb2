@@ -112,55 +112,64 @@ export default function ModalEditSoalPG({ soalItem, onClose, onConfirm }) {
     };
 
     return (
-        <div className="modal fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-            <div className="modal-content bg-white rounded-lg p-6 w-[800px] max-h-[90vh] shadow-lg overflow-y-auto relative">
-                <div className="flex justify-between items-center mb-6 border-b border-deepForestGreen pb-2">
-                    <h2 className="text-2xl font-bold text-darkGreen">Edit Soal</h2>
-                    <button
-                        onClick={onClose}
-                        className="absolute top-2 right-2 flex justify-center items-center"
-                    >
-                        <img className="w-9" src={closeIcon} alt="Tutup" />
+        <div className="depth-modal-overlay">
+            <div className="depth-modal-container max-w-3xl overflow-y-auto">
+                <div className="depth-modal-header">
+                    <h2 className="depth-modal-title">Edit Soal</h2>
+                    <button onClick={onClose} type="button" className="depth-modal-close">
+                        <img className="h-6 w-6" src={closeIcon} alt="Tutup" />
                     </button>
                 </div>
 
-                <label className="block text-gray-700 font-medium mb-2">Pertanyaan</label>
-                <textarea
-                    value={pertanyaan}
-                    rows={6}
-                    onChange={(e) => setPertanyaan(e.target.value)}
-                    placeholder="Masukkan soal..."
-                    className="w-full border border-gray-300 rounded-lg p-3 mb-6"
-                />
-
-                <label className="block text-gray-700 font-medium mb-2">Pilihan Jawaban</label>
-                <div className="space-y-3">
-                    {options.map((option, index) => (
-                        <div key={index} className="flex items-center space-x-3">
-                            <input
-                                type="radio"
-                                name="correctOption"
-                                checked={correctIndex === index}
-                                onChange={() => setCorrectIndex(index)}
-                                className="accent-deepForestGreen"
-                            />
-                            <input
-                                value={option.text}
-                                onChange={(e) => handleOptionChange(index, e.target.value)}
-                                placeholder={`Pilihan ${String.fromCharCode(65 + index)}`}
-                                className="flex-1 rounded-lg border border-gray-300 p-2"
-                            />
-                        </div>
-                    ))}
+                <div className="space-y-2">
+                    <label className="text-sm font-medium text-depth-secondary" htmlFor="pertanyaan">
+                        Pertanyaan
+                    </label>
+                    <textarea
+                        id="pertanyaan"
+                        value={pertanyaan}
+                        rows={6}
+                        onChange={(e) => setPertanyaan(e.target.value)}
+                        placeholder="Masukkan soal..."
+                        className="w-full rounded-depth-lg border border-depth bg-depth-card p-3 text-sm text-depth-primary shadow-depth-sm transition focus:border-[var(--depth-color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)] focus:ring-offset-0"
+                    />
                 </div>
 
-                <div className="mt-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-                    <label className="font-medium text-lg mb-1" htmlFor="modul_id">
+                <div className="mt-6 space-y-3">
+                    <label className="text-sm font-medium text-depth-secondary">
+                        Pilihan Jawaban
+                    </label>
+                    <div className="space-y-3">
+                        {options.map((option, index) => (
+                            <div
+                                key={index}
+                                className="flex items-center gap-3 rounded-depth-md border border-depth bg-depth-card p-3 shadow-depth-sm"
+                            >
+                                <input
+                                    type="radio"
+                                    name="correctOption"
+                                    checked={correctIndex === index}
+                                    onChange={() => setCorrectIndex(index)}
+                                    className="h-4 w-4 rounded border-depth text-[var(--depth-color-primary)] focus:ring-[var(--depth-color-primary)]"
+                                />
+                                <input
+                                    value={option.text}
+                                    onChange={(e) => handleOptionChange(index, e.target.value)}
+                                    placeholder={`Pilihan ${String.fromCharCode(65 + index)}`}
+                                    className="flex-1 rounded-depth-md border border-transparent bg-depth-interactive p-3 text-sm text-depth-primary shadow-depth-inset transition focus:border-[var(--depth-color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)] focus:ring-offset-0"
+                                />
+                            </div>
+                        ))}
+                    </div>
+                </div>
+
+                <div className="mt-6 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                    <label className="text-sm font-semibold text-depth-secondary" htmlFor="modul_id">
                         Modul
                     </label>
                     <select
                         id="modul_id"
-                        className="w-full border border-deepForestGreen rounded-md p-2 shadow-sm"
+                        className="w-full rounded-depth-md border border-depth bg-depth-card p-2 text-sm text-depth-primary shadow-depth-sm transition focus:border-[var(--depth-color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)] focus:ring-offset-0 md:w-60"
                         value={selectedModul}
                         onChange={(e) => setSelectedModul(e.target.value)}
                     >
@@ -171,18 +180,18 @@ export default function ModalEditSoalPG({ soalItem, onClose, onConfirm }) {
                                 {modulesQueryError?.message ?? "Gagal memuat modul"}
                             </option>
                         )}
-                        {!modulesLoading && !modulesError && moduls.length > 0
-                            ? moduls.map((modul) => (
+                        {!modulesLoading && !modulesError &&
+                            moduls.map((modul) => (
                                 <option key={modul.idM} value={String(modul.idM)}>
                                     {modul.judul}
                                 </option>
-                            ))
-                            : null}
+                            ))}
                     </select>
 
                     <button
                         onClick={handleConfirm}
-                        className="px-6 py-2 bg-deepForestGreen text-white font-semibold rounded-md shadow hover:bg-darkGreen transition duration-300"
+                        type="button"
+                        className="rounded-depth-md bg-[var(--depth-color-primary)] px-6 py-2 text-sm font-semibold text-white shadow-depth-sm transition hover:-translate-y-0.5 hover:shadow-depth-md"
                     >
                         Simpan
                     </button>

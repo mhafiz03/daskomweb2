@@ -92,18 +92,18 @@ export default function ModalPasswordAssistant({ onClose }) {
     return (
         <form onSubmit={handleSave}>
             {/* Modal utama untuk ganti password */}
-            <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
-                <div className="bg-softGray p-8 rounded shadow-lg w-[30%] relative">
-                    {/* Tombol X untuk tutup */}
-                    <button
-                        type="button"
-                        onClick={onClose}
-                        className="absolute top-2 right-2 flex justify-center items-center"
-                    >
-                        <img className="w-9" src={closeIcon} alt="closeIcon" />
-                    </button>
-
-                    <h2 className="text-3xl font-bold text-center mt-4 mb-9">Ganti Password</h2>
+            <div className="depth-modal-overlay">
+                <div className="depth-modal-container max-w-xl">
+                    <div className="depth-modal-header">
+                        <h2 className="depth-modal-title">Ganti Password</h2>
+                        <button
+                            type="button"
+                            onClick={onClose}
+                            className="depth-modal-close"
+                        >
+                            <img className="h-6 w-6" src={closeIcon} alt="closeIcon" />
+                        </button>
+                    </div>
 
                     {/* Form untuk mengganti password */}
                     <div className="mb-4">
@@ -113,7 +113,7 @@ export default function ModalPasswordAssistant({ onClose }) {
                             placeholder="Password Saat Ini"
                             value={values.current_password}
                             onChange={handleChange}
-                            className="w-full p-2 border border-gray-300 rounded"
+                            className="w-full rounded-depth-md border border-depth bg-depth-card px-3 py-2 text-sm text-depth-primary shadow-depth-sm transition focus:border-[var(--depth-color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)] focus:ring-offset-0"
                         />
                     </div>
 
@@ -124,15 +124,15 @@ export default function ModalPasswordAssistant({ onClose }) {
                             placeholder="Password Baru"
                             value={values.password}
                             onChange={handleChange}
-                            className="w-full p-2 border border-gray-300 rounded"
+                            className="w-full rounded-depth-md border border-depth bg-depth-card px-3 py-2 text-sm text-depth-primary shadow-depth-sm transition focus:border-[var(--depth-color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)] focus:ring-offset-0"
                         />
-                        <p className="text-xs text-gray-500 mt-1">Password minimal 8 karakter</p>
+                        <p className="text-xs text-depth-secondary mt-1">Password minimal 8 karakter</p>
                     </div>
 
                     <button
                         type="submit"
                         disabled={isLoading}
-                        className="w-full p-2 bg-deepForestGreen text-white font-semibold rounded hover:bg-darkGreen disabled:bg-gray-400"
+                        className="w-full rounded-depth-md bg-[var(--depth-color-primary)] px-5 py-2 text-sm font-semibold text-white shadow-depth-sm transition hover:-translate-y-0.5 hover:shadow-depth-md disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                         {isLoading ? "Menyimpan..." : "Simpan"}
                     </button>
@@ -140,49 +140,57 @@ export default function ModalPasswordAssistant({ onClose }) {
             </div>
 
             {errorMessage && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-                    <div className="bg-softGray p-8 rounded shadow-lg w-[30%] relative flex flex-col items-center">
-                        {/* Tombol X untuk tutup */}
-                        <button
-                            type="button"
-                            onClick={closeErrorModal}
-                            className="absolute top-2 right-2 flex justify-center items-center"
-                        >
-                            <img className="w-9" src={closeIcon} alt="closeIcon" />
-                        </button>
+                <div className="depth-modal-overlay">
+                    <div className="depth-modal-container max-w-xl">
+                        <div className="depth-modal-header">
+                            <h2 className="depth-modal-title">Error</h2>
+                            <button
+                                type="button"
+                                onClick={closeErrorModal}
+                                className="depth-modal-close"
+                            >
+                                <img className="h-6 w-6" src={closeIcon} alt="closeIcon" />
+                            </button>
+                        </div>
 
                         {/* Ikon error */}
-                        <img className="w-28 mb-4" src={failedIcon} alt="failedIcon" />
+                        <div className="flex flex-col items-center">
+                            <img className="w-28 mb-4" src={failedIcon} alt="failedIcon" />
 
-                        {/* Pesan error */}
-                        <p className="text-center mb-6 text-xl font-semibold text-darkGreen">{errorMessage}</p>
+                            {/* Pesan error */}
+                            <p className="text-center mb-6 text-lg font-semibold text-depth-primary">{errorMessage}</p>
 
-                        {/* Tombol OK */}
-                        <button
-                            type="button"
-                            onClick={closeErrorModal}
-                            className="w-full p-2 bg-deepForestGreen text-white font-semibold rounded hover:bg-darkGreen"
-                        >
-                            OK
-                        </button>
+                            {/* Tombol OK */}
+                            <button
+                                type="button"
+                                onClick={closeErrorModal}
+                                className="w-full rounded-depth-md bg-[var(--depth-color-primary)] px-5 py-2 text-sm font-semibold text-white shadow-depth-sm transition hover:-translate-y-0.5 hover:shadow-depth-md"
+                            >
+                                OK
+                            </button>
+                        </div>
                     </div>
                 </div>
             )}
 
             {isSuccess && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-                    <div className="bg-softGray p-8 rounded shadow-lg w-[30%] relative flex flex-col items-center">
-                        {/* Tombol X untuk tutup */}
-                        <button
-                            type="button"
-                            onClick={closeSuccessModal}
-                            className="absolute top-2 right-2 flex justify-center items-center"
-                        >
-                            <img className="w-9" src={closeIcon} alt="closeIcon" />
-                        </button>
+                <div className="depth-modal-overlay">
+                    <div className="depth-modal-container max-w-xl">
+                        <div className="depth-modal-header">
+                            <h2 className="depth-modal-title">Sukses</h2>
+                            <button
+                                type="button"
+                                onClick={closeSuccessModal}
+                                className="depth-modal-close"
+                            >
+                                <img className="h-6 w-6" src={closeIcon} alt="closeIcon" />
+                            </button>
+                        </div>
 
                         {/* Pesan sukses */}
-                        <p className="text-center mt-4 text-xl font-semibold text-darkGreen">Password Anda telah berhasil diganti.</p>
+                        <p className="text-center text-lg font-semibold text-depth-primary">
+                            Password Anda telah berhasil diganti.
+                        </p>
                     </div>
                 </div>
             )}

@@ -1,5 +1,6 @@
 import AssisstantNav from "@/Components/Assistants/Common/AssistantNav";
 import Clock from "@/Components/Assistants/Common/Clock";
+import ThemeToggle from "@/Components/Assistants/Common/ThemeToggle";
 import ModalSoftware from "@/Components/Assistants/Modals/ModalSoftware";
 import { usePage } from "@inertiajs/react";
 import { Toaster } from "react-hot-toast";
@@ -8,8 +9,8 @@ export default function AssistantLayout({
     children,
     navClassName = "flex-grow md:w-1/4 h-full",
     contentClassName = "flex-grow md:w-3/4 mt-10",
-    layoutClassName = "flex h-screen items-center justify-center p-6 relative",
-    wrapperClassName = "flex flex-col md:flex-row gap-6 w-full max-w-7xl",
+    layoutClassName = "relative flex min-h-screen items-center justify-center bg-depth-background px-6 py-10 text-depth-primary transition-colors duration-300",
+    wrapperClassName = "flex w-full max-w-7xl flex-col gap-6 font-depth md:flex-row",
 }) {
     const { auth } = usePage().props ?? {};
     const asisten = auth?.asisten ?? null;
@@ -24,6 +25,10 @@ export default function AssistantLayout({
 
     return (
         <section className={layoutClassName}>
+            <div className="pointer-events-none absolute top-4 right-4 z-30 flex items-center gap-3">
+                <ThemeToggle className="pointer-events-auto" />
+                <Clock className="pointer-events-auto rounded-depth-lg bg-depth-interactive px-4 py-2 text-sm font-semibold text-depth-primary shadow-depth-sm transition hover:shadow-depth-md" />
+            </div>
             <div className={wrapperClassName}>
                 <div className={navClassName}>
                     <AssisstantNav
@@ -32,9 +37,12 @@ export default function AssistantLayout({
                         roleName={roleName}
                     />
                 </div>
-                <div className={contentClassName}>{renderedChildren}</div>
+                <div className={contentClassName}>
+                    <div className="h-full rounded-depth-lg border border-depth bg-depth-card p-6 shadow-depth-lg transition-colors duration-300">
+                        {renderedChildren}
+                    </div>
+                </div>
             </div>
-            <Clock />
             <ModalSoftware />
             <Toaster position="top-right" reverseOrder={false} />
         </section>

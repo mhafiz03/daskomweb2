@@ -41,12 +41,19 @@ export default function SoalInputForm() {
     };
 
     return (
-        <div className="p-6">
+        <div className="space-y-6 text-depth-primary">
             {/* Pilih kategori soal dan modul */}
-            <div className="flex justify-start gap-4 mb-4">
-                <div className="w-1/3">
+            <div className="flex flex-col gap-4 lg:flex-row">
+                <div className="flex-1 space-y-2">
+                    <label
+                        htmlFor="kategori-soal"
+                        className="block text-xs font-semibold uppercase tracking-wide text-depth-secondary"
+                    >
+                        Kategori Soal
+                    </label>
                     <select
-                        className="w-full border-2 border-darkBrown rounded-md shadow-md"
+                        id="kategori-soal"
+                        className="w-full rounded-depth-md border border-depth bg-depth-card p-3 text-sm text-depth-primary shadow-depth-sm transition focus:border-[var(--depth-color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)] focus:ring-offset-0"
                         value={kategoriSoal}
                         onChange={(e) => setKategoriSoal(e.target.value)}
                     >
@@ -59,26 +66,33 @@ export default function SoalInputForm() {
                         <option value="tk">Tes Keterampilan</option>
                     </select>
                 </div>
-                <div className="w-2/3">
+                <div className="flex-1 space-y-2">
+                    <label
+                        htmlFor="modul_id"
+                        className="block text-xs font-semibold uppercase tracking-wide text-depth-secondary"
+                    >
+                        Modul
+                    </label>
                     <select
-                        className="w-full border-2 border-darkBrown rounded-md shadow-md"
+                        className="w-full rounded-depth-md border border-depth bg-depth-card p-3 text-sm text-depth-primary shadow-depth-sm transition focus:border-[var(--depth-color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)] focus:ring-offset-0"
                         id="modul_id"
+                        value={selectedModul}
                         onChange={handleModulChange}
                     >
                         <option value="">- Pilih Modul -</option>
-                        {modulesLoading && <option disabled>Loading...</option>}
+                        {modulesLoading && <option disabled>Memuat modul...</option>}
                         {modulesError && (
                             <option disabled>
                                 {modulesQueryError?.message ?? "Gagal memuat modul"}
                             </option>
                         )}
-                        {!modulesLoading && !modulesError && moduls.length > 0 ? (
-                            moduls.map((k) => (
-                                <option key={k.idM} value={k.idM}>
-                                    {k.judul}
-                                </option>
-                            ))
-                        ) : null}
+                        {!modulesLoading && !modulesError && moduls.length > 0
+                            ? moduls.map((k) => (
+                                  <option key={k.idM} value={k.idM}>
+                                      {k.judul}
+                                  </option>
+                              ))
+                            : null}
                     </select>
                 </div>
             </div>

@@ -38,39 +38,29 @@ export default function ModalLaporan({ report, onClose }) {
         : "-";
 
     return (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-            <div className="bg-white p-6 rounded shadow-lg w-11/12 lg:w-3/4 xl:w-2/3 relative max-h-[85vh]">
-                <button
-                    type="button"
-                    onClick={onClose}
-                    className="absolute top-3 right-3 flex justify-center items-center"
-                >
-                    <img className="w-8" src={closeIcon} alt="Tutup modal" />
-                </button>
-
-                <div className="space-y-4 pr-2">
+        <div className="depth-modal-overlay z-50">
+            <div
+                className="depth-modal-container max-h-[85vh] w-full max-w-3xl space-y-6 overflow-y-auto"
+            >
+                <div className="depth-modal-header">
                     <div>
-                        <h4 className="text-lg text-darkBrown font-semibold">
+                        <h4 className="text-sm font-semibold uppercase tracking-wide text-depth-secondary">
                             {kelasName}
                         </h4>
-                        <p className="text-sm text-gray-600">
+                        <p className="text-xs text-depth-secondary">
                             Mulai: {startedAt} • Selesai: {endedAt} • Laporan dikirim: {submittedAt}
                         </p>
-                        <p className="text-sm text-gray-600">
-                            PJ Laporan: {pjName}
-                        </p>
+                        <p className="text-xs text-depth-secondary">PJ Laporan: {pjName}</p>
                     </div>
+                    <button onClick={onClose} type="button" className="depth-modal-close">
+                        <img className="h-6 w-6" src={closeIcon} alt="Tutup modal" />
+                    </button>
+                </div>
 
-                    {/* Divider */}
-                    <hr className="border-t-2 border-darkBrown" />
-
-                    <div className="lg:max-h-[60vh] md:max-h-96 overflow-y-auto pr-2">
-                        <h2 className="text-xl font-bold text-black text-center mb-4">
-                            {modulName}
-                        </h2>
-                        <p className="whitespace-pre-wrap leading-relaxed text-darkBrown text-base">
-                            {notes}
-                        </p>
+                <div className="space-y-4">
+                    <h2 className="text-center text-lg font-semibold text-depth-primary">{modulName}</h2>
+                    <div className="rounded-depth-lg border border-depth bg-depth-card p-4 text-sm leading-relaxed text-depth-primary shadow-depth-sm">
+                        <pre className="whitespace-pre-wrap break-words">{notes}</pre>
                     </div>
                 </div>
             </div>

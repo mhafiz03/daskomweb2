@@ -7,7 +7,7 @@ const formatter = new Intl.DateTimeFormat(undefined, {
 });
 
 export default function Clock({
-    className = "absolute top-4 right-4 bg-forestGreen text-white py-2 px-4 rounded-lg shadow-lg font-medium",
+    className = "rounded-depth-lg bg-depth-card px-4 py-2 text-sm font-semibold text-depth-primary shadow-depth-sm transition hover:shadow-depth-md",
 }) {
     const [currentTime, setCurrentTime] = useState(() => formatter.format(new Date()));
 

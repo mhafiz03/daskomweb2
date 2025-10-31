@@ -4,7 +4,7 @@ import closeIcon from "../../../../assets/modal/iconClose.svg";
 import { submit } from "@/lib/wayfinder";
 import { store as storeModul } from "@/actions/App/Http/Controllers/API/ModulController";
 
-export default function ButtonAddModule({ onClose }) {
+export default function ModalAddModule({ onClose }) {
     const [values, setValues] = useState({
         judul: "",
         deskripsi: "",
@@ -14,181 +14,140 @@ export default function ButtonAddModule({ onClose }) {
         ppt_link: "",
         video_link: "",
     });
-
-    const [isSwitchOn, setIsSwitchOn] = useState(false);
-    const [isUnlockedSwitchOn, setIsUnlockedSwitchOn] = useState(false);
+    const [isEnglishOn, setIsEnglishOn] = useState(false);
+    const [isUnlockedOn, setIsUnlockedOn] = useState(false);
     const [localErrors, setLocalErrors] = useState({});
 
     const validateFields = () => {
         const newErrors = {};
-
-        if (!values.judul.trim()) newErrors.judul = "Judul is required.";
-        if (!values.deskripsi.trim()) newErrors.deskripsi = "Poin pembelajaran is required.";
-        // if (!values.ppt_link.trim()) newErrors.ppt_link = "Link PPT is required.";
-        // if (!values.video_link.trim()) newErrors.video_link = "Link Video Youtube is required.";
-        // if (!values.modul_link.trim()) newErrors.modul_link = "Link Modul is required.";
-
+        if (!values.judul.trim()) {
+            newErrors.judul = "Judul wajib diisi.";
+        }
+        if (!values.deskripsi.trim()) {
+            newErrors.deskripsi = "Pencapaian pembelajaran wajib diisi.";
+        }
         setLocalErrors(newErrors);
-
         return Object.keys(newErrors).length === 0;
     };
 
-    const handleSave = (e) => {
-        e.preventDefault();
-
-        if (validateFields()) {
-            submit(storeModul(), {
-                data: values,
-                onSuccess: () => {
-                    console.log('Data berhasil dikirim');
-                    toast.success("Modul berhasil ditambahkan.");
-                    onClose();
-                },
-                onError: (errors) => {
-                    console.error('Validation errors:', errors);
-                    setLocalErrors(errors);
-                    const message = errors?.response?.data?.message ?? "Gagal menambahkan modul.";
-                    toast.error(message);
-                    if (errors.response) {
-                        console.error('Error Response:', errors.response.data);
-                    }
-                },
-            });
-        } else {
-            console.log('Form validation failed');
+    const handleSave = (event) => {
+        event.preventDefault();
+        if (!validateFields()) {
             toast.error("Harap lengkapi data yang diperlukan.");
+            return;
         }
+
+        submit(storeModul(), {
+            data: values,
+            onSuccess: () => {
+                toast.success("Modul berhasil ditambahkan.");
+                onClose();
+            },
+            onError: (error) => {
+                const message = error?.response?.data?.message ?? "Gagal menambahkan modul.";
+                toast.error(message);
+                if (error?.response?.data?.errors) {
+                    setLocalErrors(error.response.data.errors);
+                }
+            },
+        });
     };
 
-    const toggleSwitch = () => {
-        const newSwitchState = !isSwitchOn;
-        setIsSwitchOn(newSwitchState);
-        setValues({ ...values, isEnglish: newSwitchState ? 1 : 0 });
+    const handleToggleEnglish = () => {
+        setIsEnglishOn((prev) => {
+            const next = !prev;
+            setValues((current) => ({ ...current, isEnglish: next ? 1 : 0 }));
+            return next;
+        });
     };
 
-    const toggleUnlockedSwitch = () => {
-        const newSwitchState = !isUnlockedSwitchOn;
-        setIsUnlockedSwitchOn(newSwitchState);
-        setValues({ ...values, isUnlocked: newSwitchState ? 1 : 0 });
+    const handleToggleUnlocked = () => {
+        setIsUnlockedOn((prev) => {
+            const next = !prev;
+            setValues((current) => ({ ...current, isUnlocked: next ? 1 : 0 }));
+            return next;
+        });
     };
+
+    const linkFields = [
+        { key: "ppt_link", label: "Link PPT", tone: "green" },
+        { key: "video_link", label: "Link Video Youtube", tone: "red" },
+        { key: "modul_link", label: "Link Modul", tone: "blue" },
+    ];
 
     return (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-            {/* Modal Utama */}
-            <div className="bg-white rounded-lg p-6 w-[700px] shadow-lg relative overflow-y-auto max-h-[80vh]">
-                {/* Header */}
-                <div className="flex justify-between items-center mb-6 border-b border-deepForestGreen">
-                    <h2 className="text-2xl font-bold text-deepForestGreen">Tambah Modul</h2>
-                    <button
-                        onClick={onClose}
-                        className="absolute top-2 right-2 flex justify-center items-center"
-                    >
-                        <img className="w-9" src={closeIcon} alt="closeIcon" />
+        <div className="depth-modal-overlay z-50">
+            <div
+                className="depth-modal-container max-h-[80vh] w-full max-w-3xl space-y-6 overflow-y-auto"
+            >
+                <div className="depth-modal-header">
+                    <h2 className="depth-modal-title">Tambah Modul</h2>
+                    <button onClick={onClose} type="button" className="depth-modal-close">
+                        <img className="h-6 w-6" src={closeIcon} alt="Tutup" />
                     </button>
                 </div>
 
-                <form onSubmit={handleSave}>
-                    {/* Input Judul Modul */}
-                    <div className="mb-4">
-                        <label htmlFor="judul" className="block text-darkGreen text-md font-medium">
-                            Judul Modul
-                        </label>
+        <form onSubmit={handleSave} className="space-y-6">
+                    <FieldGroup
+                        label="Judul Modul"
+                        error={localErrors.judul}
+                    >
                         <input
                             id="judul"
                             type="text"
-                            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-darkBrown focus:border-darkBrown"
+                            className="w-full rounded-depth-md border border-depth bg-depth-card px-3 py-2 text-sm text-depth-primary shadow-depth-sm transition focus:border-[var(--depth-color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)] focus:ring-offset-0"
                             placeholder="Masukkan judul modul"
                             value={values.judul}
-                            onChange={(e) => setValues({ ...values, judul: e.target.value })}
+                            onChange={(event) => setValues({ ...values, judul: event.target.value })}
                         />
-                        {localErrors.judul && (
-                            <p className="text-red-500 text-sm mt-1">{localErrors.judul}</p>
-                        )}
-                    </div>
+                    </FieldGroup>
 
-                    {/* Input Poin-poin Pembelajaran */}
-                    <div className="mb-4">
-                        <label className="block text-darkGreen text-md font-medium">
-                            Pencapaian Pembelajaran
-                        </label>
+                    <FieldGroup
+                        label="Pencapaian Pembelajaran"
+                        description="Tuliskan ringkasan materi atau tujuan pembelajaran yang ingin dicapai."
+                        error={localErrors.deskripsi}
+                    >
                         <textarea
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-darkBrown focus:border-darkBrown"
+                            className="w-full rounded-depth-lg border border-depth bg-depth-card px-3 py-2 text-sm text-depth-primary shadow-depth-sm transition focus:border-[var(--depth-color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)] focus:ring-offset-0"
                             placeholder="Masukkan poin pembelajaran"
-                            value={values.deskripsi}
-                            onChange={(e) => setValues({ ...values, deskripsi: e.target.value })}
                             rows={4}
+                            value={values.deskripsi}
+                            onChange={(event) => setValues({ ...values, deskripsi: event.target.value })}
                         />
-                        {localErrors.deskripsi && (
-                            <p className="text-red-500 text-sm mt-1">{localErrors.deskripsi}</p>
-                        )}
+                    </FieldGroup>
+
+                    <div className="space-y-4">
+                        {linkFields.map(({ key, label, tone }) => (
+                            <FieldGroup key={key} label={label} tone={tone} error={localErrors[key]}>
+                                <input
+                                    id={key}
+                                    type="url"
+                                    className="w-full rounded-depth-md border border-depth bg-depth-card px-3 py-2 text-sm text-depth-primary shadow-depth-sm transition focus:border-[var(--depth-color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)] focus:ring-offset-0"
+                                    placeholder={`Masukkan ${label.toLowerCase()}`}
+                                    value={values[key]}
+                                    onChange={(event) => setValues({ ...values, [key]: event.target.value })}
+                                />
+                            </FieldGroup>
+                        ))}
                     </div>
 
-                    {/* Input Link */}
-                    {["ppt_link", "video_link", "modul_link"].map((link, index) => (
-                        <div key={link} className="mb-4">
-                            <label
-                                htmlFor={link}
-                                className={`block text-md font-medium ${link === "ppt_link"
-                                        ? "text-green-700"
-                                        : link === "video_link"
-                                            ? "text-red-700"
-                                            : "text-blue-700"
-                                    }`}
-                            >
-                                {`Link ${index === 0 ? "PPT" : index === 1 ? "Video Youtube" : "Modul"}`}
-                            </label>
-                            <input
-                                id={link}
-                                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-darkBrown focus:border-darkBrown"
-                                placeholder={`Masukkan ${link}`}
-                                value={values[link]}
-                                onChange={(e) => setValues({ ...values, [link]: e.target.value })}
-                            />
-                            {localErrors[link] && (
-                                <p className="text-red-500 text-sm mt-1">{localErrors[link]}</p>
-                            )}
-                        </div>
-                    ))}
-
-                    <div className="flex justify-between">
-                        <div className="flex justify-start gap-3">
-                            <div className="flex items-center gap-2">
-                                <label className="text-sm font-medium text-gray-700">English</label>
-                                <div
-                                    onClick={toggleSwitch}
-                                    className={`w-10 h-5 flex items-center rounded-full p-1 cursor-pointer transition ${isSwitchOn ? "bg-deepForestGreen" : "bg-fireRed"}`}
-                                >
-                                    <div
-                                        className={`w-4 h-4 bg-white rounded-full shadow-md transform transition ${isSwitchOn ? "translate-x-5" : "translate-x-0"}`}
-                                    />
-                                </div>
-                            </div>
-
-                            <div className="flex items-center gap-2">
-                                <label className="text-sm font-medium text-gray-700">Unlocked</label>
-                                <div
-                                    onClick={toggleUnlockedSwitch}
-                                    className={`w-10 h-5 flex items-center rounded-full p-1 cursor-pointer transition ${isUnlockedSwitchOn ? "bg-deepForestGreen" : "bg-fireRed"}`}
-                                >
-                                    <div
-                                        className={`w-4 h-4 bg-white rounded-full shadow-md transform transition ${isUnlockedSwitchOn ? "translate-x-5" : "translate-x-0"}`}
-                                    />
-                                </div>
-                            </div>
+                    <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                        <div className="flex gap-4">
+                            <DepthToggle label="English" isOn={isEnglishOn} onToggle={handleToggleEnglish} />
+                            <DepthToggle label="Unlocked" isOn={isUnlockedOn} onToggle={handleToggleUnlocked} />
                         </div>
 
-                        {/* Tombol Simpan */}
-                        <div className="mt-4 text-right">
+                        <div className="flex justify-end gap-3">
                             <button
                                 type="button"
                                 onClick={onClose}
-                                className="px-6 py-2 bg-gray-300 text-darkBrown font-semibold rounded-md shadow hover:bg-gray-400 transition duration-300 mr-2"
+                                className="rounded-depth-md border border-depth bg-depth-interactive px-5 py-2 text-sm font-semibold text-depth-primary shadow-depth-sm transition hover:-translate-y-0.5 hover:shadow-depth-md"
                             >
                                 Batal
                             </button>
                             <button
                                 type="submit"
-                                className="px-6 py-2 bg-deepForestGreen text-white font-semibold rounded-md shadow hover:bg-darkGreen transition duration-300"
+                                className="rounded-depth-md bg-[var(--depth-color-primary)] px-5 py-2 text-sm font-semibold text-white shadow-depth-sm transition hover:-translate-y-0.5 hover:shadow-depth-md"
                             >
                                 Simpan
                             </button>
@@ -196,6 +155,46 @@ export default function ButtonAddModule({ onClose }) {
                     </div>
                 </form>
             </div>
+        </div>
+    );
+}
+
+function FieldGroup({ label, description, error, tone, children }) {
+    const toneClasses = {
+        green: "text-green-500",
+        red: "text-red-500",
+        blue: "text-blue-500",
+    }[tone];
+
+    return (
+        <div className="space-y-2">
+            <label className={`text-sm font-semibold text-depth-secondary ${toneClasses ?? ""}`}>
+                {label}
+            </label>
+            {description && <p className="text-xs text-depth-secondary">{description}</p>}
+            {children}
+            {error && <p className="text-sm text-red-500">{error}</p>}
+        </div>
+    );
+}
+
+function DepthToggle({ label, isOn, onToggle }) {
+    return (
+        <div className="flex items-center gap-2">
+            <span className="text-xs font-semibold text-depth-secondary">{label}</span>
+            <button
+                type="button"
+                onClick={onToggle}
+                className={`flex h-6 w-11 items-center rounded-depth-full border border-depth bg-depth-card p-1 transition ${
+                    isOn ? "text-white" : "text-depth-secondary"
+                }`}
+            >
+                <span
+                    className={`h-4 w-4 rounded-depth-full bg-depth-interactive shadow-depth-sm transition-transform ${
+                        isOn ? "translate-x-5 bg-[var(--depth-color-primary)]" : "translate-x-0"
+                    }`}
+                />
+            </button>
         </div>
     );
 }

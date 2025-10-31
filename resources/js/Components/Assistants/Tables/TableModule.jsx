@@ -19,7 +19,6 @@ export default function TableModule() {
     const [selectedModuleId, setSelectedModuleId] = useState(null);
     const [openIndex, setOpenIndex] = useState(null);
     const queryClient = useQueryClient();
-    const [initialOpen, setInitialOpen] = useState(false);
 
     const {
         data: modules = [],
@@ -58,9 +57,7 @@ export default function TableModule() {
     });
 
     const handleOpenModalEdit = (module) => {
-        console.log("Opening edit modal for module:", module);
         setSelectedModuleId(module.idM);
-        setInitialOpen(true);
         setIsModalOpenEdit(true);
     };
 
@@ -84,7 +81,6 @@ export default function TableModule() {
     // Confirm delete
     const handleConfirmDelete = async () => {
         if (!moduleToDelete) {
-            setMessage("ID tidak valid.");
             setIsDeleteModalOpen(false);
             return;
         }
@@ -97,141 +93,131 @@ export default function TableModule() {
     };
 
     return (
-        <div className="mt-5 px-4">
-            {/* Header */}
-            <div className="bg-deepForestGreen rounded-lg py-2 px-4 mb-4 shadow-md flex justify-center items-center">
-                <h1 className="font-bold text-white text-center text-2xl hover:bg-darkOliveGreen hover:rounded-lg transition-colors duration-300 px-4 py-1">
-                    Modul Praktikum
-                </h1>
-            </div>
-
-            {/* Module container */}
-            <div className="overflow-x-auto lg:max-h-[48rem] md:max-h-96 bg-white rounded-lg p-1">
-                {/* If no modules, show a message */}
+        <div className="space-y-4">
+            <div className="rounded-depth-lg border border-depth bg-depth-card shadow-depth-lg">
                 {modulesLoading ? (
-                    <div className="text-center py-10 text-gray-500">Memuat data...</div>
+                    <div className="px-6 py-10 text-center text-depth-secondary">Memuat data...</div>
                 ) : modulesError ? (
-                    <div className="text-center py-10 text-red-500">
+                    <div className="px-6 py-10 text-center text-red-500">
                         {modulesQueryError?.message ?? "Gagal memuat data modul"}
                     </div>
                 ) : modules.length === 0 ? (
-                    <div className="text-center py-10 text-gray-500">Tidak ada modul yang tersedia</div>
+                    <div className="px-6 py-10 text-center text-depth-secondary">Tidak ada modul yang tersedia.</div>
                 ) : (
-                    // Map through modules and display them
-                    modules.map((module, index) => (
-                        <div key={`module-${module.idM}-${index}`} className="border border-black rounded-lg mb-2">
-                            {/* Accordion header */}
-                            <button
-                                onClick={() => toggleAccordion(index)}
-                                className="flex justify-between items-center w-full px-5 py-3 text-left font-semibold bg-white transition-all rounded-lg"
-                            >
-                                <span className="font-bold text-xl text-black">{index + 1}. {module.judul}</span>
-                                <div className="flex items-center gap-2">
-                                    {module.isUnlocked === 0 && (
-                                        <span className=" rounded py-1 text-sm">
-                                            🔒
-                                        </span>
-                                    )}
-                                    {module.isEnglish === 1 && (
-                                        <span className="border border-gray-400 rounded-lg px-2 py-1 text-sm text-white bg-deepForestGreenDark">
-                                            English
-                                        </span>
-                                    )}
-                                    <span className="text-xl">{openIndex === index ? "▲" : "▼"}</span>
-                                </div>
-                            </button>
+                    <ul className="divide-y divide-[color:var(--depth-border)]">
+                        {modules.map((module, index) => (
+                            <li key={`module-${module.idM}-${index}`} className="transition hover:bg-depth-interactive/60">
+                                <button
+                                    type="button"
+                                    onClick={() => toggleAccordion(index)}
+                                    className="flex w-full items-center justify-between gap-4 px-6 py-4 text-left"
+                                >
+                                    <div className="space-y-1">
+                                        <p className="text-sm font-semibold text-depth-secondary">Modul {index + 1}</p>
+                                        <h3 className="text-lg font-semibold text-depth-primary">{module.judul}</h3>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                        {module.isUnlocked === 0 && (
+                                            <span className="rounded-depth-full border border-depth bg-depth-interactive px-2 py-1 text-xs text-depth-secondary">
+                                                🔒
+                                            </span>
+                                        )}
+                                        {module.isEnglish === 1 && (
+                                            <span className="rounded-depth-full border border-depth bg-depth-interactive px-3 py-1 text-xs font-semibold text-depth-primary">
+                                                English
+                                            </span>
+                                        )}
+                                        <span className="text-depth-secondary">{openIndex === index ? "▲" : "▼"}</span>
+                                    </div>
+                                </button>
 
-                            <div className="pl-10">
-                                {/* Accordion content */}
                                 {openIndex === index && (
-                                    <div>
-                                        <h4 className="text-lg font-semibold text-black mt-2">Pencapaian Pembelajaran: </h4>
-                                        <div className="px-5 py-3 text-md text-black">
-                                            {module.deskripsi ? (
-                                                <p>{module.deskripsi}</p>
-                                            ) : (
-                                                <p className="italic text-gray-500">Belum ada poin pembelajaran.</p>
-                                            )}
-                                        </div>
-
-                                        <h6 className="text-md text-black mt-4">Untuk tutorial lebih lanjut, Anda dapat menonton video berikut:</h6>
-                                        <div className="mt-2 mb-8">
-                                            <span className="flex items-center mt-2">
-                                                <img src={iconPPT} alt="Icon PPT" className="w-6 h-6 p-[2px] bg-green-700 rounded-full" />
-                                                <a href={module.ppt_link} target="_blank" rel="noopener noreferrer" className="text-green-700 underline ml-2">PPT</a>
-                                            </span>
-                                            <span className="flex items-center mt-2">
-                                                <img src={iconVideo} alt="Icon Video" className="w-6 h-6 p-[2px] bg-red-700 rounded-full" />
-                                                <a href={module.video_link} target="_blank" rel="noopener noreferrer" className="text-red-700 underline ml-2">Video YouTube</a>
-                                            </span>
-                                            <span className="flex items-center mt-2">
-                                                <img src={iconModule} alt="Icon Module" className="w-6 h-6 p-[2px] bg-blue-700 rounded-full" />
-                                                <a href={module.modul_link} target="_blank" rel="noopener noreferrer" className="text-blue-700 underline ml-2">Modul</a>
-                                            </span>
-                                        </div>
-
-                                        <span className="flex justify-end pr-3">
+                                    <div className="space-y-6 px-6 pb-6">
+                                        <div className="flex flex-wrap items-center justify-between gap-3">
                                             <button
+                                                type="button"
                                                 onClick={() => handleDeleteClick(module.idM)}
-                                                className="flex justify-center items-center p-2 text-fireRed font-semibold hover:underline transition-all"
+                                                className="inline-flex items-center gap-2 rounded-depth-md border border-red-500/60 bg-red-500/15 px-3 py-2 text-xs font-semibold text-red-400 shadow-depth-sm transition hover:-translate-y-0.5 hover:shadow-depth-md"
                                             >
-                                                <img className="w-5" src={trashIcon} alt="Delete" />
-                                                Delete
+                                                <img className="h-4 w-4" src={trashIcon} alt="Delete" />
+                                                Hapus
                                             </button>
                                             <button
+                                                type="button"
                                                 onClick={() => handleOpenModalEdit(module)}
-                                                className="flex justify-center items-center p-2 text-darkBrown font-semibold hover:underline transition-all"
+                                                className="inline-flex items-center gap-2 rounded-depth-md border border-depth bg-depth-interactive px-3 py-2 text-xs font-semibold text-depth-primary shadow-depth-sm transition hover:-translate-y-0.5 hover:shadow-depth-md"
                                             >
-                                                <img className="w-5" src={editIcon} alt="edit icon" />
+                                                <img className="h-4 w-4" src={editIcon} alt="Edit" />
                                                 Edit
                                             </button>
-                                        </span>
+                                        </div>
+
+                                        <div className="space-y-3">
+                                            <h4 className="text-sm font-semibold uppercase tracking-wide text-depth-secondary">
+                                                Pencapaian Pembelajaran
+                                            </h4>
+                                            <div className="rounded-depth-md border border-depth bg-depth-card p-4 text-sm text-depth-primary shadow-depth-sm">
+                                                {module.deskripsi ? (
+                                                    <pre className="whitespace-pre-wrap break-words">
+                                                        {module.deskripsi}
+                                                    </pre>
+                                                ) : (
+                                                    <p className="italic text-depth-secondary">
+                                                        Belum ada poin pembelajaran.
+                                                    </p>
+                                                )}
+                                            </div>
+                                        </div>
+
+                                        <div className="space-y-2">
+                                            <h5 className="text-sm font-semibold uppercase tracking-wide text-depth-secondary">
+                                                Sumber Pembelajaran
+                                            </h5>
+                                            <div className="grid gap-2 md:grid-cols-3">
+                                                <ResourceLink href={module.ppt_link} icon={iconPPT} label="PPT" tone="green" />
+                                                <ResourceLink href={module.video_link} icon={iconVideo} label="Video" tone="red" />
+                                                <ResourceLink href={module.modul_link} icon={iconModule} label="Modul" tone="blue" />
+                                            </div>
+                                        </div>
                                     </div>
                                 )}
-                            </div>
-                        </div>
-                    ))
+                            </li>
+                        ))}
+                    </ul>
                 )}
             </div>
 
-            {/* Edit Module Modal */}
             {isModalOpenEdit && (
                 <ButtonEditModule
                     onClose={handleCloseModalEdit}
                     modules={modules}
                     selectedModuleId={selectedModuleId}
                     onUpdate={handleModuleUpdate}
-                    initialOpen={initialOpen} // Pass this flag
                 />
             )}
 
-            {/* Delete Confirmation Modal */}
             {isDeleteModalOpen && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-                    <div className="bg-white rounded-lg p-6 w-[400px] shadow-lg relative">
-                        {/* Header */}
-                        <div className="flex justify-between items-center mb-6 border-b border-deepForestGreen">
-                            <h2 className="text-2xl font-bold text-deepForestGreen">Konfirmasi Hapus</h2>
-                            <button
-                                onClick={handleCancelDelete}
-                                className="absolute top-2 right-2 flex justify-center items-center"
-                            >
-                                <img className="w-9" src={closeIcon} alt="closeIcon" />
+                <div className="depth-modal-overlay z-50">
+                    <div className="depth-modal-container max-w-sm text-center">
+                        <div className="depth-modal-header justify-center">
+                            <h2 className="depth-modal-title">Konfirmasi Hapus</h2>
+                            <button onClick={handleCancelDelete} type="button" className="depth-modal-close">
+                                <img className="h-6 w-6" src={closeIcon} alt="Tutup" />
                             </button>
                         </div>
-
-                        <p className="mb-6 text-center">Apakah Anda yakin ingin menghapus modul ini?</p>
-
-                        <div className="flex justify-center gap-4">
+                        <p className="text-sm text-depth-secondary">Apakah Anda yakin ingin menghapus modul ini?</p>
+                        <div className="mt-6 flex justify-center gap-3">
                             <button
+                                type="button"
                                 onClick={handleCancelDelete}
-                                className="px-6 py-2 bg-gray-300 text-darkBrown font-semibold rounded-md shadow hover:bg-gray-400 transition duration-300"
+                                className="rounded-depth-md border border-depth bg-depth-interactive px-5 py-2 text-sm font-semibold text-depth-primary shadow-depth-sm transition hover:-translate-y-0.5 hover:shadow-depth-md"
                             >
                                 Batal
                             </button>
                             <button
+                                type="button"
                                 onClick={handleConfirmDelete}
-                                className="px-6 py-2 bg-fireRed text-white font-semibold rounded-md shadow hover:bg-softRed transition duration-300"
+                                className="rounded-depth-md border border-red-500/60 bg-red-500/15 px-5 py-2 text-sm font-semibold text-red-400 shadow-depth-sm transition hover:-translate-y-0.5 hover:shadow-depth-md"
                             >
                                 Hapus
                             </button>
@@ -240,5 +226,35 @@ export default function TableModule() {
                 </div>
             )}
         </div>
+    );
+}
+
+function ResourceLink({ href, icon, label, tone }) {
+    if (!href) {
+        return (
+            <span className="rounded-depth-md border border-depth bg-depth-card px-3 py-2 text-sm text-depth-secondary shadow-depth-sm">
+                {label} belum tersedia
+            </span>
+        );
+    }
+
+    const toneBadge = {
+        green: "bg-green-500/15 text-green-400",
+        red: "bg-red-500/15 text-red-400",
+        blue: "bg-blue-500/15 text-blue-400",
+    }[tone];
+
+    return (
+        <a
+            href={href}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 rounded-depth-md border border-depth bg-depth-card px-3 py-2 text-sm font-semibold text-depth-primary shadow-depth-sm transition hover:-translate-y-0.5 hover:shadow-depth-md"
+        >
+            <span className={`flex h-6 w-6 items-center justify-center rounded-depth-full ${toneBadge}`}>
+                <img className="h-4 w-4" src={icon} alt={label} />
+            </span>
+            {label}
+        </a>
     );
 }

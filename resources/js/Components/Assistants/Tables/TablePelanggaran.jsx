@@ -38,7 +38,7 @@ export default function TablePelanggaran() {
         {[...Array(10)].map((_, index) => (
           <div
             key={index}
-            className="grid grid-cols-4 gap-1 bg-white border border-forestGreen py-1 px-2 mb-2 rounded-lg"
+            className="grid grid-cols-4 gap-1 bg-white dark:bg-slate-800 py-1 px-2 mb-2 rounded-lg"
           >
             <div className="flex items-center justify-center h-full py-1 px-2 ">{index + 1}</div>
             <div className="flex items-center justify-center h-full py-1 px-2">Aliza Nurfitrian M</div>

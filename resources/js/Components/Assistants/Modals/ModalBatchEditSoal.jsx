@@ -13,7 +13,7 @@ const tabs = [
 ];
 
 const proseClassName =
-    "prose max-w-none prose-headings:text-darkGreen prose-strong:text-darkBrown prose-li:marker:text-darkBrown whitespace-pre-wrap break-words";
+    "prose max-w-none whitespace-pre-wrap break-words text-depth-primary prose-headings:text-depth-primary prose-strong:text-depth-primary prose-li:marker:text-depth-secondary";
 
 export default function ModalBatchEditSoal({
     title,
@@ -99,7 +99,7 @@ export default function ModalBatchEditSoal({
 
     const renderPreviewContent = () => {
         if (!previewItems.length) {
-            return <p className="text-darkBrown italic">Tidak ada konten untuk ditampilkan.</p>;
+            return <p className="italic text-depth-secondary">Tidak ada konten untuk ditampilkan.</p>;
         }
 
         if (variant === "pg") {
@@ -108,7 +108,7 @@ export default function ModalBatchEditSoal({
                     {previewItems.map((item, index) => (
                         <li
                             key={`pg-preview-${index}`}
-                            className="relative p-5 border border-gray-300 rounded-lg bg-softIvory shadow-lg"
+                            className="relative rounded-depth-lg border border-depth bg-depth-card p-5 shadow-depth-md"
                         >
                             <div className="mb-3">
                                 <strong>Soal: {index + 1}</strong>
@@ -123,17 +123,17 @@ export default function ModalBatchEditSoal({
                             </div>
                             <div className="mb-2">
                                 <strong>Pilihan:</strong>
-                                <ul className="ml-4 mt-1 space-y-1">
-                                    {item.options.map((option, optionIndex) => (
-                                        <li
-                                            key={`pg-option-${index}-${optionIndex}`}
-                                            className={`px-3 py-1 rounded ${
-                                                option.isCorrect
-                                                    ? "bg-deepForestGreen text-white"
-                                                    : "bg-softIvory border border-gray-200"
-                                            }`}
-                                        >
-                                            <div className="flex items-center justify-between gap-2">
+                                    <ul className="ml-4 mt-1 space-y-2">
+                                        {item.options.map((option, optionIndex) => (
+                                            <li
+                                                key={`pg-option-${index}-${optionIndex}`}
+                                                className={`rounded-depth-md border px-3 py-2 text-sm shadow-depth-sm ${
+                                                    option.isCorrect
+                                                        ? "border-[var(--depth-color-primary)] bg-[var(--depth-color-primary)] text-white shadow-depth-md"
+                                                        : "border-depth bg-depth-interactive text-depth-primary"
+                                                }`}
+                                            >
+                                                <div className="flex items-center justify-between gap-2">
                                             <div className={`flex-1 ${proseClassName}`}>
                                                 <ReactMarkdown
                                                     remarkPlugins={[remarkGfm, remarkBreaks]}
@@ -158,7 +158,7 @@ export default function ModalBatchEditSoal({
                 {previewItems.map((item, index) => (
                     <li
                         key={`essay-preview-${index}`}
-                        className="border border-gray-300 rounded-lg flex items-baseline bg-softIvory shadow-lg justify-between"
+                        className="flex items-baseline justify-between rounded-depth-lg border border-depth bg-depth-card p-4 shadow-depth-md"
                     >
                         <div className="flex-1 p-4">
                             <strong>Soal: {index + 1}</strong>
@@ -179,14 +179,14 @@ export default function ModalBatchEditSoal({
     };
 
     const previewPanel = (
-        <div className="min-h-[400px] overflow-y-auto border border-darkBrown rounded-md p-4 bg-softIvory">
+        <div className="min-h-[400px] overflow-y-auto rounded-depth-lg border border-depth bg-depth-card p-4 shadow-depth-sm">
             {renderPreviewContent()}
         </div>
     );
 
     const renderTextEditor = (className = "") => (
         <textarea
-            className={`w-full h-full min-h-[400px] border border-darkBrown rounded-md p-4 font-mono text-sm focus:outline-none focus:ring-2 focus:ring-deepForestGreen ${className}`}
+            className={`h-full min-h-[400px] w-full rounded-depth-lg border border-depth bg-depth-card p-4 font-mono text-sm text-depth-primary shadow-depth-sm transition focus:border-[var(--depth-color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)] focus:ring-offset-0 ${className}`}
             value={content}
             onChange={(e) => setContent(e.target.value)}
             placeholder="Masukkan deskripsi soal dalam format Markdown..."
@@ -215,20 +215,23 @@ export default function ModalBatchEditSoal({
     };
 
     return (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white rounded-lg w-full max-w-5xl max-h-[90vh] shadow-2xl overflow-hidden flex flex-col">
-                <div className="flex items-center justify-between border-b border-softGray px-6 py-4">
-                    <h2 className="text-2xl font-bold text-darkGreen">{title}</h2>
-                    <button onClick={onClose} className="p-1 hover:opacity-70">
-                        <img className="w-8" src={closeIcon} alt="Tutup" />
+        <div className="depth-modal-overlay z-50">
+            <div
+                className="depth-modal-container flex max-h-[90vh] flex-col overflow-hidden"
+                style={{ "--depth-modal-max-width": "72rem" }}
+            >
+                <div className="depth-modal-header">
+                    <h2 className="depth-modal-title">{title}</h2>
+                    <button onClick={onClose} type="button" className="depth-modal-close">
+                        <img className="h-7 w-7" src={closeIcon} alt="Tutup" />
                     </button>
                 </div>
 
                 {normalizedModuleOptions.length > 0 && (
-                    <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 px-6 py-3 border-b border-softGray bg-softIvory">
-                        <span className="text-sm font-semibold text-darkBrown">Modul</span>
+                    <div className="flex flex-col gap-3 border-b border-[color:var(--depth-border)] bg-depth-interactive/40 px-6 py-3 md:flex-row md:items-center md:justify-between">
+                        <span className="text-sm font-semibold text-depth-secondary">Modul</span>
                         <select
-                            className="w-full md:w-auto border border-darkBrown rounded-md px-3 py-2 shadow-sm"
+                            className="w-full rounded-depth-md border border-depth bg-depth-card px-3 py-2 text-sm text-depth-primary shadow-depth-sm transition focus:border-[var(--depth-color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)] focus:ring-offset-0 md:w-auto"
                             value={selectedModuleId}
                             onChange={(event) => setSelectedModuleId(event.target.value)}
                         >
@@ -241,20 +244,24 @@ export default function ModalBatchEditSoal({
                     </div>
                 )}
 
-                <div className="flex gap-2 border-b border-softGray px-6 py-3">
-                    {tabs.map((tab) => (
-                        <button
-                            key={tab.key}
-                            onClick={() => setActiveTab(tab.key)}
-                            className={`px-4 py-2 rounded-md text-sm font-semibold transition ${
-                                activeTab === tab.key
-                                    ? "bg-deepForestGreen text-white shadow"
-                                    : "bg-softIvory text-darkBrown hover:bg-softGray"
-                            }`}
-                        >
-                            {tab.label}
-                        </button>
-                    ))}
+                <div className="flex gap-2 border-b border-[color:var(--depth-border)] px-6 py-3">
+                    {tabs.map((tab) => {
+                        const isActive = activeTab === tab.key;
+                        return (
+                            <button
+                                key={tab.key}
+                                onClick={() => setActiveTab(tab.key)}
+                                type="button"
+                                className={`rounded-depth-md px-4 py-2 text-sm font-semibold transition ${
+                                    isActive
+                                        ? "bg-[var(--depth-color-primary)] text-white shadow-depth-md"
+                                        : "border border-depth bg-depth-interactive text-depth-primary shadow-depth-sm hover:-translate-y-0.5 hover:shadow-depth-md"
+                                }`}
+                            >
+                                {tab.label}
+                            </button>
+                        );
+                    })}
                 </div>
 
                 <div className="flex-1 overflow-y-auto px-6 py-4">
@@ -263,19 +270,20 @@ export default function ModalBatchEditSoal({
                     {activeTab === "split" && (
                         <div className="grid gap-4 md:grid-cols-2">
                             {renderTextEditor("md:min-h-[500px]")}
-                            <div className="min-h-[500px] overflow-y-auto border border-darkBrown rounded-md p-4 bg-softIvory">
+                            <div className="min-h-[500px] overflow-y-auto rounded-depth-lg border border-depth bg-depth-card p-4 shadow-depth-sm">
                                 {renderPreviewContent()}
                             </div>
                         </div>
                     )}
                 </div>
+
                 {typeof onSubmit === "function" && (
-                    <div className="border-t border-softGray px-6 py-4 flex justify-end">
+                    <div className="flex justify-end border-t border-[color:var(--depth-border)] bg-depth-card/80 px-6 py-4">
                         <button
                             type="button"
                             onClick={handleSubmit}
                             disabled={isSubmitting}
-                            className="px-5 py-2 rounded-md bg-deepForestGreen text-white font-semibold disabled:opacity-60"
+                            className="rounded-depth-md bg-[var(--depth-color-primary)] px-5 py-2 text-sm font-semibold text-white shadow-depth-sm transition hover:-translate-y-0.5 hover:shadow-depth-md disabled:cursor-not-allowed disabled:opacity-60"
                         >
                             {isSubmitting ? "Menyimpan..." : "Simpan Perubahan"}
                         </button>

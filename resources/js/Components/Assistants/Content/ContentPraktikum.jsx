@@ -681,22 +681,26 @@ export default function ContentPraktikum() {
         effectiveSession.current_phase
         : "-";
     return (
-        <section>
-            {/* Button Praktikan - Kelas */}
-            <div className="flex gap-4 items-start">
-                <div className="border-2 border-darkBrown rounded-md shadow-md">
-                    <h6 className="text-md text-darkBrown text-center py-1 font-semibold px-16">
-                        Start Praktikum
-                    </h6>
+        <section className="space-y-6 text-depth-primary">
+            {/* Header */}
+            <div className="flex flex-wrap items-center gap-4">
+                <div className="rounded-depth-lg border border-depth bg-depth-card px-10 py-4 shadow-depth-sm">
+                    <h6 className="text-lg font-semibold text-depth-primary">Start Praktikum</h6>
                 </div>
             </div>
 
-            <div className="flex gap-5 mt-4 items-start border-2 border-darkBrown rounded-md shadow-md">
-                <div className="overflow-y-auto lg:h-[48rem] md:h-96 w-full p-6">
-                    <div className="flex justify-start gap-4 mb-4">
-                        <div className="w-1/3">
+            <div className="rounded-depth-lg border border-depth bg-depth-card shadow-depth-lg">
+                <div className="w-full overflow-y-auto p-6 md:h-96 lg:h-[48rem]">
+                    <div className="mb-6 flex flex-col gap-4 lg:flex-row">
+                        <div className="flex-1 space-y-2">
+                            <label
+                                htmlFor="kelas_id"
+                                className="block text-xs font-semibold uppercase tracking-wide text-depth-secondary"
+                            >
+                                Kelas
+                            </label>
                             <select
-                                className="w-full border-2 border-darkBrown rounded-md shadow-md"
+                                className="w-full rounded-depth-md border border-depth bg-depth-card p-3 text-sm text-depth-primary shadow-depth-sm transition focus:border-[var(--depth-color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)] focus:ring-offset-0"
                                 id="kelas_id"
                                 value={selectedKelas}
                                 onChange={(e) => {
@@ -705,7 +709,7 @@ export default function ContentPraktikum() {
                                 }}
                             >
                                 <option value="">- Pilih Kelas -</option>
-                                {kelasLoading && <option disabled>Loading kelas...</option>}
+                                {kelasLoading && <option disabled>Memuat kelas...</option>}
                                 {kelasError && <option disabled>Gagal memuat kelas</option>}
                                 {!kelasLoading && !kelasError && kelas.length === 0 && (
                                     <option disabled>Data kelas kosong</option>
@@ -718,9 +722,15 @@ export default function ContentPraktikum() {
                                     ))}
                             </select>
                         </div>
-                        <div className="w-2/3">
+                        <div className="flex-1 space-y-2">
+                            <label
+                                htmlFor="modul_id"
+                                className="block text-xs font-semibold uppercase tracking-wide text-depth-secondary"
+                            >
+                                Modul
+                            </label>
                             <select
-                                className="w-full border-2 border-darkBrown rounded-md shadow-md"
+                                className="w-full rounded-depth-md border border-depth bg-depth-card p-3 text-sm text-depth-primary shadow-depth-sm transition focus:border-[var(--depth-color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)] focus:ring-offset-0"
                                 id="modul_id"
                                 value={selectedModul}
                                 onChange={(e) => {
@@ -729,7 +739,7 @@ export default function ContentPraktikum() {
                                 }}
                             >
                                 <option value="">- Pilih Modul -</option>
-                                {modulLoading && <option disabled>Loading modul...</option>}
+                                {modulLoading && <option disabled>Memuat modul...</option>}
                                 {modulError && <option disabled>Gagal memuat modul</option>}
                                 {!modulLoading && !modulError && moduls.length === 0 && (
                                     <option disabled>Data modul kosong</option>
@@ -762,19 +772,23 @@ export default function ContentPraktikum() {
                                     const phaseLabel = PHASE_SEQUENCE.find(phase => phase.key === p.current_phase)?.label ?? p.current_phase;
                                     
                                     return (
-                                        <div 
-                                            key={p.id} 
-                                            className="flex items-center justify-between border border-amber-300 rounded px-3 py-2 bg-white hover:bg-amber-50 transition-colors"
+                                        <div
+                                            key={p.id}
+                                            className="flex items-center justify-between rounded-depth-md border border-[color:var(--depth-border)] bg-depth-card px-3 py-2 shadow-depth-sm transition-colors hover:bg-depth-interactive"
                                         >
                                             <div className="flex-1">
                                                 <div className="flex items-center gap-2">
-                                                    <span className="font-semibold text-darkBrown">{kelasName}</span>
+                                                    <span className="font-semibold text-depth-primary">{kelasName}</span>
                                                     <span className="text-gray-400">•</span>
-                                                    <span className="text-darkBrown">{modulName}</span>
+                                                    <span className="text-depth-secondary">{modulName}</span>
                                                 </div>
                                                 <div className="flex items-center gap-3 mt-1 text-xs text-gray-600">
                                                     <span className="flex items-center gap-1">
-                                                        <span className={`px-2 py-0.5 rounded text-white ${p.status === 'running' ? 'bg-green-500' : 'bg-amber-500'}`}>
+                                                        <span
+                                                            className={`rounded-depth-full px-2 py-0.5 text-xs font-semibold text-white ${
+                                                                p.status === "running" ? "bg-emerald-500" : "bg-amber-500"
+                                                            }`}
+                                                        >
                                                             {statusLabel}
                                                         </span>
                                                     </span>
@@ -783,7 +797,7 @@ export default function ContentPraktikum() {
                                             </div>
                                             <button
                                                 onClick={() => handleSwitchToRunning(p)}
-                                                className="ml-3 px-4 py-2 bg-darkBrown text-white rounded hover:bg-darkBrown/90 transition text-sm font-semibold whitespace-nowrap"
+                                                className="ml-3 whitespace-nowrap rounded-depth-md bg-[var(--depth-color-primary)] px-4 py-2 text-sm font-semibold text-white shadow-depth-sm transition hover:-translate-y-0.5 hover:shadow-depth-md"
                                             >
                                                 Buka
                                             </button>
@@ -795,9 +809,9 @@ export default function ContentPraktikum() {
                     )}
 
                     <div className="mt-6">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div className="border border-darkBrown rounded-md p-4 bg-white shadow-sm">
-                                <h3 className="text-lg font-semibold text-darkBrown mb-2">Asisten Jaga</h3>
+                        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                            <div className="rounded-depth-lg border border-depth bg-depth-card p-4 shadow-depth-md">
+                                <h3 className="mb-2 text-lg font-semibold text-depth-primary">Asisten Jaga</h3>
                                 {jadwalLoading ? (
                                     <p className="text-sm text-gray-500">Memuat daftar asisten...</p>
                                 ) : asistenJagaList.length > 0 ? (
@@ -809,10 +823,10 @@ export default function ContentPraktikum() {
                                             return (
                                                 <li
                                                     key={key}
-                                                    className="flex justify-between items-center border border-lightBrown rounded px-3 py-2 text-sm text-darkBrown"
+                                                    className="flex items-center justify-between rounded-depth-md border border-depth px-3 py-2 text-sm text-depth-primary shadow-depth-sm"
                                                 >
                                                     <span className="font-semibold">{asistenDetail?.kode ?? item?.kode ?? "Kode tidak tersedia"}</span>
-                                                    <span className="text-right">{asistenDetail?.nama ?? item?.nama ?? "Nama tidak tersedia"}</span>
+                                                    <span className="text-right text-depth-secondary">{asistenDetail?.nama ?? item?.nama ?? "Nama tidak tersedia"}</span>
                                                 </li>
                                             );
                                         })}
@@ -823,8 +837,8 @@ export default function ContentPraktikum() {
                                     <p className="text-sm text-gray-500">Pilih kelas untuk melihat daftar asisten.</p>
                                 )}
                             </div>
-                            <div className="border border-darkBrown rounded-md p-4 bg-white shadow-sm">
-                                <h3 className="text-lg font-semibold text-darkBrown mb-2">Praktikan</h3>
+                            <div className="rounded-depth-lg border border-depth bg-depth-card p-4 shadow-depth-md">
+                                <h3 className="mb-2 text-lg font-semibold text-depth-primary">Praktikan</h3>
                                 {selectedKelas ? (
                                     praktikanList.length > 0 ? (
                                         <ul className="space-y-2 max-h-60 overflow-y-auto pr-1">
@@ -834,7 +848,7 @@ export default function ContentPraktikum() {
                                                 return (
                                                     <li
                                                         key={praktikan?.id ?? praktikan?.nim}
-                                                        className="flex justify-between items-center border border-lightBrown rounded px-3 py-2 text-sm text-darkBrown"
+                                                        className="flex items-center justify-between rounded-depth-md border border-depth px-3 py-2 text-sm text-depth-primary shadow-depth-sm"
                                                     >
                                                         <div className="flex items-center gap-2">
                                                             <div className="relative">
@@ -847,7 +861,7 @@ export default function ContentPraktikum() {
                                                             </div>
                                                             <span className="font-semibold">{praktikan?.nim ?? "NIM tidak tersedia"}</span>
                                                         </div>
-                                                        <span className="text-right ml-3">{praktikan?.nama ?? praktikan?.name ?? "Nama tidak tersedia"}</span>
+                                                        <span className="ml-3 text-right text-depth-secondary">{praktikan?.nama ?? praktikan?.name ?? "Nama tidak tersedia"}</span>
                                                     </li>
                                                 );
                                             })}
@@ -863,33 +877,33 @@ export default function ContentPraktikum() {
                     </div>
 
                     <div className="mt-10 flex flex-col items-center gap-6">
-                        <div className="w-full lg:w-3/4 xl:w-2/3 border-2 border-darkBrown rounded-md shadow-md bg-white p-6">
+                        <div className="w-full rounded-depth-lg border border-depth bg-depth-card p-6 shadow-depth-lg lg:w-3/4 xl:w-2/3">
                             <div className="flex flex-wrap justify-between gap-6">
                                 <div>
-                                    <p className="text-sm text-gray-600">Kelas</p>
-                                    <p className="text-lg font-semibold text-darkBrown">
+                                    <p className="text-sm text-depth-secondary">Kelas</p>
+                                    <p className="text-lg font-semibold text-depth-primary">
                                         {selectedKelasData?.kelas ?? "-"}
                                     </p>
                                 </div>
                                 <div>
-                                    <p className="text-sm text-gray-600">Modul</p>
-                                    <p className="text-lg font-semibold text-darkBrown">
+                                    <p className="text-sm text-depth-secondary">Modul</p>
+                                    <p className="text-lg font-semibold text-depth-primary">
                                         {selectedModulData?.judul ?? "-"}
                                     </p>
                                 </div>
                                 <div>
-                                    <p className="text-sm text-gray-600">Status</p>
-                                    <p className="text-lg font-semibold text-darkBrown">{statusLabel}</p>
+                                    <p className="text-sm text-depth-secondary">Status</p>
+                                    <p className="text-lg font-semibold text-depth-primary">{statusLabel}</p>
                                 </div>
                                 <div>
-                                    <p className="text-sm text-gray-600">Tahap Saat Ini</p>
-                                    <p className="text-lg font-semibold text-darkBrown">
+                                    <p className="text-sm text-depth-secondary">Tahap Saat Ini</p>
+                                    <p className="text-lg font-semibold text-depth-primary">
                                         {currentPhaseLabel}
                                     </p>
                                 </div>
                                 <div>
-                                    <p className="text-sm text-gray-600">Laporan</p>
-                                    <p className="text-lg font-semibold text-darkBrown">
+                                    <p className="text-sm text-depth-secondary">Laporan</p>
+                                    <p className="text-lg font-semibold text-depth-primary">
                                         {reportSubmitted
                                             ? "Sudah dikirim"
                                             : isCompleted
@@ -898,18 +912,18 @@ export default function ContentPraktikum() {
                                     </p>
                                 </div>
                                 <div>
-                                    <p className="text-sm text-gray-600">PJ Laporan</p>
-                                    <p className="text-lg font-semibold text-darkBrown">
+                                    <p className="text-sm text-depth-secondary">PJ Laporan</p>
+                                    <p className="text-lg font-semibold text-depth-primary">
                                         {reportSubmitted ? reportOwnerDisplay : "-"}
                                     </p>
                                 </div>
                             </div>
 
                             <div className="mt-6 flex flex-col items-center gap-2">
-                                <span className="text-sm text-gray-600 uppercase tracking-wide">
+                                <span className="text-sm uppercase tracking-wide text-depth-secondary">
                                     Timer
                                 </span>
-                                <span className="text-4xl font-bold text-darkBrown">
+                                <span className="text-4xl font-bold text-depth-primary">
                                     {formatDuration(displaySeconds)}
                                 </span>
                             </div>
@@ -928,12 +942,12 @@ export default function ContentPraktikum() {
                                         : false;
 
                                     const baseClass =
-                                        "px-4 py-2 rounded-md text-sm font-semibold transition border border-lightBrown";
+                                        "rounded-depth-md border border-depth px-4 py-2 text-sm font-semibold transition";
                                     const className = isActiveStage
-                                        ? "bg-deepForestGreen text-white border-deepForestGreen"
+                                        ? "bg-[var(--depth-color-primary)] text-white border-transparent shadow-depth-md"
                                         : isCompletedStage
-                                            ? "bg-lightBrown text-white border-lightBrown"
-                                            : "bg-white text-darkBrown";
+                                            ? "bg-depth-interactive text-depth-primary"
+                                            : "bg-depth-card text-depth-secondary";
 
                                     return (
                                         <div key={phase.key} className="flex items-center gap-2">
@@ -941,7 +955,7 @@ export default function ContentPraktikum() {
                                                 {phase.label}
                                             </span>
                                             {index < PHASE_SEQUENCE.length - 1 && (
-                                                <span className="text-sm text-gray-500">→</span>
+                                                <span className="text-sm text-depth-secondary">→</span>
                                             )}
                                         </div>
                                     );
@@ -952,7 +966,7 @@ export default function ContentPraktikum() {
                                 <div className="mt-8 w-full">
                                     <label
                                         htmlFor="laporan_praktikum"
-                                        className="block text-sm font-semibold text-darkBrown mb-2"
+                                        className="mb-2 block text-sm font-semibold text-depth-primary"
                                     >
                                         Laporan Praktikum
                                     </label>
@@ -961,10 +975,10 @@ export default function ContentPraktikum() {
                                         value={reportText}
                                         onChange={(e) => setReportText(e.target.value)}
                                         rows={6}
-                                        className="w-full border border-lightBrown rounded-md p-3 text-sm text-darkBrown shadow-inner focus:outline-none focus:ring-2 focus:ring-darkBrown"
+                                        className="w-full rounded-depth-lg border border-depth bg-depth-card p-3 text-sm text-depth-primary shadow-depth-inset transition focus:border-[var(--depth-color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)] focus:ring-offset-0"
                                         placeholder="Catat ringkasan jalannya praktikum, kendala, dan catatan penting lainnya..."
                                     />
-                                    <p className="text-xs text-gray-500 mt-2">
+                                    <p className="mt-2 text-xs text-depth-secondary">
                                         Catatan: PJ yang terdaftar akan otomatis mengikuti akun asisten yang mengirim laporan.
                                     </p>
                                     <div className="flex justify-end gap-3 mt-4">
@@ -977,10 +991,11 @@ export default function ContentPraktikum() {
                                                     ? "Minimal 3 karakter sebelum mengirim."
                                                     : undefined
                                             }
-                                            className={`px-5 py-2 rounded-md font-semibold text-white shadow transition ${reportSubmitDisabled
-                                                ? "bg-gray-400 cursor-not-allowed"
-                                                : "bg-deepForestGreen hover:bg-darkGreen"
-                                                }`}
+                                            className={`rounded-depth-md px-5 py-2 font-semibold text-white shadow-depth-sm transition ${
+                                                reportSubmitDisabled
+                                                    ? "cursor-not-allowed bg-gray-500/50"
+                                                    : "bg-[var(--depth-color-primary)] hover:-translate-y-0.5 hover:shadow-depth-md"
+                                            }`}
                                         >
                                             {isSubmittingReport ? "Mengirim..." : "Kirim Laporan"}
                                         </button>
@@ -989,22 +1004,22 @@ export default function ContentPraktikum() {
                             )}
 
                             {showReportPreview && (
-                                <div className="mt-8 w-full border border-lightBrown rounded-md p-4 bg-softIvory text-darkBrown shadow-sm">
-                                    <div className="flex flex-wrap justify-between gap-3 text-sm text-gray-600">
+                                <div className="mt-8 w-full rounded-depth-lg border border-depth bg-depth-card p-4 text-depth-primary shadow-depth-md">
+                                    <div className="flex flex-wrap justify-between gap-3 text-sm text-depth-secondary">
                                         <span>Laporan dikirim: {reportSubmittedAt ?? "-"}</span>
                                         <span>Mulai: {startedAtDisplay ?? "-"}</span>
                                         <span>Selesai: {endedAtDisplay ?? "-"}</span>
                                         <span>PJ: {reportOwnerDisplay}</span>
                                     </div>
-                                    <hr className="my-3 border-lightBrown" />
-                                    <div className="whitespace-pre-wrap text-darkBrown text-base leading-relaxed">
+                                    <hr className="my-3 border-[color:var(--depth-border)]" />
+                                    <div className="whitespace-pre-wrap text-base leading-relaxed text-depth-primary">
                                         {effectiveSession?.report_notes}
                                     </div>
                                 </div>
                             )}
 
                             {praktikumLoading && hasSelection && (
-                                <p className="mt-6 text-center text-sm text-gray-500">
+                                <p className="mt-6 text-center text-sm text-depth-secondary">
                                     Memuat status praktikum...
                                 </p>
                             )}
@@ -1016,10 +1031,11 @@ export default function ContentPraktikum() {
                                     type="button"
                                     onClick={() => handleAction("start")}
                                     disabled={startDisabled}
-                                    className={`px-6 py-2 rounded-md font-semibold text-white shadow transition ${startDisabled
-                                        ? "bg-gray-400 cursor-not-allowed"
-                                        : "bg-deepForestGreen hover:bg-darkGreen"
-                                        }`}
+                                    className={`rounded-depth-md px-6 py-2 font-semibold text-white shadow-depth-sm transition ${
+                                        startDisabled
+                                            ? "cursor-not-allowed bg-gray-500/50"
+                                            : "bg-[var(--depth-color-primary)] hover:-translate-y-0.5 hover:shadow-depth-md"
+                                    }`}
                                 >
                                     {startLabel}
                                 </button>
@@ -1027,10 +1043,11 @@ export default function ContentPraktikum() {
                                     type="button"
                                     onClick={() => handleAction("pause")}
                                     disabled={pauseDisabled}
-                                    className={`px-6 py-2 rounded-md font-semibold text-white shadow transition ${pauseDisabled
-                                        ? "bg-gray-400 cursor-not-allowed"
-                                        : "bg-amber-500 hover:bg-amber-600"
-                                        }`}
+                                    className={`rounded-depth-md px-6 py-2 font-semibold text-white shadow-depth-sm transition ${
+                                        pauseDisabled
+                                            ? "cursor-not-allowed bg-gray-500/50"
+                                            : "bg-amber-500 hover:-translate-y-0.5 hover:bg-amber-600 hover:shadow-depth-md"
+                                    }`}
                                 >
                                     Pause
                                 </button>
@@ -1038,10 +1055,11 @@ export default function ContentPraktikum() {
                                     type="button"
                                     onClick={() => handleAction("resume")}
                                     disabled={resumeDisabled}
-                                    className={`px-6 py-2 rounded-md font-semibold text-white shadow transition ${resumeDisabled
-                                        ? "bg-gray-400 cursor-not-allowed"
-                                        : "bg-sky-600 hover:bg-sky-700"
-                                        }`}
+                                    className={`rounded-depth-md px-6 py-2 font-semibold text-white shadow-depth-sm transition ${
+                                        resumeDisabled
+                                            ? "cursor-not-allowed bg-gray-500/50"
+                                            : "bg-sky-600 hover:-translate-y-0.5 hover:bg-sky-700 hover:shadow-depth-md"
+                                    }`}
                                 >
                                     Resume
                                 </button>
@@ -1049,10 +1067,11 @@ export default function ContentPraktikum() {
                                     type="button"
                                     onClick={() => handleAction("next")}
                                     disabled={nextDisabled}
-                                    className={`px-6 py-2 rounded-md font-semibold text-white shadow transition ${nextDisabled
-                                        ? "bg-gray-400 cursor-not-allowed"
-                                        : "bg-darkBrown hover:bg-darkBrown/90"
-                                        }`}
+                                    className={`rounded-depth-md px-6 py-2 font-semibold text-white shadow-depth-sm transition ${
+                                        nextDisabled
+                                            ? "cursor-not-allowed bg-gray-500/50"
+                                            : "bg-indigo-600 hover:-translate-y-0.5 hover:bg-indigo-700 hover:shadow-depth-md"
+                                    }`}
                                 >
                                     Next
                                 </button>
@@ -1060,10 +1079,11 @@ export default function ContentPraktikum() {
                                     type="button"
                                     onClick={() => handleAction("exit")}
                                     disabled={exitDisabled}
-                                    className={`px-6 py-2 rounded-md font-semibold text-white shadow transition ${exitDisabled
-                                        ? "bg-gray-400 cursor-not-allowed"
-                                        : "bg-red-600 hover:bg-red-700"
-                                        }`}
+                                    className={`rounded-depth-md px-6 py-2 font-semibold text-white shadow-depth-sm transition ${
+                                        exitDisabled
+                                            ? "cursor-not-allowed bg-gray-500/50"
+                                            : "bg-red-600 hover:-translate-y-0.5 hover:bg-red-700 hover:shadow-depth-md"
+                                    }`}
                                 >
                                     Exit
                                 </button>

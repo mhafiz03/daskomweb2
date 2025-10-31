@@ -14,41 +14,33 @@ export default function ContentPlottingan() {
     const handleCloseModalReset = () => setShowModalReset(false);
 
     return (
-        <section>
-            {/* Button Praktikan - Kelas */}
-            <div className="flex gap-4 items-start">
-                <div className="border-2 border-darkBrown rounded-md shadow-md">
-                    <h6 className="text-md text-darkBrown text-center py-1 font-semibold px-16">
-                        Plotting Jadwal Assistant
-                    </h6>
+        <section className="space-y-6 text-depth-primary">
+            <div className="flex flex-wrap items-center gap-4">
+                <div className="rounded-depth-lg border border-depth bg-depth-card px-10 py-3 shadow-depth-sm">
+                    <h6 className="text-lg font-semibold text-depth-primary">Plotting Jadwal Assistant</h6>
                 </div>
 
-                {/* Button Add Jadwal */}
                 <button
+                    type="button"
                     onClick={handleOpenModal}
-                    className="text-darkBrown text-md font-semibold px-4 py-1 border-2 border-darkBrown rounded-md shadow-md hover:bg-softBrown transition"
+                    className="rounded-depth-md border border-depth bg-depth-interactive px-4 py-2 text-sm font-semibold text-depth-primary shadow-depth-sm transition hover:-translate-y-0.5 hover:shadow-depth-md"
                 >
                     + Jadwal
                 </button>
 
-                {/* Button Reset Plottingan */}
                 {/* <button
+                    type="button"
                     onClick={handleOpenModalReset}
-                    className="text-white text-md font-semibold px-4 py-1 rounded-md shadow-md bg-redredDark hover:bg-rustyRed transition mt-[2px]"
+                    className="rounded-depth-md border border-red-400/50 bg-red-400/15 px-4 py-2 text-sm font-semibold text-red-400 shadow-depth-sm transition hover:-translate-y-0.5 hover:shadow-depth-md"
                 >
                     Reset Plottingan
                 </button> */}
             </div>
 
-            {/* Table Data Plottingan */}
-            <div className="">
-                <TablePlottingan />
-            </div>
+            <TablePlottingan />
 
-            {/* Modal Add Jadwal */}
             {showModal && <ButtonAddPlotting onClose={handleCloseModal} />}
 
-            {/* Modal Reset Plottingan */}
             {showModalReset && <ButtonResetPlotting onClose={handleCloseModalReset} />}
         </section>
     );

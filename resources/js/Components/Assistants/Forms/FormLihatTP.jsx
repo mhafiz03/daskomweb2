@@ -93,7 +93,7 @@ export default function FormLihatTp() {
                 <div className="container mx-auto p-4 text-center">
                     <button
                         onClick={handleBackToForm}
-                        className="px-4 py-2 bg-deepForestGreen text-white rounded hover:bg-darkGreen"
+                        className="rounded-depth-md border border-depth bg-depth-interactive px-5 py-2 text-sm font-semibold text-depth-primary shadow-depth-sm transition hover:-translate-y-0.5 hover:shadow-depth-md"
                     >
                         Kembali ke Pencarian
                     </button>
@@ -104,13 +104,13 @@ export default function FormLihatTp() {
 
     return (
         <div className="container mx-auto p-4">
-            <div className="bg-white shadow-md border-2 border-deepForestGreen rounded-lg p-6">
-                <h1 className="text-2xl font-bold mb-6 text-center text-deepForestGreen">Lihat Jawaban TP</h1>
+            <div className="rounded-depth-lg border border-depth bg-depth-card p-6 shadow-depth-lg">
+                <h1 className="mb-6 text-center text-2xl font-bold text-depth-primary">Lihat Jawaban TP</h1>
 
                 <form onSubmit={handleSubmit} className="mb-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                            <label htmlFor="nim" className="block text-sm font-medium text-gray-700 mb-1">
+                            <label htmlFor="nim" className="mb-1 block text-sm font-medium text-depth-primary">
                                 NIM Praktikan
                             </label>
                             <input
@@ -118,20 +118,20 @@ export default function FormLihatTp() {
                                 id="nim"
                                 value={nim}
                                 onChange={handleNimChange}
-                                className="w-full p-2 border border-gray-300 rounded text-black"
+                                className="w-full rounded-depth-md border border-depth bg-depth-card p-2 text-sm text-depth-primary shadow-depth-sm transition focus:border-[var(--depth-color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)] focus:ring-offset-0"
                                 placeholder="Masukkan NIM"
                             />
                         </div>
 
                         <div>
-                            <label htmlFor="modul" className="block text-sm font-medium text-gray-700 mb-1">
+                            <label htmlFor="modul" className="mb-1 block text-sm font-medium text-depth-primary">
                                 Modul
                             </label>
                             <select
                                 id="modul"
                                 value={selectedModulId}
                                 onChange={handleModulChange}
-                                className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-green-500"
+                                className="w-full rounded-depth-md border border-depth bg-depth-card p-2 text-sm text-depth-primary shadow-depth-sm transition focus:border-[var(--depth-color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)] focus:ring-offset-0"
                                 disabled={modulesLoading}
                             >
                                 <option value="" disabled>
@@ -156,14 +156,14 @@ export default function FormLihatTp() {
                     <button
                         type="submit"
                         disabled={jawabanTpMutation.isPending || modulesLoading}
-                        className="mt-4 w-full p-2 bg-deepForestGreen text-white font-semibold rounded hover:bg-darkGreen disabled:bg-gray-400"
+                        className="mt-4 w-full rounded-depth-md bg-[var(--depth-color-primary)] px-5 py-2 text-sm font-semibold text-white shadow-depth-sm transition hover:-translate-y-0.5 hover:shadow-depth-md disabled:cursor-not-allowed disabled:opacity-60"
                     >
                         {jawabanTpMutation.isPending ? "Memuat..." : "Lihat Jawaban"}
                     </button>
                 </form>
 
                 {error && (
-                    <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+                    <div className="mb-4 rounded-depth-md border border-red-500/60 bg-red-500/15 px-4 py-3 text-sm text-red-400">
                         {error}
                     </div>
                 )}

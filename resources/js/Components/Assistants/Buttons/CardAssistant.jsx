@@ -1,10 +1,9 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import ModalEditProfile from "../Modals/ModalEditProfile";
-import toast, { Toaster } from "react-hot-toast";  // Import Toaster
 import iconWA from "../../../../assets/contact/iconWhatsapp.svg";
 import iconLine from "../../../../assets/contact/iconLine.svg";
 import iconIG from "../../../../assets/contact/iconInstagram.svg";
-import editIcon from "../../../../assets/nav/Icon-Edit.svg"
+import editIcon from "../../../../assets/nav/Icon-Edit.svg";
 import daskomIcon from "../../../../../resources/assets/daskom.svg";
 
 export default function CardAssistant({ asisten }) {
@@ -13,70 +12,96 @@ export default function CardAssistant({ asisten }) {
     const handleOpenModal = () => setModalOpen(true);
     const handleCloseModal = () => setModalOpen(false);
 
+    const contactItems = useMemo(
+        () => [
+            {
+                icon: iconWA,
+                label: "WhatsApp",
+                value: asisten?.nomor_telepon || "Tidak tersedia",
+            },
+            {
+                icon: iconLine,
+                label: "ID Line",
+                value: asisten?.id_line || "Tidak tersedia",
+            },
+            {
+                icon: iconIG,
+                label: "Instagram",
+                value: asisten?.instagram || "Tidak tersedia",
+            },
+        ],
+        [asisten?.id_line, asisten?.instagram, asisten?.nomor_telepon]
+    );
+
+    const roleName = asisten?.roles?.[0]?.name ?? "Asisten";
+
     return (
         <>
-            <div className="flex justify-center items-center">
-                <div className="bg-softIvory w-[450px] h-[500px] p-4 rounded-lg shadow-lg shadow-deepForestGreen text-center">
-                    {/* Edit Button */}
-                    <div className="flex justify-end items-center">
-                        <img
-                            className="w-6"
-                            src={editIcon}
-                            alt="iconEdit"
-                        />
+            <div className="flex justify-center px-4 py-6">
+                <div className="w-full max-w-xl rounded-depth-lg border border-depth bg-depth-card p-8 text-center shadow-depth-lg transition-colors duration-300">
+                    <div className="flex justify-end">
                         <button
-                            className="text-black underline"
+                            type="button"
                             onClick={handleOpenModal}
+                            className="group inline-flex items-center gap-2 rounded-depth-full border border-transparent bg-depth-interactive px-4 py-2 text-sm font-semibold text-depth-secondary shadow-depth-sm transition hover:-translate-y-0.5 hover:shadow-depth-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--depth-color-primary)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--depth-color-card)]"
                         >
-                            Edit
+                            <img
+                                className="h-4 w-4 opacity-70 transition group-hover:opacity-100"
+                                src={editIcon}
+                                alt="Edit profil"
+                            />
+                            <span className="tracking-wide">Edit Profil</span>
                         </button>
                     </div>
 
-                    {/* Profile Picture */}
-                    <img
-                        src={asisten?.foto_asistens?.foto || daskomIcon}
-                        alt={asisten?.nama || "Profile Picture"}
-                        className="w-40 h-40 mx-auto rounded-full object-cover border-2"
-                    />
+                    <div className="mt-6 flex flex-col items-center gap-4">
+                        <div className="relative flex h-40 w-40 items-center justify-center rounded-depth-full border border-depth bg-depth-background shadow-depth-md">
+                            <img
+                                src={asisten?.foto_asistens?.foto || daskomIcon}
+                                alt={asisten?.nama || "Foto Asisten"}
+                                className="h-36 w-36 rounded-depth-full object-cover"
+                            />
+                            <span className="pointer-events-none absolute inset-0 rounded-depth-full border border-white/20 shadow-[inset_0_2px_6px_rgba(255,255,255,0.25)]" />
+                        </div>
 
-                    {/* Name and Rating */}
-                    <h2 className="text-xl font-bold mt-2">{asisten.nama}</h2>
-                    <div className="flex justify-center items-center text-yellow-500 mt-1">
-                        {Array(5).fill(0).map((_, index) => (
-                            <span key={index} className="text-4xl">★</span>
+                        <div className="text-center">
+                            <h2 className="text-2xl font-semibold text-depth-primary">
+                                {asisten?.nama ?? "Asisten Daskom"}
+                            </h2>
+                            <div className="mt-2 flex items-center justify-center gap-1 text-lg text-amber-400 drop-shadow">
+                                {Array.from({ length: 5 }).map((_, index) => (
+                                    <span key={index} aria-hidden="true">
+                                        ★
+                                    </span>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+
+                    <p className="mt-4 text-sm leading-relaxed text-depth-secondary">
+                        {asisten?.deskripsi || "Belum ada deskripsi yang ditambahkan untuk asisten ini."}
+                    </p>
+
+                    <div className="mt-6 space-y-3">
+                        {contactItems.map(({ icon, label, value }) => (
+                            <div
+                                key={label}
+                                className="flex items-center justify-center gap-3 rounded-depth-full border border-transparent bg-depth-interactive px-4 py-2 text-sm font-medium text-depth-primary shadow-depth-sm transition hover:shadow-depth-md"
+                            >
+                                <img className="h-5 w-5" src={icon} alt={label} />
+                                <span className="text-depth-secondary">{value}</span>
+                            </div>
                         ))}
                     </div>
 
-                    {/* Description */}
-                    <p className="text-md font-normal text-black mt-2">
-                       {asisten.deskripsi}
-                    </p>
-
-                    {/* Contact Info */}
-                    <div className="mt-4 space-y-1">
-                        <div className="flex items-center justify-center space-x-2">
-                            <img className="w-6" src={iconWA} alt="iconWA" />
-                            <span className="text-black">{asisten.nomor_telepon}</span>
-                        </div>
-                        <div className="flex items-center justify-center space-x-2">
-                            <img className="w-6" src={iconLine} alt="iconLine" />
-                            <span className="text-black">{asisten.id_line}</span>
-                        </div>
-                        <div className="flex items-center justify-center space-x-2">
-                            <img className="w-6" src={iconIG} alt="iconIG" />
-                            <span className="text-black">{asisten.instagram}</span>
-                        </div>
-                    </div>
-
-                    {/* Footer */}
-                    <div className="mt-4 bg-forestGreen text-white text-xl font-bold py-1 rounded-md">
-                        {asisten.roles[0].name}
+                    <div className="mt-6 w-full rounded-depth-md bg-[var(--depth-color-primary)] py-2 text-center text-sm font-semibold uppercase tracking-wide text-white shadow-depth-md">
+                        {roleName}
                     </div>
                 </div>
             </div>
 
             {/* Modal */}
-            <ModalEditProfile isOpen={isModalOpen} onClose={handleCloseModal}/>
+            <ModalEditProfile isOpen={isModalOpen} onClose={handleCloseModal} />
         </>
     );
 }

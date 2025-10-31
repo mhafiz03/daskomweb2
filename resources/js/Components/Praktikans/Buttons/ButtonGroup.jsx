@@ -1,19 +1,25 @@
-import { Link, usePage } from '@inertiajs/react';
 import React from 'react';
 import ButtonMode from './ButtonMode';
 
 const buttonTypes = ['praktikan', 'assistant'];
 
-export default function ButtonGroup({mode}) {
-    const { ziggy } = usePage().props; 
-    const currentMode = new URL(ziggy.location).searchParams.get('mode') || 'praktikan';
+export default function ButtonGroup({ currentMode, onModeChange }) {
+    const handleModeClick = (type) => {
+        if (onModeChange) {
+            onModeChange(type);
+        }
+    };
 
     return (
         <div className="flex gap-4">
             {buttonTypes.map((type) => (
-                <Link key={type} href={`/login?mode=${type}`}>
+                <button 
+                    key={type} 
+                    onClick={() => handleModeClick(type)}
+                    type="button"
+                >
                     <ButtonMode type={type} isActive={currentMode === type} />
-                </Link>
+                </button>
             ))}
         </div>
     );

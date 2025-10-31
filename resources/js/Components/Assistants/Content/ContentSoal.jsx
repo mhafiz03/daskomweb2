@@ -9,28 +9,26 @@ export default function ContentSoal() {
     const handleCloseModalReset = () => setShowModalReset(false);
 
     return (
-        <section>
+        <section className="space-y-6">
             {/* header input soal */}
-            <div className="flex gap-4 items-start">
-                <div className="border-2 border-darkBrown rounded-md shadow-md">
-                    <h6 className="text-lg text-darkBrown text-left py-1 font-bold px-14">
-                        Manage Soal
-                    </h6>
+            <div className="flex flex-wrap items-center gap-4">
+                <div className="rounded-depth-lg border border-depth bg-depth-card px-10 py-3 shadow-depth-sm">
+                    <h6 className="text-lg font-semibold text-depth-primary">Manage Soal</h6>
                 </div>
 
                 {/* Button Reset Plottingan */}
                 {/* <button
                     onClick={handleOpenModalReset}
-                    className="text-white text-md font-semibold px-4 py-1 rounded-md shadow-md bg-redredDark hover:bg-rustyRed transition mt-[2px]"
+                    className="rounded-depth-md bg-[var(--depth-color-primary)] px-4 py-2 text-sm font-semibold text-white shadow-depth-sm transition hover:-translate-y-0.5 hover:shadow-depth-md focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)] focus:ring-offset-2 focus:ring-offset-[var(--depth-color-card)]"
                 >
                     Reset Soal
                 </button> */}
             </div>
 
             {/* all dropdown input soal */}
-            <div className="flex gap-5 mt-4 items-start border-2 border-darkBrown rounded-md shadow-md">
+            <div className="mt-4 rounded-depth-lg border border-depth bg-depth-card shadow-depth-lg">
                 {/* Panggil komponen dropdown jenis soal */}
-                <div className="overflow-y-auto lg:h-[48rem] md:h-96 w-full">
+                <div className="w-full overflow-y-auto rounded-depth-lg p-6 md:h-96 lg:h-[48rem]">
                     <SoalInputForm />
                 </div>
             </div>

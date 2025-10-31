@@ -369,48 +369,61 @@ export default function SoalInputPG({ kategoriSoal, modul, modules = [], onModal
     };
 
     return (
-        <div>
-            <label className="block font-semibold text-lg mb-2">Soal</label>
-            <textarea
-                className="w-full p-3 border rounded mb-4"
-                rows={4}
-                placeholder="Masukkan soal..."
-                value={formState.pertanyaan}
-                onChange={(e) => setFormState((prev) => ({ ...prev, pertanyaan: e.target.value }))}
-            />
-
-            <label className="block mb-2 font-medium">Pilihan Jawaban</label>
-            <div className="space-y-3">
-                {formState.options.map((option, index) => (
-                    <div key={index} className="flex items-center space-x-3">
-                        <input
-                            type="radio"
-                            name="correctOption"
-                            checked={formState.correctIndex === index}
-                            onChange={() => handleSetCorrect(index)}
-                            className="accent-deepForestGreen"
-                        />
-                        <input
-                            type="text"
-                            className="flex-1 p-2 border rounded"
-                            placeholder={`Pilihan ${String.fromCharCode(65 + index)}`}
-                            value={option}
-                            onChange={(e) => handleOptionChange(index, e.target.value)}
-                        />
-                    </div>
-                ))}
+        <div className="space-y-6 text-depth-primary">
+            <div className="space-y-2">
+                <label className="block text-xs font-semibold uppercase tracking-wide text-depth-secondary">
+                    Soal
+                </label>
+                <textarea
+                    className="w-full rounded-depth-lg border border-depth bg-depth-card p-4 text-sm text-depth-primary shadow-depth-sm transition duration-200 placeholder:text-depth-secondary focus:border-transparent focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)] focus:ring-offset-2 focus:ring-offset-[var(--depth-color-card)]"
+                    rows={4}
+                    placeholder="Masukkan soal..."
+                    value={formState.pertanyaan}
+                    onChange={(e) =>
+                        setFormState((prev) => ({ ...prev, pertanyaan: e.target.value }))
+                    }
+                />
             </div>
 
-            <div className="flex justify-end space-x-3 mt-4">
+            <div className="space-y-3">
+                <label className="block text-xs font-semibold uppercase tracking-wide text-depth-secondary">
+                    Pilihan Jawaban
+                </label>
+                <div className="space-y-3">
+                    {formState.options.map((option, index) => (
+                        <div
+                            key={index}
+                            className="flex items-center gap-3 rounded-depth-lg border border-depth bg-depth-card p-3 shadow-depth-sm transition-colors duration-200"
+                        >
+                            <input
+                                type="radio"
+                                name="correctOption"
+                                checked={formState.correctIndex === index}
+                                onChange={() => handleSetCorrect(index)}
+                                className="h-4 w-4 accent-[var(--depth-color-primary)]"
+                            />
+                            <input
+                                type="text"
+                                className="flex-1 rounded-depth-md border border-transparent bg-depth-interactive p-3 text-sm text-depth-primary shadow-depth-inset transition duration-200 placeholder:text-depth-secondary focus:border-[var(--depth-color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)] focus:ring-offset-0"
+                                placeholder={`Pilihan ${String.fromCharCode(65 + index)}`}
+                                value={option}
+                                onChange={(e) => handleOptionChange(index, e.target.value)}
+                            />
+                        </div>
+                    ))}
+                </div>
+            </div>
+
+            <div className="flex justify-end gap-3">
                 <button
-                    className="text-md py-1 px-8 font-bold border text-white rounded-md shadow-sm bg-blue-500 disabled:opacity-60"
+                    className="rounded-depth-md border border-depth bg-depth-card px-6 py-2 text-sm font-semibold text-depth-primary shadow-depth-sm transition duration-200 hover:-translate-y-0.5 hover:shadow-depth-md disabled:opacity-60"
                     onClick={() => setIsBatchModalOpen(true)}
                     disabled={soalQuery.isLoading || soalList.length === 0}
                 >
                     Batch Edit
                 </button>
                 <button
-                    className="text-md py-1 px-8 font-bold border text-white bg-deepForestGreen border-deepForestGreen rounded-md shadow-sm disabled:opacity-70"
+                    className="rounded-depth-md bg-[var(--depth-color-primary)] px-6 py-2 text-sm font-semibold text-white shadow-depth-sm transition duration-200 hover:-translate-y-0.5 hover:shadow-depth-md focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)] focus:ring-offset-2 focus:ring-offset-[var(--depth-color-card)] disabled:opacity-70"
                     onClick={handleTambahSoal}
                     disabled={postSoalMutation.isPending}
                 >
@@ -418,65 +431,81 @@ export default function SoalInputPG({ kategoriSoal, modul, modules = [], onModal
                 </button>
             </div>
 
-            <div className="mt-5">
-                <h3 className="font-bold mb-3">Soal yang telah ditambahkan:</h3>
-                {soalQuery.isLoading && <p>Memuat soal...</p>}
+            <div className="space-y-4">
+                <h3 className="text-base font-semibold text-depth-secondary">
+                    Soal yang telah ditambahkan:
+                </h3>
+                {soalQuery.isLoading && (
+                    <p className="text-sm text-depth-secondary">Memuat soal...</p>
+                )}
                 {soalQuery.isError && (
-                    <p className="text-red-500">
+                    <p className="text-sm text-red-500">
                         {soalQuery.error?.message ?? "Gagal memuat soal"}
                     </p>
                 )}
                 {!soalQuery.isLoading && !soalQuery.isError && (
-                    <ul className="space-y-3">
+                    <ul className="space-y-4">
                         {soalList.map((soalItem, index) => (
                             <li
                                 key={soalItem.id ?? index}
-                                className="relative p-5 border border-gray-300 rounded-lg bg-softIvory shadow-lg"
+                                className="relative rounded-depth-lg border border-depth bg-depth-card p-5 shadow-depth-md transition duration-200 hover:shadow-depth-lg"
                             >
-                                <div className="mb-3">
-                                    <strong>Soal: {index + 1}</strong>
-                                    <pre className="ml-4 mt-1 text-sm text-justify whitespace-pre-wrap break-words">
+                                <div className="mb-4 space-y-2">
+                                    <div className="text-sm font-semibold text-depth-secondary">
+                                        Soal {index + 1}
+                                    </div>
+                                    <pre className="whitespace-pre-wrap break-words rounded-depth-md bg-depth-interactive p-3 text-sm text-depth-primary shadow-depth-inset">
                                         {soalItem.pertanyaan}
                                     </pre>
                                 </div>
 
-                                <div className="mb-2">
-                                    <strong>Pilihan:</strong>
-                                    <ul className="ml-4 mt-1 space-y-1">
-                                        {normalizeOptionsForDisplay(soalItem).map((option, optionIndex) => (
-                                            <li
-                                                key={option.id ?? `${option.text}-${optionIndex}`}
-                                                className={`px-3 py-1 rounded ${
-                                                    isOptionCorrect(soalItem, option, optionIndex)
-                                                        ? "bg-deepForestGreen text-white"
-                                                        : "bg-softIvory border border-gray-200"
-                                                }`}
-                                            >
-                                                <span className="font-semibold mr-2">
-                                                    {String.fromCharCode(65 + optionIndex)}.
-                                                </span>
-                                                {option.text ? (
-                                                    option.text
-                                                ) : (
-                                                    <span className="italic text-gray-500">Belum diisi</span>
-                                                )}
-                                            </li>
-                                        ))}
+                                <div className="space-y-2">
+                                    <div className="text-xs font-semibold uppercase tracking-wide text-depth-secondary">
+                                        Pilihan
+                                    </div>
+                                    <ul className="space-y-2">
+                                        {normalizeOptionsForDisplay(soalItem).map((option, optionIndex) => {
+                                            const isCorrect = isOptionCorrect(soalItem, option, optionIndex);
+
+                                            return (
+                                                <li
+                                                    key={option.id ?? `${option.text}-${optionIndex}`}
+                                                    className={`flex items-center gap-2 rounded-depth-md border border-transparent px-3 py-2 text-sm shadow-depth-sm transition duration-150 ${
+                                                        isCorrect
+                                                            ? "border-[var(--depth-color-primary)] bg-[var(--depth-color-primary)] text-white shadow-depth-md"
+                                                            : "bg-depth-interactive text-depth-primary"
+                                                    }`}
+                                                >
+                                                    <span className="font-semibold">
+                                                        {String.fromCharCode(65 + optionIndex)}.
+                                                    </span>
+                                                    {option.text ? (
+                                                        option.text
+                                                    ) : (
+                                                        <span className="italic text-depth-secondary">
+                                                            Belum diisi
+                                                        </span>
+                                                    )}
+                                                </li>
+                                            );
+                                        })}
                                     </ul>
                                 </div>
 
-                                <div className="absolute top-2 right-2 flex space-x-2">
+                                <div className="absolute right-4 top-4 flex gap-2">
                                     <button
                                         onClick={() => handleOpenModalEdit(soalItem)}
-                                        className="flex justify-center items-center p-1 border-2 border-darkBrown rounded bg-white"
+                                        className="flex h-9 w-9 items-center justify-center rounded-depth-md border border-depth bg-depth-interactive shadow-depth-sm transition duration-150 hover:shadow-depth-md"
+                                        type="button"
                                     >
-                                        <img className="w-5" src={editIcon} alt="Edit" />
+                                        <img className="h-4 w-4" src={editIcon} alt="Edit" />
                                     </button>
                                     <button
                                         onClick={() => handleOpenModalDelete(soalItem.id)}
-                                        className="flex justify-center items-center p-1 border-2 border-fireRed rounded bg-white"
+                                        className="flex h-9 w-9 items-center justify-center rounded-depth-md border border-red-300 bg-depth-interactive text-red-500 shadow-depth-sm transition duration-150 hover:border-red-400 hover:shadow-depth-md"
+                                        type="button"
                                     >
-                                        <img className="w-5 h-5" src={trashIcon} alt="Delete" />
+                                        <img className="h-4 w-4" src={trashIcon} alt="Delete" />
                                     </button>
                                 </div>
                             </li>

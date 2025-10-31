@@ -117,21 +117,21 @@ export default function ModalKonfigurasi({ onClose }) {
     return (
         <>
             {/* Modal Utama */}
-            <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-                <div className="bg-white rounded-lg p-6 w-96 shadow-lg relative">
+            <div className="depth-modal-overlay">
+                <div className="depth-modal-container max-w-xl">
                     {/* Header */}
-                    <div className="flex justify-between items-center mb-4 border-b border-deepForestGreen">
-                        <h2 className="text-xl font-semibold flex items-center gap-2">
-                            <img className="w-8" src={editIcon} alt="praktikum" /> Configuration
+                    <div className="depth-modal-header">
+                        <h2 className="depth-modal-title flex items-center gap-2">
+                            <img className="h-6 w-6" src={editIcon} alt="praktikum" /> Configuration
                         </h2>
                         {/* Tombol X untuk tutup */}
-                        <button onClick={onClose} className="absolute top-2 right-2 flex justify-center items-center">
-                            <img className="w-9" src={closeIcon} alt="closeIcon" />
+                        <button onClick={onClose} type="button" className="depth-modal-close">
+                            <img className="h-6 w-6" src={closeIcon} alt="closeIcon" />
                         </button>
                     </div>
 
                     {isLoading ? (
-                        <div className="py-10 text-center font-semibold text-dustyBlue">
+                        <div className="py-10 text-center font-semibold text-depth-secondary">
                             Memuat konfigurasi...
                         </div>
                     ) : (
@@ -146,9 +146,9 @@ export default function ModalKonfigurasi({ onClose }) {
                                     { key: "polling_activation", label: "Polling Asisten", value: isPollingAsistenOn },
                                 ].map((item) => (
                                     <div key={item.key} className="flex justify-between items-center">
-                                        <span className="capitalize">{item.label}</span>
+                                        <span className="capitalize text-depth-primary">{item.label}</span>
                                         <label className="inline-flex items-center cursor-pointer">
-                                            <span className="text-xs font-bold text-gray-700 mr-2">
+                                            <span className="text-xs font-bold text-depth-primary mr-2">
                                                 {item.value ? "ON" : "OFF"}
                                             </span>
                                             <input
@@ -158,12 +158,12 @@ export default function ModalKonfigurasi({ onClose }) {
                                                 className="hidden"
                                             />
                                             <div
-                                                className={`w-20 h-8 flex items-center rounded-full px-2 transition-all duration-300 ${
-                                                    item.value ? "bg-deepForestGreen" : "bg-fireRed"
+                                                className={`w-20 h-8 flex items-center rounded-depth-full px-2 transition-all duration-300 shadow-depth-sm ${
+                                                    item.value ? "bg-[var(--depth-color-primary)]" : "bg-red-500"
                                                 }`}
                                             >
                                                 <div
-                                                    className={`w-6 h-6 bg-white rounded-full shadow-md transform transition-transform ${
+                                                    className={`w-6 h-6 bg-white rounded-depth-full shadow-depth-md transform transition-transform ${
                                                         item.value ? "translate-x-10" : "translate-x-0"
                                                     }`}
                                                 ></div>
@@ -174,7 +174,7 @@ export default function ModalKonfigurasi({ onClose }) {
                             </div>
 
                             {/* Kode Asisten */}
-                            <div className="text-right text-sm font-semibold text-dustyBlue mt-5">
+                            <div className="text-right text-sm font-semibold text-depth-secondary mt-5">
                                 Last edited by {lastEditedBy}
                             </div>
 
@@ -182,7 +182,7 @@ export default function ModalKonfigurasi({ onClose }) {
                             <button
                                 onClick={handleSave}
                                 disabled={updateConfigurationMutation.isPending}
-                                className="mt-4 w-full py-2 bg-darkGreen text-white font-semibold rounded-lg shadow-md shadow-darkGreen hover:bg-darkGreen transition disabled:opacity-50"
+                                className="mt-4 w-full rounded-depth-md bg-[var(--depth-color-primary)] px-5 py-2 text-sm font-semibold text-white shadow-depth-sm transition hover:-translate-y-0.5 hover:shadow-depth-md disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                                 {updateConfigurationMutation.isPending ? "Menyimpan..." : "Simpan"}
                             </button>

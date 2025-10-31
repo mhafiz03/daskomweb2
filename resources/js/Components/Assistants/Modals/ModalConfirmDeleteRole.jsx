@@ -1,23 +1,27 @@
 export default function ModalConfirmDeleteRole({ onClose, onConfirm }) {
     return (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
-            <div className="bg-softGray p-6 rounded-lg shadow-xl w-96 text-center relative">
-                {/* Pesan Konfirmasi */}
-                <h3 className="text-xl font-bold mt-2">
-                    Yakin Ingin Menghapus Data Asisten?
-                </h3>
+        <div className="depth-modal-overlay">
+            <div className="depth-modal-container max-w-md text-center">
+                <div className="depth-modal-header justify-center">
+                    <h3 className="depth-modal-title text-center">Yakin Ingin Menghapus Data Asisten?</h3>
+                </div>
 
-                {/* Tombol */}
-                <div className="mt-6 flex justify-center gap-4">
+                <p className="text-sm text-depth-secondary">
+                    Tindakan ini tidak dapat dibatalkan. Pastikan kamu sudah memilih asisten yang benar.
+                </p>
+
+                <div className="mt-6 flex justify-center gap-3">
                     <button
-                        onClick={onConfirm} // ✅ Sekarang tombol ini akan menjalankan handleConfirmDelete
-                        className="text-md font-bold text-white bg-redredDark hover:bg-softRed rounded-md px-6 py-1"
+                        onClick={onConfirm}
+                        type="button"
+                        className="rounded-depth-md border border-red-500/60 bg-red-500/15 px-5 py-2 text-sm font-semibold text-red-400 shadow-depth-sm transition hover:-translate-y-0.5 hover:shadow-depth-md"
                     >
                         Yakin
                     </button>
                     <button
-                        onClick={onClose} // ✅ Hanya untuk menutup modal
-                        className="text-md font-bold text-white bg-deepForestGreen hover:bg-softGreen rounded-md px-6 py-1"
+                        onClick={onClose}
+                        type="button"
+                        className="rounded-depth-md border border-depth bg-depth-interactive px-5 py-2 text-sm font-semibold text-depth-primary shadow-depth-sm transition hover:-translate-y-0.5 hover:shadow-depth-md"
                     >
                         Batal
                     </button>
