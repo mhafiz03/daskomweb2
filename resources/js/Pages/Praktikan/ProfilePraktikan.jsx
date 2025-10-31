@@ -1,9 +1,8 @@
 import { Head } from "@inertiajs/react";
 import PraktikanAuthenticated from "@/Layouts/PraktikanAuthenticatedLayout";
 import PraktikanCard from "@/Components/Praktikans/Sections/PraktikanCard";
-import Clock from "@/Components/Assistants/Common/Clock";
-import ModalSoftware from "@/Components/Assistants/Modals/ModalSoftware";
 import { usePage } from "@inertiajs/react";
+import PraktikanUtilities from "@/Components/Praktikans/Layout/PraktikanUtilities";
 
 export default function ProfilePraktikan() {
     const { auth } = usePage().props; //data praktikan
@@ -23,8 +22,7 @@ export default function ProfilePraktikan() {
 
                 <PraktikanCard praktikan={praktikan} />
             </PraktikanAuthenticated>
-            <Clock />
-            <ModalSoftware />
+            <PraktikanUtilities />
         </>
     );
 }

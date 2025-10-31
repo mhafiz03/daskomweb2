@@ -1,8 +1,7 @@
 import { Head } from "@inertiajs/react";
 import PraktikanAuthenticated from "@/Layouts/PraktikanAuthenticatedLayout";
-import Clock from "@/Components/Assistants/Common/Clock";
-import ModalSoftware from "@/Components/Assistants/Modals/ModalSoftware";
 import ScoreTable from "@/Components/Praktikans/Tables/ScoreTable";
+import PraktikanUtilities from "@/Components/Praktikans/Layout/PraktikanUtilities";
 
 export default function ScorePraktikan({ auth }) {
     return (
@@ -25,8 +24,7 @@ export default function ScorePraktikan({ auth }) {
                     </div>
                 </div>
             </PraktikanAuthenticated>
-            <Clock />
-            <ModalSoftware />
+            <PraktikanUtilities />
         </>
     );
 }

@@ -1,15 +1,13 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import PraktikanAuthenticated from "@/Layouts/PraktikanAuthenticatedLayout";
-import Clock from "@/Components/Assistants/Common/Clock";
-import ModalSoftware from "@/Components/Assistants/Modals/ModalSoftware";
 import NoPraktikumSection from "@/Components/Praktikans/Sections/NoPraktikumSection";
-import TimerPraktikan from "@/Components/Praktikans/Sections/TimerPraktikan";
 import TugasPendahuluan from "@/Components/Praktikans/Sections/TugasPendahuluan";
 import TesAwal from "@/Components/Praktikans/Sections/TesAwal";
 import Jurnal from "@/Components/Praktikans/Sections/Jurnal";
 import Mandiri from "@/Components/Praktikans/Sections/Mandiri";
 import TesKeterampilan from "@/Components/Praktikans/Sections/TesKeterampilan";
 import { api } from "@/lib/api";
+import PraktikanUtilities from "@/Components/Praktikans/Layout/PraktikanUtilities";
 
 const ATTEMPT_COMPONENTS = [
     "TugasPendahuluan",
@@ -45,7 +43,7 @@ const TASK_CONFIG = {
     },
     Mandiri: {
         questionEndpoint: (modulId) => `/api-v1/soal-tm/${modulId}`,
-        answerEndpoint: (modulId) => `/api-v1/jawaban-tm/${modulId}`,
+        answerEndpoint: null, // Mandiri doesn't fetch previous answers
         submitEndpoint: "/api-v1/jawaban-tm",
         variant: "essay",
     },
@@ -74,7 +72,6 @@ const INITIAL_COMPLETED_STATE = {
 
 export default function PraktikumPage({ auth }) {
     const [activeComponent, setActiveComponent] = useState("NoPraktikumSection");
-    const [showTimer, setShowTimer] = useState(false);
     const [contentShift, setContentShift] = useState("0px");
     const [answers, setAnswers] = useState([]);
     const [currentQuestion, setCurrentQuestion] = useState(1);
@@ -339,7 +336,6 @@ export default function PraktikumPage({ auth }) {
 
             if (ATTEMPT_COMPONENTS.includes(componentName)) {
                 setActiveTask(componentName);
-                setShowTimer(true);
                 if (activeModulId) {
                     fetchTaskData(componentName, activeModulId);
                 } else {
@@ -350,7 +346,6 @@ export default function PraktikumPage({ auth }) {
                 }
             } else {
                 setActiveTask(null);
-                setShowTimer(false);
             }
         },
         [activeModulId, fetchTaskData]
@@ -465,7 +460,6 @@ export default function PraktikumPage({ auth }) {
                 setCompletedCategories((prev) => ({ ...prev, [taskName]: true }));
 
                 setActiveComponent("NoPraktikumSection");
-                setShowTimer(false);
             } catch (error) {
                 console.error("Failed to submit answers", error);
                 const message = error?.response?.data?.message ?? error.message ?? "Terjadi kesalahan saat menyimpan jawaban.";
@@ -485,11 +479,6 @@ export default function PraktikumPage({ auth }) {
         setActiveTask(taskKey);
         const reviewComponent = REVIEW_COMPONENT_BY_TASK[taskKey] ?? "NoPraktikumSection";
         setActiveComponent(reviewComponent);
-        setShowTimer(false);
-    }, []);
-
-    const resetTimer = useCallback(() => {
-        setShowTimer(false);
     }, []);
 
     const previousPhaseRef = useRef();
@@ -548,7 +537,7 @@ export default function PraktikumPage({ auth }) {
                     </h2>
                 }
             >
-                <div className="mt-[8vh] relative">
+                <div className="mt-[8vh] relative items-center flex flex-col">
                     <div
                         className="flex-1 transition-all duration-300"
                         style={{ marginRight: contentShift }}
@@ -621,28 +610,8 @@ export default function PraktikumPage({ auth }) {
                         )}
                     </div>
                 </div>
-
-                {showTimer && ATTEMPT_COMPONENTS.includes(activeComponent) && (
-                    <TimerPraktikan
-                        isRunning={showTimer}
-                        setIsRunning={setShowTimer}
-                        onShiftContent={handleShiftContent}
-                        answers={answers}
-                        setAnswers={setAnswers}
-                        questions={questions}
-                        setCurrentQuestion={setCurrentQuestion}
-                        questionsCount={questionsCount}
-                        setQuestionsCount={setQuestionsCount}
-                        onTaskSubmit={handleTaskSubmit}
-                        taskQuestions={questions}
-                        activeTask={activeTask}
-                        submissionError={submissionError}
-                        isSubmitting={isSubmittingTask}
-                    />
-                )}
             </PraktikanAuthenticated>
-            <Clock />
-            <ModalSoftware />
+            <PraktikanUtilities />
         </>
     );
 }

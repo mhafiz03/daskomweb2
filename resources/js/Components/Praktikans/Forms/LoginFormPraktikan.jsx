@@ -50,7 +50,8 @@ export default function LoginFormPraktikan({ mode, onSwitchToRegister }) {
             submit(loginPraktikan(), {
                 data: values,
                 preserveScroll: true,
-                 onSuccess: (page) => {
+                preserveState: true,
+                onSuccess: (page) => {
                     if (page.props.authenticated) {
                         toast.success('Login successful!');
                     } else {

@@ -354,65 +354,67 @@ export default function NoPraktikumSection({
     const pjName = resolveDisplayText(moduleMeta?.pj ?? praktikumState?.pj);
 
     return (
-        <div className="ml-[3vw] bg-white rounded-lg py-4 px-4 w-[896px] mx-auto">
-            <div className="flex bg-deepForestGreen rounded-lg py-2 px-2 mb-4 justify-center">
-                <h1 className="text-white text-center font-bold text-2xl bg-deepForestGreen hover:bg-darkOliveGreen rounded-lg p-1 w-[50%]">PRAKTIKUM</h1>
+        <div className="mx-auto ml-[3vw] w-[896px] rounded-depth-lg border border-depth bg-depth-card px-6 py-6 shadow-depth-lg">
+            <div className="mb-6 flex justify-center rounded-depth-md bg-[var(--depth-color-primary)] px-4 py-3 shadow-depth-md">
+                <h1 className="w-[50%] rounded-depth-md p-2 text-center text-2xl font-bold text-white transition hover:bg-white/10">
+                    PRAKTIKUM
+                </h1>
             </div>
-            <div className="mb-4 grid gap-3 rounded-md border border-lightBrown bg-softIvory p-4 text-sm text-darkBrown">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div className="mb-6 grid gap-4 rounded-depth-md border border-depth bg-depth-interactive p-5 text-sm shadow-depth-sm">
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                     <div>
-                        <p className="text-xs font-semibold uppercase text-gray-500">
+                        <p className="text-xs font-semibold uppercase tracking-wide text-depth-secondary">
                             Status
                         </p>
-                        <p className="text-base font-semibold text-darkBrown">{statusLabel}</p>
+                        <p className="text-base font-semibold text-depth-primary">{statusLabel}</p>
                     </div>
                     <div>
-                        <p className="text-xs font-semibold uppercase text-gray-500">
+                        <p className="text-xs font-semibold uppercase tracking-wide text-depth-secondary">
                             Tahap Saat Ini
                         </p>
-                        <p className="text-base font-semibold text-darkBrown">{phaseLabel}</p>
+                        <p className="text-base font-semibold text-depth-primary">{phaseLabel}</p>
                     </div>
                     <div>
-                        <p className="text-xs font-semibold uppercase text-gray-500">
+                        <p className="text-xs font-semibold uppercase tracking-wide text-depth-secondary">
                             Modul
                         </p>
-                        <p className="text-base font-semibold text-darkBrown">{modulLabel}</p>
+                        <p className="text-base font-semibold text-depth-primary">{modulLabel}</p>
                     </div>
                     <div>
-                        <p className="text-xs font-semibold uppercase text-gray-500">
+                        <p className="text-xs font-semibold uppercase tracking-wide text-depth-secondary">
                             Waktu Mulai / Selesai
                         </p>
-                        <p className="text-base font-semibold text-darkBrown">
+                        <p className="text-base font-semibold text-depth-primary">
                             {startedDisplay} — {endedDisplay}
                         </p>
                     </div>
                 </div>
             </div>
-            <div className="mb-4">
-                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
+            <div className="mb-6">
+                <p className="text-xs font-semibold uppercase tracking-wide text-depth-secondary">
                     Debug Praktikum (Echo)
                 </p>
-                <pre className="mt-1 whitespace-pre-wrap text-[11px] leading-4 text-gray-600 bg-gray-100 border border-dashed border-gray-300 rounded p-2 max-h-48 overflow-y-auto">
+                <pre className="mt-2 max-h-48 overflow-y-auto rounded-depth-md border border-dashed border-depth bg-depth-interactive p-3 text-[11px] leading-4 text-depth-secondary scrollbar-thin scrollbar-track-depth scrollbar-thumb-depth-secondary">
                     {praktikumDebug}
                 </pre>
             </div>
             <div
-                className="space-y-4 overflow-y-auto"
+                className="space-y-4 overflow-y-auto scrollbar-thin scrollbar-track-depth scrollbar-thumb-depth-secondary"
                 style={{ maxHeight: "69vh" }}
             >
-                <div className="rounded-lg border border-lightBrown bg-softIvory p-4 text-sm text-darkBrown shadow-sm">
-                    <div className="flex flex-col gap-3 md:flex-row md:items-start md:gap-6">
+                <div className="rounded-depth-md border border-depth bg-depth-interactive p-5 text-sm shadow-depth-sm">
+                    <div className="flex flex-col gap-4 md:flex-row md:items-start md:gap-6">
                         <div className="flex-1">
-                            <p className="text-xs font-semibold uppercase text-gray-500">Modul Aktif</p>
-                            <p className="text-lg font-bold text-darkBrown">{modulTitle || "-"}</p>
-                            <p className="text-xs text-gray-500 mt-1">
-                                Penanggung jawab: <span className="font-semibold text-darkBrown">{pjName || "-"}</span>
+                            <p className="text-xs font-semibold uppercase tracking-wide text-depth-secondary">Modul Aktif</p>
+                            <p className="text-lg font-bold text-depth-primary">{modulTitle || "-"}</p>
+                            <p className="mt-1 text-xs text-depth-secondary">
+                                Penanggung jawab: <span className="font-semibold text-depth-primary">{pjName || "-"}</span>
                             </p>
                         </div>
                         {modulId && (
                             <div className="flex items-center gap-3">
-                                <img src={iconModule} alt="Modul" className="w-8 h-8" />
-                                <span className="text-xs text-gray-500">ID Modul: {modulId}</span>
+                                <img src={iconModule} alt="Modul" className="h-8 w-8" />
+                                <span className="text-xs text-depth-secondary">ID Modul: {modulId}</span>
                             </div>
                         )}
                     </div>

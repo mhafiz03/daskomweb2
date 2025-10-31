@@ -46,6 +46,7 @@ export default function LoginFormAssistant({ mode, onSwitchToRegister }) {
         submit(loginAsisten(), {
             data: values,
             preserveScroll: true,
+            preserveState: true,
             onSuccess: (page) => {
                 if (page.props.auth.asisten) {
                     toast.success('Login successful!');

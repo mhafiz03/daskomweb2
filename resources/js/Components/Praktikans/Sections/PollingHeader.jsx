@@ -29,63 +29,65 @@ export default function PollingHeader({ onCategoryClick, activeCategory, availab
     }
 
     return (
-        <div className="bg-deepForestGreen rounded-lg py-3 px-4 flex items-center max-w-full overflow-hidden">
-            <button
-                aria-label="Scroll Left"
-                onMouseEnter={() => setIsHoverLeft(true)}
-                onMouseLeave={() => setIsHoverLeft(false)}
-                onClick={handleScrollLeft}
-                className={`w-8 h-8 flex items-center justify-center transition ${
-                    startIndex <= 0 ? "opacity-50 cursor-not-allowed" : ""
-                }`}
-                disabled={startIndex <= 0}
-            >
-                <img
-                    src={isHoverLeft ? iconSwipeLeftHover : iconSwipeLeft}
-                    alt="Scroll Left"
-                    className="w-full h-full"
-                />
-            </button>
+        <div className="rounded-depth-lg border border-depth bg-[var(--depth-color-primary)] px-4 py-3 shadow-depth-lg overflow-hidden">
+            <div className="flex items-center max-w-full gap-3">
+                <button
+                    aria-label="Scroll Left"
+                    onMouseEnter={() => setIsHoverLeft(true)}
+                    onMouseLeave={() => setIsHoverLeft(false)}
+                    onClick={handleScrollLeft}
+                    className={`flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full transition hover:bg-white/20 ${
+                        startIndex <= 0 ? "cursor-not-allowed opacity-30" : ""
+                    }`}
+                    disabled={startIndex <= 0}
+                >
+                    <img
+                        src={isHoverLeft ? iconSwipeLeftHover : iconSwipeLeft}
+                        alt="Scroll Left"
+                        className="h-full w-full"
+                    />
+                </button>
 
-            <div className="flex-1 overflow-hidden flex justify-center items-center">
-                <div className="flex gap-4">
-                    {visibleCategories.map((category) => (
-                        <div
-                            key={category.id}
-                            className={`cursor-pointer text-center group px-4 ${
-                                activeCategory === category.id.toString() ? 'text-yellow-300' : 'text-white'
-                            }`}
-                            onClick={() => onCategoryClick(category.id.toString())}
-                        >
-                            <h1 className="font-bold text-lg relative whitespace-nowrap">
-                                {category.judul}
-                                <span className={`absolute left-1/2 bottom-0 h-[2px] ${
-                                    activeCategory === category.id.toString() ? 'bg-yellow-300' : 'bg-white'
-                                } w-[70%] scale-x-0 group-hover:scale-x-100 origin-center transition-transform duration-300 -translate-x-1/2`}></span>
-                            </h1>
-                        </div>
-                    ))}
+                <div className="flex flex-1 items-center justify-center overflow-hidden">
+                    <div className="flex gap-4">
+                        {visibleCategories.map((category) => (
+                            <div
+                                key={category.id}
+                                className={`group cursor-pointer px-4 text-center ${
+                                    activeCategory === category.id.toString() ? 'text-yellow-300' : 'text-white'
+                                }`}
+                                onClick={() => onCategoryClick(category.id.toString())}
+                            >
+                                <h1 className="relative whitespace-nowrap text-lg font-bold">
+                                    {category.judul}
+                                    <span className={`absolute bottom-0 left-1/2 h-[2px] w-[70%] origin-center -translate-x-1/2 scale-x-0 transition-transform duration-300 group-hover:scale-x-100 ${
+                                        activeCategory === category.id.toString() ? 'bg-yellow-300' : 'bg-white'
+                                    }`}></span>
+                                </h1>
+                            </div>
+                        ))}
+                    </div>
                 </div>
-            </div>
 
-            <button
-                aria-label="Scroll Right"
-                onMouseEnter={() => setIsHoverRight(true)}
-                onMouseLeave={() => setIsHoverRight(false)}
-                onClick={handleScrollRight}
-                className={`w-8 h-8 flex items-center justify-center transition ${
-                    startIndex >= availableCategories.length - maxVisibleCategories
-                        ? "opacity-50 cursor-not-allowed"
-                        : ""
-                }`}
-                disabled={startIndex >= availableCategories.length - maxVisibleCategories}
-            >
-                <img
-                    src={isHoverRight ? iconSwipeRightHover : iconSwipeRight}
-                    alt="Scroll Right"
-                    className="w-full h-full"
-                />
-            </button>
+                <button
+                    aria-label="Scroll Right"
+                    onMouseEnter={() => setIsHoverRight(true)}
+                    onMouseLeave={() => setIsHoverRight(false)}
+                    onClick={handleScrollRight}
+                    className={`flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full transition hover:bg-white/20 ${
+                        startIndex >= availableCategories.length - maxVisibleCategories
+                            ? "cursor-not-allowed opacity-30"
+                            : ""
+                    }`}
+                    disabled={startIndex >= availableCategories.length - maxVisibleCategories}
+                >
+                    <img
+                        src={isHoverRight ? iconSwipeRightHover : iconSwipeRight}
+                        alt="Scroll Right"
+                        className="h-full w-full"
+                    />
+                </button>
+            </div>
         </div>
     );
 }

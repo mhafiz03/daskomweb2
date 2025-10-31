@@ -31,78 +31,97 @@ export default function ContactAssistantTable() {
     };
 
     const RowComponent = ({ asisten }) => (
-        <div className="border-b border-transparent mb-1 cursor-pointer" onClick={() => openModal(asisten)}>
-            <div className="border-2 border-black flex items-center justify-between px-2 py-1 bg-white text-sm font-semibold shadow-sm shadow-black">
-                <div className="flex items-center space-x-4">
-                    <div className="ml-1 w-12 h-12 rounded-full overflow-hidden flex justify-center items-center">
-                        <img src={asisten?.foto ? asisten.foto : daskomIcon} alt={asisten.kode} className="w-full h-full object-cover" style={{ objectPosition: 'top' }} />
+        <div className="mb-2 cursor-pointer" onClick={() => openModal(asisten)}>
+            <div className="flex items-center justify-between rounded-depth-md border border-depth bg-depth-card px-4 py-3 shadow-depth-md transition-all duration-200 hover:-translate-y-0.5 hover:shadow-depth-lg">
+                <div className="flex items-center gap-4">
+                    <div className="h-12 w-12 overflow-hidden rounded-full border-2 border-depth shadow-depth-sm">
+                        <img 
+                            src={asisten?.foto ? asisten.foto : daskomIcon} 
+                            alt={asisten.kode} 
+                            className="h-full w-full object-cover object-top" 
+                        />
                     </div>
-                    <span className="min-w-[145px] max-w-[146px] text-center break-words">{asisten.nama}</span>
+                    <span className="min-w-[145px] max-w-[146px] break-words text-center font-semibold text-depth-primary">
+                        {asisten.nama}
+                    </span>
                 </div>
-                <span className="flex-1 ml-[65px] pl-[1px] min-w-[48px] max-w-[55px]">{asisten.kode}</span>
-                <span className="flex-1 ml-[48px] mr-[15px] min-w-[100px] max-w-[120px] text-center">{asisten.nomor_telepon}</span>
-                <span className="flex-1 ml-[15px] min-w-[40px] max-w-[115px] break-words text-center">{asisten.id_line}</span>
-                <span className="flex-1 ml-[29px] mr-[40px] min-w-[40px] max-w-[115px] break-words text-center">{asisten.instagram}</span>
+                <span className="ml-16 min-w-[48px] max-w-[55px] flex-1 pl-[1px] font-medium text-depth-primary">
+                    {asisten.kode}
+                </span>
+                <span className="ml-12 mr-4 min-w-[100px] max-w-[120px] flex-1 text-center font-medium text-depth-secondary">
+                    {asisten.nomor_telepon}
+                </span>
+                <span className="ml-4 min-w-[40px] max-w-[115px] flex-1 break-words text-center font-medium text-depth-secondary">
+                    {asisten.id_line}
+                </span>
+                <span className="ml-7 mr-10 min-w-[40px] max-w-[115px] flex-1 break-words text-center font-medium text-depth-secondary">
+                    {asisten.instagram}
+                </span>
             </div>
         </div>
     );
 
     return (
-        <div className="bg-white rounded-lg py-4 px-4 max-w-4xl">
-            <div className="bg-deepForestGreen rounded-lg py-2 px-2">
-                <div className="flex ml-[80px] mr-[50px] items-center justify-evenly">
-                    <h1 className="font-bold text-white text-center">Nama</h1>
-                    <h1 className="font-bold text-white text-center">Kode</h1>
-                    <h1 className="font-bold text-white text-center">WhatsApp</h1>
-                    <h1 className="font-bold text-white text-center">ID Line</h1>
-                    <h1 className="font-bold text-white text-center">Instagram</h1>
+        <div className="rounded-depth-lg border border-depth bg-depth-card px-6 py-6 shadow-depth-lg">
+            <div className="rounded-depth-md bg-[var(--depth-color-primary)] px-4 py-3 shadow-depth-md">
+                <div className="ml-20 mr-12 flex items-center justify-evenly">
+                    <h1 className="text-center font-bold text-white">Nama</h1>
+                    <h1 className="text-center font-bold text-white">Kode</h1>
+                    <h1 className="text-center font-bold text-white">WhatsApp</h1>
+                    <h1 className="text-center font-bold text-white">ID Line</h1>
+                    <h1 className="text-center font-bold text-white">Instagram</h1>
                 </div>
             </div>
-            <div className="mt-4 mx-auto max-w-[850px] h-[69vh] overflow-y-auto">
+            <div className="mx-auto mt-6 h-[69vh] max-w-[850px] overflow-y-auto scrollbar-thin scrollbar-track-depth scrollbar-thumb-depth-secondary">
                 {isLoading ? (
-                    <div className="text-center py-10 text-gray-500">Memuat data...</div>
+                    <div className="py-10 text-center text-depth-secondary">Memuat data...</div>
                 ) : isError ? (
-                    <div className="text-center py-10 text-red-500">
+                    <div className="py-10 text-center text-red-500">
                         Error: {error?.message ?? "Gagal memuat data asisten"}
                     </div>
                 ) : asistens.length > 0 ? (
                     asistens.map((asisten, index) => <RowComponent key={index} asisten={asisten} />)
                 ) : (
-                    <div className="text-center py-10 text-gray-500">Tidak ada data asisten yang tersedia</div>
+                    <div className="py-10 text-center text-depth-secondary">Tidak ada data asisten yang tersedia</div>
                 )}
             </div>
 
             {/* Modal */}
             {selectedAsisten && (
-                <Dialog open={true} onClose={closeModal} className="fixed inset-0 flex items-center justify-center z-50">
-                    <div className="absolute inset-0 bg-black opacity-50" onClick={closeModal}></div>
-                    <div className="bg-softIvory p-6 rounded-lg shadow-lg z-10 max-w-md w-full text-center relative">
+                <Dialog open={true} onClose={closeModal} className="fixed inset-0 z-50 flex items-center justify-center">
+                    <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={closeModal}></div>
+                    <div className="relative z-10 w-full max-w-md rounded-depth-lg border border-depth bg-depth-card p-8 text-center shadow-depth-xl">
                         {/* Close Button */}
-                        <button onClick={closeModal} className="absolute top-2 right-2 flex justify-center items-center">
-                            <img className="w-9" src={closeIcon} alt="closeIcon" />
+                        <button 
+                            onClick={closeModal} 
+                            className="absolute right-3 top-3 flex items-center justify-center rounded-depth-full p-2 text-depth-secondary transition hover:bg-depth-interactive hover:text-depth-primary focus:outline-none"
+                        >
+                            <img className="w-6" src={closeIcon} alt="closeIcon" />
                         </button>
                         
-                        <h2 className="text-lg font-bold mb-4">Detail Asisten</h2>
-                        <div className="flex flex-col items-center mb-4">
-                            <img src={selectedAsisten.foto || daskomIcon} alt={selectedAsisten.kode} className="w-40 h-40 rounded-full object-cover mb-2 border-4 border-sageGreen" />
-                            <h3 className="text-md font-semibold">{selectedAsisten.kode}</h3>
-                            <hr className="w-full border-gray-300 my-1" />
-                            <p className="text-sm text-gray-600">{selectedAsisten.nama}</p>
+                        <h2 className="mb-6 text-xl font-bold text-depth-primary">Detail Asisten</h2>
+                        <div className="mb-6 flex flex-col items-center">
+                            <img 
+                                src={selectedAsisten.foto || daskomIcon} 
+                                alt={selectedAsisten.kode} 
+                                className="mb-4 h-40 w-40 rounded-full border-4 border-[var(--depth-color-primary)] object-cover shadow-depth-lg" 
+                            />
+                            <h3 className="text-lg font-bold text-[var(--depth-color-primary)]">{selectedAsisten.kode}</h3>
+                            <hr className="my-2 w-full border-depth" />
+                            <p className="text-sm font-medium text-depth-secondary">{selectedAsisten.nama}</p>
                         </div>
-                        {/* <div className="text-center">
-                        </div> */}
-                        <div className="mt-4 space-y-1">
-                            <div className="flex items-center justify-center space-x-2">
+                        <div className="mt-6 space-y-3">
+                            <div className="flex items-center justify-center gap-3 rounded-depth-md bg-depth-interactive px-4 py-2">
                                 <img className="w-6" src={iconWA} alt="iconWA" />
-                                <p className="text-center">{selectedAsisten.nomor_telepon}</p>
+                                <p className="font-medium text-depth-primary">{selectedAsisten.nomor_telepon}</p>
                             </div>
-                            <div className="flex items-center justify-center space-x-2">
+                            <div className="flex items-center justify-center gap-3 rounded-depth-md bg-depth-interactive px-4 py-2">
                                 <img className="w-6" src={iconLine} alt="iconLine" />
-                                <p className="text-center">{selectedAsisten.id_line}</p>
+                                <p className="font-medium text-depth-primary">{selectedAsisten.id_line}</p>
                             </div>
-                            <div className="flex items-center justify-center space-x-2">
+                            <div className="flex items-center justify-center gap-3 rounded-depth-md bg-depth-interactive px-4 py-2">
                                 <img className="w-6" src={iconIG} alt="iconIG" />
-                                <p className="text-center">{selectedAsisten.instagram}</p>
+                                <p className="font-medium text-depth-primary">{selectedAsisten.instagram}</p>
                             </div>
                         </div>
                     </div>

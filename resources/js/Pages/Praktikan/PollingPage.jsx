@@ -5,11 +5,10 @@ import { api } from "@/lib/api";
 import { send } from "@/lib/wayfinder";
 import { store as storePollings } from "@/actions/App/Http/Controllers/API/PollingsController";
 import PraktikanAuthenticated from "@/Layouts/PraktikanAuthenticatedLayout";
-import Clock from "@/Components/Assistants/Common/Clock";
-import ModalSoftware from "@/Components/Assistants/Modals/ModalSoftware";
 import PollingHeader from "@/Components/Praktikans/Sections/PollingHeader";
 import PollingContent from "@/Components/Praktikans/Sections/PollingContent";
 import ModalSuccessData from "@/Components/Praktikans/Modals/ModalSuccessData";
+import PraktikanUtilities from "@/Components/Praktikans/Layout/PraktikanUtilities";
 
 export default function PollingPage({ auth }) {
     const [activeCategory, setActiveCategory] = useState(null);
@@ -191,8 +190,7 @@ export default function PollingPage({ auth }) {
                         </div>
                     </div>
                 </PraktikanAuthenticated>
-                <Clock />
-                <ModalSoftware />
+                <PraktikanUtilities />
             </>
         );
     }
@@ -212,16 +210,16 @@ export default function PollingPage({ auth }) {
                 <Head title="Leaderboard Praktikan" />
 
                 <div className="relative mt-[11vh] h-screen">
-                <div
-                    onClick={handleSubmit}
-                    className={`mb-[2vh] w-[100px] border-2 rounded-lg text-white font-bold bg-deepForestGreen ${
-                        isSubmitted
-                            ? "bg-gray-400 cursor-not-allowed"
-                            : "hover:bg-deepForestGreenDark cursor-pointer"
-                    } px-4 py-1 text-center z-10`}
-                >
-                    Submit
-                </div>
+                    <div
+                        onClick={handleSubmit}
+                        className={`z-10 mb-[2vh] w-[100px] rounded-depth-md border-2 border-depth px-4 py-1 text-center font-bold text-white shadow-depth-md transition-all ${
+                            isSubmitted
+                                ? "cursor-not-allowed bg-gray-400"
+                                : "cursor-pointer bg-[var(--depth-color-primary)] hover:-translate-y-0.5 hover:shadow-depth-lg"
+                        }`}
+                    >
+                        Submit
+                    </div>
                 
                 <PollingHeader
                     onCategoryClick={(category) =>
@@ -241,8 +239,7 @@ export default function PollingPage({ auth }) {
                 />
             </div>
             </PraktikanAuthenticated>
-            <Clock />
-            <ModalSoftware />
+            <PraktikanUtilities />
 
             <ModalSuccessData isVisible={showModal} />
         </>

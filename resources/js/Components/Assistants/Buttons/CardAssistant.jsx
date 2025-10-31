@@ -37,9 +37,9 @@ export default function CardAssistant({ asisten }) {
 
     return (
         <>
-            <div className="flex justify-center px-4 py-6">
+            <div className="flex justify-center px-4">
                 <div className="w-full max-w-xl rounded-depth-lg border border-depth bg-depth-card p-8 text-center shadow-depth-lg transition-colors duration-300">
-                    <div className="flex justify-end">
+                    <div className="flex justify-end translate-x-12 -translate-y-10">
                         <button
                             type="button"
                             onClick={handleOpenModal}
@@ -50,12 +50,11 @@ export default function CardAssistant({ asisten }) {
                                 src={editIcon}
                                 alt="Edit profil"
                             />
-                            <span className="tracking-wide">Edit Profil</span>
                         </button>
                     </div>
 
-                    <div className="mt-6 flex flex-col items-center gap-4">
-                        <div className="relative flex h-40 w-40 items-center justify-center rounded-depth-full border border-depth bg-depth-background shadow-depth-md">
+                    <div className="flex flex-col items-center gap-4">
+                        <div className="relative mb-4 flex h-40 w-40 items-center justify-center rounded-depth-full border border-depth bg-depth-background shadow-depth-md">
                             <img
                                 src={asisten?.foto_asistens?.foto || daskomIcon}
                                 alt={asisten?.nama || "Foto Asisten"}

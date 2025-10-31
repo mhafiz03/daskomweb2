@@ -1,4 +1,4 @@
-import PraktikanNav from "../Components/Praktikans/Layout/PraktikanNav";
+import PraktikanNav from "@/Components/Common/PraktikanNav";
 
 export default function PraktikanAuthenticated({
     children,
@@ -11,7 +11,7 @@ export default function PraktikanAuthenticated({
     return (
         <>
             <div className="relative h-screen overflow-hidden">
-                <div id="template" className="flex">
+                <div id="template" className="flex min-h-screen items-center gap-10 pl-10 pr-6">
                     <PraktikanNav praktikan={praktikanData} />
                     <main className={`mx-auto w-[30%] ${customWidth || ""}`}>
                         {children}

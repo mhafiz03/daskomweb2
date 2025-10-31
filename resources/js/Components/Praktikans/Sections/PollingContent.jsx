@@ -41,12 +41,30 @@ export default function PollingContent({
         });
     };
 
-    if (loading) return <div>Mengambil Data...</div>;
-    if (error) return <div>Error: {error}</div>;
+    if (loading) {
+        return (
+            <div className="mt-4 flex h-[59vh] items-center justify-center">
+                <div className="text-center">
+                    <div className="mx-auto mb-4 h-12 w-12 animate-spin rounded-full border-4 border-depth border-t-[var(--depth-color-primary)]"></div>
+                    <p className="text-depth-secondary">Mengambil Data...</p>
+                </div>
+            </div>
+        );
+    }
+
+    if (error) {
+        return (
+            <div className="mt-4 flex h-[59vh] items-center justify-center">
+                <div className="text-center">
+                    <p className="text-red-500">Error: {error}</p>
+                </div>
+            </div>
+        );
+    }
     
     return (
         <div className={`relative ${isSubmitted ? "pointer-events-none" : ""}`}>
-            <div className="p-4 mt-4 h-[59vh] overflow-y-auto bg-softIvory rounded-lg shadow-lg relative">
+            <div className="relative mt-4 h-[59vh] overflow-y-auto rounded-depth-lg border border-depth bg-depth-card p-4 shadow-depth-lg scrollbar-thin scrollbar-track-depth scrollbar-thumb-depth-secondary">
                 <div className="grid grid-cols-3 gap-4">
                     {Array.isArray(asistens) && asistens.length > 0 ? (
                         asistens.map((asisten) => (
@@ -64,24 +82,24 @@ export default function PollingContent({
                             />
                         ))
                     ) : (
-                        <div className="col-span-3 text-center py-8">No asisten data available</div>
+                        <div className="col-span-3 py-8 text-center text-depth-secondary">No asisten data available</div>
                     )}
                 </div>
             </div>
 
             {/* Modal for selected asisten */}
             {activeModalCards[activeCategory] && (
-                <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-50">
-                    <div className="pointer-events-auto h-[50vh] w-[23vw] border-4 rounded-lg bg-softIvory shadow-lg p-6">
+                <div className="pointer-events-none absolute inset-0 z-50 flex items-center justify-center">
+                    <div className="pointer-events-auto h-[50vh] w-[23vw] rounded-depth-lg border-2 border-depth bg-depth-card p-6 shadow-depth-xl backdrop-blur-sm">
                         <img
                             src={activeModalCards[activeCategory]?.foto || daskomIcon}
                             alt={activeModalCards[activeCategory]?.nama || "Asisten"}
-                            className="w-[165px] mx-auto rounded-full mb-4"
+                            className="mx-auto mb-4 h-[165px] w-[165px] rounded-full object-cover shadow-depth-md"
                         />
-                        <h2 className="text-center mb-5 font-bold text-xl text-black">
+                        <h2 className="mb-5 text-center text-xl font-bold text-depth-primary">
                             {activeModalCards[activeCategory]?.kode || ""} | {activeModalCards[activeCategory]?.nama || ""}
                         </h2>
-                        <p className="font-semibold text-center text-sm text-black">
+                        <p className="text-center text-sm font-semibold text-depth-secondary">
                             {activeModalCards[activeCategory]?.deskripsi || "Asisten Laboratorium Daskom"}
                         </p>
                     </div>

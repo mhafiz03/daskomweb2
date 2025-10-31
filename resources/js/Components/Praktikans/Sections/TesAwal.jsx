@@ -1,14 +1,5 @@
 import { useEffect } from "react";
 
-const determineMode = (questionText) => {
-    if (!questionText) {
-        return "bg-softIvory";
-    }
-
-    const simpleKeywords = [";", "{", "}", "#", "//"];
-    return simpleKeywords.some((keyword) => questionText.includes(keyword)) ? "bg-gray-200" : "bg-softIvory";
-};
-
 export default function TesAwal({
     isLoading = false,
     errorMessage = null,
@@ -37,7 +28,7 @@ export default function TesAwal({
     if (isLoading) {
         return (
             <div className="mt-[1vh] p-5 max-w-4xl mx-auto text-center">
-                <p className="text-gray-600">Memuat soal tes awal...</p>
+                <p className="text-depth-secondary">Memuat soal tes awal...</p>
             </div>
         );
     }
@@ -45,7 +36,7 @@ export default function TesAwal({
     if (errorMessage) {
         return (
             <div className="mt-[1vh] p-5 max-w-4xl mx-auto text-center">
-                <p className="text-red-600 font-semibold">{errorMessage}</p>
+                <p className="text-red-400 font-semibold">{errorMessage}</p>
             </div>
         );
     }
@@ -53,54 +44,75 @@ export default function TesAwal({
     if (!Array.isArray(questions) || questions.length === 0) {
         return (
             <div className="mt-[1vh] p-5 max-w-4xl mx-auto text-center">
-                <p className="text-gray-600">Belum ada soal tes awal untuk modul ini.</p>
+                <p className="text-depth-secondary">Belum ada soal tes awal untuk modul ini.</p>
             </div>
         );
     }
 
     return (
-        <div className="mt-[1vh] p-5 transition-all duration-300 max-w-4xl mx-auto rounded-lg">
-            <div className="flex bg-deepForestGreen rounded-lg py-2 px-2 mb-4 justify-center">
-                <h1 className="text-white text-center font-bold text-2xl bg-deepForestGreen hover:bg-darkOliveGreen rounded-lg p-1 w-[50%]">
+        <div className="-mt-[8vh] transition-all duration-300 max-w-4xl mx-auto">
+            {/* Header */}
+            <div className="flex bg-[var(--depth-color-primary)] rounded-depth-lg py-3 px-4 mb-6 justify-center shadow-depth-lg">
+                <h1 className="text-white text-center font-bold text-2xl">
                     Tes Awal
                 </h1>
             </div>
 
-    
-            <div className="space-y-6 max-h-[56vh] p-4 rounded-lg border-4 bg-softIvory border-softPearl transition-colors duration-300 overflow-y-auto overflow-x-hidden">
+            {/* Questions Container */}
+            <div className="space-y-8 max-h-[90vh] p-6 rounded-depth-lg border border-depth bg-depth-card overflow-y-auto overflow-x-hidden shadow-depth-lg">
                 {questions.map((question, index) => (
-                    <div key={question.id ?? index} className="space-y-3">
-                        <pre
-                            className={`p-4 rounded-lg text-sm overflow-y-auto overflow-x-hidden shadow-lg ${determineMode(
-                                question.text
-                            )}`}
-                            style={{ whiteSpace: "pre-wrap" }}
-                        >
-                            {index + 1}. {question.text}
-                        </pre>
+                    <div 
+                        key={question.id ?? index} 
+                        className="p-5 rounded-depth-lg border border-depth bg-depth-interactive shadow-depth-md hover:shadow-depth-lg transition-all duration-200"
+                    >
+                        {/* Question Number and Text */}
+                        <div className="mb-4">
+                            <div className="flex items-start gap-3">
+                                <span className="flex-shrink-0 flex items-center justify-center w-8 h-8 rounded-depth-full bg-[var(--depth-color-primary)] text-white font-bold text-sm shadow-depth-sm">
+                                    {index + 1}
+                                </span>
+                                <p className="flex-1 text-depth-primary font-medium text-lg leading-relaxed whitespace-pre-wrap">
+                                    {question.text}
+                                </p>
+                            </div>
+                        </div>
 
-                        <div className="mt-3 space-y-2">
-                            {(question.options ?? []).map((option) => {
+                        {/* Options */}
+                        <div className="space-y-3 pl-11">
+                            {(question.options ?? []).map((option, optIdx) => {
                                 const isSelected = answers[index] === option.id;
+                                const optionLabels = ['A', 'B', 'C', 'D'];
 
                                 return (
                                     <label
                                         key={option.id}
-                                        className={`flex items-center gap-3 rounded-md border px-3 py-2 text-sm transition ${
+                                        className={`group flex items-center gap-3 rounded-depth-md border px-4 py-3 text-sm transition-all duration-200 cursor-pointer ${
                                             isSelected
-                                                ? "border-deepForestGreen bg-emerald-50"
-                                                : "border-transparent bg-white hover:border-dustyBlue"
+                                                ? "border-[var(--depth-color-primary)] bg-[var(--depth-color-primary)]/15 shadow-depth-sm scale-[1.02]"
+                                                : "border-depth bg-depth-card hover:border-[var(--depth-color-primary)]/40 hover:bg-[var(--depth-color-primary)]/5 hover:shadow-depth-sm"
                                         }`}
+                                        onClick={() => handleOptionChange(index, option.id)}
                                     >
                                         <input
                                             type="radio"
                                             name={`tes-awal-${question.id}`}
                                             value={option.id}
                                             checked={isSelected}
-                                            onChange={() => handleOptionChange(index, option.id)}
-                                            className="h-4 w-4 border-gray-300 text-deepForestGreen focus:ring-deepForestGreen"
+                                            onChange={() => {}}
+                                            className="sr-only"
                                         />
-                                        <span className="text-gray-800">{option.text}</span>
+                                        <span className={`mr-2 flex items-center justify-center w-6 h-6 rounded-depth-md text-xs font-bold transition-all duration-200 flex-shrink-0 ${
+                                            isSelected 
+                                                ? "bg-[var(--depth-color-primary)] text-white shadow-depth-sm" 
+                                                : "bg-depth-interactive text-depth-secondary group-hover:bg-[var(--depth-color-primary)]/20 group-hover:text-depth-primary"
+                                        }`}>
+                                            {optionLabels[optIdx]}
+                                        </span>
+                                        <span className={`flex-1 leading-relaxed whitespace-pre-wrap transition-colors duration-200 text-lg ${
+                                            isSelected ? "text-depth-primary font-medium" : "text-depth-primary"
+                                        }`}>
+                                            {option.text}
+                                        </span>
                                     </label>
                                 );
                             })}

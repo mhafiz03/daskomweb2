@@ -124,27 +124,30 @@ export default function ModalEditProfile({ isOpen, onClose }) {
     return (
         <>
             {/* Modal Edit Profile */}
-            <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-                <div className="bg-white w-[550px] p-6 rounded-lg shadow-lg relative">
+            <div className="depth-modal-overlay">
+                <div className="depth-modal-container max-w-2xl">
                     {/* Close Button */}
                     <button
                         onClick={onClose}
-                        className="absolute top-2 right-2 flex justify-center items-center"
+                        type="button"
+                        className="depth-modal-close"
                     >
-                        <img className="w-9" src={closeIcon} alt="closeIcon" />
+                        <img className="h-6 w-6" src={closeIcon} alt="closeIcon" />
                     </button>
 
+                    <h2 className="depth-modal-title mb-6">Edit Profile</h2>
+
                     <form onSubmit={handleSave} encType="multipart/form-data">
-                        <div className="flex gap-4 justify-between p-4">
-                            <div>
+                        <div className="flex gap-6 p-4">
+                            <div className="flex-1">
                                 {/* WhatsApp */}
                                 <div className="mb-4">
-                                    <label className="block text-black font-bold mb-1">
+                                    <label className="mb-2 block text-sm font-semibold text-depth-primary">
                                         WhatsApp:
                                     </label>
                                     <input
                                         type="text"
-                                        className="w-full border rounded p-2"
+                                        className="w-full rounded-depth-md border border-depth bg-depth-card px-3 py-2 text-sm text-depth-primary shadow-depth-sm transition focus:border-[var(--depth-color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)] focus:ring-offset-0"
                                         placeholder="Enter WhatsApp number"
                                         name="nomor_telepon"
                                         id="nomor_telepon"
@@ -152,17 +155,17 @@ export default function ModalEditProfile({ isOpen, onClose }) {
                                         onChange={handleChange}
                                     />
                                     {errors.nomor_telepon && (
-                                        <p className="text-red-500 text-sm mt-1">{errors.nomor_telepon}</p>
+                                        <p className="mt-1 text-xs text-red-500">{errors.nomor_telepon}</p>
                                     )}
                                 </div>
                                 {/* ID Line */}
                                 <div className="mb-4">
-                                    <label className="block text-black font-bold mb-1">
+                                    <label className="mb-2 block text-sm font-semibold text-depth-primary">
                                         ID Line:
                                     </label>
                                     <input
                                         type="text"
-                                        className="w-full border rounded p-2"
+                                        className="w-full rounded-depth-md border border-depth bg-depth-card px-3 py-2 text-sm text-depth-primary shadow-depth-sm transition focus:border-[var(--depth-color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)] focus:ring-offset-0"
                                         placeholder="Enter Line ID"
                                         name="id_line"
                                         id="id_line"
@@ -170,17 +173,17 @@ export default function ModalEditProfile({ isOpen, onClose }) {
                                         onChange={handleChange}
                                     />
                                     {errors.id_line && (
-                                        <p className="text-red-500 text-sm mt-1">{errors.id_line}</p>
+                                        <p className="mt-1 text-xs text-red-500">{errors.id_line}</p>
                                     )}
                                 </div>
                                 {/* Instagram */}
                                 <div className="mb-4">
-                                    <label className="block text-black font-bold mb-1">
+                                    <label className="mb-2 block text-sm font-semibold text-depth-primary">
                                         Instagram:
                                     </label>
                                     <input
                                         type="text"
-                                        className="w-full border rounded p-2"
+                                        className="w-full rounded-depth-md border border-depth bg-depth-card px-3 py-2 text-sm text-depth-primary shadow-depth-sm transition focus:border-[var(--depth-color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)] focus:ring-offset-0"
                                         placeholder="Enter Instagram username"
                                         name="instagram"
                                         id="instagram"
@@ -190,22 +193,22 @@ export default function ModalEditProfile({ isOpen, onClose }) {
                                 </div>
                             </div>
                             {/* Avatar */}
-                            <div className="flex flex-col items-center mb-4 mr-12 mt-6">
-                                <div className="bg-gray-100 w-32 h-32 rounded-full flex justify-center items-center overflow-hidden mb-4">
+                            <div className="flex flex-col items-center">
+                                <div className="mb-4 flex h-32 w-32 items-center justify-center overflow-hidden rounded-full border-2 border-depth bg-depth-background shadow-depth-md">
                                     {asisten?.foto_asistens?.foto || avatar ? (
                                         <img 
                                             src={asisten?.foto_asistens?.foto || avatar} 
                                             alt="Avatar" 
-                                            className="w-full h-full object-cover" 
+                                            className="h-full w-full object-cover" 
                                         />
                                     ) : (
-                                        <span className="text-gray-400 text-4xl">👤</span>
+                                        <span className="text-4xl text-depth-secondary">👤</span>
                                     )}
                                 </div>
                                 <div className="flex flex-col items-center gap-2">
                                     <label
                                         htmlFor="avatarUpload"
-                                        className="px-4 py-1 bg-forestGreen text-white font-semibold text-md rounded-sm shadow-md cursor-pointer text-center"
+                                        className="cursor-pointer rounded-depth-md bg-[var(--depth-color-primary)] px-4 py-2 text-center text-sm font-semibold text-white shadow-depth-md transition hover:-translate-y-0.5 hover:shadow-depth-lg"
                                     >
                                         Change Avatar
                                     </label>
@@ -219,7 +222,7 @@ export default function ModalEditProfile({ isOpen, onClose }) {
 
                                     <button
                                         type="button"
-                                        className="px-5 py-1 bg-lightGray text-white font-semibold text-md rounded-sm shadow-md"
+                                        className="rounded-depth-md border border-depth bg-depth-interactive px-5 py-2 text-sm font-semibold text-depth-primary shadow-depth-sm transition hover:-translate-y-0.5 hover:shadow-depth-md"
                                         onClick={handleDeleteAvatar}
                                     >
                                         Delete Avatar
@@ -229,12 +232,12 @@ export default function ModalEditProfile({ isOpen, onClose }) {
                         </div>
 
                         {/* About Me */}
-                        <div className="mb-4">
-                            <label className="block text-black font-bold mb-1">
+                        <div className="mb-6">
+                            <label className="mb-2 block text-sm font-semibold text-depth-primary">
                                 About Me:
                             </label>
                             <textarea
-                                className="w-full border rounded p-2"
+                                className="w-full rounded-depth-md border border-depth bg-depth-card px-3 py-2 text-sm text-depth-primary shadow-depth-sm transition focus:border-[var(--depth-color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)] focus:ring-offset-0"
                                 placeholder="Tell us about yourself"
                                 rows="4"
                                 name="deskripsi"
@@ -243,7 +246,7 @@ export default function ModalEditProfile({ isOpen, onClose }) {
                                 onChange={handleChange}
                             ></textarea>
                             {errors.deskripsi && (
-                                <p className="text-red-500 text-sm mt-1">{errors.deskripsi}</p>
+                                <p className="mt-1 text-xs text-red-500">{errors.deskripsi}</p>
                             )}
                         </div>
 
@@ -251,7 +254,7 @@ export default function ModalEditProfile({ isOpen, onClose }) {
                         <div className="flex justify-center">
                             <button
                                 type="submit"
-                                className="px-32 py-1 bg-forestGreen hover:bg-darkGreen text-white font-semibold rounded-lg shadow-md shadow-darkGreen"
+                                className="w-full max-w-xs rounded-depth-md bg-[var(--depth-color-primary)] px-8 py-3 font-semibold text-white shadow-depth-lg transition hover:-translate-y-0.5 hover:shadow-depth-xl"
                             >
                                 Save
                             </button>
@@ -260,42 +263,46 @@ export default function ModalEditProfile({ isOpen, onClose }) {
                 </div>
             </div>
 
-            {/* Success Modal */}
-            {/* {isSuccessModalOpen && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-                    <div className="bg-white w-[300px] p-4 rounded-lg shadow-lg text-center">
-                        <h3 className="text-lg font-bold text-forestGreen">Profile Updated!</h3>
-                    </div>
-                </div>
-            )} */}
-
-            {/* {isSuccessModalOpen && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-                    <div className="bg-white w-[300px] p-4 rounded-lg shadow-lg text-center">
-                        {photoError ? (
-                            <h3 className="text-lg font-bold text-red-500">Photo must be less than 500kb</h3>
-                        ) : (
-                            <h3 className="text-lg font-bold text-forestGreen">Profile Updated!</h3>
-                        )}
-                        <button onClick={() => setIsSuccessModalOpen(false)}>Close</button>
-                    </div>
-                </div>
-            )} */}
+            {/* Success/Error Modal */}
             {isSuccessModalOpen && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-                    <div className="bg-white w-[350px] p-6 rounded-lg shadow-lg text-center animate-fadeIn">
+                <div className="depth-modal-overlay">
+                    <div className="depth-modal-container max-w-md">
                         {photoError ? (
-                            <h3 className="text-lg font-bold text-red-500 mb-2">
-                                Photo must be less than 500kb
-                            </h3>
+                            <>
+                                <div className="mb-4 flex justify-center">
+                                    <div className="flex h-16 w-16 items-center justify-center rounded-full bg-red-100">
+                                        <svg className="h-8 w-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                        </svg>
+                                    </div>
+                                </div>
+                                <h3 className="mb-2 text-center text-lg font-bold text-red-500">
+                                    Upload Error
+                                </h3>
+                                <p className="mb-4 text-center text-sm text-depth-secondary">
+                                    Photo must be less than 500kb
+                                </p>
+                            </>
                         ) : (
-                            <h3 className="text-lg font-bold text-forestGreen mb-2">
-                                Profile Updated Successfully!
-                            </h3>
+                            <>
+                                <div className="mb-4 flex justify-center">
+                                    <div className="flex h-16 w-16 items-center justify-center rounded-full bg-green-100">
+                                        <svg className="h-8 w-8 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                        </svg>
+                                    </div>
+                                </div>
+                                <h3 className="mb-2 text-center text-lg font-bold text-[var(--depth-color-primary)]">
+                                    Success!
+                                </h3>
+                                <p className="mb-4 text-center text-sm text-depth-secondary">
+                                    Profile Updated Successfully!
+                                </p>
+                            </>
                         )}
                         <button
                             onClick={() => setIsSuccessModalOpen(false)}
-                            className="mt-4 px-4 py-2 bg-forestGreen text-white hover:bg-darkGreen rounded transition duration-200"
+                            className="w-full rounded-depth-md bg-[var(--depth-color-primary)] px-4 py-2 text-sm font-semibold text-white shadow-depth-sm transition hover:-translate-y-0.5 hover:shadow-depth-md"
                         >
                             Close
                         </button>

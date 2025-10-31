@@ -1,28 +1,30 @@
 import { useEffect, useState } from "react";
 import { Link, usePage } from "@inertiajs/react";
-import ModalPasswordAssistant from '../Modals/ModalPasswordAssistant';
-import ModalLogout from '../Modals/ModalLogout';
-import ModalKonfigurasi from '../Modals/ModalKonfigurasi';
-import ModalOpenKJ from '../Modals/ModalOpenKJ';
-import ModalActiveTP from "../Modals/ModalActiveTP";
+import ModalPassword from './Modals/ModalPassword';
+import ModalLogout from './Modals/ModalLogout';
+import ModalKonfigurasi from '../Assistants/Modals/ModalKonfigurasi';
+import ModalOpenKJ from '../Assistants/Modals/ModalOpenKJ';
+import ModalActiveTP from "../Assistants/Modals/ModalActiveTP";
+import { updatePassword as updateAssistantPassword } from "@/actions/App/Http/Controllers/API/AsistenController";
+import { destroy as logoutAsisten } from "@/actions/App/Http/Controllers/Auth/LoginAsistenController";
 
-import profileIcon from "../../../../assets/nav/Icon-Profile.svg";
-import praktikumIcon from "../../../../assets/nav/Icon-Praktikum.svg";
-import nilaiIcon from "../../../../assets/nav/Icon-Nilai.svg";
-import historyIcon from "../../../../assets/nav/Icon-History.svg";
-import inputSoalIcon from "../../../../assets/nav/Icon-InputSoal.svg";
-import rankingIcon from "../../../../assets/nav/Icon-Ranking.svg";
-import pollingIcon from "../../../../assets/nav/Icon-Polling.svg";
-import plottingIcon from "../../../../assets/nav/Icon-Plotting.svg";
-import roleIcon from "../../../../assets/nav/Icon-Piket.svg";
-import praktikanIcon from "../../../../assets/nav/Icon-Praktikan.svg";
-import pelanggaranIcon from "../../../../assets/nav/Icon-Pelanggaran.svg";
-import announcementIcon from "../../../../assets/nav/Icon-Annoucement.svg";
-import changePassIcon from "../../../../assets/nav/Icon-GantiPassword.svg";
-import logoutIcon from "../../../../assets/nav/Icon-Logout.svg";
-import jawabanTP from "../../../../assets/nav/Icon-Rating.svg";
-import moduleIcon from "../../../../assets/nav/Icon-Module.svg";
-import tpModuleIcon from "../../../../assets/nav/Icon-TP.svg";
+import profileIcon from "../../..//assets/nav/Icon-Profile.svg";
+import praktikumIcon from "../../..//assets/nav/Icon-Praktikum.svg";
+import nilaiIcon from "../../..//assets/nav/Icon-Nilai.svg";
+import historyIcon from "../../..//assets/nav/Icon-History.svg";
+import inputSoalIcon from "../../..//assets/nav/Icon-InputSoal.svg";
+import rankingIcon from "../../..//assets/nav/Icon-Ranking.svg";
+import pollingIcon from "../../..//assets/nav/Icon-Polling.svg";
+import plottingIcon from "../../..//assets/nav/Icon-Plotting.svg";
+import roleIcon from "../../..//assets/nav/Icon-Piket.svg";
+import praktikanIcon from "../../..//assets/nav/Icon-Praktikan.svg";
+import pelanggaranIcon from "../../..//assets/nav/Icon-Pelanggaran.svg";
+import announcementIcon from "../../..//assets/nav/Icon-Annoucement.svg";
+import changePassIcon from "../../..//assets/nav/Icon-GantiPassword.svg";
+import logoutIcon from "../../..//assets/nav/Icon-Logout.svg";
+import jawabanTP from "../../..//assets/nav/Icon-Rating.svg";
+import moduleIcon from "../../..//assets/nav/Icon-Module.svg";
+import tpModuleIcon from "../../..//assets/nav/Icon-TP.svg";
 
 const STORAGE_KEY = 'assistantNavCollapsed';
 
@@ -309,7 +311,7 @@ export default function AssisstantNav({ asisten, permission_name = [], roleName 
                                             {isActive && (
                                                 <span
                                                     aria-hidden="true"
-                                                    className="absolute inset-y-1 left-1 w-1 rounded-depth-full bg-white/70"
+                                                    className="absolute inset-y-1 translate-x-1 right-1 w-1 rounded-depth-full bg-white/70"
                                                 />
                                             )}
                                             <img className={iconClasses} src={item.icon} alt={altText} />
@@ -390,9 +392,23 @@ export default function AssisstantNav({ asisten, permission_name = [], roleName 
                 </div>
             </nav>
 
-            {isModalOpen && <ModalPasswordAssistant onClose={closeModal} />}
+            {isModalOpen && (
+                <ModalPassword 
+                    isOpen={isModalOpen}
+                    onClose={closeModal} 
+                    updatePasswordAction={updateAssistantPassword}
+                    userType="asisten"
+                />
+            )}
             {showLogoutModal && (
-                <ModalLogout onClose={closeLogoutModal} onConfirm={handleLogoutConfirm} />
+                <ModalLogout 
+                    isOpen={showLogoutModal}
+                    onClose={closeLogoutModal} 
+                    logoutAction={logoutAsisten}
+                    onLogoutSuccess={() => {
+                        window.location.href = "/";
+                    }}
+                />
             )}
             {showConfigModal && <ModalKonfigurasi onClose={closeConfigModal} />}
             {showOpenKJ && <ModalOpenKJ onClose={closeOpenKJModal} />}

@@ -9,22 +9,24 @@ export default function CardPolling({
 }) {
     return (
         <div
-            className={`shadow-lg bg-softIvory rounded-lg p-4 text-center transition-all duration-300 ${
+            className={`rounded-depth-md border border-depth bg-depth-card p-4 text-center shadow-depth-lg transition-all duration-300 ${
                 isDimmed ? "opacity-50" : "opacity-100"
             } ${
                 isDisabled
                     ? "cursor-not-allowed"
-                    : "cursor-pointer hover:scale-105"
+                    : "cursor-pointer hover:scale-105 hover:shadow-depth-xl"
+            } ${
+                isSelected ? "ring-2 ring-[var(--depth-color-primary)] ring-offset-2" : ""
             }`}
             onClick={!isDisabled ? onClick : undefined}
         >
             <img
                 src={image}
                 alt={name}
-                className="rounded-full w-[165px] h-[165px] mx-auto object-cover"
+                className="mx-auto h-[165px] w-[165px] rounded-full object-cover shadow-depth-md"
             />
-            <h1 className="mb-7 font-bold text-lg text-black">{name}</h1>
-            <p className="font-semibold text-sm text-black">{description}</p>
+            <h1 className="mb-7 text-lg font-bold text-depth-primary">{name}</h1>
+            <p className="text-sm font-semibold text-depth-secondary">{description}</p>
         </div>
     );
 }

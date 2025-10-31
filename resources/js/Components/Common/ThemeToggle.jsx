@@ -1,13 +1,13 @@
 import { useEffect, useState } from "react";
 
-const THEME_STORAGE_KEY = "assistant-theme";
+const DEFAULT_THEME_STORAGE_KEY = "depth-theme";
 
-const getPreferredTheme = () => {
+const getPreferredTheme = (storageKey) => {
     if (typeof window === "undefined") {
         return "light";
     }
 
-    const storedTheme = window.localStorage.getItem(THEME_STORAGE_KEY);
+    const storedTheme = window.localStorage.getItem(storageKey);
 
     if (storedTheme === "light" || storedTheme === "dark") {
         return storedTheme;
@@ -16,8 +16,8 @@ const getPreferredTheme = () => {
     return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
 };
 
-export default function ThemeToggle({ className = "" }) {
-    const [theme, setTheme] = useState(getPreferredTheme);
+export default function ThemeToggle({ className = "", storageKey = DEFAULT_THEME_STORAGE_KEY }) {
+    const [theme, setTheme] = useState(() => getPreferredTheme(storageKey));
 
     useEffect(() => {
         if (typeof document === "undefined") {
@@ -25,8 +25,8 @@ export default function ThemeToggle({ className = "" }) {
         }
 
         document.documentElement.dataset.theme = theme;
-        window.localStorage.setItem(THEME_STORAGE_KEY, theme);
-    }, [theme]);
+        window.localStorage.setItem(storageKey, theme);
+    }, [theme, storageKey]);
 
     useEffect(() => {
         if (typeof window === "undefined") {
@@ -35,7 +35,8 @@ export default function ThemeToggle({ className = "" }) {
 
         const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
         const handleChange = () => {
-            if (window.localStorage.getItem(THEME_STORAGE_KEY)) {
+            const stored = window.localStorage.getItem(storageKey);
+            if (stored === "light" || stored === "dark") {
                 return;
             }
 
@@ -45,7 +46,7 @@ export default function ThemeToggle({ className = "" }) {
         mediaQuery.addEventListener("change", handleChange);
 
         return () => mediaQuery.removeEventListener("change", handleChange);
-    }, []);
+    }, [storageKey]);
 
     const toggleTheme = () => setTheme((current) => (current === "dark" ? "light" : "dark"));
 
@@ -55,7 +56,7 @@ export default function ThemeToggle({ className = "" }) {
         <button
             type="button"
             onClick={toggleTheme}
-            className={`flex items-center justify-center rounded-depth-full bg-depth-interactive p-2 text-depth-primary shadow-depth-sm transition duration-200 hover:shadow-depth-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[var(--depth-color-primary)] focus:ring-offset-[var(--depth-color-card)] ${className}`}
+            className={`flex h-10 w-10 items-center justify-center rounded-depth-lg border border-depth bg-depth-interactive text-depth-primary shadow-depth-sm transition hover:shadow-depth-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[var(--depth-color-primary)] focus:ring-offset-[var(--depth-color-card)] ${className}`}
             aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
         >
             {isDark ? (

@@ -756,33 +756,34 @@ export default function ContentPraktikum() {
 
                     {/* Running Praktikum Section */}
                     {runningPraktikum.length > 0 && (
-                        <div className="mt-4 border-2 border-amber-500 rounded-md p-4 bg-amber-50">
-                            <h3 className="text-md font-semibold text-amber-800 mb-3 flex items-center gap-2">
+                        <div className="mt-4 rounded-depth-md border border-amber-400/70 bg-amber-50/90 p-4 shadow-depth-sm transition dark:border-amber-300/50 dark:bg-[#2a1c06]">
+                            <h3 className="mb-3 flex items-center gap-2 text-sm font-semibold text-amber-900 dark:text-amber-200">
                                 <span className="relative flex h-3 w-3">
-                                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
-                                    <span className="relative inline-flex rounded-full h-3 w-3 bg-amber-500"></span>
+                                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-amber-400 opacity-75"></span>
+                                    <span className="relative inline-flex h-3 w-3 rounded-full bg-amber-500 dark:bg-amber-300"></span>
                                 </span>
                                 Praktikum Sedang Berjalan ({runningPraktikum.length})
                             </h3>
                             <div className="space-y-2">
                                 {runningPraktikum.map((p) => {
-                                    const kelasName = kelas.find(k => k.id === p.kelas_id)?.kelas ?? `Kelas #${p.kelas_id}`;
-                                    const modulName = moduls.find(m => m.idM === p.modul_id)?.judul ?? `Modul #${p.modul_id}`;
+                                    const kelasName = kelas.find((k) => k.id === p.kelas_id)?.kelas ?? `Kelas #${p.kelas_id}`;
+                                    const modulName = moduls.find((m) => m.idM === p.modul_id)?.judul ?? `Modul #${p.modul_id}`;
                                     const statusLabel = STATUS_LABELS[p.status] ?? p.status;
-                                    const phaseLabel = PHASE_SEQUENCE.find(phase => phase.key === p.current_phase)?.label ?? p.current_phase;
-                                    
+                                    const phaseLabel =
+                                        PHASE_SEQUENCE.find((phase) => phase.key === p.current_phase)?.label ?? p.current_phase;
+
                                     return (
                                         <div
                                             key={p.id}
-                                            className="flex items-center justify-between rounded-depth-md border border-[color:var(--depth-border)] bg-depth-card px-3 py-2 shadow-depth-sm transition-colors hover:bg-depth-interactive"
+                                            className="flex items-center justify-between rounded-depth-md border border-amber-200 bg-white/90 px-3 py-2 text-sm shadow-depth-sm transition-colors hover:bg-amber-100/80 dark:border-amber-200/40 dark:bg-[#3a280c] dark:hover:bg-[#4a3310]"
                                         >
                                             <div className="flex-1">
                                                 <div className="flex items-center gap-2">
-                                                    <span className="font-semibold text-depth-primary">{kelasName}</span>
-                                                    <span className="text-gray-400">•</span>
-                                                    <span className="text-depth-secondary">{modulName}</span>
+                                                    <span className="font-semibold text-depth-primary dark:text-amber-100">{kelasName}</span>
+                                                    <span className="text-amber-400">•</span>
+                                                    <span className="text-depth-secondary dark:text-amber-200">{modulName}</span>
                                                 </div>
-                                                <div className="flex items-center gap-3 mt-1 text-xs text-gray-600">
+                                                <div className="mt-1 flex items-center gap-3 text-xs text-depth-secondary dark:text-amber-200/80">
                                                     <span className="flex items-center gap-1">
                                                         <span
                                                             className={`rounded-depth-full px-2 py-0.5 text-xs font-semibold text-white ${

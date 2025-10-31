@@ -2,8 +2,7 @@ import { Head, usePage } from "@inertiajs/react";
 import { useState } from "react";
 import PraktikanAuthenticated from "@/Layouts/PraktikanAuthenticatedLayout";
 import ContactAssistantTable from "@/Components/Praktikans/Tables/ContactAssistantTable";
-import Clock from "@/Components/Assistants/Common/Clock";
-import ModalSoftware from "@/Components/Assistants/Modals/ModalSoftware";
+import PraktikanUtilities from "@/Components/Praktikans/Layout/PraktikanUtilities";
 
 export default function ContactAssistant() {
     const { auth } = usePage().props; //data praktikan
@@ -36,8 +35,7 @@ export default function ContactAssistant() {
                     </div>
                 </div>
             </PraktikanAuthenticated>
-            <Clock />
-            <ModalSoftware />
+            <PraktikanUtilities />
         </>
     );
 }

@@ -10,7 +10,7 @@ import AboutModal from '@/Components/Praktikans/Modals/AboutModal';
 import ContactModal from '@/Components/Praktikans/Modals/ContactModal';
 
 export default function LandingPage() {
-    const { ziggy } = usePage().props;
+    const { ziggy, errors, error } = usePage().props;
     const [authModal, setAuthModal] = useState({ isOpen: false, type: null, mode: 'praktikan' });
     const [aboutModal, setAboutModal] = useState(false);
     const [contactModal, setContactModal] = useState(false);
@@ -27,6 +27,18 @@ export default function LandingPage() {
             setAuthModal({ isOpen: true, type: 'register', mode });
         }
     }, [ziggy?.location]);
+
+    useEffect(() => {
+        // Keep modal open if there are validation errors or error messages
+        if ((errors && Object.keys(errors).length > 0) || error) {
+            // If modal is not already open, reopen it with login type
+            if (!authModal.isOpen) {
+                const currentUrl = ziggy?.location ? new URL(ziggy.location) : null;
+                const mode = currentUrl?.searchParams.get('mode') || 'praktikan';
+                setAuthModal({ isOpen: true, type: 'login', mode });
+            }
+        }
+    }, [errors, error]);
 
     const openAuthModal = (type, mode = 'praktikan') => {
         setAuthModal({ isOpen: true, type, mode });

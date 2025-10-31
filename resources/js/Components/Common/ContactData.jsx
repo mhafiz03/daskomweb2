@@ -1,8 +1,8 @@
-import iconEmail from '../../../../assets/contact/iconEmail.svg';
-import iconInstagram from '../../../../assets/contact/iconInstagram.svg';
-import iconLine from '../../../../assets/contact/iconLine.svg';
-import iconWhatsapp from '../../../../assets/contact/iconWhatsapp.svg';
-import iconYoutube from '../../../../assets/contact/iconYoutube.svg';
+import iconEmail from '../../../assets/contact/iconEmail.svg';
+import iconInstagram from '../../../assets/contact/iconInstagram.svg';
+import iconLine from '../../../assets/contact/iconLine.svg';
+import iconWhatsapp from '../../../assets/contact/iconWhatsapp.svg';
+import iconYoutube from '../../../assets/contact/iconYoutube.svg';
 
 export const contactData = [
     {

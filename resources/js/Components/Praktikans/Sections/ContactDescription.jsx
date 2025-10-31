@@ -1,4 +1,4 @@
-import { contactData } from '../../Assistants/Common/ContactData';
+import { contactData } from '../../Common/ContactData';
 
 export default function ContactDescription() {
     return (
