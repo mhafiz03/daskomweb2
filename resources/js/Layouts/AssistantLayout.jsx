@@ -9,7 +9,7 @@ export default function AssistantLayout({
     children,
     navClassName = "flex-grow md:w-1/4 h-full",
     contentClassName = "flex-grow md:w-3/4 mt-10",
-    layoutClassName = "relative flex min-h-screen items-center justify-center bg-depth-background px-6 py-10 text-depth-primary transition-colors duration-300",
+    layoutClassName = "relative flex min-h-screen items-center justify-center bg-depth-gradient px-6 py-10 text-depth-primary transition-colors duration-300",
     wrapperClassName = "flex w-full max-w-7xl flex-col gap-6 font-depth md:flex-row",
 }) {
     const { auth } = usePage().props ?? {};

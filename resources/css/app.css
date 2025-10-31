@@ -162,6 +162,15 @@
         transition: background-color 300ms ease;
     }
 
+    .bg-depth-gradient {
+        background-color: var(--depth-color-background);
+        background-image: var(--depth-gradient-background);
+        background-repeat: no-repeat;
+        background-size: 160% 160%;
+        background-attachment: fixed;
+        transition: background-color 300ms ease, background-image 400ms ease;
+    }
+
     .bg-depth-card {
         background-color: var(--depth-color-card);
         transition: background-color 300ms ease;
