@@ -99,16 +99,7 @@ export default function LoginFormAssistant({ mode, onSwitchToRegister }) {
                         alt="Toggle Password Visibility"
                         onClick={togglePasswordVisibility}
                     />
-                   
                 </div>
-                <div className="relative items-center" >
-                    {/* Error Message */}
-                    {errorMessage && (
-                        <p className="text-red-400 justify-center text-sm mt-2">{errorMessage}</p>
-                    )}
-                </div>
-
-
                 <ButtonOption order="login" mode={mode} onSwitchToRegister={onSwitchToRegister} />
             </form>
             <div className="relative my-1 text-right">
