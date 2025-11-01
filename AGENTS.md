@@ -33,6 +33,7 @@ This application is a Laravel application and its main Laravel ecosystems packag
 
 ## Verification Scripts
 - Do not create verification scripts or tinker when tests cover that functionality and prove it works. Unit and feature tests are more important.
+- Skip PHP formatting and PHPUnit test runs when the work only modifies JSX or JavaScript files.
 
 ## Application Structure & Architecture
 - Stick to existing directory structure - don't create new base folders without approval.

@@ -346,6 +346,7 @@ export default function Edit() {
 
 ## Test Enforcement
 
-- Every change must be programmatically tested. Write a new test or update an existing test, then run the affected tests to make sure they pass.
-- Run the minimum number of tests needed to ensure code quality and speed. Use `php artisan test` with a specific filename or filter.
+<!-- - Every change must be programmatically tested. Write a new test or update an existing test, then run the affected tests to make sure they pass.
+- Run the minimum number of tests needed to ensure code quality and speed. Use `php artisan test` with a specific filename or filter. -->
+- Skip PHP formatting and PHPUnit test runs whenever the changes are limited to JSX or JavaScript files.
 </laravel-boost-guidelines>
