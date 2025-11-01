@@ -1,5 +1,103 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../../../wayfinder'
 /**
+* @see \App\Http\Controllers\API\JawabanTMController::showAsisten
+* @see app/Http/Controllers/API/JawabanTMController.php:143
+* @route '/api-v1/jawaban-mandiri/praktikan/{praktikan}/modul/{modul}'
+*/
+export const showAsisten = (args: { praktikan: string | number, modul: string | number } | [praktikan: string | number, modul: string | number ], options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: showAsisten.url(args, options),
+    method: 'get',
+})
+
+showAsisten.definition = {
+    methods: ["get","head"],
+    url: '/api-v1/jawaban-mandiri/praktikan/{praktikan}/modul/{modul}',
+} satisfies RouteDefinition<["get","head"]>
+
+/**
+* @see \App\Http\Controllers\API\JawabanTMController::showAsisten
+* @see app/Http/Controllers/API/JawabanTMController.php:143
+* @route '/api-v1/jawaban-mandiri/praktikan/{praktikan}/modul/{modul}'
+*/
+showAsisten.url = (args: { praktikan: string | number, modul: string | number } | [praktikan: string | number, modul: string | number ], options?: RouteQueryOptions) => {
+    if (Array.isArray(args)) {
+        args = {
+            praktikan: args[0],
+            modul: args[1],
+        }
+    }
+
+    args = applyUrlDefaults(args)
+
+    const parsedArgs = {
+        praktikan: args.praktikan,
+        modul: args.modul,
+    }
+
+    return showAsisten.definition.url
+            .replace('{praktikan}', parsedArgs.praktikan.toString())
+            .replace('{modul}', parsedArgs.modul.toString())
+            .replace(/\/+$/, '') + queryParams(options)
+}
+
+/**
+* @see \App\Http\Controllers\API\JawabanTMController::showAsisten
+* @see app/Http/Controllers/API/JawabanTMController.php:143
+* @route '/api-v1/jawaban-mandiri/praktikan/{praktikan}/modul/{modul}'
+*/
+showAsisten.get = (args: { praktikan: string | number, modul: string | number } | [praktikan: string | number, modul: string | number ], options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: showAsisten.url(args, options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\API\JawabanTMController::showAsisten
+* @see app/Http/Controllers/API/JawabanTMController.php:143
+* @route '/api-v1/jawaban-mandiri/praktikan/{praktikan}/modul/{modul}'
+*/
+showAsisten.head = (args: { praktikan: string | number, modul: string | number } | [praktikan: string | number, modul: string | number ], options?: RouteQueryOptions): RouteDefinition<'head'> => ({
+    url: showAsisten.url(args, options),
+    method: 'head',
+})
+
+/**
+* @see \App\Http\Controllers\API\JawabanTMController::showAsisten
+* @see app/Http/Controllers/API/JawabanTMController.php:143
+* @route '/api-v1/jawaban-mandiri/praktikan/{praktikan}/modul/{modul}'
+*/
+const showAsistenForm = (args: { praktikan: string | number, modul: string | number } | [praktikan: string | number, modul: string | number ], options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: showAsisten.url(args, options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\API\JawabanTMController::showAsisten
+* @see app/Http/Controllers/API/JawabanTMController.php:143
+* @route '/api-v1/jawaban-mandiri/praktikan/{praktikan}/modul/{modul}'
+*/
+showAsistenForm.get = (args: { praktikan: string | number, modul: string | number } | [praktikan: string | number, modul: string | number ], options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: showAsisten.url(args, options),
+    method: 'get',
+})
+
+/**
+* @see \App\Http\Controllers\API\JawabanTMController::showAsisten
+* @see app/Http/Controllers/API/JawabanTMController.php:143
+* @route '/api-v1/jawaban-mandiri/praktikan/{praktikan}/modul/{modul}'
+*/
+showAsistenForm.head = (args: { praktikan: string | number, modul: string | number } | [praktikan: string | number, modul: string | number ], options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    action: showAsisten.url(args, {
+        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+            _method: 'HEAD',
+            ...(options?.query ?? options?.mergeQuery ?? {}),
+        }
+    }),
+    method: 'get',
+})
+
+showAsisten.form = showAsistenForm
+
+/**
 * @see \App\Http\Controllers\API\JawabanTMController::store
 * @see app/Http/Controllers/API/JawabanTMController.php:26
 * @route '/api-v1/jawaban-tm'
@@ -154,6 +252,6 @@ showForm.head = (args: { idModul: string | number } | [idModul: string | number 
 
 show.form = showForm
 
-const JawabanTMController = { store, show }
+const JawabanTMController = { showAsisten, store, show }
 
 export default JawabanTMController

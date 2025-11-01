@@ -140,26 +140,31 @@ class JawabanTMController extends Controller
         }
     }
 
-    public function showAsisten($idPraktikan, $idModul)
+    public function showAsisten(int $praktikanId, int $modulId): JsonResponse
     {
         try {
-            $jawaban = JawabanMandiri::where('praktikan_id', $idPraktikan)
-                ->where('modul_id', $idModul)
-                ->get();
-            if ($jawaban->isEmpty()) {
-                return response()->json([
-                    'status' => 'error',
-                    'message' => 'Jawaban tidak ditemukan untuk praktikan dan modul ini.',
-                ], 404);
-            }
+            $jawaban = JawabanMandiri::with('soal_mandiri')
+                ->where('praktikan_id', $praktikanId)
+                ->where('modul_id', $modulId)
+                ->get()
+                ->map(function (JawabanMandiri $item) {
+                    return [
+                        'soal_id' => $item->soal_id,
+                        'soal_text' => $item->soal_mandiri?->soal,
+                        'jawaban' => $item->jawaban,
+                    ];
+                })
+                ->values();
 
             return response()->json([
-                'status' => 'success',
+                'success' => true,
                 'jawaban_mandiri' => $jawaban,
-            ], 200);
-        } catch (\Exception $e) {
+            ]);
+        } catch (\Throwable $e) {
+            report($e);
+
             return response()->json([
-                'status' => 'error',
+                'success' => false,
                 'message' => 'Terjadi kesalahan saat mengambil jawaban.',
                 'error' => $e->getMessage(),
             ], 500);

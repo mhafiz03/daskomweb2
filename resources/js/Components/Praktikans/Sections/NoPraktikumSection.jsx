@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { api } from "@/lib/api";
 import iconModule from "../../../../assets/practicum/iconModule.svg";
 import iconCeklistboxFalse from "../../../../assets/practicum/iconCeklistboxFalse.svg";
@@ -8,10 +8,12 @@ import ModalAttempt from "../Modals/ModalAttempt";
 import ModalReview from "../Modals/ModalReview";
 
 const PHASE_LABELS = {
+    preparation: "Preparation",
     ta: "Tes Awal",
     fitb_jurnal: "FITB + Jurnal",
     mandiri: "Mandiri",
     tk: "Tes Keterampilan",
+    feedback: "Feedback",
 };
 
 const STATUS_LABELS = {
@@ -23,6 +25,7 @@ const STATUS_LABELS = {
 };
 
 export default function NoPraktikumSection({
+    isVisible = true,
     onNavigate,
     completedCategories,
     setCompletedCategories,
@@ -35,6 +38,35 @@ export default function NoPraktikumSection({
     const [openModalReview, setOpenModalReview] = useState(null);
     const [praktikumDebug, setPraktikumDebug] = useState("Debug: menunggu konfigurasi...");
     const [praktikumState, setPraktikumState] = useState(null);
+    const applyPraktikumState = useCallback((payload) => {
+        console.log(`[${new Date().toISOString()}] Applying praktikum payload:`, payload);
+        if (!payload) {
+            setPraktikumState(null);
+
+            return;
+        }
+
+        setPraktikumState((previous) => {
+            const previousState = previous ?? null;
+
+            const resolvedModul =
+                payload.modul?.judul ??
+                payload.modul?.nama ??
+                previousState?.modul ??
+                (payload.modul_id ? `Modul #${payload.modul_id}` : null);
+
+            return {
+                status: payload.status ?? previousState?.status ?? null,
+                current_phase: payload.current_phase ?? previousState?.current_phase ?? null,
+                modul: resolvedModul,
+                modul_id: payload.modul_id ?? previousState?.modul_id ?? null,
+                started_at: payload.started_at ?? previousState?.started_at ?? null,
+                ended_at: payload.ended_at ?? previousState?.ended_at ?? null,
+                pj: payload.pj ?? previousState?.pj ?? null,
+                pj_id: payload.pj_id ?? previousState?.pj_id ?? null,
+            };
+        });
+    }, []);
     const formatTimestamp = (value) => {
         if (!value) {
             return "-";
@@ -108,87 +140,28 @@ export default function NoPraktikumSection({
     };
 
     useEffect(() => {
-        document.body.style.overflow = "hidden";
-        return () => {
+        if (!isVisible) {
             document.body.style.overflow = "";
-        };
-    }, []);
 
-    useEffect(() => {
-        if (!kelasId) {
-            setPraktikumState(null);
             return undefined;
         }
 
-        let cancelled = false;
-
-        const fetchInitial = async () => {
-            try {
-                const { data } = await api.get(`/api-v1/praktikum/${kelasId}`);
-                const list = Array.isArray(data?.data)
-                    ? data.data
-                    : Array.isArray(data?.praktikum)
-                        ? data.praktikum
-                        : [];
-
-                if (!list.length) {
-                    if (!cancelled) {
-                        setPraktikumState(null);
-                        setPraktikumDebug(
-                            "Debug: belum ada data praktikum untuk kelas ini. Tekan Start untuk memulai sesi."
-                        );
-                    }
-                    return;
-                }
-
-                const active = list.find((item) => Boolean(item?.isActive)) ?? list[0];
-
-                if (!cancelled && active) {
-                    setPraktikumState({
-                        status: active?.status ?? null,
-                        current_phase: active?.current_phase ?? null,
-                        modul:
-                            active?.modul?.judul ??
-                            active?.modul?.nama ??
-                            null,
-                        modul_id: active?.modul_id ?? null,
-                        started_at: active?.started_at ?? null,
-                        ended_at: active?.ended_at ?? null,
-                        pj: active?.pj ?? active?.pj_asisten ?? null,
-                    });
-
-                    setPraktikumDebug(
-                        [
-                            "Debug: data awal praktikum dimuat.",
-                            `Status: ${active?.status ?? "-"}`,
-                            `Tahap: ${active?.current_phase ?? "-"}`,
-                            `Modul: ${active?.modul?.judul ??
-                            active?.modul_id ??
-                            "-"
-                            }`,
-                        ].join("\n")
-                    );
-                }
-            } catch (error) {
-                if (!cancelled) {
-                    setPraktikumDebug(
-                        `Debug: gagal memuat informasi awal praktikum (${error?.message ?? "unknown error"}).`
-                    );
-                }
-            }
-        };
-
-        fetchInitial();
+        document.body.style.overflow = "hidden";
 
         return () => {
-            cancelled = true;
+            document.body.style.overflow = "";
         };
-    }, [kelasId]);
+    }, [isVisible]);
 
     useEffect(() => {
-        if (praktikumState) {
-            onPraktikumStateChange(praktikumState);
+        if (!isVisible) {
+            setOpenModalAttempt(null);
+            setOpenModalReview(null);
         }
+    }, [isVisible]);
+
+    useEffect(() => {
+        onPraktikumStateChange(praktikumState);
     }, [praktikumState, onPraktikumStateChange]);
 
     // Fetch initial praktikum state on mount/refresh
@@ -204,35 +177,26 @@ export default function NoPraktikumSection({
                 if (data?.status === 'success' && data?.data) {
                     const praktikumPayload = data.data;
                     
-                    setPraktikumState({
-                        status: praktikumPayload.status ?? null,
-                        current_phase: praktikumPayload.current_phase ?? null,
-                        modul:
-                            praktikumPayload.modul?.judul ??
-                            praktikumPayload.modul?.nama ??
-                            null,
-                        modul_id: praktikumPayload.modul_id ?? null,
-                        started_at: praktikumPayload.started_at ?? null,
-                        ended_at: praktikumPayload.ended_at ?? null,
-                        pj: praktikumPayload.pj ?? null,
-                        pj_id: praktikumPayload.pj_id ?? null,
-                    });
+                    applyPraktikumState(praktikumPayload);
 
                     setPraktikumDebug(
                         `Debug (initial load):\nStatus: ${praktikumPayload.status ?? "-"}\nTahap: ${praktikumPayload.current_phase ?? "-"}\nModul: ${praktikumPayload.modul?.judul ?? "-"}`
                     );
+                    console.log(`[${new Date().toISOString()}] Praktikum debug snapshot (initial load):`, praktikumPayload);
                 } else {
-                    setPraktikumState(null);
+                    applyPraktikumState(null);
                     setPraktikumDebug("Debug: Tidak ada praktikum aktif saat ini.");
+                    console.log(`[${new Date().toISOString()}] Praktikum debug snapshot: tidak ada praktikum aktif.`);
                 }
             } catch (error) {
                 console.error('Failed to fetch active praktikum:', error);
                 setPraktikumDebug(`Debug: Error fetching praktikum - ${error.message}`);
+                console.log(`[${new Date().toISOString()}] Praktikum debug snapshot: error fetching praktikum`, error);
             }
         };
 
         fetchActivePraktikum();
-    }, [kelasId]);
+    }, [kelasId, applyPraktikumState]);
 
     useEffect(() => {
         if (typeof window === "undefined") {
@@ -241,7 +205,7 @@ export default function NoPraktikumSection({
         }
 
         if (!kelasId) {
-            setPraktikumState(null);
+            applyPraktikumState(null);
             setPraktikumDebug("Debug: kelas ID tidak tersedia untuk praktikum.");
             return undefined;
         }
@@ -263,23 +227,12 @@ export default function NoPraktikumSection({
                 ? JSON.stringify(praktikumPayload, null, 2)
                 : "Payload kosong diterima.";
 
-            if (praktikumPayload) {
-                setPraktikumState({
-                    status: praktikumPayload.status ?? null,
-                    current_phase: praktikumPayload.current_phase ?? null,
-                    modul:
-                        praktikumPayload.modul?.judul ??
-                        praktikumPayload.modul?.nama ??
-                        null,
-                    modul_id: praktikumPayload.modul_id ?? null,
-                    started_at: praktikumPayload.started_at ?? null,
-                    ended_at: praktikumPayload.ended_at ?? null,
-                    pj: praktikumPayload.pj ?? null,
-                    pj_id: praktikumPayload.pj_id ?? null,
-                });
-            } else {
-                setPraktikumState(null);
+            if (!praktikumPayload) {
+                console.log(`[${new Date().toISOString()}] Praktikum channel update received without payload, preserving current state.`);
+                return;
             }
+
+            applyPraktikumState(praktikumPayload);
 
             const summary = praktikumPayload
                 ? [
@@ -295,6 +248,7 @@ export default function NoPraktikumSection({
             setPraktikumDebug(
                 `Debug update (${new Date().toLocaleTimeString()}):\n${summary}\n\nPayload mentah:\n${formatted}`
             );
+            console.log(`[${new Date().toISOString()}] Praktikum debug snapshot (channel update):`, praktikumPayload ?? payload);
         };
 
         channel.listen(".PraktikumStatusUpdated", listener);
@@ -306,7 +260,7 @@ export default function NoPraktikumSection({
                 console.warn("Gagal meninggalkan channel praktikum:", err);
             }
         };
-    }, [kelasId]);
+    }, [kelasId, applyPraktikumState]);
 
     const statusLabel = praktikumState?.status
         ? STATUS_LABELS[praktikumState.status] ?? praktikumState.status
@@ -354,7 +308,10 @@ export default function NoPraktikumSection({
     const pjName = resolveDisplayText(moduleMeta?.pj ?? praktikumState?.pj);
 
     return (
-        <div className="mx-auto ml-[3vw] w-[896px] rounded-depth-lg border border-depth bg-depth-card px-6 py-6 shadow-depth-lg">
+        <div
+            className="mx-auto ml-[3vw] w-[896px] rounded-depth-lg border border-depth bg-depth-card px-6 py-6 shadow-depth-lg"
+            style={{ display: isVisible ? "block" : "none" }}
+        >
             <div className="mb-6 flex justify-center rounded-depth-md bg-[var(--depth-color-primary)] px-4 py-3 shadow-depth-md">
                 <h1 className="w-[50%] rounded-depth-md p-2 text-center text-2xl font-bold text-white transition hover:bg-white/10">
                     PRAKTIKUM

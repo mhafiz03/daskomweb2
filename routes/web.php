@@ -25,6 +25,7 @@ use App\Http\Controllers\API\SoalTKController;
 use App\Http\Controllers\API\SoalTMController;
 use App\Http\Controllers\API\SoalTPController;
 use App\Http\Controllers\API\TugasPendahuluanController;
+use App\Http\Controllers\AuditLogController;
 use App\Http\Controllers\Auth\RegisteredAsistenController;
 use App\Http\Controllers\Auth\RegisteredPraktikanController;
 use Illuminate\Support\Facades\Auth;
@@ -102,6 +103,10 @@ Route::get('/manage-role', function () {
     return Inertia::render('Assistants/ManageRole');
 })->name('manage-role')->middleware(['auth:asisten', 'can:manage-role']);
 
+Route::get('/audit-logs', AuditLogController::class)
+    ->name('audit-logs')
+    ->middleware(['auth:asisten', 'permission:manage-role']);
+
 Route::get('/nilai-praktikan', function () {
     return Inertia::render('Assistants/NilaiPraktikan');
 })->name('nilai-praktikan')->middleware(['auth:asisten', 'can:nilai-praktikan']);
@@ -144,7 +149,7 @@ Route::get('/polling-assistant', function () {
 })->name('polling-assistant');
 
 // ///////////////////////////////////// Data Routes ///////////////////////////////////////
-Route::prefix('api-v1')->group(function () {
+Route::prefix('api-v1')->middleware('audit.assistant')->group(function () {
     Route::put('/asisten', [AsistenController::class, 'update'])->name('update.asisten')->middleware(['auth:asisten', 'can:manage-profile']);
     Route::post('/profilePic', [AsistenController::class, 'updatePp'])->name('updatePp.asisten');
     Route::delete('/profilePic', [AsistenController::class, 'destroyPp'])->name('destroyPp.asisten');
@@ -158,7 +163,7 @@ Route::prefix('api-v1')->group(function () {
     Route::patch('/praktikan/password', [PraktikanController::class, 'updatePassword'])->middleware('auth:praktikan');
 
     // Asisten
-    Route::patch('/asisten/password', [AsistenController::class, 'updatePassword'])->middleware('auth:asisten');
+    Route::patch('/asisten/password', [AsistenController::class, 'updatePassword'])->name('asisten.password.update')->middleware('auth:asisten');
     // Route::get('/asisten', [AsistenController::class, 'index'])->name('get.asisten')->middleware(['auth:asisten,praktikan', 'can:lihat-asisten']);
     Route::get('/asisten', [AsistenController::class, 'index'])->name('get.asisten')->middleware(['auth:asisten,praktikan', 'permission:lihat-asisten|manage-role']);
     // Route::put('/asisten', [AsistenController::class, 'update'])->name('update.asisten')->middleware(['auth:asisten', 'can:manage-profile']);
@@ -274,14 +279,30 @@ Route::prefix('api-v1')->group(function () {
     Route::put('/nilai/{id}', [NilaiController::class, 'update'])->name('update.nilais')->middleware(['auth:asisten', 'can:nilai-praktikan']);
     Route::get('/nilai', [NilaiController::class, 'show'])->name('show.nilais')->middleware(['auth:praktikan', 'can:lihat-nilai']);
 
-    // // Jawaban TM asisten
-    // Route::get('/jawaban-mandiri/praktikan/{idPraktikan}/modul/{idModul}', [JawabanTMController::class, 'showAsisten'])->name('showAsisten.jawaban.tm')->middleware(['auth:asisten', 'can:nilai-praktikan']);
+    // Jawaban TM asisten
+    Route::get('/jawaban-mandiri/praktikan/{praktikan}/modul/{modul}', [JawabanTMController::class, 'showAsisten'])
+        ->name('showAsisten.jawaban.tm')
+        ->middleware(['auth:asisten', 'can:nilai-praktikan']);
 
-    // // Jawaban Fitb asisten
-    // Route::get('/jawaban-fitb/praktikan/{idPraktikan}/modul/{idModul}', [JawabanFITBController::class, 'showAsisten'])->name('showAsisten.jawaban.fitb')->middleware(['auth:asisten', 'can:nilai-praktikan']);
+    // Jawaban Fitb asisten
+    Route::get('/jawaban-fitb/praktikan/{praktikan}/modul/{modul}', [JawabanFITBController::class, 'showAsisten'])
+        ->name('showAsisten.jawaban.fitb')
+        ->middleware(['auth:asisten', 'can:nilai-praktikan']);
 
-    // // Jawaban Jurnal asisten
-    // Route::get('/jawaban-jurnal/praktikan/{idPraktikan}/modul/{idModul}', [JawabanJurnalController::class, 'showAsisten'])->name('showAsisten.jawaban.jurnal')->middleware(['auth:asisten', 'can:nilai-praktikan']);
+    // Jawaban Jurnal asisten
+    Route::get('/jawaban-jurnal/praktikan/{praktikan}/modul/{modul}', [JawabanJurnalController::class, 'showAsisten'])
+        ->name('showAsisten.jawaban.jurnal')
+        ->middleware(['auth:asisten', 'can:nilai-praktikan']);
+
+    // Jawaban TA asisten
+    Route::get('/jawaban-ta/praktikan/{praktikan}/modul/{modul}', [JawabanTAController::class, 'showAsisten'])
+        ->name('showAsisten.jawaban.ta')
+        ->middleware(['auth:asisten', 'can:nilai-praktikan']);
+
+    // Jawaban TK asisten
+    Route::get('/jawaban-tk/praktikan/{praktikan}/modul/{modul}', [JawabanTKController::class, 'showAsisten'])
+        ->name('showAsisten.jawaban.tk')
+        ->middleware(['auth:asisten', 'can:nilai-praktikan']);
 
     // Jawaban TP asisten
     // Route::get('/jawaban-tp/{nim}/{modulId}', [JawabanTPController::class, 'show'])->name('jawaban-tp.show')->middleware(['auth:asisten', 'can:nilai-praktikan']);
@@ -307,10 +328,12 @@ Route::prefix('api-v1')->group(function () {
     // Jawaban TA
     Route::post('/jawaban-ta', [JawabanTAController::class, 'store'])->name('store.jawaban.ta')->middleware(['auth:praktikan', 'can:praktikum-lms']);
     Route::get('/jawaban-ta/{idModul}', [JawabanTAController::class, 'show'])->name('show.jawaban.ta')->middleware(['auth:praktikan', 'can:lihat-modul']);
+    Route::get('/nilai-ta/{praktikanId}/{modulId}', [JawabanTAController::class, 'score'])->name('praktikan.nilai.ta')->middleware(['auth:praktikan', 'can:lihat-modul']);
 
     // Jawaban TK
     Route::post('/jawaban-tk', [JawabanTKController::class, 'store'])->name('store.jawaban.tk')->middleware(['auth:praktikan', 'can:praktikum-lms']);
     Route::get('/jawaban-tk/{idModul}', [JawabanTKController::class, 'show'])->name('show.jawaban.tk')->middleware(['auth:praktikan', 'can:lihat-modul']);
+    Route::get('/nilai-tk/{praktikanId}/{modulId}', [JawabanTKController::class, 'score'])->name('praktikan.nilai.tk')->middleware(['auth:praktikan', 'can:lihat-modul']);
 
     // Jawaban TM
     Route::post('/jawaban-tm', [JawabanTMController::class, 'store'])->name('store.jawaban.tm')->middleware(['auth:praktikan', 'can:praktikum-lms']);

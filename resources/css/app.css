@@ -25,6 +25,9 @@
         --depth-heading-gradient-end: hsl(46, 90%, 48%);
         --typewriter-cursor-color: hsla(166, 80%, 30%, 0.9);
         --typewriter-icon-color: hsl(166, 80%, 38%);
+    --nav-icon-filter: brightness(0) saturate(100%) invert(53%) sepia(41%) saturate(556%) hue-rotate(94deg) brightness(92%) contrast(95%);
+    --nav-icon-filter-hover: brightness(0) saturate(100%) invert(72%) sepia(46%) saturate(497%) hue-rotate(82deg) brightness(102%) contrast(100%);
+    --nav-icon-filter-active: brightness(0) invert(1);
         --depth-shadow-sm: inset 0 1px 1px #ffffff80, 0 1px 2px #0000001a, 0 2px 4px #0000001a;
         --depth-shadow-md: inset 0 1px 1px #ffffff80, 0 2px 4px #0000001a, 0 4px 8px #0000001a;
         --depth-shadow-lg: inset 0 1px 1px #ffffff80, 0 4px 6px #0000001a, 0 8px 16px #0000001a;
@@ -41,7 +44,7 @@
     [data-theme="dark"] {
         --depth-color-background: hsl(220, 25%, 10%);
         --depth-color-card: hsl(220, 25%, 14%);
-        --depth-color-interactive: hsl(220, 25%, 22%);
+        --depth-color-interactive: hsla(166, 60%, 35%, 0.15);
         --depth-color-primary: #4c7a4c;
         --depth-text-primary: hsl(220, 15%, 95%);
         --depth-text-secondary: hsl(220, 10%, 65%);
@@ -57,6 +60,9 @@
         --depth-heading-gradient-end: hsl(46, 90%, 70%);
         --typewriter-cursor-color: hsla(166, 80%, 88%, 0.9);
         --typewriter-icon-color: hsl(166, 80%, 74%);
+    --nav-icon-filter: brightness(0) saturate(100%) invert(92%) sepia(18%) saturate(622%) hue-rotate(84deg) brightness(118%) contrast(107%);
+    --nav-icon-filter-hover: brightness(0) saturate(100%) invert(100%) sepia(6%) saturate(749%) hue-rotate(87deg) brightness(124%) contrast(108%);
+    --nav-icon-filter-active: brightness(0) invert(1);
         --depth-shadow-sm: inset 0 1px 1px #ffffff1a, 0 1px 2px #0000004d, 0 2px 4px #0000004d;
         --depth-shadow-md: inset 0 1px 1px #ffffff1a, 0 2px 4px #0000004d, 0 4px 8px #0000004d;
         --depth-shadow-lg: inset 0 1px 1px #ffffff1a, 0 4px 6px #0000004d, 0 8px 16px #0000004d;
@@ -290,16 +296,17 @@
     }
 
     .nav-icon-filter {
-        filter: brightness(0) saturate(100%);
+        filter: var(--nav-icon-filter);
+        transition: filter 200ms ease;
     }
 
-    :root[data-theme="dark"] .nav-icon-filter,
-    [data-theme="dark"] .nav-icon-filter {
-        filter: none;
+    .group:hover .nav-icon-filter {
+        filter: var(--nav-icon-filter-hover);
     }
 
-    .nav-icon-filter-active {
-        filter: brightness(0) invert(1);
+    .nav-icon-filter-active,
+    .group:hover .nav-icon-filter-active {
+        filter: var(--nav-icon-filter-active);
     }
 
     .edit-icon-filter {

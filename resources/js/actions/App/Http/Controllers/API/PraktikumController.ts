@@ -1,7 +1,7 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../../../wayfinder'
 /**
 * @see \App\Http\Controllers\API\PraktikumController::index
-* @see app/Http/Controllers/API/PraktikumController.php:17
+* @see app/Http/Controllers/API/PraktikumController.php:24
 * @route '/api-v1/praktikum'
 */
 export const index = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -16,7 +16,7 @@ index.definition = {
 
 /**
 * @see \App\Http\Controllers\API\PraktikumController::index
-* @see app/Http/Controllers/API/PraktikumController.php:17
+* @see app/Http/Controllers/API/PraktikumController.php:24
 * @route '/api-v1/praktikum'
 */
 index.url = (options?: RouteQueryOptions) => {
@@ -25,7 +25,7 @@ index.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\API\PraktikumController::index
-* @see app/Http/Controllers/API/PraktikumController.php:17
+* @see app/Http/Controllers/API/PraktikumController.php:24
 * @route '/api-v1/praktikum'
 */
 index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -35,7 +35,7 @@ index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 
 /**
 * @see \App\Http\Controllers\API\PraktikumController::index
-* @see app/Http/Controllers/API/PraktikumController.php:17
+* @see app/Http/Controllers/API/PraktikumController.php:24
 * @route '/api-v1/praktikum'
 */
 index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -45,7 +45,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
 /**
 * @see \App\Http\Controllers\API\PraktikumController::index
-* @see app/Http/Controllers/API/PraktikumController.php:17
+* @see app/Http/Controllers/API/PraktikumController.php:24
 * @route '/api-v1/praktikum'
 */
 const indexForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -55,7 +55,7 @@ const indexForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => (
 
 /**
 * @see \App\Http\Controllers\API\PraktikumController::index
-* @see app/Http/Controllers/API/PraktikumController.php:17
+* @see app/Http/Controllers/API/PraktikumController.php:24
 * @route '/api-v1/praktikum'
 */
 indexForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -65,7 +65,7 @@ indexForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
 
 /**
 * @see \App\Http\Controllers\API\PraktikumController::index
-* @see app/Http/Controllers/API/PraktikumController.php:17
+* @see app/Http/Controllers/API/PraktikumController.php:24
 * @route '/api-v1/praktikum'
 */
 indexForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -82,7 +82,7 @@ index.form = indexForm
 
 /**
 * @see \App\Http\Controllers\API\PraktikumController::store
-* @see app/Http/Controllers/API/PraktikumController.php:64
+* @see app/Http/Controllers/API/PraktikumController.php:71
 * @route '/api-v1/praktikum'
 */
 export const store = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -97,7 +97,7 @@ store.definition = {
 
 /**
 * @see \App\Http\Controllers\API\PraktikumController::store
-* @see app/Http/Controllers/API/PraktikumController.php:64
+* @see app/Http/Controllers/API/PraktikumController.php:71
 * @route '/api-v1/praktikum'
 */
 store.url = (options?: RouteQueryOptions) => {
@@ -106,7 +106,7 @@ store.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\API\PraktikumController::store
-* @see app/Http/Controllers/API/PraktikumController.php:64
+* @see app/Http/Controllers/API/PraktikumController.php:71
 * @route '/api-v1/praktikum'
 */
 store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -116,7 +116,7 @@ store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
 /**
 * @see \App\Http\Controllers\API\PraktikumController::store
-* @see app/Http/Controllers/API/PraktikumController.php:64
+* @see app/Http/Controllers/API/PraktikumController.php:71
 * @route '/api-v1/praktikum'
 */
 const storeForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -126,7 +126,7 @@ const storeForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => 
 
 /**
 * @see \App\Http\Controllers\API\PraktikumController::store
-* @see app/Http/Controllers/API/PraktikumController.php:64
+* @see app/Http/Controllers/API/PraktikumController.php:71
 * @route '/api-v1/praktikum'
 */
 storeForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -138,7 +138,7 @@ store.form = storeForm
 
 /**
 * @see \App\Http\Controllers\API\PraktikumController::checkPraktikum
-* @see app/Http/Controllers/API/PraktikumController.php:284
+* @see app/Http/Controllers/API/PraktikumController.php:320
 * @route '/api-v1/praktikum/check-praktikum'
 */
 export const checkPraktikum = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -153,7 +153,7 @@ checkPraktikum.definition = {
 
 /**
 * @see \App\Http\Controllers\API\PraktikumController::checkPraktikum
-* @see app/Http/Controllers/API/PraktikumController.php:284
+* @see app/Http/Controllers/API/PraktikumController.php:320
 * @route '/api-v1/praktikum/check-praktikum'
 */
 checkPraktikum.url = (options?: RouteQueryOptions) => {
@@ -162,7 +162,7 @@ checkPraktikum.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\API\PraktikumController::checkPraktikum
-* @see app/Http/Controllers/API/PraktikumController.php:284
+* @see app/Http/Controllers/API/PraktikumController.php:320
 * @route '/api-v1/praktikum/check-praktikum'
 */
 checkPraktikum.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -172,7 +172,7 @@ checkPraktikum.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 
 /**
 * @see \App\Http\Controllers\API\PraktikumController::checkPraktikum
-* @see app/Http/Controllers/API/PraktikumController.php:284
+* @see app/Http/Controllers/API/PraktikumController.php:320
 * @route '/api-v1/praktikum/check-praktikum'
 */
 checkPraktikum.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -182,7 +182,7 @@ checkPraktikum.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => 
 
 /**
 * @see \App\Http\Controllers\API\PraktikumController::checkPraktikum
-* @see app/Http/Controllers/API/PraktikumController.php:284
+* @see app/Http/Controllers/API/PraktikumController.php:320
 * @route '/api-v1/praktikum/check-praktikum'
 */
 const checkPraktikumForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -192,7 +192,7 @@ const checkPraktikumForm = (options?: RouteQueryOptions): RouteFormDefinition<'g
 
 /**
 * @see \App\Http\Controllers\API\PraktikumController::checkPraktikum
-* @see app/Http/Controllers/API/PraktikumController.php:284
+* @see app/Http/Controllers/API/PraktikumController.php:320
 * @route '/api-v1/praktikum/check-praktikum'
 */
 checkPraktikumForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -202,7 +202,7 @@ checkPraktikumForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get
 
 /**
 * @see \App\Http\Controllers\API\PraktikumController::checkPraktikum
-* @see app/Http/Controllers/API/PraktikumController.php:284
+* @see app/Http/Controllers/API/PraktikumController.php:320
 * @route '/api-v1/praktikum/check-praktikum'
 */
 checkPraktikumForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -219,7 +219,7 @@ checkPraktikum.form = checkPraktikumForm
 
 /**
 * @see \App\Http\Controllers\API\PraktikumController::history
-* @see app/Http/Controllers/API/PraktikumController.php:324
+* @see app/Http/Controllers/API/PraktikumController.php:360
 * @route '/api-v1/praktikum/history'
 */
 export const history = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -234,7 +234,7 @@ history.definition = {
 
 /**
 * @see \App\Http\Controllers\API\PraktikumController::history
-* @see app/Http/Controllers/API/PraktikumController.php:324
+* @see app/Http/Controllers/API/PraktikumController.php:360
 * @route '/api-v1/praktikum/history'
 */
 history.url = (options?: RouteQueryOptions) => {
@@ -243,7 +243,7 @@ history.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\API\PraktikumController::history
-* @see app/Http/Controllers/API/PraktikumController.php:324
+* @see app/Http/Controllers/API/PraktikumController.php:360
 * @route '/api-v1/praktikum/history'
 */
 history.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -253,7 +253,7 @@ history.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 
 /**
 * @see \App\Http\Controllers\API\PraktikumController::history
-* @see app/Http/Controllers/API/PraktikumController.php:324
+* @see app/Http/Controllers/API/PraktikumController.php:360
 * @route '/api-v1/praktikum/history'
 */
 history.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -263,7 +263,7 @@ history.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
 /**
 * @see \App\Http\Controllers\API\PraktikumController::history
-* @see app/Http/Controllers/API/PraktikumController.php:324
+* @see app/Http/Controllers/API/PraktikumController.php:360
 * @route '/api-v1/praktikum/history'
 */
 const historyForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -273,7 +273,7 @@ const historyForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> =>
 
 /**
 * @see \App\Http\Controllers\API\PraktikumController::history
-* @see app/Http/Controllers/API/PraktikumController.php:324
+* @see app/Http/Controllers/API/PraktikumController.php:360
 * @route '/api-v1/praktikum/history'
 */
 historyForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -283,7 +283,7 @@ historyForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => (
 
 /**
 * @see \App\Http\Controllers\API\PraktikumController::history
-* @see app/Http/Controllers/API/PraktikumController.php:324
+* @see app/Http/Controllers/API/PraktikumController.php:360
 * @route '/api-v1/praktikum/history'
 */
 historyForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -300,7 +300,7 @@ history.form = historyForm
 
 /**
 * @see \App\Http\Controllers\API\PraktikumController::show
-* @see app/Http/Controllers/API/PraktikumController.php:42
+* @see app/Http/Controllers/API/PraktikumController.php:49
 * @route '/api-v1/praktikum/{idKelas}'
 */
 export const show = (args: { idKelas: string | number } | [idKelas: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -315,7 +315,7 @@ show.definition = {
 
 /**
 * @see \App\Http\Controllers\API\PraktikumController::show
-* @see app/Http/Controllers/API/PraktikumController.php:42
+* @see app/Http/Controllers/API/PraktikumController.php:49
 * @route '/api-v1/praktikum/{idKelas}'
 */
 show.url = (args: { idKelas: string | number } | [idKelas: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -342,7 +342,7 @@ show.url = (args: { idKelas: string | number } | [idKelas: string | number ] | s
 
 /**
 * @see \App\Http\Controllers\API\PraktikumController::show
-* @see app/Http/Controllers/API/PraktikumController.php:42
+* @see app/Http/Controllers/API/PraktikumController.php:49
 * @route '/api-v1/praktikum/{idKelas}'
 */
 show.get = (args: { idKelas: string | number } | [idKelas: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -352,7 +352,7 @@ show.get = (args: { idKelas: string | number } | [idKelas: string | number ] | s
 
 /**
 * @see \App\Http\Controllers\API\PraktikumController::show
-* @see app/Http/Controllers/API/PraktikumController.php:42
+* @see app/Http/Controllers/API/PraktikumController.php:49
 * @route '/api-v1/praktikum/{idKelas}'
 */
 show.head = (args: { idKelas: string | number } | [idKelas: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -362,7 +362,7 @@ show.head = (args: { idKelas: string | number } | [idKelas: string | number ] | 
 
 /**
 * @see \App\Http\Controllers\API\PraktikumController::show
-* @see app/Http/Controllers/API/PraktikumController.php:42
+* @see app/Http/Controllers/API/PraktikumController.php:49
 * @route '/api-v1/praktikum/{idKelas}'
 */
 const showForm = (args: { idKelas: string | number } | [idKelas: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -372,7 +372,7 @@ const showForm = (args: { idKelas: string | number } | [idKelas: string | number
 
 /**
 * @see \App\Http\Controllers\API\PraktikumController::show
-* @see app/Http/Controllers/API/PraktikumController.php:42
+* @see app/Http/Controllers/API/PraktikumController.php:49
 * @route '/api-v1/praktikum/{idKelas}'
 */
 showForm.get = (args: { idKelas: string | number } | [idKelas: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -382,7 +382,7 @@ showForm.get = (args: { idKelas: string | number } | [idKelas: string | number ]
 
 /**
 * @see \App\Http\Controllers\API\PraktikumController::show
-* @see app/Http/Controllers/API/PraktikumController.php:42
+* @see app/Http/Controllers/API/PraktikumController.php:49
 * @route '/api-v1/praktikum/{idKelas}'
 */
 showForm.head = (args: { idKelas: string | number } | [idKelas: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -399,7 +399,7 @@ show.form = showForm
 
 /**
 * @see \App\Http\Controllers\API\PraktikumController::update
-* @see app/Http/Controllers/API/PraktikumController.php:99
+* @see app/Http/Controllers/API/PraktikumController.php:106
 * @route '/api-v1/praktikum/{id}'
 */
 export const update = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
@@ -414,7 +414,7 @@ update.definition = {
 
 /**
 * @see \App\Http\Controllers\API\PraktikumController::update
-* @see app/Http/Controllers/API/PraktikumController.php:99
+* @see app/Http/Controllers/API/PraktikumController.php:106
 * @route '/api-v1/praktikum/{id}'
 */
 update.url = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -441,7 +441,7 @@ update.url = (args: { id: string | number } | [id: string | number ] | string | 
 
 /**
 * @see \App\Http\Controllers\API\PraktikumController::update
-* @see app/Http/Controllers/API/PraktikumController.php:99
+* @see app/Http/Controllers/API/PraktikumController.php:106
 * @route '/api-v1/praktikum/{id}'
 */
 update.put = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
@@ -451,7 +451,7 @@ update.put = (args: { id: string | number } | [id: string | number ] | string | 
 
 /**
 * @see \App\Http\Controllers\API\PraktikumController::update
-* @see app/Http/Controllers/API/PraktikumController.php:99
+* @see app/Http/Controllers/API/PraktikumController.php:106
 * @route '/api-v1/praktikum/{id}'
 */
 const updateForm = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -466,7 +466,7 @@ const updateForm = (args: { id: string | number } | [id: string | number ] | str
 
 /**
 * @see \App\Http\Controllers\API\PraktikumController::update
-* @see app/Http/Controllers/API/PraktikumController.php:99
+* @see app/Http/Controllers/API/PraktikumController.php:106
 * @route '/api-v1/praktikum/{id}'
 */
 updateForm.put = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({

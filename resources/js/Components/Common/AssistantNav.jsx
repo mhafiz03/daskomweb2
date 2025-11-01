@@ -20,6 +20,7 @@ import roleIcon from "../../..//assets/nav/Icon-Piket.svg";
 import praktikanIcon from "../../..//assets/nav/Icon-Praktikan.svg";
 import pelanggaranIcon from "../../..//assets/nav/Icon-Pelanggaran.svg";
 import announcementIcon from "../../..//assets/nav/Icon-Annoucement.svg";
+import auditIcon from "../../..//assets/nav/Icon-Audit.svg";
 import changePassIcon from "../../..//assets/nav/Icon-GantiPassword.svg";
 import logoutIcon from "../../..//assets/nav/Icon-Logout.svg";
 import jawabanTP from "../../..//assets/nav/Icon-Rating.svg";
@@ -219,6 +220,16 @@ export default function AssisstantNav({ asisten, permission_name = [], roleName 
             paths: ["/manage-role"],
         },
         {
+            id: "audit-logs",
+            permission: "manage-role",
+            allowedRoles: adminRoles,
+            href: "/audit-logs",
+            label: "Audit Logs",
+            icon: auditIcon,
+            components: ["Assistants/AuditLogs"],
+            paths: ["/audit-logs"],
+        },
+        {
             id: "check-tugas-pendahuluan",
             permission: "check-tugas-pendahuluan",
             href: "/lihat-tp",
@@ -342,7 +353,7 @@ export default function AssisstantNav({ asisten, permission_name = [], roleName 
                             )}
                         </ul>
 
-                        <ul className={`mt-auto flex flex-col gap-1 py-2 ${isCollapsed ? "px-1" : "px-4"}`}>
+                        <ul className={`mt-auto flex flex-col gap-1 py-8 ${isCollapsed ? "px-1" : "px-4"}`}>
                             {/* Bagian Pengaturan dan Logout */}
                             {canAccess("lms-configuration", adminRoles) && (
                                 <li id="config">

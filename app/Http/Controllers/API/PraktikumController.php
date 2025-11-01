@@ -12,7 +12,14 @@ use Illuminate\Support\Facades\Auth;
 
 class PraktikumController extends Controller
 {
-    private const PHASE_SEQUENCE = ['preparation', 'ta', 'fitb_jurnal', 'mandiri', 'tk'];
+    private const PHASE_SEQUENCE = [
+        'preparation',
+        'ta',
+        'fitb_jurnal',
+        'mandiri',
+        'tk',
+        'feedback',
+    ];
 
     public function index(Request $request): JsonResponse
     {
@@ -140,7 +147,7 @@ class PraktikumController extends Controller
                     $this->handleResume($praktikum, $now);
                     break;
                 case 'next':
-                    $this->handleNext($praktikum, $now);
+                    $this->handleNext($praktikum, $phase, $now);
                     break;
                 case 'exit':
                     $this->handleExit($praktikum, $now);
@@ -225,31 +232,60 @@ class PraktikumController extends Controller
         $praktikum->save();
     }
 
-    private function handleNext(Praktikum $praktikum, Carbon $now): void
+    private function handleNext(Praktikum $praktikum, ?string $phase, Carbon $now): void
     {
-        $currentPhase = $praktikum->current_phase ?? self::PHASE_SEQUENCE[0];
-        $currentIndex = array_search($currentPhase, self::PHASE_SEQUENCE, true);
+        // If phase is explicitly provided, use it (for frontend control)
+        if ($phase !== null) {
+            $nextIndex = array_search($phase, self::PHASE_SEQUENCE, true);
 
-        if ($currentIndex === false) {
-            throw new \InvalidArgumentException('Current phase is invalid.');
-        }
-
-        $isLastPhase = $currentIndex === count(self::PHASE_SEQUENCE) - 1;
-
-        if ($isLastPhase) {
-            $praktikum->status = 'completed';
-            $praktikum->isActive = false;
-            $praktikum->ended_at = $now;
-        } else {
-            $praktikum->current_phase = self::PHASE_SEQUENCE[$currentIndex + 1];
-            $praktikum->status = 'running';
-            $praktikum->isActive = true;
-            if ($praktikum->started_at) {
-                $reference = $praktikum->ended_at ?? $now;
-                $elapsed = max(0, $praktikum->started_at->diffInSeconds($reference));
-                $praktikum->started_at = $now->copy()->subSeconds($elapsed);
+            if ($nextIndex === false) {
+                throw new \InvalidArgumentException('Invalid phase provided.');
             }
-            $praktikum->ended_at = null;
+
+            $isLastPhase = $nextIndex === count(self::PHASE_SEQUENCE) - 1;
+
+            if ($isLastPhase) {
+                $praktikum->status = 'completed';
+                $praktikum->isActive = false;
+                $praktikum->ended_at = $now;
+                $praktikum->current_phase = $phase;
+            } else {
+                $praktikum->current_phase = $phase;
+                $praktikum->status = 'running';
+                $praktikum->isActive = true;
+                if ($praktikum->started_at) {
+                    $reference = $praktikum->ended_at ?? $now;
+                    $elapsed = max(0, $praktikum->started_at->diffInSeconds($reference));
+                    $praktikum->started_at = $now->copy()->subSeconds($elapsed);
+                }
+                $praktikum->ended_at = null;
+            }
+        } else {
+            // Fallback to auto-calculating next phase
+            $currentPhase = $praktikum->current_phase ?? self::PHASE_SEQUENCE[0];
+            $currentIndex = array_search($currentPhase, self::PHASE_SEQUENCE, true);
+
+            if ($currentIndex === false) {
+                throw new \InvalidArgumentException('Current phase is invalid.');
+            }
+
+            $isLastPhase = $currentIndex === count(self::PHASE_SEQUENCE) - 1;
+
+            if ($isLastPhase) {
+                $praktikum->status = 'completed';
+                $praktikum->isActive = false;
+                $praktikum->ended_at = $now;
+            } else {
+                $praktikum->current_phase = self::PHASE_SEQUENCE[$currentIndex + 1];
+                $praktikum->status = 'running';
+                $praktikum->isActive = true;
+                if ($praktikum->started_at) {
+                    $reference = $praktikum->ended_at ?? $now;
+                    $elapsed = max(0, $praktikum->started_at->diffInSeconds($reference));
+                    $praktikum->started_at = $now->copy()->subSeconds($elapsed);
+                }
+                $praktikum->ended_at = null;
+            }
         }
 
         $praktikum->save();

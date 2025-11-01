@@ -17,12 +17,12 @@ import SoalTKController from './SoalTKController'
 import TugasPendahuluanController from './TugasPendahuluanController'
 import LeaderBoardController from './LeaderBoardController'
 import NilaiController from './NilaiController'
-import JawabanTPController from './JawabanTPController'
-import JawabanTAController from './JawabanTAController'
-import JawabanTKController from './JawabanTKController'
 import JawabanTMController from './JawabanTMController'
 import JawabanFITBController from './JawabanFITBController'
 import JawabanJurnalController from './JawabanJurnalController'
+import JawabanTAController from './JawabanTAController'
+import JawabanTKController from './JawabanTKController'
+import JawabanTPController from './JawabanTPController'
 
 const API = {
     AsistenController: Object.assign(AsistenController, AsistenController),
@@ -44,12 +44,12 @@ const API = {
     TugasPendahuluanController: Object.assign(TugasPendahuluanController, TugasPendahuluanController),
     LeaderBoardController: Object.assign(LeaderBoardController, LeaderBoardController),
     NilaiController: Object.assign(NilaiController, NilaiController),
-    JawabanTPController: Object.assign(JawabanTPController, JawabanTPController),
-    JawabanTAController: Object.assign(JawabanTAController, JawabanTAController),
-    JawabanTKController: Object.assign(JawabanTKController, JawabanTKController),
     JawabanTMController: Object.assign(JawabanTMController, JawabanTMController),
     JawabanFITBController: Object.assign(JawabanFITBController, JawabanFITBController),
     JawabanJurnalController: Object.assign(JawabanJurnalController, JawabanJurnalController),
+    JawabanTAController: Object.assign(JawabanTAController, JawabanTAController),
+    JawabanTKController: Object.assign(JawabanTKController, JawabanTKController),
+    JawabanTPController: Object.assign(JawabanTPController, JawabanTPController),
 }
 
 export default API

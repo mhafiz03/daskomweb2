@@ -28,6 +28,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'check.permission' => \App\Http\Middleware\CheckPermission::class,
             'check.auth' => \App\Http\Middleware\RedirectIfAuthenticated::class,
             'auth.broadcasting' => \App\Http\Middleware\AuthenticateBroadcasting::class,
+            'audit.assistant' => \App\Http\Middleware\LogAssistantAction::class,
         ]);
         $middleware->web(append: [
             \App\Http\Middleware\HandleInertiaRequests::class,

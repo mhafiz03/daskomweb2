@@ -14,6 +14,7 @@ const PHASE_SEQUENCE = [
     { key: "fitb_jurnal", label: "FITB + Jurnal" },
     { key: "mandiri", label: "Mandiri" },
     { key: "tk", label: "TK" },
+    { key: "feedback", label: "Feedback" },
 ];
 
 const STATUS_LABELS = {
@@ -82,6 +83,8 @@ export default function ContentPraktikum() {
     const [reportText, setReportText] = useState("");
     const [pendingAction, setPendingAction] = useState(null);
     const [onlinePraktikan, setOnlinePraktikan] = useState(new Set());
+    const [isPraktikanExpanded, setIsPraktikanExpanded] = useState(false);
+    const [isAsistenExpanded, setIsAsistenExpanded] = useState(false);
 
     const queryClient = useQueryClient();
 
@@ -549,6 +552,16 @@ export default function ContentPraktikum() {
                 payload.phase = PHASE_SEQUENCE[0]?.key ?? "ta";
             }
 
+            const praktikumIdentifier = payload.praktikumId ?? selectedPraktikumId ?? null;
+            if (payload.phase) {
+                console.log(`[${new Date().toISOString()}] Changing praktikum phase`, {
+                    praktikumId: praktikumIdentifier,
+                    action,
+                    fromPhase: effectiveSession?.current_phase ?? null,
+                    toPhase: payload.phase,
+                });
+            }
+
             if (!selectedPraktikumId && action === "start") {
                 createPraktikumMutation.mutate(undefined, {
                     onSuccess: (praktikum) => {
@@ -576,6 +589,7 @@ export default function ContentPraktikum() {
         [
             hasSelection,
             selectedPraktikumId,
+            effectiveSession,
             createPraktikumMutation,
             praktikumMutation,
         ]
@@ -617,44 +631,8 @@ export default function ContentPraktikum() {
     );
     const showReportForm = isCompleted && !reportSubmitted;
     const showReportPreview = isCompleted && reportSubmitted;
-    const showControls = !isCompleted;
+    const showControls = true; // Always show controls
     const isSubmittingReport = pendingAction === "report" && praktikumMutation.isPending;
-
-    const startDisabled =
-        !showControls ||
-        !hasSelection ||
-        isRunning ||
-        praktikumMutation.isPending ||
-        createPraktikumMutation.isPending;
-    const pauseDisabled =
-        !showControls || !hasSession || !isRunning || praktikumMutation.isPending;
-    const resumeDisabled =
-        !showControls || !hasSession || !isPaused || praktikumMutation.isPending;
-    const nextDisabled =
-        !showControls ||
-        !hasSession ||
-        praktikumMutation.isPending ||
-        effectiveSession?.status === "idle" ||
-        isTerminal;
-    const exitDisabled =
-        !showControls ||
-        !hasSession ||
-        !(isRunning || isPaused) ||
-        praktikumMutation.isPending;
-
-    const reportSubmitDisabled =
-        reportText.trim().length < 3 ||
-        praktikumMutation.isPending ||
-        createPraktikumMutation.isPending;
-    const reportSubmittedAt = formatTimestamp(effectiveSession?.report_submitted_at);
-    const startedAtDisplay = formatTimestamp(effectiveSession?.started_at);
-    const endedAtDisplay = formatTimestamp(effectiveSession?.ended_at);
-    const pjData = effectiveSession?.pj ?? null;
-    const reportOwnerDisplay = pjData
-        ? [pjData.nama, pjData.kode].filter(Boolean).join(" • ") || `Asisten #${pjData.id}`
-        : effectiveSession?.pj_id
-            ? `Asisten #${effectiveSession.pj_id}`
-            : "-";
 
     const startLabel = isTerminal && !isCompleted ? "Restart" : "Start";
     const statusLabel =
@@ -675,6 +653,39 @@ export default function ContentPraktikum() {
 
         return index;
     }, [effectiveSession]);
+
+    const startDisabled =
+        !hasSelection ||
+        praktikumMutation.isPending ||
+        createPraktikumMutation.isPending;
+    const pauseDisabled =
+        !hasSession || !isRunning || praktikumMutation.isPending;
+    const resumeDisabled =
+        !hasSession || !isPaused || praktikumMutation.isPending;
+    const nextDisabled =
+        !hasSession ||
+        praktikumMutation.isPending ||
+        effectiveSession?.status === "idle" ||
+        isTerminal ||
+        currentPhaseIndex >= PHASE_SEQUENCE.length - 1; // Disable at last phase
+    const exitDisabled =
+        !hasSession ||
+        !(isRunning || isPaused) ||
+        praktikumMutation.isPending;
+
+    const reportSubmitDisabled =
+        reportText.trim().length < 3 ||
+        praktikumMutation.isPending ||
+        createPraktikumMutation.isPending;
+    const reportSubmittedAt = formatTimestamp(effectiveSession?.report_submitted_at);
+    const startedAtDisplay = formatTimestamp(effectiveSession?.started_at);
+    const endedAtDisplay = formatTimestamp(effectiveSession?.ended_at);
+    const pjData = effectiveSession?.pj ?? null;
+    const reportOwnerDisplay = pjData
+        ? [pjData.nama, pjData.kode].filter(Boolean).join(" • ") || `Asisten #${pjData.id}`
+        : effectiveSession?.pj_id
+            ? `Asisten #${effectiveSession.pj_id}`
+            : "-";
 
     const currentPhaseLabel = effectiveSession?.current_phase
         ? PHASE_SEQUENCE.find((phase) => phase.key === effectiveSession.current_phase)?.label ??
@@ -823,286 +834,385 @@ export default function ContentPraktikum() {
                     )}
 
                     <div className="mt-6">
-                        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                            <div className="rounded-depth-lg border border-depth bg-depth-card p-4 shadow-depth-md">
-                                <h3 className="mb-2 text-lg font-semibold text-depth-primary">Asisten Jaga</h3>
+                        <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+                            <div className="glass-surface rounded-depth-lg p-3 shadow-depth-md">
+                                <div 
+                                    className="mb-2 flex cursor-pointer items-center gap-2 text-sm font-semibold text-depth-primary transition-colors hover:text-depth-primary/80"
+                                    onClick={() => setIsAsistenExpanded(!isAsistenExpanded)}
+                                >
+                                    <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                                    </svg>
+                                    Asisten Jaga
+                                    {selectedKelas && asistenJagaList.length > 0 && (
+                                        <span className="ml-auto rounded-full bg-depth-primary/10 px-2 py-0.5 text-xs font-medium text-depth-primary">
+                                            {asistenJagaList.length}
+                                        </span>
+                                    )}
+                                    <svg 
+                                        className={`ml-2 h-4 w-4 transition-transform ${isAsistenExpanded ? 'rotate-180' : ''}`} 
+                                        fill="none" 
+                                        viewBox="0 0 24 24" 
+                                        stroke="currentColor"
+                                    >
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                    </svg>
+                                </div>
                                 {jadwalLoading ? (
-                                    <p className="text-sm text-gray-500">Memuat daftar asisten...</p>
+                                    <p className="text-xs text-gray-500">Memuat daftar asisten...</p>
                                 ) : asistenJagaList.length > 0 ? (
-                                    <ul className="space-y-2 max-h-60 overflow-y-auto pr-1">
-                                        {asistenJagaList.map((item, idx) => {
-                                            const asistenDetail = item?.asisten ?? asistenMap.get(Number(item?.asisten_id));
-                                            const key = item?.id ?? `${item?.asisten_id ?? asistenDetail?.id ?? "asisten"}-${idx}`;
-
-                                            return (
-                                                <li
-                                                    key={key}
-                                                    className="flex items-center justify-between rounded-depth-md border border-depth px-3 py-2 text-sm text-depth-primary shadow-depth-sm"
-                                                >
-                                                    <span className="font-semibold">{asistenDetail?.kode ?? item?.kode ?? "Kode tidak tersedia"}</span>
-                                                    <span className="text-right text-depth-secondary">{asistenDetail?.nama ?? item?.nama ?? "Nama tidak tersedia"}</span>
-                                                </li>
-                                            );
-                                        })}
-                                    </ul>
-                                ) : selectedKelas ? (
-                                    <p className="text-sm text-gray-500">Belum ada asisten jaga untuk kelas ini.</p>
-                                ) : (
-                                    <p className="text-sm text-gray-500">Pilih kelas untuk melihat daftar asisten.</p>
-                                )}
-                            </div>
-                            <div className="rounded-depth-lg border border-depth bg-depth-card p-4 shadow-depth-md">
-                                <h3 className="mb-2 text-lg font-semibold text-depth-primary">Praktikan</h3>
-                                {selectedKelas ? (
-                                    praktikanList.length > 0 ? (
-                                        <ul className="space-y-2 max-h-60 overflow-y-auto pr-1">
-                                            {praktikanList.map((praktikan) => {
-                                                const isOnline = onlinePraktikan.has(praktikan?.id);
+                                    isAsistenExpanded && (
+                                        <div className="flex gap-2 overflow-x-auto pb-2">
+                                            {asistenJagaList.map((item, idx) => {
+                                                const asistenDetail = item?.asisten ?? asistenMap.get(Number(item?.asisten_id));
+                                                const key = item?.id ?? `${item?.asisten_id ?? asistenDetail?.id ?? "asisten"}-${idx}`;
 
                                                 return (
-                                                    <li
-                                                        key={praktikan?.id ?? praktikan?.nim}
-                                                        className="flex items-center justify-between rounded-depth-md border border-depth px-3 py-2 text-sm text-depth-primary shadow-depth-sm"
+                                                    <div
+                                                        key={key}
+                                                        className="flex-shrink-0 rounded-depth-md border border-depth bg-depth-card/50 px-3 py-2 text-xs font-semibold shadow-depth-sm transition-all hover:shadow-depth-md"
                                                     >
-                                                        <div className="flex items-center gap-2">
-                                                            <div className="relative">
-                                                                {isOnline && (
-                                                                    <span className="absolute -left-2 top-1/2 -translate-y-1/2 flex h-2.5 w-2.5">
-                                                                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                                                                        <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-green-500"></span>
-                                                                    </span>
-                                                                )}
-                                                            </div>
-                                                            <span className="font-semibold">{praktikan?.nim ?? "NIM tidak tersedia"}</span>
-                                                        </div>
-                                                        <span className="ml-3 text-right text-depth-secondary">{praktikan?.nama ?? praktikan?.name ?? "Nama tidak tersedia"}</span>
-                                                    </li>
+                                                        {asistenDetail?.kode ?? item?.kode ?? "N/A"}
+                                                    </div>
                                                 );
                                             })}
-                                        </ul>
+                                        </div>
+                                    )
+                                ) : selectedKelas ? (
+                                    <p className="text-xs text-gray-500">Belum ada asisten jaga untuk kelas ini.</p>
+                                ) : (
+                                    <p className="text-xs text-gray-500">Pilih kelas untuk melihat daftar asisten.</p>
+                                )}
+                            </div>
+                            <div className="glass-surface rounded-depth-lg p-3 shadow-depth-md">
+                                <div 
+                                    className="mb-2 flex cursor-pointer items-center gap-2 text-sm font-semibold text-depth-primary transition-colors hover:text-depth-primary/80"
+                                    onClick={() => setIsPraktikanExpanded(!isPraktikanExpanded)}
+                                >
+                                    <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                                    </svg>
+                                    Praktikan
+                                    {selectedKelas && praktikanList.length > 0 && (
+                                        <span className="ml-auto flex items-center gap-1.5 rounded-full bg-depth-primary/10 px-2 py-0.5 text-xs font-medium text-depth-primary">
+                                            {onlinePraktikan.size > 0 && (
+                                                <span className="flex h-2 w-2">
+                                                    <span className="absolute inline-flex h-2 w-2 animate-ping rounded-full bg-green-400 opacity-75"></span>
+                                                    <span className="relative inline-flex h-2 w-2 rounded-full bg-green-500"></span>
+                                                </span>
+                                            )}
+                                            {onlinePraktikan.size}/{praktikanList.length}
+                                        </span>
+                                    )}
+                                    <svg 
+                                        className={`ml-2 h-4 w-4 transition-transform ${isPraktikanExpanded ? 'rotate-180' : ''}`} 
+                                        fill="none" 
+                                        viewBox="0 0 24 24" 
+                                        stroke="currentColor"
+                                    >
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                    </svg>
+                                </div>
+                                {selectedKelas ? (
+                                    praktikanList.length > 0 ? (
+                                        isPraktikanExpanded && (
+                                            <div className="grid grid-cols-2 gap-2 max-h-48 overflow-y-auto pr-1">
+                                                {praktikanList.map((praktikan) => {
+                                                    const isOnline = onlinePraktikan.has(praktikan?.id);
+
+                                                    return (
+                                                        <div
+                                                            key={praktikan?.id ?? praktikan?.nim}
+                                                            className="relative rounded-depth-md border border-depth bg-depth-card/50 px-2 py-1.5 text-xs shadow-depth-sm transition-all hover:shadow-depth-md"
+                                                        >
+                                                            {isOnline && (
+                                                                <div className="absolute -right-1 -top-1 flex h-3 w-3">
+                                                                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-400 opacity-75"></span>
+                                                                    <span className="relative inline-flex h-3 w-3 rounded-full bg-green-500 ring-2 ring-white dark:ring-gray-800"></span>
+                                                                </div>
+                                                            )}
+                                                            <div className="font-semibold text-depth-primary">{praktikan?.nim ?? "NIM N/A"}</div>
+                                                            <div className="truncate text-depth-secondary">{praktikan?.nama ?? praktikan?.name ?? "Tidak tersedia"}</div>
+                                                        </div>
+                                                    );
+                                                })}
+                                            </div>
+                                        )
                                     ) : (
-                                        <p className="text-sm text-gray-500">Belum ada data praktikan untuk kelas ini.</p>
+                                        <p className="text-xs text-gray-500">Belum ada data praktikan untuk kelas ini.</p>
                                     )
                                 ) : (
-                                    <p className="text-sm text-gray-500">Pilih kelas untuk melihat daftar praktikan.</p>
+                                    <p className="text-xs text-gray-500">Pilih kelas untuk melihat daftar praktikan.</p>
                                 )}
                             </div>
                         </div>
                     </div>
 
-                    <div className="mt-10 flex flex-col items-center gap-6">
-                        <div className="w-full rounded-depth-lg border border-depth bg-depth-card p-6 shadow-depth-lg lg:w-3/4 xl:w-2/3">
-                            <div className="flex flex-wrap justify-between gap-6">
-                                <div>
-                                    <p className="text-sm text-depth-secondary">Kelas</p>
-                                    <p className="text-lg font-semibold text-depth-primary">
-                                        {selectedKelasData?.kelas ?? "-"}
-                                    </p>
-                                </div>
-                                <div>
-                                    <p className="text-sm text-depth-secondary">Modul</p>
-                                    <p className="text-lg font-semibold text-depth-primary">
-                                        {selectedModulData?.judul ?? "-"}
-                                    </p>
-                                </div>
-                                <div>
-                                    <p className="text-sm text-depth-secondary">Status</p>
-                                    <p className="text-lg font-semibold text-depth-primary">{statusLabel}</p>
-                                </div>
-                                <div>
-                                    <p className="text-sm text-depth-secondary">Tahap Saat Ini</p>
-                                    <p className="text-lg font-semibold text-depth-primary">
-                                        {currentPhaseLabel}
-                                    </p>
-                                </div>
-                                <div>
-                                    <p className="text-sm text-depth-secondary">Laporan</p>
-                                    <p className="text-lg font-semibold text-depth-primary">
-                                        {reportSubmitted
-                                            ? "Sudah dikirim"
-                                            : isCompleted
-                                                ? "Menunggu laporan"
-                                                : "-"}
-                                    </p>
-                                </div>
-                                <div>
-                                    <p className="text-sm text-depth-secondary">PJ Laporan</p>
-                                    <p className="text-lg font-semibold text-depth-primary">
-                                        {reportSubmitted ? reportOwnerDisplay : "-"}
-                                    </p>
-                                </div>
-                            </div>
-
-                            <div className="mt-6 flex flex-col items-center gap-2">
-                                <span className="text-sm uppercase tracking-wide text-depth-secondary">
-                                    Timer
-                                </span>
-                                <span className="text-4xl font-bold text-depth-primary">
-                                    {formatDuration(displaySeconds)}
-                                </span>
-                            </div>
-
-                            <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
-                                {PHASE_SEQUENCE.map((phase, index) => {
-                                    const isActiveStage =
-                                        effectiveSession &&
-                                        effectiveSession.status !== "idle" &&
-                                        !isTerminal &&
-                                        index === currentPhaseIndex;
-
-                                    const isCompletedStage = effectiveSession
-                                        ? index < currentPhaseIndex ||
-                                        (isTerminal && index === currentPhaseIndex)
-                                        : false;
-
-                                    const baseClass =
-                                        "rounded-depth-md border border-depth px-4 py-2 text-sm font-semibold transition";
-                                    const className = isActiveStage
-                                        ? "bg-[var(--depth-color-primary)] text-white border-transparent shadow-depth-md"
-                                        : isCompletedStage
-                                            ? "bg-depth-interactive text-depth-primary"
-                                            : "bg-depth-card text-depth-secondary";
-
-                                    return (
-                                        <div key={phase.key} className="flex items-center gap-2">
-                                            <span className={`${baseClass} ${className}`}>
-                                                {phase.label}
-                                            </span>
-                                            {index < PHASE_SEQUENCE.length - 1 && (
-                                                <span className="text-sm text-depth-secondary">→</span>
-                                            )}
-                                        </div>
-                                    );
-                                })}
-                            </div>
-
-                            {showReportForm && (
-                                <div className="mt-8 w-full">
-                                    <label
-                                        htmlFor="laporan_praktikum"
-                                        className="mb-2 block text-sm font-semibold text-depth-primary"
-                                    >
-                                        Laporan Praktikum
-                                    </label>
-                                    <textarea
-                                        id="laporan_praktikum"
-                                        value={reportText}
-                                        onChange={(e) => setReportText(e.target.value)}
-                                        rows={6}
-                                        className="w-full rounded-depth-lg border border-depth bg-depth-card p-3 text-sm text-depth-primary shadow-depth-inset transition focus:border-[var(--depth-color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)] focus:ring-offset-0"
-                                        placeholder="Catat ringkasan jalannya praktikum, kendala, dan catatan penting lainnya..."
-                                    />
-                                    <p className="mt-2 text-xs text-depth-secondary">
-                                        Catatan: PJ yang terdaftar akan otomatis mengikuti akun asisten yang mengirim laporan.
-                                    </p>
-                                    <div className="flex justify-end gap-3 mt-4">
-                                        <button
-                                            type="button"
-                                            onClick={handleSubmitReport}
-                                            disabled={reportSubmitDisabled}
-                                            title={
-                                                reportSubmitDisabled
-                                                    ? "Minimal 3 karakter sebelum mengirim."
-                                                    : undefined
-                                            }
-                                            className={`rounded-depth-md px-5 py-2 font-semibold text-white shadow-depth-sm transition ${
-                                                reportSubmitDisabled
-                                                    ? "cursor-not-allowed bg-gray-500/50"
-                                                    : "bg-[var(--depth-color-primary)] hover:-translate-y-0.5 hover:shadow-depth-md"
-                                            }`}
-                                        >
-                                            {isSubmittingReport ? "Mengirim..." : "Kirim Laporan"}
-                                        </button>
-                                    </div>
-                                </div>
-                            )}
-
-                            {showReportPreview && (
-                                <div className="mt-8 w-full rounded-depth-lg border border-depth bg-depth-card p-4 text-depth-primary shadow-depth-md">
-                                    <div className="flex flex-wrap justify-between gap-3 text-sm text-depth-secondary">
-                                        <span>Laporan dikirim: {reportSubmittedAt ?? "-"}</span>
-                                        <span>Mulai: {startedAtDisplay ?? "-"}</span>
-                                        <span>Selesai: {endedAtDisplay ?? "-"}</span>
-                                        <span>PJ: {reportOwnerDisplay}</span>
-                                    </div>
-                                    <hr className="my-3 border-[color:var(--depth-border)]" />
-                                    <div className="whitespace-pre-wrap text-base leading-relaxed text-depth-primary">
-                                        {effectiveSession?.report_notes}
-                                    </div>
-                                </div>
-                            )}
-
-                            {praktikumLoading && hasSelection && (
-                                <p className="mt-6 text-center text-sm text-depth-secondary">
-                                    Memuat status praktikum...
-                                </p>
-                            )}
-                        </div>
-
+                    <div className="mt-10 flex flex-col gap-6 lg:flex-row lg:items-stretch">
+                        {/* Control Panel - Left Side */}
                         {showControls && (
-                            <div className="flex flex-wrap justify-center gap-3">
-                                <button
-                                    type="button"
-                                    onClick={() => handleAction("start")}
-                                    disabled={startDisabled}
-                                    className={`rounded-depth-md px-6 py-2 font-semibold text-white shadow-depth-sm transition ${
-                                        startDisabled
-                                            ? "cursor-not-allowed bg-gray-500/50"
-                                            : "bg-[var(--depth-color-primary)] hover:-translate-y-0.5 hover:shadow-depth-md"
-                                    }`}
-                                >
-                                    {startLabel}
-                                </button>
-                                <button
-                                    type="button"
-                                    onClick={() => handleAction("pause")}
-                                    disabled={pauseDisabled}
-                                    className={`rounded-depth-md px-6 py-2 font-semibold text-white shadow-depth-sm transition ${
-                                        pauseDisabled
-                                            ? "cursor-not-allowed bg-gray-500/50"
-                                            : "bg-amber-500 hover:-translate-y-0.5 hover:bg-amber-600 hover:shadow-depth-md"
-                                    }`}
-                                >
-                                    Pause
-                                </button>
-                                <button
-                                    type="button"
-                                    onClick={() => handleAction("resume")}
-                                    disabled={resumeDisabled}
-                                    className={`rounded-depth-md px-6 py-2 font-semibold text-white shadow-depth-sm transition ${
-                                        resumeDisabled
-                                            ? "cursor-not-allowed bg-gray-500/50"
-                                            : "bg-sky-600 hover:-translate-y-0.5 hover:bg-sky-700 hover:shadow-depth-md"
-                                    }`}
-                                >
-                                    Resume
-                                </button>
-                                <button
-                                    type="button"
-                                    onClick={() => handleAction("next")}
-                                    disabled={nextDisabled}
-                                    className={`rounded-depth-md px-6 py-2 font-semibold text-white shadow-depth-sm transition ${
-                                        nextDisabled
-                                            ? "cursor-not-allowed bg-gray-500/50"
-                                            : "bg-indigo-600 hover:-translate-y-0.5 hover:bg-indigo-700 hover:shadow-depth-md"
-                                    }`}
-                                >
-                                    Next
-                                </button>
-                                <button
-                                    type="button"
-                                    onClick={() => handleAction("exit")}
-                                    disabled={exitDisabled}
-                                    className={`rounded-depth-md px-6 py-2 font-semibold text-white shadow-depth-sm transition ${
-                                        exitDisabled
-                                            ? "cursor-not-allowed bg-gray-500/50"
-                                            : "bg-red-600 hover:-translate-y-0.5 hover:bg-red-700 hover:shadow-depth-md"
-                                    }`}
-                                >
-                                    Exit
-                                </button>
+                            <div className="glass-surface flex flex-col rounded-depth-lg p-6 shadow-depth-lg lg:w-64">
+                                <div className="flex flex-1 flex-col gap-3">
+                                    {/* Start/Pause/Resume/Restart Toggle Button */}
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            if (!hasSession || effectiveSession?.status === "idle") {
+                                                handleAction("start");
+                                            } else if (isTerminal) {
+                                                // Restart - same as start but for completed/exited praktikum
+                                                handleAction("start");
+                                            } else if (isRunning) {
+                                                handleAction("pause");
+                                            } else if (isPaused) {
+                                                handleAction("resume");
+                                            }
+                                        }}
+                                        disabled={
+                                            !hasSession || effectiveSession?.status === "idle"
+                                                ? startDisabled
+                                                : isTerminal
+                                                    ? startDisabled
+                                                    : isRunning
+                                                        ? pauseDisabled
+                                                        : resumeDisabled
+                                        }
+                                        title={
+                                            !hasSession || effectiveSession?.status === "idle"
+                                                ? startLabel
+                                                : isTerminal
+                                                    ? "Restart"
+                                                    : isRunning
+                                                        ? "Pause"
+                                                        : "Resume"
+                                        }
+                                        aria-label={
+                                            !hasSession || effectiveSession?.status === "idle"
+                                                ? startLabel
+                                                : isTerminal
+                                                    ? "Restart"
+                                                    : isRunning
+                                                        ? "Pause"
+                                                        : "Resume"
+                                        }
+                                        className={`glass-button flex items-center justify-center rounded-depth-lg p-3 shadow-depth-md transition-all ${
+                                            (!hasSession || effectiveSession?.status === "idle"
+                                                ? startDisabled
+                                                : isTerminal
+                                                    ? startDisabled
+                                                    : isRunning
+                                                        ? pauseDisabled
+                                                        : resumeDisabled)
+                                                ? "cursor-not-allowed opacity-50"
+                                                : "hover:-translate-y-0.5 hover:shadow-depth-lg"
+                                        }`}
+                                        style={{
+                                            background: (!hasSession || effectiveSession?.status === "idle"
+                                                ? startDisabled
+                                                : isTerminal
+                                                    ? startDisabled
+                                                    : isRunning
+                                                        ? pauseDisabled
+                                                        : resumeDisabled)
+                                                ? undefined
+                                                : !hasSession || effectiveSession?.status === "idle"
+                                                    ? "linear-gradient(135deg, rgba(34, 197, 94, 0.9), rgba(22, 163, 74, 0.9))"
+                                                    : isTerminal
+                                                        ? "linear-gradient(135deg, rgba(99, 102, 241, 0.9), rgba(139, 92, 246, 0.9))"
+                                                        : isRunning
+                                                            ? "linear-gradient(135deg, rgba(251, 191, 36, 0.9), rgba(245, 158, 11, 0.9))"
+                                                            : "linear-gradient(135deg, rgba(34, 197, 94, 0.9), rgba(22, 163, 74, 0.9))",
+                                        }}
+                                    >
+                                        {!hasSession || effectiveSession?.status === "idle" ? (
+                                            <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                            </svg>
+                                        ) : isTerminal ? (
+                                            <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                            </svg>
+                                        ) : isRunning ? (
+                                            <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                            </svg>
+                                        ) : (
+                                            <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                            </svg>
+                                        )}
+                                    </button>
+
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            const nextIndex = currentPhaseIndex + 1;
+                                            // Don't wrap around - stop at the last phase
+                                            if (nextIndex < PHASE_SEQUENCE.length) {
+                                                const nextPhase = PHASE_SEQUENCE[nextIndex];
+                                                handleAction("next", { phase: nextPhase.key });
+                                            }
+                                        }}
+                                        disabled={nextDisabled}
+                                        title="Next Phase"
+                                        aria-label="Next Phase"
+                                        className={`glass-button flex items-center justify-center rounded-depth-lg p-3 shadow-depth-md transition-all ${
+                                            nextDisabled
+                                                ? "cursor-not-allowed opacity-50"
+                                                : "hover:-translate-y-0.5 hover:shadow-depth-lg"
+                                        }`}
+                                        style={{
+                                            background: nextDisabled
+                                                ? undefined
+                                                : "linear-gradient(135deg, rgba(59, 130, 246, 0.9), rgba(37, 99, 235, 0.9))",
+                                        }}
+                                    >
+                                        <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 9l3 3m0 0l-3 3m3-3H8m13 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                    </button>
+
+                                    <button
+                                        type="button"
+                                        onClick={() => handleAction("exit")}
+                                        disabled={exitDisabled}
+                                        title="Exit Praktikum"
+                                        aria-label="Exit Praktikum"
+                                        className={`glass-button flex items-center justify-center rounded-depth-lg p-3 shadow-depth-md transition-all ${
+                                            exitDisabled
+                                                ? "cursor-not-allowed opacity-50"
+                                                : "hover:-translate-y-0.5 hover:shadow-depth-lg"
+                                        }`}
+                                        style={{
+                                            background: exitDisabled
+                                                ? undefined
+                                                : "linear-gradient(135deg, rgba(239, 68, 68, 0.9), rgba(220, 38, 38, 0.9))",
+                                        }}
+                                    >
+                                        <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                        </svg>
+                                    </button>
+                                </div>
                             </div>
                         )}
+
+                        {/* Main Info Card - Right Side */}
+                        <div className="flex flex-1 flex-col rounded-depth-lg border border-depth bg-depth-card p-6 shadow-depth-lg">
+                            <div className="flex flex-col items-center gap-6">
+                                <div className="w-full text-center">
+                                    <div className="mt-2 text-5xl font-bold text-depth-primary">
+                                        {formatDuration(displaySeconds)}
+                                    </div>
+                                </div>
+
+                                <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
+                                    {PHASE_SEQUENCE.map((phase, index) => {
+                                        const isActiveStage =
+                                            effectiveSession &&
+                                            effectiveSession.status !== "idle" &&
+                                            !isTerminal &&
+                                            index === currentPhaseIndex;
+
+                                        const isCompletedStage = effectiveSession
+                                            ? index < currentPhaseIndex ||
+                                            (isTerminal && index === currentPhaseIndex)
+                                            : false;
+
+                                        const baseClass =
+                                            "rounded-depth-md border border-depth px-4 py-2 text-sm font-semibold transition";
+                                        const className = isActiveStage
+                                            ? "bg-[var(--depth-color-primary)] text-white border-transparent shadow-depth-md"
+                                            : isCompletedStage
+                                                ? "bg-depth-interactive text-depth-primary"
+                                                : "bg-depth-card text-depth-secondary";
+
+                                        return (
+                                            <div key={phase.key} className="flex items-center gap-2">
+                                                <span className={`${baseClass} ${className}`}>
+                                                    {phase.label}
+                                                </span>
+                                                {index < PHASE_SEQUENCE.length - 1 && (
+                                                    <span className="text-sm text-depth-secondary">→</span>
+                                                )}
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+
+                                {showReportForm && (
+                                    <div className="mt-8 w-full">
+                                        <label
+                                            htmlFor="laporan_praktikum"
+                                            className="mb-2 block text-sm font-semibold text-depth-primary"
+                                        >
+                                            Laporan Praktikum
+                                        </label>
+                                        <textarea
+                                            id="laporan_praktikum"
+                                            value={reportText}
+                                            onChange={(e) => setReportText(e.target.value)}
+                                            rows={6}
+                                            className="w-full rounded-depth-lg border border-depth bg-depth-card p-3 text-sm text-depth-primary shadow-depth-inset transition focus:border-[var(--depth-color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)] focus:ring-offset-0"
+                                            placeholder="Catat ringkasan jalannya praktikum, kendala, dan catatan penting lainnya..."
+                                        />
+                                        <p className="mt-2 text-xs text-depth-secondary">
+                                            Catatan: PJ yang terdaftar akan otomatis mengikuti akun asisten yang mengirim laporan.
+                                        </p>
+                                        <div className="flex justify-end gap-3 mt-4">
+                                            <button
+                                                type="button"
+                                                onClick={handleSubmitReport}
+                                                disabled={reportSubmitDisabled}
+                                                title={
+                                                    reportSubmitDisabled
+                                                        ? "Minimal 3 karakter sebelum mengirim."
+                                                        : undefined
+                                                }
+                                                className={`glass-button flex items-center gap-2 rounded-depth-lg px-6 py-3 font-semibold shadow-depth-md transition-all ${
+                                                    reportSubmitDisabled
+                                                        ? "cursor-not-allowed opacity-50"
+                                                        : "hover:-translate-y-0.5 hover:shadow-depth-lg"
+                                                }`}
+                                                style={{
+                                                    background: reportSubmitDisabled
+                                                        ? undefined
+                                                        : "linear-gradient(135deg, rgba(34, 197, 94, 0.9), rgba(22, 163, 74, 0.9))",
+                                                }}
+                                            >
+                                                <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                </svg>
+                                                {isSubmittingReport ? "Mengirim..." : "Kirim Laporan"}
+                                            </button>
+                                        </div>
+                                    </div>
+                                )}
+
+                                {showReportPreview && (
+                                    <div className="mt-8 w-full rounded-depth-lg border border-depth bg-depth-card p-4 text-depth-primary shadow-depth-md">
+                                        <div className="flex flex-wrap justify-between gap-3 text-sm text-depth-secondary">
+                                            <span>Laporan dikirim: {reportSubmittedAt ?? "-"}</span>
+                                            <span>Mulai: {startedAtDisplay ?? "-"}</span>
+                                            <span>Selesai: {endedAtDisplay ?? "-"}</span>
+                                            <span>PJ: {reportOwnerDisplay}</span>
+                                        </div>
+                                        <hr className="my-3 border-[color:var(--depth-border)]" />
+                                        <div className="whitespace-pre-wrap text-base leading-relaxed text-depth-primary">
+                                            {effectiveSession?.report_notes}
+                                        </div>
+                                    </div>
+                                )}
+
+                                {praktikumLoading && hasSelection && (
+                                    <p className="mt-6 text-center text-sm text-depth-secondary">
+                                        Memuat status praktikum...
+                                    </p>
+                                )}
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

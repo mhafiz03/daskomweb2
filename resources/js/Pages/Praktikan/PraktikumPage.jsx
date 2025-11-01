@@ -8,36 +8,42 @@ import Mandiri from "@/Components/Praktikans/Sections/Mandiri";
 import TesKeterampilan from "@/Components/Praktikans/Sections/TesKeterampilan";
 import { api } from "@/lib/api";
 import PraktikanUtilities from "@/Components/Praktikans/Layout/PraktikanUtilities";
+import FeedbackModal from "@/Components/Modals/FeedbackModal";
 
-const ATTEMPT_COMPONENTS = [
-    "TugasPendahuluan",
-    "TesAwal",
-    "Jurnal",
-    "Mandiri",
-    "TesKeterampilan",
-];
+const TASK_COMPONENTS = {
+    TugasPendahuluan,
+    TesAwal,
+    Jurnal,
+    Mandiri,
+    TesKeterampilan,
+};
+
+const TASK_NAMES = Object.keys(TASK_COMPONENTS);
+const ALLOWED_COMPONENTS = new Set(["NoPraktikumSection", ...TASK_NAMES]);
+
+const INITIAL_COMPLETED_STATE = TASK_NAMES.reduce((accumulator, key) => {
+    accumulator[key] = false;
+
+    return accumulator;
+}, {});
 
 const TASK_CONFIG = {
     TugasPendahuluan: {
         questionEndpoint: (modulId) => `/api-v1/soal-tp/${modulId}`,
-        answerEndpoint: (modulId) => `/api-v1/jawaban-tp/${modulId}`,
         submitEndpoint: "/api-v1/jawaban-tp",
         variant: "essay",
     },
     TesAwal: {
         questionEndpoint: (modulId) => `/api-v1/soal-ta/${modulId}`,
-        answerEndpoint: (modulId) => `/api-v1/jawaban-ta/${modulId}`,
         submitEndpoint: "/api-v1/jawaban-ta",
         variant: "multiple-choice",
     },
     Jurnal: {
         questionEndpoint: (modulId) => `/api-v1/soal-jurnal/${modulId}`,
-        answerEndpoint: (modulId) => `/api-v1/jawaban-jurnal/${modulId}`,
         submitEndpoint: "/api-v1/jawaban-jurnal",
         variant: "essay",
         fitb: {
             questionEndpoint: (modulId) => `/api-v1/soal-fitb/${modulId}`,
-            answerEndpoint: (modulId) => `/api-v1/jawaban-fitb/${modulId}`,
             submitEndpoint: "/api-v1/jawaban-fitb",
         },
     },
@@ -49,10 +55,51 @@ const TASK_CONFIG = {
     },
     TesKeterampilan: {
         questionEndpoint: (modulId) => `/api-v1/soal-tk/${modulId}`,
-        answerEndpoint: (modulId) => `/api-v1/jawaban-tk/${modulId}`,
         submitEndpoint: "/api-v1/jawaban-tk",
         variant: "multiple-choice",
     },
+};
+
+const extractQuestions = (response) => {
+    const payload = response?.data ?? response;
+    if (Array.isArray(payload)) {
+        return payload;
+    }
+
+    if (Array.isArray(payload?.data)) {
+        return payload.data;
+    }
+
+    if (Array.isArray(payload?.questions)) {
+        return payload.questions;
+    }
+
+    return [];
+};
+
+const normalizeEssayQuestions = (items, questionType = "essay") => {
+    return (items ?? [])
+        .filter((item) => item && (item.soal || item.pertanyaan))
+        .map((item) => ({
+            id: item.id,
+            text: item.soal ?? item.pertanyaan ?? "",
+            questionType,
+        }));
+};
+
+const normalizeMultipleChoiceQuestions = (items, questionType = "multiple-choice") => {
+    return (items ?? [])
+        .filter((item) => item && item.pertanyaan)
+        .map((item) => ({
+            id: item.id,
+            text: item.pertanyaan,
+            options: (item.options ?? []).map((option) => ({
+                id: option.id,
+                text: option.text,
+            })),
+            questionType,
+        }))
+        .filter((item) => Array.isArray(item.options) && item.options.length > 0);
 };
 
 const PHASE_TO_COMPONENT = {
@@ -60,21 +107,12 @@ const PHASE_TO_COMPONENT = {
     fitb_jurnal: "Jurnal",
     mandiri: "Mandiri",
     tk: "TesKeterampilan",
-};
-
-const INITIAL_COMPLETED_STATE = {
-    TugasPendahuluan: false,
-    TesAwal: false,
-    Jurnal: false,
-    Mandiri: false,
-    TesKeterampilan: false,
+    feedback: "Feedback",
 };
 
 export default function PraktikumPage({ auth }) {
     const [activeComponent, setActiveComponent] = useState("NoPraktikumSection");
-    const [contentShift, setContentShift] = useState("0px");
     const [answers, setAnswers] = useState([]);
-    const [currentQuestion, setCurrentQuestion] = useState(1);
     const [questionsCount, setQuestionsCount] = useState(0);
     const [questions, setQuestions] = useState([]);
     const [activeTask, setActiveTask] = useState(null);
@@ -85,6 +123,8 @@ export default function PraktikumPage({ auth }) {
     const [taskError, setTaskError] = useState(null);
     const [isSubmittingTask, setIsSubmittingTask] = useState(false);
     const [submissionError, setSubmissionError] = useState(null);
+    const [isFeedbackModalOpen, setIsFeedbackModalOpen] = useState(false);
+    const [isFeedbackPending, setIsFeedbackPending] = useState(false);
 
     const praktikanData = auth?.praktikan ?? auth?.user ?? null;
     const praktikanId = praktikanData?.id ?? null;
@@ -94,17 +134,19 @@ export default function PraktikumPage({ auth }) {
         praktikanData?.kelas?.id ??
         null;
 
+    const clearTaskProgress = useCallback(() => {
+        setQuestions([]);
+        setAnswers([]);
+        setQuestionsCount(0);
+    }, []);
+
+    const resetActiveTaskState = useCallback(() => {
+        clearTaskProgress();
+        setActiveTask(null);
+    }, [clearTaskProgress]);
+
     useEffect(() => {
-        if (
-            ![
-                "NoPraktikumSection",
-                "TugasPendahuluan",
-                "TesAwal",
-                "Jurnal",
-                "Mandiri",
-                "TesKeterampilan",
-            ].includes(activeComponent)
-        ) {
+        if (!ALLOWED_COMPONENTS.has(activeComponent)) {
             setActiveComponent("NoPraktikumSection");
         }
     }, [activeComponent]);
@@ -119,7 +161,7 @@ export default function PraktikumPage({ auth }) {
 
     useEffect(() => {
         if (!localStorageKey) {
-            setCompletedCategories(INITIAL_COMPLETED_STATE);
+            setCompletedCategories({ ...INITIAL_COMPLETED_STATE });
 
             return;
         }
@@ -130,11 +172,11 @@ export default function PraktikumPage({ auth }) {
                 const parsed = JSON.parse(stored);
                 setCompletedCategories({ ...INITIAL_COMPLETED_STATE, ...parsed });
             } else {
-                setCompletedCategories(INITIAL_COMPLETED_STATE);
+                setCompletedCategories({ ...INITIAL_COMPLETED_STATE });
             }
         } catch (error) {
             console.error("Failed to restore completed categories", error);
-            setCompletedCategories(INITIAL_COMPLETED_STATE);
+            setCompletedCategories({ ...INITIAL_COMPLETED_STATE });
         }
     }, [localStorageKey]);
 
@@ -144,144 +186,36 @@ export default function PraktikumPage({ auth }) {
         }
     }, [completedCategories, localStorageKey]);
 
-    const normalizeEssayQuestions = useCallback((items, questionType = "essay") => {
-        return items
-            .filter((item) => item && (item.soal || item.pertanyaan))
-            .map((item) => ({
-                id: item.id,
-                text: item.soal ?? item.pertanyaan ?? "",
-                questionType,
-            }));
-    }, []);
-
-    const normalizeMultipleChoiceQuestions = useCallback((items, questionType = "multiple-choice") => {
-        return items
-            .filter((item) => item && item.pertanyaan)
-            .map((item) => ({
-                id: item.id,
-                text: item.pertanyaan,
-                options: (item.options ?? []).map((option) => ({
-                    id: option.id,
-                    text: option.text,
-                })),
-                questionType,
-            }))
-            .filter((item) => Array.isArray(item.options) && item.options.length > 0);
-    }, []);
-
-    const buildAnswerMap = useCallback((taskKey, payload) => {
-        if (!payload) {
-            return new Map();
-        }
-
-        switch (taskKey) {
-            case "TugasPendahuluan":
-                return new Map(
-                    (payload.jawaban_tp ?? []).map((item) => [item.soal_id, item.jawaban ?? ""])
-                );
-            case "Jurnal":
-                return new Map(
-                    (payload.jawaban_jurnal ?? []).map((item) => [item.soal_id, item.jawaban ?? ""])
-                );
-            case "Mandiri":
-                return new Map(
-                    (payload.jawaban_mandiri ?? []).map((item) => [item.soal_id, item.jawaban ?? ""])
-                );
-            case "TesAwal":
-                return new Map(
-                    (payload.jawaban_ta ?? []).map((item) => [item.soal_id, item.selected_opsi_id ?? null])
-                );
-            case "TesKeterampilan":
-                return new Map(
-                    (payload.jawaban_tk ?? []).map((item) => [item.soal_id, item.selected_opsi_id ?? null])
-                );
-            default:
-                return new Map();
-        }
-    }, []);
-
     const fetchTaskData = useCallback(
         async (taskKey, modulId) => {
             const config = TASK_CONFIG[taskKey];
             if (!config || !modulId) {
-                setQuestions([]);
-                setAnswers([]);
-                setQuestionsCount(0);
-                setCurrentQuestion(0);
-
+                clearTaskProgress();
                 return;
             }
 
+            console.log(`[${new Date().toISOString()}] Fetching task data`, {
+                taskKey,
+                modulId,
+            });
             setIsLoadingTask(true);
             setTaskError(null);
             setSubmissionError(null);
 
             try {
-                const questionPromise = api.get(config.questionEndpoint(modulId));
-                const answerPromise = config.answerEndpoint
-                    ? api
-                          .get(config.answerEndpoint(modulId))
-                          .then((response) => response.data)
-                          .catch((error) => {
-                              const status = error?.response?.status;
-                              if (status === 403 || status === 404) {
-                                  return null;
-                              }
-
-                              throw error;
-                          })
-                    : Promise.resolve(null);
-
-                const [questionResponse, answerPayload] = await Promise.all([questionPromise, answerPromise]);
-
-                const extractQuestions = (response) => {
-                    const payload = response?.data ?? response;
-                    if (Array.isArray(payload)) {
-                        return payload;
-                    }
-
-                    if (Array.isArray(payload?.data)) {
-                        return payload.data;
-                    }
-
-                    if (Array.isArray(payload?.questions)) {
-                        return payload.questions;
-                    }
-
-                    return [];
-                };
+                const questionResponse = await api.get(config.questionEndpoint(modulId));
 
                 const rawQuestions = extractQuestions(questionResponse);
 
                 let normalizedQuestions = [];
-                let answerMap = buildAnswerMap(taskKey, answerPayload);
 
                 if (taskKey === "Jurnal" && config.fitb) {
-                    const [fitbQuestionResponse, fitbAnswerPayload] = await Promise.all([
-                        api
-                            .get(config.fitb.questionEndpoint(modulId))
-                            .catch(() => ({ data: [] })),
-                        api
-                            .get(config.fitb.answerEndpoint(modulId))
-                            .then((response) => response.data)
-                            .catch((error) => {
-                                const status = error?.response?.status;
-                                if (status === 403 || status === 404) {
-                                    return null;
-                                }
-
-                                throw error;
-                            }),
-                    ]);
+                    const fitbQuestionResponse = await api
+                        .get(config.fitb.questionEndpoint(modulId))
+                        .catch(() => ({ data: [] }));
 
                     const rawFitbQuestions = extractQuestions(fitbQuestionResponse);
                     const fitbQuestions = normalizeEssayQuestions(rawFitbQuestions, "fitb");
-                    const fitbAnswerMap = new Map(
-                        (fitbAnswerPayload?.jawaban_fitb ?? []).map((item) => [item.soal_id, item.jawaban ?? ""])
-                    );
-
-                    answerMap = new Map([...answerMap, ...fitbAnswerMap]);
-
                     const jurnalQuestions = normalizeEssayQuestions(rawQuestions, "jurnal");
                     normalizedQuestions = [...fitbQuestions, ...jurnalQuestions];
                 } else {
@@ -291,69 +225,74 @@ export default function PraktikumPage({ auth }) {
                             : normalizeEssayQuestions(rawQuestions);
                 }
 
-                const initialAnswers = normalizedQuestions.map((question) => {
-                    if (question.questionType === "multiple-choice") {
-                        return answerMap.get(question.id) ?? null;
-                    }
-
-                    return answerMap.get(question.id) ?? "";
-                });
+                const initialAnswers = normalizedQuestions.map((question) =>
+                    question.questionType === "multiple-choice" ? null : ""
+                );
 
                 setQuestions(normalizedQuestions);
                 setAnswers(initialAnswers);
                 setQuestionsCount(normalizedQuestions.length);
-                setCurrentQuestion(normalizedQuestions.length ? 1 : 0);
             } catch (error) {
                 console.error("Failed to fetch task data", error);
                 const message = error?.response?.data?.message ?? error.message ?? "Gagal memuat data tugas.";
                 setTaskError(message);
-                setQuestions([]);
-                setAnswers([]);
-                setQuestionsCount(0);
-                setCurrentQuestion(0);
+                clearTaskProgress();
             } finally {
                 setIsLoadingTask(false);
             }
         },
-        [buildAnswerMap, normalizeEssayQuestions, normalizeMultipleChoiceQuestions]
+        [clearTaskProgress]
     );
 
-    const handlePraktikumStateChange = useCallback((praktikumState) => {
-        if (!praktikumState) {
-            setActiveModulId(null);
-            setModuleMeta(null);
+    const handlePraktikumStateChange = useCallback(
+        (praktikumState) => {
+            const timestamp = new Date().toISOString();
+            console.log(`[${timestamp}] Praktikum state update:`, praktikumState);
+            if (!praktikumState) {
+                setActiveModulId(null);
+                setModuleMeta(null);
+                resetActiveTaskState();
+                setActiveComponent("NoPraktikumSection");
 
-            return;
-        }
+                return;
+            }
 
-        setActiveModulId(praktikumState.modul_id ?? null);
-        setModuleMeta(praktikumState);
-    }, []);
+            setActiveModulId(praktikumState.modul_id ?? null);
+            setModuleMeta(praktikumState);
+
+            if (praktikumState.status === "exited" || praktikumState.status === "paused") {
+                resetActiveTaskState();
+                setActiveComponent("NoPraktikumSection");
+            }
+        },
+        [resetActiveTaskState]
+    );
 
     const handleNavigate = useCallback(
         (componentName) => {
-            setActiveComponent(componentName);
+            console.log(`[${new Date().toISOString()}] Navigating praktikum task`, {
+                requested: componentName,
+                activeModulId,
+            });
+            const nextComponent = ALLOWED_COMPONENTS.has(componentName)
+                ? componentName
+                : "NoPraktikumSection";
 
-            if (ATTEMPT_COMPONENTS.includes(componentName)) {
-                setActiveTask(componentName);
+            setActiveComponent(nextComponent);
+
+            if (TASK_NAMES.includes(nextComponent)) {
+                setActiveTask(nextComponent);
                 if (activeModulId) {
-                    fetchTaskData(componentName, activeModulId);
+                    fetchTaskData(nextComponent, activeModulId);
                 } else {
-                    setQuestions([]);
-                    setAnswers([]);
-                    setQuestionsCount(0);
-                    setCurrentQuestion(0);
+                    clearTaskProgress();
                 }
             } else {
                 setActiveTask(null);
             }
         },
-        [activeModulId, fetchTaskData]
+        [activeModulId, fetchTaskData, clearTaskProgress]
     );
-
-    const handleShiftContent = useCallback((shiftValue) => {
-        setContentShift(shiftValue);
-    }, []);
 
     const persistAnswersToLocalStorage = useCallback((taskName, taskAnswers, modulId) => {
         if (!modulId) {
@@ -369,13 +308,15 @@ export default function PraktikumPage({ auth }) {
     }, []);
 
     const handleTaskSubmit = useCallback(
-        async (taskName, taskAnswers = answers) => {
-            if (!taskName || !ATTEMPT_COMPONENTS.includes(taskName)) {
+        async (taskName, taskAnswers = answers, silent = false) => {
+            if (!taskName || !TASK_NAMES.includes(taskName)) {
                 return;
             }
 
             if (!activeModulId || !praktikanId) {
-                setSubmissionError("Modul aktif atau data praktikan tidak ditemukan.");
+                if (!silent) {
+                    setSubmissionError("Modul aktif atau data praktikan tidak ditemukan.");
+                }
 
                 return;
             }
@@ -391,10 +332,11 @@ export default function PraktikumPage({ auth }) {
             }));
 
             if (config.variant === "multiple-choice") {
-                const selectedCount = normalizedAnswers.filter(
+                const selectedAnswers = normalizedAnswers.filter(
                     (entry) => entry.answer !== null && entry.answer !== undefined
-                ).length;
-                if (selectedCount === 0) {
+                );
+
+                if (!selectedAnswers.length && !silent) {
                     setSubmissionError("Pilih minimal satu jawaban sebelum mengirimkan.");
 
                     return;
@@ -424,11 +366,11 @@ export default function PraktikumPage({ auth }) {
                             jawaban: typeof entry.answer === "string" ? entry.answer : "",
                         }));
 
-                    if (fitbPayload.length > 0) {
+                    if (fitbPayload.length) {
                         await api.post(config.fitb.submitEndpoint, fitbPayload);
                     }
 
-                    if (jurnalPayload.length > 0) {
+                    if (jurnalPayload.length) {
                         await api.post(config.submitEndpoint, jurnalPayload);
                     }
                 } else if (config.variant === "multiple-choice") {
@@ -456,10 +398,12 @@ export default function PraktikumPage({ auth }) {
                 }
 
                 persistAnswersToLocalStorage(taskName, taskAnswers, activeModulId);
-
                 setCompletedCategories((prev) => ({ ...prev, [taskName]: true }));
+                clearTaskProgress();
 
-                setActiveComponent("NoPraktikumSection");
+                if (!silent) {
+                    setActiveComponent("NoPraktikumSection");
+                }
             } catch (error) {
                 console.error("Failed to submit answers", error);
                 const message = error?.response?.data?.message ?? error.message ?? "Terjadi kesalahan saat menyimpan jawaban.";
@@ -468,18 +412,19 @@ export default function PraktikumPage({ auth }) {
                 setIsSubmittingTask(false);
             }
         },
-        [activeModulId, answers, persistAnswersToLocalStorage, praktikanId, questions]
+        [activeModulId, answers, clearTaskProgress, persistAnswersToLocalStorage, praktikanId, questions]
     );
 
-    const handleReviewTask = useCallback((taskKey) => {
-        if (!taskKey) {
-            return;
-        }
+    const handleReviewTask = useCallback(
+        (taskKey) => {
+            if (!taskKey || !TASK_NAMES.includes(taskKey)) {
+                return;
+            }
 
-        setActiveTask(taskKey);
-        const reviewComponent = REVIEW_COMPONENT_BY_TASK[taskKey] ?? "NoPraktikumSection";
-        setActiveComponent(reviewComponent);
-    }, []);
+            handleNavigate(taskKey);
+        },
+        [handleNavigate]
+    );
 
     const previousPhaseRef = useRef();
 
@@ -487,24 +432,89 @@ export default function PraktikumPage({ auth }) {
         previousPhaseRef.current = undefined;
     }, [activeModulId]);
 
+    const ActiveTaskComponent = TASK_COMPONENTS[activeComponent] ?? null;
+
+    const handlePhaseChange = useCallback(
+        (currentPhase) => {
+            if (currentPhase === "feedback") {
+                setIsFeedbackModalOpen(true);
+                setActiveComponent("NoPraktikumSection");
+
+                return;
+            }
+
+            const targetComponent = PHASE_TO_COMPONENT[currentPhase];
+            console.log(`[${new Date().toISOString()}] Phase change received`, {
+                phase: currentPhase,
+                targetComponent,
+            });
+            if (targetComponent) {
+                handleNavigate(targetComponent);
+            }
+        },
+        [handleNavigate]
+    );
+
+    // Combined phase change handler with auto-submit
     useEffect(() => {
         if (!moduleMeta?.current_phase || !activeModulId) {
+            previousPhaseRef.current = undefined;
+
             return;
         }
 
-        if (previousPhaseRef.current === moduleMeta.current_phase) {
+        const newPhase = moduleMeta.current_phase;
+        const previousPhase = previousPhaseRef.current;
+
+        if (previousPhase === newPhase) {
             return;
         }
 
-        previousPhaseRef.current = moduleMeta.current_phase;
+        previousPhaseRef.current = newPhase;
 
-        const targetComponent = PHASE_TO_COMPONENT[moduleMeta.current_phase];
-        if (!targetComponent) {
+        const shouldAutoSubmit =
+            Boolean(previousPhase) &&
+            previousPhase !== newPhase &&
+            activeComponent !== "NoPraktikumSection" &&
+            answers.length > 0 &&
+            !isSubmittingTask &&
+            Boolean(activeTask);
+
+        if (shouldAutoSubmit) {
+            (async () => {
+                try {
+                    await handleTaskSubmit(activeTask, answers, true);
+                } catch (error) {
+                    console.error("Auto-submit failed:", error);
+                } finally {
+                    handlePhaseChange(newPhase);
+                }
+            })();
+
             return;
         }
 
-        handleNavigate(targetComponent);
-    }, [moduleMeta?.current_phase, activeModulId, handleNavigate]);
+        handlePhaseChange(newPhase);
+    }, [moduleMeta?.current_phase, activeModulId, answers, activeComponent, activeTask, isSubmittingTask, handleTaskSubmit, handlePhaseChange]);
+
+    const handleFeedbackSubmit = async ({ feedback, rating }) => {
+        setIsFeedbackPending(true);
+        try {
+            await api.post('/api-v1/laporan-praktikan', {
+                praktikan_id: praktikanId,
+                modul_id: activeModulId,
+                laporan: feedback,
+                rating: rating || null,
+            });
+            
+            setIsFeedbackModalOpen(false);
+        } catch (error) {
+            console.error('Failed to submit feedback:', error);
+            throw error;
+        } finally {
+            setIsFeedbackPending(false);
+        }
+    };
 
     // Join presence channel for online status tracking
     useEffect(() => {
@@ -538,67 +548,19 @@ export default function PraktikumPage({ auth }) {
                 }
             >
                 <div className="mt-[8vh] relative items-center flex flex-col">
-                    <div
-                        className="flex-1 transition-all duration-300"
-                        style={{ marginRight: contentShift }}
-                    >
-                        {activeComponent === "NoPraktikumSection" && (
-                            <NoPraktikumSection
-                                onNavigate={handleNavigate}
-                                completedCategories={completedCategories}
-                                setCompletedCategories={setCompletedCategories}
-                                onReviewTask={handleReviewTask}
-                                kelasId={kelasId}
-                                onPraktikumStateChange={handlePraktikumStateChange}
-                                moduleMeta={moduleMeta}
-                            />
-                        )}
-                        {activeComponent === "TugasPendahuluan" && (
-                            <TugasPendahuluan
-                                isLoading={isLoadingTask}
-                                errorMessage={taskError}
-                                setAnswers={setAnswers}
-                                answers={answers}
-                                questions={questions}
-                                setQuestionsCount={setQuestionsCount}
-                                onSubmitTask={handleTaskSubmit}
-                            />
-                        )}
-                        {activeComponent === "TesAwal" && (
-                            <TesAwal
-                                isLoading={isLoadingTask}
-                                errorMessage={taskError}
-                                setAnswers={setAnswers}
-                                answers={answers}
-                                questions={questions}
-                                setQuestionsCount={setQuestionsCount}
-                                onSubmitTask={handleTaskSubmit}
-                            />
-                        )}
-                        {activeComponent === "Jurnal" && (
-                            <Jurnal
-                                isLoading={isLoadingTask}
-                                errorMessage={taskError}
-                                setAnswers={setAnswers}
-                                answers={answers}
-                                questions={questions}
-                                setQuestionsCount={setQuestionsCount}
-                                onSubmitTask={handleTaskSubmit}
-                            />
-                        )}
-                        {activeComponent === "Mandiri" && (
-                            <Mandiri
-                                isLoading={isLoadingTask}
-                                errorMessage={taskError}
-                                setAnswers={setAnswers}
-                                answers={answers}
-                                questions={questions}
-                                setQuestionsCount={setQuestionsCount}
-                                onSubmitTask={handleTaskSubmit}
-                            />
-                        )}
-                        {activeComponent === "TesKeterampilan" && (
-                            <TesKeterampilan
+                    <div className="flex-1 transition-all duration-300">
+                        <NoPraktikumSection
+                            isVisible={activeComponent === "NoPraktikumSection"}
+                            onNavigate={handleNavigate}
+                            completedCategories={completedCategories}
+                            setCompletedCategories={setCompletedCategories}
+                            onReviewTask={handleReviewTask}
+                            kelasId={kelasId}
+                            onPraktikumStateChange={handlePraktikumStateChange}
+                            moduleMeta={moduleMeta}
+                        />
+                        {activeComponent !== "NoPraktikumSection" && ActiveTaskComponent && (
+                            <ActiveTaskComponent
                                 isLoading={isLoadingTask}
                                 errorMessage={taskError}
                                 setAnswers={setAnswers}
@@ -612,6 +574,15 @@ export default function PraktikumPage({ auth }) {
                 </div>
             </PraktikanAuthenticated>
             <PraktikanUtilities />
+
+            {/* Feedback Modal */}
+            <FeedbackModal
+                isOpen={isFeedbackModalOpen}
+                onClose={() => setIsFeedbackModalOpen(false)}
+                onSubmit={handleFeedbackSubmit}
+                isPending={isFeedbackPending}
+                praktikumId={activeModulId}
+            />
         </>
     );
 }
