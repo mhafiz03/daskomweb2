@@ -10,7 +10,7 @@ import ModalReview from "../Modals/ModalReview";
 const PHASE_LABELS = {
     preparation: "Preparation",
     ta: "Tes Awal",
-    fitb_jurnal: "FITB + Jurnal",
+    fitb_jurnal: "Jurnal",
     mandiri: "Mandiri",
     tk: "Tes Keterampilan",
     feedback: "Feedback",

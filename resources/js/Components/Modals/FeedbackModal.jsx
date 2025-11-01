@@ -32,25 +32,14 @@ export default function FeedbackModal({
             {/* Backdrop */}
             <div 
                 className="absolute inset-0 bg-black/50 backdrop-blur-sm transition-opacity"
-                onClick={onClose}
             />
             
             {/* Modal */}
-            <div className="glass-surface relative z-10 w-full max-w-2xl rounded-depth-xl p-6 shadow-depth-xl">
+            <div className="glass-surface relative z-10 w-full max-w-2xl rounded-depth-xl p-6 shadow-depth-xl rounded-lg">
                 {/* Header */}
-                <div className="mb-6 flex items-center justify-between">
-                    <div>
-                        <h2 className="text-2xl font-bold text-depth-primary">Feedback Praktikum</h2>
-                        <p className="mt-1 text-sm text-depth-secondary">Berikan feedback tentang praktikum hari ini</p>
-                    </div>
-                    <button
-                        onClick={onClose}
-                        className="rounded-depth-md p-2 text-depth-secondary transition-colors hover:bg-depth-interactive hover:text-depth-primary"
-                    >
-                        <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                    </button>
+                <div className="mb-6">
+                    <h2 className="text-2xl font-bold text-depth-primary">Feedback Praktikum</h2>
+                    <p className="mt-1 text-sm text-depth-secondary">Berikan feedback tentang praktikum hari ini</p>
                 </div>
 
                 {/* Rating */}
@@ -117,19 +106,13 @@ export default function FeedbackModal({
                     </div>
                 </div>
 
-                {/* Action Buttons */}
-                <div className="flex gap-3">
-                    <button
-                        onClick={onClose}
-                        className="flex-1 rounded-depth-lg border border-depth bg-depth-card/50 px-6 py-3 font-semibold text-depth-primary transition-all hover:bg-depth-interactive"
-                    >
-                        Batal
-                    </button>
+                {/* Action Button */}
+                <div className="flex justify-end">
                     <button
                         type="button"
                         onClick={handleSubmit}
                         disabled={isSubmitDisabled}
-                        className={`glass-button flex flex-1 items-center justify-center gap-2 rounded-depth-lg px-6 py-3 font-semibold shadow-depth-md transition-all ${
+                        className={`glass-button inline-flex min-w-[160px] items-center justify-center gap-2 rounded-depth-lg px-6 py-3 font-semibold shadow-depth-md transition-all ${
                             isSubmitDisabled
                                 ? "cursor-not-allowed opacity-50"
                                 : "hover:-translate-y-0.5 hover:shadow-depth-lg"

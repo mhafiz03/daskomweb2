@@ -18,6 +18,7 @@ export default function PollingPage({ auth }) {
     });
     const [isSubmitted, setIsSubmitted] = useState(false);
     const [showModal, setShowModal] = useState(false);
+    const [submitError, setSubmitError] = useState(null);
 
     // Moved from PollingContent
     const [asistens, setAsistens] = useState([]);
@@ -146,6 +147,7 @@ export default function PollingPage({ auth }) {
 
             if (result.success){
                 setIsSubmitted(true);
+                setSubmitError(null);
                 setShowModal(true);
                 localStorage.setItem("submittedCards", JSON.stringify(selectedCards));
 
@@ -171,7 +173,7 @@ export default function PollingPage({ auth }) {
                 <PraktikanAuthenticated
                     user={auth?.user ?? auth?.praktikan ?? null}
                     praktikan={auth?.praktikan ?? auth?.user ?? null}
-                    customWidth="w-[65%]"
+                    customWidth="w-[80%]"
                     header={
                         <h2 className="font-semibold text-xl text-gray-800 leading-tight">
                             Dashboard
@@ -179,15 +181,13 @@ export default function PollingPage({ auth }) {
                     }
                 >
                     <Head title="Polling Selesai" />
-                    <div className="flex items-center justify-center h-screen">
-                        <div className="text-center">
-                            <h1 className="text-4xl font-bold text-deepForestGreen mb-4">
-                                Terimakasih sudah melakukan praktikum
-                            </h1>
-                            <p className="text-lg text-gray-600">
-                                Semua kategori polling telah berhasil dikirim
-                            </p>
-                        </div>
+                    <div className="mt-[8vh] flex min-h-[50vh] flex-col items-center justify-center gap-3 text-center">
+                        <h1 className="text-4xl font-bold text-deepForestGreen">
+                            Terimakasih sudah melakukan praktikum
+                        </h1>
+                        <p className="text-lg text-gray-600">
+                            Semua kategori polling telah berhasil dikirim
+                        </p>
                     </div>
                 </PraktikanAuthenticated>
                 <PraktikanUtilities />
@@ -200,44 +200,50 @@ export default function PollingPage({ auth }) {
             <PraktikanAuthenticated
                 user={auth?.user ?? auth?.praktikan ?? null}
                 praktikan={auth?.praktikan ?? auth?.user ?? null}
-                customWidth="w-[65%]"
+                customWidth="w-[80%]"
                 header={
                     <h2 className="font-semibold text-xl text-gray-800 leading-tight">
                         Dashboard
                     </h2>
                 }
             >
-                <Head title="Leaderboard Praktikan" />
+                <Head title="Polling Praktikan" />
 
-                <div className="relative mt-[11vh] h-screen">
-                    <div
-                        onClick={handleSubmit}
-                        className={`z-10 mb-[2vh] w-[100px] rounded-depth-md border-2 border-depth px-4 py-1 text-center font-bold text-white shadow-depth-md transition-all ${
-                            isSubmitted
-                                ? "cursor-not-allowed bg-gray-400"
-                                : "cursor-pointer bg-[var(--depth-color-primary)] hover:-translate-y-0.5 hover:shadow-depth-lg"
-                        }`}
-                    >
-                        Submit
+                <div className="mt-[8vh] flex flex-col gap-6">
+                    <div className="flex items-center justify-end">
+                        <button
+                            type="button"
+                            onClick={handleSubmit}
+                            className={`inline-flex w-[120px] items-center justify-center rounded-depth-md border-2 border-depth px-4 py-2 text-sm font-semibold text-white shadow-depth-md transition-all ${
+                                isSubmitted
+                                    ? "cursor-not-allowed bg-gray-400"
+                                    : "cursor-pointer bg-[var(--depth-color-primary)] hover:-translate-y-0.5 hover:shadow-depth-lg"
+                            }`}
+                            disabled={isSubmitted}
+                        >
+                            Submit
+                        </button>
                     </div>
-                
-                <PollingHeader
-                    onCategoryClick={(category) =>
-                        setActiveCategory(category)
-                    }
-                    activeCategory={activeCategory}
-                    availableCategories={availableCategories}
-                />
-                <PollingContent
-                    activeCategory={activeCategory}
-                    asistens={asistens}
-                    loading={loading}
-                    error={error}
-                    selectedCards={selectedCards}
-                    setSelectedCards={setSelectedCards}
-                    isSubmitted={isSubmitted}
-                />
-            </div>
+                    {submitError && (
+                        <p className="text-sm text-red-500">{submitError}</p>
+                    )}
+                    <PollingHeader
+                        onCategoryClick={(category) =>
+                            setActiveCategory(category)
+                        }
+                        activeCategory={activeCategory}
+                        availableCategories={availableCategories}
+                    />
+                    <PollingContent
+                        activeCategory={activeCategory}
+                        asistens={asistens}
+                        loading={loading}
+                        error={error}
+                        selectedCards={selectedCards}
+                        setSelectedCards={setSelectedCards}
+                        isSubmitted={isSubmitted}
+                    />
+                </div>
             </PraktikanAuthenticated>
             <PraktikanUtilities />
 

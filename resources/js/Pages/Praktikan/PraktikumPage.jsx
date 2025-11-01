@@ -9,6 +9,7 @@ import TesKeterampilan from "@/Components/Praktikans/Sections/TesKeterampilan";
 import { api } from "@/lib/api";
 import PraktikanUtilities from "@/Components/Praktikans/Layout/PraktikanUtilities";
 import FeedbackModal from "@/Components/Modals/FeedbackModal";
+import ScoreDisplayModal from "@/Components/Modals/ScoreDisplayModal";
 
 const TASK_COMPONENTS = {
     TugasPendahuluan,
@@ -125,6 +126,13 @@ export default function PraktikumPage({ auth }) {
     const [submissionError, setSubmissionError] = useState(null);
     const [isFeedbackModalOpen, setIsFeedbackModalOpen] = useState(false);
     const [isFeedbackPending, setIsFeedbackPending] = useState(false);
+    const [scoreModalState, setScoreModalState] = useState({
+        isOpen: false,
+        phaseType: null,
+        correctAnswers: 0,
+        totalQuestions: 0,
+        percentage: 0,
+    });
 
     const praktikanData = auth?.praktikan ?? auth?.user ?? null;
     const praktikanId = praktikanData?.id ?? null;
@@ -144,6 +152,68 @@ export default function PraktikumPage({ auth }) {
         clearTaskProgress();
         setActiveTask(null);
     }, [clearTaskProgress]);
+
+    const scoreFetchLocksRef = useRef(new Set());
+
+    const closeScoreModal = useCallback(() => {
+        setScoreModalState((previous) => ({
+            ...previous,
+            isOpen: false,
+        }));
+    }, []);
+
+    const fetchPhaseScore = useCallback(
+        async (phase) => {
+            if (!praktikanId || !activeModulId || !["ta", "tk"].includes(phase)) {
+                return;
+            }
+
+            const cacheKey = `${phase}:${activeModulId}`;
+            if (scoreFetchLocksRef.current.has(cacheKey)) {
+                return;
+            }
+
+            scoreFetchLocksRef.current.add(cacheKey);
+
+            try {
+                const endpoint =
+                    phase === "ta"
+                        ? `/api-v1/nilai-ta/${praktikanId}/${activeModulId}`
+                        : `/api-v1/nilai-tk/${praktikanId}/${activeModulId}`;
+
+                const { data } = await api.get(endpoint);
+
+                const totalQuestions = data?.total_questions ?? data?.totalQuestions ?? 0;
+                const correctAnswersRaw = data?.correct_answers ?? data?.correctAnswers;
+                const resolvedPercentage = typeof data?.score === "number" ? data.score : null;
+                const correctAnswers =
+                    typeof correctAnswersRaw === "number"
+                        ? correctAnswersRaw
+                        : totalQuestions > 0 && typeof resolvedPercentage === "number"
+                            ? Math.round((resolvedPercentage / 100) * totalQuestions)
+                            : 0;
+
+                const percentage =
+                    typeof resolvedPercentage === "number"
+                        ? resolvedPercentage
+                        : totalQuestions > 0
+                            ? (correctAnswers / totalQuestions) * 100
+                            : 0;
+
+                setScoreModalState({
+                    isOpen: true,
+                    phaseType: phase,
+                    correctAnswers,
+                    totalQuestions,
+                    percentage,
+                });
+            } catch (error) {
+                console.error(`Failed to fetch ${phase.toUpperCase()} score`, error);
+                scoreFetchLocksRef.current.delete(cacheKey);
+            }
+        },
+        [praktikanId, activeModulId]
+    );
 
     useEffect(() => {
         if (!ALLOWED_COMPONENTS.has(activeComponent)) {
@@ -432,6 +502,35 @@ export default function PraktikumPage({ auth }) {
         previousPhaseRef.current = undefined;
     }, [activeModulId]);
 
+    useEffect(() => {
+        scoreFetchLocksRef.current = new Set();
+        setScoreModalState({
+            isOpen: false,
+            phaseType: null,
+            correctAnswers: 0,
+            totalQuestions: 0,
+            percentage: 0,
+        });
+    }, [activeModulId]);
+
+    useEffect(() => {
+        if (!activeModulId) {
+            return;
+        }
+
+        const currentPhase = moduleMeta?.current_phase;
+        if (currentPhase && ["ta", "tk"].includes(currentPhase)) {
+            const key = `${currentPhase}:${activeModulId}`;
+            scoreFetchLocksRef.current.delete(key);
+        }
+    }, [moduleMeta?.current_phase, activeModulId]);
+
+    useEffect(() => {
+        if (moduleMeta?.current_phase !== "feedback" && isFeedbackModalOpen) {
+            setIsFeedbackModalOpen(false);
+        }
+    }, [moduleMeta?.current_phase, isFeedbackModalOpen]);
+
     const ActiveTaskComponent = TASK_COMPONENTS[activeComponent] ?? null;
 
     const handlePhaseChange = useCallback(
@@ -480,10 +579,15 @@ export default function PraktikumPage({ auth }) {
             !isSubmittingTask &&
             Boolean(activeTask);
 
+        const shouldShowScore = ["ta", "tk"].includes(previousPhase ?? "");
+
         if (shouldAutoSubmit) {
             (async () => {
                 try {
                     await handleTaskSubmit(activeTask, answers, true);
+                    if (shouldShowScore) {
+                        await fetchPhaseScore(previousPhase);
+                    }
                 } catch (error) {
                     console.error("Auto-submit failed:", error);
                 } finally {
@@ -494,8 +598,12 @@ export default function PraktikumPage({ auth }) {
             return;
         }
 
+        if (shouldShowScore) {
+            fetchPhaseScore(previousPhase);
+        }
+
         handlePhaseChange(newPhase);
-    }, [moduleMeta?.current_phase, activeModulId, answers, activeComponent, activeTask, isSubmittingTask, handleTaskSubmit, handlePhaseChange]);
+    }, [moduleMeta?.current_phase, activeModulId, answers, activeComponent, activeTask, isSubmittingTask, handleTaskSubmit, handlePhaseChange, fetchPhaseScore]);
 
     const handleFeedbackSubmit = async ({ feedback, rating }) => {
         setIsFeedbackPending(true);
@@ -582,6 +690,15 @@ export default function PraktikumPage({ auth }) {
                 onSubmit={handleFeedbackSubmit}
                 isPending={isFeedbackPending}
                 praktikumId={activeModulId}
+            />
+
+            <ScoreDisplayModal
+                isOpen={scoreModalState.isOpen}
+                onClose={closeScoreModal}
+                phaseType={scoreModalState.phaseType}
+                correctAnswers={scoreModalState.correctAnswers}
+                totalQuestions={scoreModalState.totalQuestions}
+                percentage={scoreModalState.percentage}
             />
         </>
     );

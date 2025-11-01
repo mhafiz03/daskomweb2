@@ -9,19 +9,17 @@ export default function ScorePraktikan({ auth }) {
             <PraktikanAuthenticated
                 user={auth?.user ?? auth?.praktikan ?? null}
                 praktikan={auth?.praktikan ?? auth?.user ?? null}
-                customWidth="w-[65%]"
+                customWidth="w-[80%]"
                 header={
                     <h2 className="font-semibold text-xl text-gray-800 leading-tight">
                         Dashboard
                     </h2>
                 }
             >
-                <Head title="Leaderboard Praktikan" />
-        
-                <div className="relative mt-[12vh] h-screen">
-                    <div className="mt-0">
-                        <ScoreTable />
-                    </div>
+                <Head title="Nilai Praktikan" />
+
+                <div className="mt-[8vh] flex flex-col gap-6">
+                    <ScoreTable />
                 </div>
             </PraktikanAuthenticated>
             <PraktikanUtilities />

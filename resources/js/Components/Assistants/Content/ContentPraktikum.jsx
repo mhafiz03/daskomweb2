@@ -11,7 +11,7 @@ import { PRAKTIKUM_HISTORY_QUERY_KEY } from "@/hooks/usePraktikumHistoryQuery";
 const PHASE_SEQUENCE = [
     { key: "preparation", label: "Preparation" },
     { key: "ta", label: "TA" },
-    { key: "fitb_jurnal", label: "FITB + Jurnal" },
+    { key: "fitb_jurnal", label: "Jurnal" },
     { key: "mandiri", label: "Mandiri" },
     { key: "tk", label: "TK" },
     { key: "feedback", label: "Feedback" },
@@ -686,11 +686,6 @@ export default function ContentPraktikum() {
         : effectiveSession?.pj_id
             ? `Asisten #${effectiveSession.pj_id}`
             : "-";
-
-    const currentPhaseLabel = effectiveSession?.current_phase
-        ? PHASE_SEQUENCE.find((phase) => phase.key === effectiveSession.current_phase)?.label ??
-        effectiveSession.current_phase
-        : "-";
     return (
         <section className="space-y-6 text-depth-primary">
             {/* Header */}
@@ -834,8 +829,8 @@ export default function ContentPraktikum() {
                     )}
 
                     <div className="mt-6">
-                        <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-                            <div className="glass-surface rounded-depth-lg p-3 shadow-depth-md">
+                        <div className="grid grid-rows-1 gap-3">
+                            <div className="rounded-depth-lg p-3 shadow-depth-md border border-depth focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--depth-color-primary)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--depth-color-card)] enabled:text-white disabled:bg-depth-card disabled:text-depth-secondary">
                                 <div 
                                     className="mb-2 flex cursor-pointer items-center gap-2 text-sm font-semibold text-depth-primary transition-colors hover:text-depth-primary/80"
                                     onClick={() => setIsAsistenExpanded(!isAsistenExpanded)}
@@ -884,9 +879,9 @@ export default function ContentPraktikum() {
                                     <p className="text-xs text-gray-500">Pilih kelas untuk melihat daftar asisten.</p>
                                 )}
                             </div>
-                            <div className="glass-surface rounded-depth-lg p-3 shadow-depth-md">
+                            <div className="rounded-depth-lg p-3 shadow-depth-md border border-depth focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--depth-color-primary)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--depth-color-card)] enabled:text-white disabled:bg-depth-card disabled:text-depth-secondary">
                                 <div 
-                                    className="mb-2 flex cursor-pointer items-center gap-2 text-sm font-semibold text-depth-primary transition-colors hover:text-depth-primary/80"
+                                    className="mb-2 flex cursor-pointer items-center gap-2 text-sm font-semibold text-depth-primary transition-colors hover:text-depth-primary/80 "
                                     onClick={() => setIsPraktikanExpanded(!isPraktikanExpanded)}
                                 >
                                     <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -923,7 +918,7 @@ export default function ContentPraktikum() {
                                                     return (
                                                         <div
                                                             key={praktikan?.id ?? praktikan?.nim}
-                                                            className="relative rounded-depth-md border border-depth bg-depth-card/50 px-2 py-1.5 text-xs shadow-depth-sm transition-all hover:shadow-depth-md"
+                                                            className="relative rounded-depth-md border border-depth bg-depth-card/50 px-3 py-2 text-xs shadow-depth-sm transition-all hover:shadow-depth-md"
                                                         >
                                                             {isOnline && (
                                                                 <div className="absolute -right-1 -top-1 flex h-3 w-3">
@@ -931,8 +926,17 @@ export default function ContentPraktikum() {
                                                                     <span className="relative inline-flex h-3 w-3 rounded-full bg-green-500 ring-2 ring-white dark:ring-gray-800"></span>
                                                                 </div>
                                                             )}
-                                                            <div className="font-semibold text-depth-primary">{praktikan?.nim ?? "NIM N/A"}</div>
-                                                            <div className="truncate text-depth-secondary">{praktikan?.nama ?? praktikan?.name ?? "Tidak tersedia"}</div>
+                                                            <div className="flex items-center justify-between gap-3">
+                                                                <span className="font-semibold text-depth-primary">
+                                                                    {praktikan?.nim ?? "NIM N/A"}
+                                                                </span>
+                                                                <span
+                                                                    className="truncate text-depth-secondary"
+                                                                    title={praktikan?.nama ?? praktikan?.name ?? "Tidak tersedia"}
+                                                                >
+                                                                    {praktikan?.nama ?? praktikan?.name ?? "Tidak tersedia"}
+                                                                </span>
+                                                            </div>
                                                         </div>
                                                     );
                                                 })}
@@ -948,159 +952,9 @@ export default function ContentPraktikum() {
                         </div>
                     </div>
 
-                    <div className="mt-10 flex flex-col gap-6 lg:flex-row lg:items-stretch">
-                        {/* Control Panel - Left Side */}
-                        {showControls && (
-                            <div className="glass-surface flex flex-col rounded-depth-lg p-6 shadow-depth-lg lg:w-64">
-                                <div className="flex flex-1 flex-col gap-3">
-                                    {/* Start/Pause/Resume/Restart Toggle Button */}
-                                    <button
-                                        type="button"
-                                        onClick={() => {
-                                            if (!hasSession || effectiveSession?.status === "idle") {
-                                                handleAction("start");
-                                            } else if (isTerminal) {
-                                                // Restart - same as start but for completed/exited praktikum
-                                                handleAction("start");
-                                            } else if (isRunning) {
-                                                handleAction("pause");
-                                            } else if (isPaused) {
-                                                handleAction("resume");
-                                            }
-                                        }}
-                                        disabled={
-                                            !hasSession || effectiveSession?.status === "idle"
-                                                ? startDisabled
-                                                : isTerminal
-                                                    ? startDisabled
-                                                    : isRunning
-                                                        ? pauseDisabled
-                                                        : resumeDisabled
-                                        }
-                                        title={
-                                            !hasSession || effectiveSession?.status === "idle"
-                                                ? startLabel
-                                                : isTerminal
-                                                    ? "Restart"
-                                                    : isRunning
-                                                        ? "Pause"
-                                                        : "Resume"
-                                        }
-                                        aria-label={
-                                            !hasSession || effectiveSession?.status === "idle"
-                                                ? startLabel
-                                                : isTerminal
-                                                    ? "Restart"
-                                                    : isRunning
-                                                        ? "Pause"
-                                                        : "Resume"
-                                        }
-                                        className={`glass-button flex items-center justify-center rounded-depth-lg p-3 shadow-depth-md transition-all ${
-                                            (!hasSession || effectiveSession?.status === "idle"
-                                                ? startDisabled
-                                                : isTerminal
-                                                    ? startDisabled
-                                                    : isRunning
-                                                        ? pauseDisabled
-                                                        : resumeDisabled)
-                                                ? "cursor-not-allowed opacity-50"
-                                                : "hover:-translate-y-0.5 hover:shadow-depth-lg"
-                                        }`}
-                                        style={{
-                                            background: (!hasSession || effectiveSession?.status === "idle"
-                                                ? startDisabled
-                                                : isTerminal
-                                                    ? startDisabled
-                                                    : isRunning
-                                                        ? pauseDisabled
-                                                        : resumeDisabled)
-                                                ? undefined
-                                                : !hasSession || effectiveSession?.status === "idle"
-                                                    ? "linear-gradient(135deg, rgba(34, 197, 94, 0.9), rgba(22, 163, 74, 0.9))"
-                                                    : isTerminal
-                                                        ? "linear-gradient(135deg, rgba(99, 102, 241, 0.9), rgba(139, 92, 246, 0.9))"
-                                                        : isRunning
-                                                            ? "linear-gradient(135deg, rgba(251, 191, 36, 0.9), rgba(245, 158, 11, 0.9))"
-                                                            : "linear-gradient(135deg, rgba(34, 197, 94, 0.9), rgba(22, 163, 74, 0.9))",
-                                        }}
-                                    >
-                                        {!hasSession || effectiveSession?.status === "idle" ? (
-                                            <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                            </svg>
-                                        ) : isTerminal ? (
-                                            <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                                            </svg>
-                                        ) : isRunning ? (
-                                            <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                            </svg>
-                                        ) : (
-                                            <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                            </svg>
-                                        )}
-                                    </button>
-
-                                    <button
-                                        type="button"
-                                        onClick={() => {
-                                            const nextIndex = currentPhaseIndex + 1;
-                                            // Don't wrap around - stop at the last phase
-                                            if (nextIndex < PHASE_SEQUENCE.length) {
-                                                const nextPhase = PHASE_SEQUENCE[nextIndex];
-                                                handleAction("next", { phase: nextPhase.key });
-                                            }
-                                        }}
-                                        disabled={nextDisabled}
-                                        title="Next Phase"
-                                        aria-label="Next Phase"
-                                        className={`glass-button flex items-center justify-center rounded-depth-lg p-3 shadow-depth-md transition-all ${
-                                            nextDisabled
-                                                ? "cursor-not-allowed opacity-50"
-                                                : "hover:-translate-y-0.5 hover:shadow-depth-lg"
-                                        }`}
-                                        style={{
-                                            background: nextDisabled
-                                                ? undefined
-                                                : "linear-gradient(135deg, rgba(59, 130, 246, 0.9), rgba(37, 99, 235, 0.9))",
-                                        }}
-                                    >
-                                        <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 9l3 3m0 0l-3 3m3-3H8m13 0a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                        </svg>
-                                    </button>
-
-                                    <button
-                                        type="button"
-                                        onClick={() => handleAction("exit")}
-                                        disabled={exitDisabled}
-                                        title="Exit Praktikum"
-                                        aria-label="Exit Praktikum"
-                                        className={`glass-button flex items-center justify-center rounded-depth-lg p-3 shadow-depth-md transition-all ${
-                                            exitDisabled
-                                                ? "cursor-not-allowed opacity-50"
-                                                : "hover:-translate-y-0.5 hover:shadow-depth-lg"
-                                        }`}
-                                        style={{
-                                            background: exitDisabled
-                                                ? undefined
-                                                : "linear-gradient(135deg, rgba(239, 68, 68, 0.9), rgba(220, 38, 38, 0.9))",
-                                        }}
-                                    >
-                                        <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                                        </svg>
-                                    </button>
-                                </div>
-                            </div>
-                        )}
-
-                        {/* Main Info Card - Right Side */}
-                        <div className="flex flex-1 flex-col rounded-depth-lg border border-depth bg-depth-card p-6 shadow-depth-lg">
+                    <div className="mt-10 flex flex-col gap-6">
+                        {/* Main Info Card */}
+                        <div className="glass-surface flex flex-1 flex-col rounded-depth-lg border border-depth bg-depth-card p-6 shadow-depth-lg">
                             <div className="flex flex-col items-center gap-6">
                                 <div className="w-full text-center">
                                     <div className="mt-2 text-5xl font-bold text-depth-primary">
@@ -1213,6 +1067,156 @@ export default function ContentPraktikum() {
                                 )}
                             </div>
                         </div>
+
+                        {/* Control Panel */}
+                        {showControls && (
+                            <div className="flex w-full flex-col p-6 lg:max-w-3xl lg:self-center">
+                                <div className="flex flex-1 justify-between gap-3">
+                                    {/* Start/Pause/Resume/Restart Toggle Button */}
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            if (!hasSession || effectiveSession?.status === "idle") {
+                                                handleAction("start");
+                                            } else if (isTerminal) {
+                                                // Restart - same as start but for completed/exited praktikum
+                                                handleAction("start");
+                                            } else if (isRunning) {
+                                                handleAction("pause");
+                                            } else if (isPaused) {
+                                                handleAction("resume");
+                                            }
+                                        }}
+                                        disabled={
+                                            !hasSession || effectiveSession?.status === "idle"
+                                                ? startDisabled
+                                                : isTerminal
+                                                    ? startDisabled
+                                                    : isRunning
+                                                        ? pauseDisabled
+                                                        : resumeDisabled
+                                        }
+                                        title={
+                                            !hasSession || effectiveSession?.status === "idle"
+                                                ? startLabel
+                                                : isTerminal
+                                                    ? "Restart"
+                                                    : isRunning
+                                                        ? "Pause"
+                                                        : "Resume"
+                                        }
+                                        aria-label={
+                                            !hasSession || effectiveSession?.status === "idle"
+                                                ? startLabel
+                                                : isTerminal
+                                                    ? "Restart"
+                                                    : isRunning
+                                                        ? "Pause"
+                                                        : "Resume"
+                                        }
+                                        className={`flex w-full items-center justify-center rounded-depth-lg border border-depth bg-depth-interactive p-3 text-depth-primary shadow-depth-md transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--depth-color-primary)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--depth-color-card)] enabled:text-white disabled:bg-depth-card disabled:text-depth-secondary ${
+                                            (!hasSession || effectiveSession?.status === "idle"
+                                                ? startDisabled
+                                                : isTerminal
+                                                    ? startDisabled
+                                                    : isRunning
+                                                        ? pauseDisabled
+                                                        : resumeDisabled)
+                                                ? "cursor-not-allowed opacity-50"
+                                                : "hover:-translate-y-0.5 hover:shadow-depth-lg"
+                                        }`}
+                                        style={{
+                                            background: (!hasSession || effectiveSession?.status === "idle"
+                                                ? startDisabled
+                                                : isTerminal
+                                                    ? startDisabled
+                                                    : isRunning
+                                                        ? pauseDisabled
+                                                        : resumeDisabled)
+                                                ? undefined
+                                                : !hasSession || effectiveSession?.status === "idle"
+                                                    ? "linear-gradient(135deg, rgba(34, 197, 94, 0.9), rgba(22, 163, 74, 0.9))"
+                                                    : isTerminal
+                                                        ? "linear-gradient(135deg, rgba(99, 102, 241, 0.9), rgba(139, 92, 246, 0.9))"
+                                                        : isRunning
+                                                            ? "linear-gradient(135deg, rgba(251, 191, 36, 0.9), rgba(245, 158, 11, 0.9))"
+                                                            : "linear-gradient(135deg, rgba(34, 197, 94, 0.9), rgba(22, 163, 74, 0.9))",
+                                        }}
+                                    >
+                                        {!hasSession || effectiveSession?.status === "idle" ? (
+                                            <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                            </svg>
+                                        ) : isTerminal ? (
+                                            <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                            </svg>
+                                        ) : isRunning ? (
+                                            <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                            </svg>
+                                        ) : (
+                                            <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                            </svg>
+                                        )}
+                                    </button>
+
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            const nextIndex = currentPhaseIndex + 1;
+                                            // Don't wrap around - stop at the last phase
+                                            if (nextIndex < PHASE_SEQUENCE.length) {
+                                                const nextPhase = PHASE_SEQUENCE[nextIndex];
+                                                handleAction("next", { phase: nextPhase.key });
+                                            }
+                                        }}
+                                        disabled={nextDisabled}
+                                        title="Next Phase"
+                                        aria-label="Next Phase"
+                                        className={`flex w-full items-center justify-center rounded-depth-lg border border-depth bg-depth-interactive p-3 text-depth-primary shadow-depth-md transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--depth-color-primary)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--depth-color-card)] enabled:text-white disabled:bg-depth-card disabled:text-depth-secondary ${
+                                            nextDisabled
+                                                ? "cursor-not-allowed opacity-50"
+                                                : "hover:-translate-y-0.5 hover:shadow-depth-lg"
+                                        }`}
+                                        style={{
+                                            background: nextDisabled
+                                                ? undefined
+                                                : "linear-gradient(135deg, rgba(59, 130, 246, 0.9), rgba(37, 99, 235, 0.9))",
+                                        }}
+                                    >
+                                        <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 9l3 3m0 0l-3 3m3-3H8m13 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                    </button>
+
+                                    <button
+                                        type="button"
+                                        onClick={() => handleAction("exit")}
+                                        disabled={exitDisabled}
+                                        title="Exit Praktikum"
+                                        aria-label="Exit Praktikum"
+                                        className={`flex w-full items-center justify-center rounded-depth-lg border border-depth bg-depth-interactive p-3 text-depth-primary shadow-depth-md transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--depth-color-primary)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--depth-color-card)] enabled:text-white disabled:bg-depth-card disabled:text-depth-secondary ${
+                                            exitDisabled
+                                                ? "cursor-not-allowed opacity-50"
+                                                : "hover:-translate-y-0.5 hover:shadow-depth-lg"
+                                        }`}
+                                        style={{
+                                            background: exitDisabled
+                                                ? undefined
+                                                : "linear-gradient(135deg, rgba(239, 68, 68, 0.9), rgba(220, 38, 38, 0.9))",
+                                        }}
+                                    >
+                                        <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>
