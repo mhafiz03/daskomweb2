@@ -1,44 +1,63 @@
-import { useState, useEffect } from 'react';
+import { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { api } from '@/lib/api';
 
 export default function ScoreTable() {
-    const [rows, setRows] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
-
     const nilaiQuery = useQuery({
         queryKey: ['nilai'],
         queryFn: async () => {
             const { data } = await api.get('/api-v1/nilai');
 
-            if (Array.isArray(data?.nilai)) {
-                return data.nilai.map(item => ({
-                    tanggal: new Date(item.created_at).toLocaleDateString('id-ID'),
-                    modul: item.modul ? item.modul.judul : `Modul ${item.modul_id}`,
-                    nilai: `${item.tp}/${item.ta}/${item.d1}/${item.d2}/${item.d3}/${item.d4}/${item.i1 ?? item.l1}/${item.i2 ?? item.l2}`,
-                    asisten: item.asisten ? item.asisten.nama : 'Unknown'
-                }));
+            if (!Array.isArray(data?.nilai)) {
+                return [];
             }
 
-            return [];
-        },
-        onSuccess: (data) => {
-            setRows(data);
-            setLoading(false);
-        },
-        onError: (err) => {
-            console.error('Error fetching nilai data:', err);
-            setError('Failed to load score data');
-            setRows([]);
-            setLoading(false);
+            return data.nilai.map((item) => {
+                const createdAt = item.created_at ? new Date(item.created_at) : null;
+
+                return {
+                    id: item.id ?? `${item.modul_id}-${item.praktikan_id}`,
+                    tanggal: createdAt && !Number.isNaN(createdAt.getTime())
+                        ? createdAt.toLocaleDateString('id-ID')
+                        : '-',
+                    modul: item.modul?.judul ?? `Modul ${item.modul_id}`,
+                    scores: {
+                        tp: item.tp,
+                        ta: item.ta,
+                        d1: item.d1,
+                        d2: item.d2,
+                        d3: item.d3,
+                        d4: item.d4,
+                        i1: item.i1 ?? item.l1,
+                        i2: item.i2 ?? item.l2,
+                        avg: item.avg,
+                    },
+                    asisten: item.asisten?.nama ?? 'Tidak diketahui',
+                };
+            });
         },
         refetchOnWindowFocus: false,
     });
 
-    useEffect(() => {
-        setLoading(nilaiQuery.isLoading);
-    }, [nilaiQuery.isLoading]);
+    const rows = useMemo(() => nilaiQuery.data ?? [], [nilaiQuery.data]);
+    const loading = nilaiQuery.isLoading || nilaiQuery.isFetching;
+    const errorMessage = nilaiQuery.isError
+        ? nilaiQuery.error?.response?.data?.message ?? nilaiQuery.error?.message ?? 'Failed to load score data'
+        : null;
+
+    const formatScore = (value) => {
+        if (value === null || value === undefined) {
+            return '-';
+        }
+
+        const numeric = Number(value);
+
+        if (Number.isNaN(numeric)) {
+            return value;
+        }
+
+        return Number.isInteger(numeric) ? numeric : numeric.toFixed(2);
+    };
 
     const Table = ({ rows }) => {
         if (loading) {
@@ -52,13 +71,13 @@ export default function ScoreTable() {
             );
         }
 
-        if (error) {
+        if (errorMessage) {
             return (
                 <div className="mt-6 flex h-[68vh] items-center justify-center">
                     <div className="text-center">
-                        <p className="text-red-500">{error}</p>
+                        <p className="text-red-500">{errorMessage}</p>
                         <button 
-                            onClick={() => window.location.reload()} 
+                            onClick={() => nilaiQuery.refetch()} 
                             className="mt-4 rounded-depth-md bg-[var(--depth-color-primary)] px-6 py-2 text-sm font-semibold text-white shadow-depth-sm transition hover:-translate-y-0.5 hover:shadow-depth-md"
                         >
                             Retry
@@ -77,15 +96,39 @@ export default function ScoreTable() {
         }
 
         return (
-            <div className="mt-6 h-[68vh] overflow-y-auto scrollbar-thin scrollbar-track-depth scrollbar-thumb-depth-secondary">
-                <table className="min-w-full">
+            <div className="mt-6 h-[68vh] overflow-x-auto overflow-y-auto rounded-depth-md border border-depth bg-depth-card/60 scrollbar-thin scrollbar-track-depth scrollbar-thumb-depth-secondary">
+                <table className="min-w-[960px] w-full text-sm">
+                    <thead className="bg-depth-interactive/80 text-depth-primary">
+                        <tr className="text-xs font-semibold uppercase tracking-wide">
+                            <th className="px-4 py-3 text-left">Tanggal</th>
+                            <th className="px-4 py-3 text-left">Modul</th>
+                            <th className="px-4 py-3 text-center">TP</th>
+                            <th className="px-4 py-3 text-center">TA</th>
+                            <th className="px-4 py-3 text-center">D1</th>
+                            <th className="px-4 py-3 text-center">D2</th>
+                            <th className="px-4 py-3 text-center">D3</th>
+                            <th className="px-4 py-3 text-center">D4</th>
+                            <th className="px-4 py-3 text-center">I1</th>
+                            <th className="px-4 py-3 text-center">I2</th>
+                            <th className="px-4 py-3 text-center">Rata-rata</th>
+                            <th className="px-4 py-3 text-left">Asisten</th>
+                        </tr>
+                    </thead>
                     <tbody className="divide-y divide-depth">
-                        {rows.map((row, index) => (
-                            <tr key={index} className="group transition hover:bg-depth-interactive/50">
-                                <td className="px-4 py-3 text-center text-sm font-medium text-depth-primary w-[20%]">{row.tanggal}</td>
-                                <td className="px-4 py-3 text-center text-sm font-medium text-depth-primary w-[20%]">{row.modul}</td>
-                                <td className="px-4 py-3 text-center text-sm font-semibold text-[var(--depth-color-primary)] w-[40%]">{row.nilai}</td>
-                                <td className="px-4 py-3 text-center text-sm font-medium text-depth-secondary w-[20%]">{row.asisten}</td>
+                        {rows.map((row) => (
+                            <tr key={row.id} className="transition hover:bg-depth-interactive/50">
+                                <td className="px-4 py-3 text-depth-primary">{row.tanggal}</td>
+                                <td className="px-4 py-3 text-depth-primary">{row.modul}</td>
+                                <td className="px-4 py-3 text-center font-semibold text-[var(--depth-color-primary)]">{formatScore(row.scores.tp)}</td>
+                                <td className="px-4 py-3 text-center font-semibold text-[var(--depth-color-primary)]">{formatScore(row.scores.ta)}</td>
+                                <td className="px-4 py-3 text-center text-depth-primary">{formatScore(row.scores.d1)}</td>
+                                <td className="px-4 py-3 text-center text-depth-primary">{formatScore(row.scores.d2)}</td>
+                                <td className="px-4 py-3 text-center text-depth-primary">{formatScore(row.scores.d3)}</td>
+                                <td className="px-4 py-3 text-center text-depth-primary">{formatScore(row.scores.d4)}</td>
+                                <td className="px-4 py-3 text-center text-depth-primary">{formatScore(row.scores.i1)}</td>
+                                <td className="px-4 py-3 text-center text-depth-primary">{formatScore(row.scores.i2)}</td>
+                                <td className="px-4 py-3 text-center font-semibold text-[var(--depth-color-primary)]">{formatScore(row.scores.avg)}</td>
+                                <td className="px-4 py-3 text-depth-secondary">{row.asisten}</td>
                             </tr>
                         ))}
                     </tbody>
@@ -95,22 +138,9 @@ export default function ScoreTable() {
     };
 
     return (
-        <div className="mx-auto max-w-3xl rounded-depth-lg border border-depth bg-depth-card px-6 py-6 shadow-depth-lg">
-            <div className="rounded-depth-md bg-[var(--depth-color-primary)] px-4 py-3 shadow-depth-md">
-                <div className="flex items-center justify-evenly gap-4">
-                    <div className="w-[25%] rounded-depth-sm p-2 text-center transition hover:bg-white/10">
-                        <h1 className="font-bold text-white">Tanggal</h1>
-                    </div>
-                    <div className="w-[25%] rounded-depth-sm p-2 text-center transition hover:bg-white/10">
-                        <h1 className="font-bold text-white">Modul</h1>
-                    </div>
-                    <div className="w-[30%] rounded-depth-sm p-2 text-center transition hover:bg-white/10">
-                        <h1 className="font-bold text-white">Nilai</h1>
-                    </div>
-                    <div className="w-[20%] rounded-depth-sm p-2 text-center transition hover:bg-white/10">
-                        <h1 className="font-bold text-white">Asisten</h1>
-                    </div>
-                </div>
+        <div className="mx-auto w-full max-w-5xl rounded-depth-lg border border-depth bg-depth-card px-6 py-6 shadow-depth-lg">
+            <div className="rounded-depth-md bg-[var(--depth-color-primary)] px-4 py-3 text-center shadow-depth-md">
+                <h1 className="text-xl font-bold text-white">Rekap Nilai Praktikan</h1>
             </div>
             <Table rows={rows} />
         </div>

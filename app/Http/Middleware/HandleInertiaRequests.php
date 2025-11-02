@@ -36,11 +36,17 @@ class HandleInertiaRequests extends Middleware
             $assistant->loadMissing(['role.permissions']);
         }
 
+        $praktikan = $request->user('praktikan');
+
+        if ($praktikan) {
+            $praktikan->loadMissing(['kelas']);
+        }
+
         return [
             ...parent::share($request),
             'auth' => [
                 'asisten' => $assistant,
-                'praktikan' => auth()->guard('praktikan')->user(),
+                'praktikan' => $praktikan,
             ],
             'flash' => [
                 'success' => fn () => $request->session()->get('success'),

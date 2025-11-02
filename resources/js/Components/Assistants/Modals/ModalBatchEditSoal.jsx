@@ -108,7 +108,7 @@ export default function ModalBatchEditSoal({
                     {previewItems.map((item, index) => (
                         <li
                             key={`pg-preview-${index}`}
-                            className="relative rounded-depth-lg border border-depth bg-depth-card p-5 shadow-depth-md"
+                            className="relative p-5"
                         >
                             <div className="mb-3">
                                 <strong>Soal: {index + 1}</strong>
@@ -222,14 +222,7 @@ export default function ModalBatchEditSoal({
             >
                 <div className="depth-modal-header">
                     <h2 className="depth-modal-title">{title}</h2>
-                    <button onClick={onClose} type="button" className="depth-modal-close">
-                        <img className="h-7 w-7" src={closeIcon} alt="Tutup" />
-                    </button>
-                </div>
-
-                {normalizedModuleOptions.length > 0 && (
-                    <div className="flex flex-col gap-3 border-b border-[color:var(--depth-border)] bg-depth-interactive/40 px-6 py-3 md:flex-row md:items-center md:justify-between">
-                        <span className="text-sm font-semibold text-depth-secondary">Modul</span>
+                    {normalizedModuleOptions.length > 0 && (
                         <select
                             className="w-full rounded-depth-md border border-depth bg-depth-card px-3 py-2 text-sm text-depth-primary shadow-depth-sm transition focus:border-[var(--depth-color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)] focus:ring-offset-0 md:w-auto"
                             value={selectedModuleId}
@@ -241,10 +234,13 @@ export default function ModalBatchEditSoal({
                                 </option>
                             ))}
                         </select>
-                    </div>
                 )}
+                    <button onClick={onClose} type="button" className="depth-modal-close">
+                        <img className="h-7 w-7" src={closeIcon} alt="Tutup" />
+                    </button>
+                </div>
 
-                <div className="flex gap-2 border-b border-[color:var(--depth-border)] px-6 py-3">
+                <div className="flex gap-2 border-[color:var(--depth-border)] px-6 py-3 -mt-3">
                     {tabs.map((tab) => {
                         const isActive = activeTab === tab.key;
                         return (

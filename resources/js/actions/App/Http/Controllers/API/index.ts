@@ -1,6 +1,7 @@
 import AsistenController from './AsistenController'
 import PraktikanController from './PraktikanController'
 import AutosaveSnapshotController from './AutosaveSnapshotController'
+import SoalCommentController from './SoalCommentController'
 import RoleController from './RoleController'
 import ModulController from './ModulController'
 import KelasController from './KelasController'
@@ -29,6 +30,7 @@ const API = {
     AsistenController: Object.assign(AsistenController, AsistenController),
     PraktikanController: Object.assign(PraktikanController, PraktikanController),
     AutosaveSnapshotController: Object.assign(AutosaveSnapshotController, AutosaveSnapshotController),
+    SoalCommentController: Object.assign(SoalCommentController, SoalCommentController),
     RoleController: Object.assign(RoleController, RoleController),
     ModulController: Object.assign(ModulController, ModulController),
     KelasController: Object.assign(KelasController, KelasController),

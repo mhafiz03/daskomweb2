@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { useModulesQuery } from "@/hooks/useModulesQuery";
 import { send } from "@/lib/wayfinder";
+import toast from "react-hot-toast";
 import { setPraktikan } from "@/actions/App/Http/Controllers/API/PraktikanController";
 
 export default function FormTarikPraktikan() {
@@ -22,6 +23,7 @@ export default function FormTarikPraktikan() {
             setModalMessage("Gagal memuat daftar modul");
             setIsSuccess(false);
             setIsModalOpen(true);
+            toast.error("Gagal memuat daftar modul");
         },
     });
 
@@ -56,24 +58,30 @@ export default function FormTarikPraktikan() {
             }
         },
         onSuccess: () => {
-            setModalMessage("Data praktikan berhasil ditarik");
+            const successMessage = "Data praktikan berhasil ditarik";
+            setModalMessage(successMessage);
             setIsSuccess(true);
             setNim("");
             setModule("");
             setIsModalOpen(true);
+            toast.success(successMessage);
         },
         onError: (err) => {
-            setModalMessage(err.message ?? "Gagal menarik data praktikan");
+            const errorMessage = err.message ?? "Gagal menarik data praktikan";
+            setModalMessage(errorMessage);
             setIsSuccess(false);
             setIsModalOpen(true);
+            toast.error(errorMessage);
         },
     });
 
     const handleSubmit = () => {
         if (!nim || !module) {
-            setModalMessage("Harap isi semua kolom, jangan tertinggal!");
+            const warningMessage = "Harap isi semua kolom, jangan tertinggal!";
+            setModalMessage(warningMessage);
             setIsSuccess(false);
             setIsModalOpen(true);
+            toast.error(warningMessage);
             return;
         }
 

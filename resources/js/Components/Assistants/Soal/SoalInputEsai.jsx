@@ -8,6 +8,7 @@ import { send } from "@/lib/wayfinder";
 import { getSoalController } from "@/lib/soalControllers";
 import toast from "react-hot-toast";
 import ModalBatchEditSoal from "../Modals/ModalBatchEditSoal";
+import SoalCommentsButton from "./SoalCommentsButton";
 
 export default function SoalInputEssay({ kategoriSoal, modul, modules = [], onModalSuccess, onModalValidation, onChangeModul }) {
     const [addSoal, setAddSoal] = useState({ soal: "" });
@@ -139,8 +140,8 @@ export default function SoalInputEssay({ kategoriSoal, modul, modules = [], onMo
             console.error("Error batch updating soal:", error);
             toast.error(
                 error?.response?.data?.message ??
-                    error?.message ??
-                    "Gagal memperbarui soal.",
+                error?.message ??
+                "Gagal memperbarui soal.",
             );
         },
     });
@@ -229,8 +230,8 @@ export default function SoalInputEssay({ kategoriSoal, modul, modules = [], onMo
     const handleBatchSubmit = async ({ items, modulId }) => {
         const normalizedItems = Array.isArray(items)
             ? items.map((item) => ({
-                  soal: (item?.soal ?? "").trim(),
-              }))
+                soal: (item?.soal ?? "").trim(),
+            }))
             : [];
 
         const targetModulId = modulId ?? modul;
@@ -296,21 +297,29 @@ export default function SoalInputEssay({ kategoriSoal, modul, modules = [], onMo
                                         {soalItem.soal}
                                     </pre>
                                 </div>
-                                <div className="flex gap-2">
-                                    <button
-                                        onClick={() => handleOpenModalEdit(soalItem)}
-                                        className="flex h-9 w-9 items-center justify-center rounded-depth-md border border-depth bg-depth-interactive shadow-depth-sm transition duration-150 hover:shadow-depth-md"
-                                        type="button"
-                                    >
-                                        <img className="edit-icon-filter h-4 w-4" src={editIcon} alt="Edit" />
-                                    </button>
+                                <div className="absolute right-4 top-4 flex gap-2">
                                     <button
                                         onClick={() => handleOpenModalDelete(soalItem.id)}
-                                        className="flex h-9 w-9 items-center justify-center rounded-depth-md border border-red-300 bg-depth-interactive text-red-500 shadow-depth-sm transition duration-150 hover:border-red-400 hover:shadow-depth-md"
+                                        className="flex h-9 w-9 items-center justify-center rounded-depth-md border border-depth bg-depth-interactive text-red-500 shadow-depth-sm transition duration-150 hover:border-red-400 hover:shadow-depth-md"
                                         type="button"
                                     >
                                         <img className="h-4 w-4" src={trashIcon} alt="Delete" />
                                     </button>
+                                    <SoalCommentsButton
+                                        kategoriSoal={kategoriSoal}
+                                        modulId={soalItem?.modul_id ?? (modul ? Number(modul) : null)}
+                                        soalId={soalItem?.id}
+                                        variant="icon"
+                                    />
+                                    <button
+                                        onClick={() => handleOpenModalEdit(soalItem)}
+                                        className="flex h-9 w-9 items-center justify-center rounded-depth-md border border-depth bg-depth-interactive shadow-depth-sm transition duration-150 hover:border-blue-400 hover:shadow-depth-md"
+                                        type="button"
+                                    >
+                                        <img className="edit-icon-filter h-4 w-4" src={editIcon} alt="Edit" />
+                                    </button>
+
+
                                 </div>
                             </li>
                         ))}

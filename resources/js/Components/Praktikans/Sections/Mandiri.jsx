@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import QuestionCommentInput from "./QuestionCommentInput";
 
 export default function Mandiri({
     isLoading = false,
@@ -8,6 +9,9 @@ export default function Mandiri({
     setAnswers,
     setQuestionsCount,
     onSubmitTask,
+    tipeSoal = null,
+    praktikanId = null,
+    isCommentEnabled = false,
 }) {
     useEffect(() => {
         setQuestionsCount(Array.isArray(questions) ? questions.length : 0);
@@ -75,6 +79,13 @@ export default function Mandiri({
                                     {question.text}
                                 </p>
                             </div>
+                            <QuestionCommentInput
+                                questionId={question.id ?? question.soalId ?? question.soal_id ?? null}
+                                tipeSoal={tipeSoal}
+                                praktikanId={praktikanId}
+                                isEnabled={isCommentEnabled}
+                                className="pl-11"
+                            />
                         </div>
 
                         {/* Answer Textarea */}

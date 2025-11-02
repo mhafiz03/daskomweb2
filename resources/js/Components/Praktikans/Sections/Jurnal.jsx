@@ -4,6 +4,7 @@ import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism";
 import remarkGfm from "remark-gfm";
 import remarkBreaks from "remark-breaks";
+import QuestionCommentInput from "./QuestionCommentInput";
 
 export default function Jurnal({
     isLoading = false,
@@ -13,6 +14,9 @@ export default function Jurnal({
     setAnswers,
     setQuestionsCount,
     onSubmitTask,
+    tipeSoal = null,
+    praktikanId = null,
+    isCommentEnabled = false,
 }) {
     useEffect(() => {
         setQuestionsCount(Array.isArray(questions) ? questions.length : 0);
@@ -180,6 +184,13 @@ export default function Jurnal({
                                                 </ReactMarkdown>
                                             </div>
                                         </div>
+                                        <QuestionCommentInput
+                                            questionId={question.id ?? question.soalId ?? question.soal_id ?? null}
+                                            tipeSoal={question.questionType === "fitb" ? "fitb" : tipeSoal}
+                                            praktikanId={praktikanId}
+                                            isEnabled={isCommentEnabled}
+                                            className="pl-11"
+                                        />
                                     </div>
                                     <div className="pl-11 pr-11">
                                         <textarea
@@ -220,6 +231,13 @@ export default function Jurnal({
                                                 {question.text}
                                             </p>
                                         </div>
+                                        <QuestionCommentInput
+                                            questionId={question.id ?? question.soalId ?? question.soal_id ?? null}
+                                            tipeSoal={question.questionType === "fitb" ? "fitb" : tipeSoal}
+                                            praktikanId={praktikanId}
+                                            isEnabled={isCommentEnabled}
+                                            className="pl-11"
+                                        />
                                     </div>
 
                                     {/* Long Answer Textarea */}

@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import QuestionCommentInput from "./QuestionCommentInput";
 
 export default function TesAwal({
     isLoading = false,
@@ -8,6 +9,9 @@ export default function TesAwal({
     setAnswers,
     setQuestionsCount,
     onSubmitTask,
+    tipeSoal = null,
+    praktikanId = null,
+    isCommentEnabled = false,
 }) {
     useEffect(() => {
         setQuestionsCount(questions.length);
@@ -75,6 +79,13 @@ export default function TesAwal({
                                     {question.text}
                                 </p>
                             </div>
+                            <QuestionCommentInput
+                                questionId={question.id ?? question.soalId ?? question.soal_id ?? null}
+                                tipeSoal={tipeSoal}
+                                praktikanId={praktikanId}
+                                isEnabled={isCommentEnabled}
+                                className="pl-11"
+                            />
                         </div>
 
                         {/* Options */}
@@ -111,11 +122,11 @@ export default function TesAwal({
                                         <span className={`flex-1 leading-relaxed whitespace-pre-wrap transition-colors duration-200 text-lg ${
                                             isSelected ? "text-depth-primary font-medium" : "text-depth-primary"
                                         }`}>
-                                            {option.text}
-                                        </span>
-                                    </label>
-                                );
-                            })}
+                                                {option.text}
+                                            </span>
+                                        </label>
+                                    );
+                                })}
                         </div>
                     </div>
                 ))}

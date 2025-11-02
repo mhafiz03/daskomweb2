@@ -34,16 +34,19 @@ const TASK_CONFIG = {
         questionEndpoint: (modulId) => `/api-v1/soal-tp/${modulId}`,
         submitEndpoint: "/api-v1/jawaban-tp",
         variant: "essay",
+        commentType: "tp",
     },
     TesAwal: {
         questionEndpoint: (modulId) => `/api-v1/soal-ta/${modulId}`,
         submitEndpoint: "/api-v1/jawaban-ta",
         variant: "multiple-choice",
+        commentType: "ta",
     },
     Jurnal: {
         questionEndpoint: (modulId) => `/api-v1/soal-jurnal/${modulId}`,
         submitEndpoint: "/api-v1/jawaban-jurnal",
         variant: "essay",
+        commentType: "jurnal",
         fitb: {
             questionEndpoint: (modulId) => `/api-v1/soal-fitb/${modulId}`,
             submitEndpoint: "/api-v1/jawaban-fitb",
@@ -54,11 +57,13 @@ const TASK_CONFIG = {
         answerEndpoint: null, // Mandiri doesn't fetch previous answers
         submitEndpoint: "/api-v1/jawaban-tm",
         variant: "essay",
+        commentType: "mandiri",
     },
     TesKeterampilan: {
         questionEndpoint: (modulId) => `/api-v1/soal-tk/${modulId}`,
         submitEndpoint: "/api-v1/jawaban-tk",
         variant: "multiple-choice",
+        commentType: "tk",
     },
 };
 
@@ -150,9 +155,10 @@ export default function PraktikumPage({ auth }) {
     const praktikanId = praktikanData?.id ?? null;
     const kelasId =
         praktikanData?.kelas_id ??
-        praktikanData?.kelasId ??
         praktikanData?.kelas?.id ??
         null;
+    const kelasName = praktikanData?.kelas?.kelas ?? "";
+    const isTotClass = kelasName.trim().toUpperCase().startsWith("TOT");
 
     const clearTaskProgress = useCallback(() => {
         setQuestions([]);
@@ -705,6 +711,8 @@ export default function PraktikumPage({ auth }) {
     }, [moduleMeta?.current_phase, isFeedbackModalOpen]);
 
     const ActiveTaskComponent = TASK_COMPONENTS[activeComponent] ?? null;
+    const activeTaskConfig = TASK_CONFIG[activeComponent] ?? null;
+    const activeCommentType = activeTaskConfig?.commentType ?? null;
 
     const handlePhaseChange = useCallback(
         (currentPhase) => {
@@ -787,7 +795,7 @@ export default function PraktikumPage({ auth }) {
                 laporan: feedback,
                 rating: rating || null,
             });
-            
+
             setIsFeedbackModalOpen(false);
         } catch (error) {
             console.error('Failed to submit feedback:', error);
@@ -849,6 +857,9 @@ export default function PraktikumPage({ auth }) {
                                 questions={questions}
                                 setQuestionsCount={setQuestionsCount}
                                 onSubmitTask={handleTaskSubmit}
+                                tipeSoal={activeCommentType}
+                                praktikanId={praktikanId}
+                                isCommentEnabled={isTotClass && Boolean(activeCommentType)}
                             />
                         )}
                     </div>

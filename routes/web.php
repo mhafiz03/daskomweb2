@@ -19,6 +19,7 @@ use App\Http\Controllers\API\PollingsController;
 use App\Http\Controllers\API\PraktikanController;
 use App\Http\Controllers\API\PraktikumController;
 use App\Http\Controllers\API\RoleController;
+use App\Http\Controllers\API\SoalCommentController;
 use App\Http\Controllers\API\SoalFITBController;
 use App\Http\Controllers\API\SoalJurnalController;
 use App\Http\Controllers\API\SoalTAController;
@@ -179,6 +180,13 @@ Route::prefix('api-v1')->middleware('audit.assistant')->group(function () {
         ->middleware(['auth:praktikan', 'can:praktikum-lms']);
     Route::get('/praktikan/autosave/questions', [AutosaveSnapshotController::class, 'getQuestionIds'])
         ->name('praktikan.autosave.questions.index')
+        ->middleware(['auth:praktikan', 'can:praktikum-lms']);
+
+    Route::get('/asisten/soal-comment/{tipeSoal}/{modul}', [SoalCommentController::class, 'showByModul'])
+        ->name('asisten.soal-comment.index')
+        ->middleware(['auth:asisten', 'can:nilai-praktikan']);
+    Route::post('/praktikan/soal-comment/{praktikan}/{tipeSoal}/{soal}', [SoalCommentController::class, 'store'])
+        ->name('praktikan.soal-comment.store')
         ->middleware(['auth:praktikan', 'can:praktikum-lms']);
 
     // Asisten

@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import QuestionCommentInput from "./QuestionCommentInput";
 
 export default function TugasPendahuluan({
     isLoading = false,
@@ -8,6 +9,9 @@ export default function TugasPendahuluan({
     setAnswers,
     setQuestionsCount,
     onSubmitTask,
+    tipeSoal = null,
+    praktikanId = null,
+    isCommentEnabled = false,
 }) {
     useEffect(() => {
         setQuestionsCount(questions.length);
@@ -60,11 +64,23 @@ export default function TugasPendahuluan({
             <div className="space-y-6 max-h-[55vh] p-4 rounded-lg border-4 bg-softIvory border-softPearl transition-colors duration-300 overflow-y-auto overflow-x-hidden">
                 {questions.map((question, index) => (
                     <div key={question.id ?? index} className="space-y-3">
-                        <p className="text-sm font-semibold text-darkBrown">
-                            {index + 1}. {question.text}
-                        </p>
+                        <div className="flex items-start gap-3">
+                            <span className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-deepForestGreen text-sm font-semibold text-white">
+                                {index + 1}
+                            </span>
+                            <p className="flex-1 text-base font-semibold text-darkBrown">
+                                {question.text}
+                            </p>
+                        </div>
+                        <QuestionCommentInput
+                            questionId={question.id ?? question.soalId ?? question.soal_id ?? null}
+                            tipeSoal={tipeSoal}
+                            praktikanId={praktikanId}
+                            isEnabled={isCommentEnabled}
+                            className="pl-11"
+                        />
                         <textarea
-                            className="mt-1 shadow-lg w-full bg-gainsboro min-h-[96px] p-2 border border-gray-300 rounded-md"
+                            className="shadow-lg w-full bg-gainsboro min-h-[96px] p-2 border border-gray-300 rounded-md"
                             placeholder="Jawaban"
                             value={answers[index] ?? ""}
                             onChange={(event) => handleInputChange(index, event.target.value)}
