@@ -20,7 +20,6 @@ import roleIcon from "../../..//assets/nav/Icon-Piket.svg";
 import praktikanIcon from "../../..//assets/nav/Icon-Praktikan.svg";
 import pelanggaranIcon from "../../..//assets/nav/Icon-Pelanggaran.svg";
 import announcementIcon from "../../..//assets/nav/Icon-Annoucement.svg";
-import auditIcon from "../../..//assets/nav/Icon-Audit.svg";
 import changePassIcon from "../../..//assets/nav/Icon-GantiPassword.svg";
 import logoutIcon from "../../..//assets/nav/Icon-Logout.svg";
 import jawabanTP from "../../..//assets/nav/Icon-Rating.svg";
@@ -220,16 +219,6 @@ export default function AssisstantNav({ asisten, permission_name = [], roleName 
             paths: ["/manage-role"],
         },
         {
-            id: "audit-logs",
-            permission: "manage-role",
-            allowedRoles: adminRoles,
-            href: "/audit-logs",
-            label: "Audit Logs",
-            icon: auditIcon,
-            components: ["Assistants/AuditLogs"],
-            paths: ["/audit-logs"],
-        },
-        {
             id: "check-tugas-pendahuluan",
             permission: "check-tugas-pendahuluan",
             href: "/lihat-tp",
@@ -335,6 +324,24 @@ export default function AssisstantNav({ asisten, permission_name = [], roleName 
                                     </li>
                                 );
                             })}
+                            {canAccess("check-tugas-pendahuluan", adminRoles) && (
+                                <li id="active-tp">
+                                    <button
+                                        type="button"
+                                        onClick={openOpenTPModal}
+                                        className={`${navLinkBaseClass} ${inactiveLinkClass}`}
+                                    >
+                                        <img
+                                            className={`${navIconClass} opacity-80 group-hover:opacity-100 ${getIconFilterClass(false)}`}
+                                            src={tpModuleIcon}
+                                            alt="Tugas Pendahuluan"
+                                        />
+                                        <span className={`${navLabelBaseClass} text-depth-primary`}>
+                                            Tugas Pendahuluan
+                                        </span>
+                                    </button>
+                                </li>
+                            )}
                             {canAccess("unlock-jawaban", adminRoles) && (
                                 <li id="unlock-jawaban">
                                     <button

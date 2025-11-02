@@ -134,6 +134,10 @@ Route::get('/praktikum', function () {
     return Inertia::render('Praktikan/PraktikumPage');
 })->name('praktikum')->middleware(['auth:praktikan', 'can:lihat-modul']);
 
+Route::get('/tugas-pendahuluan', function () {
+    return Inertia::render('Praktikan/TugasPendahuluanPage');
+})->name('tugas-pendahuluan')->middleware(['auth:praktikan', 'can:lihat-modul']);
+
 Route::get('/score-praktikan', function () {
     return Inertia::render('Praktikan/ScorePraktikan');
 })->name('score-praktikan')->middleware(['auth:praktikan', 'can:lihat-nilai']);

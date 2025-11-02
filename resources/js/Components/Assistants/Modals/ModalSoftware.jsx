@@ -1,8 +1,12 @@
 import { useState } from "react";
 import { createPortal } from "react-dom";
+import { Link } from "@inertiajs/react";
 
-export default function ModalSoftware({ className = "" }) {
+export default function ModalSoftware({ className = "", roleName = null }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const normalizedRole = (roleName ?? "").toUpperCase();
+  const canViewAuditLogs = normalizedRole === "SOFTWARE";
 
   const handleModalToggle = () => {
     setIsModalOpen(!isModalOpen);
@@ -44,6 +48,22 @@ export default function ModalSoftware({ className = "" }) {
             0822-4048-2882
           </a>
         </div>
+
+        {canViewAuditLogs && (
+          <div className="mt-6 rounded-depth-md border border-depth bg-depth-card/80 p-4 shadow-depth-sm">
+            <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-depth-secondary">
+              Monitoring
+            </p>
+            <Link
+              href="/audit-logs"
+              onClick={handleModalToggle}
+              className="inline-flex items-center gap-2 rounded-depth-md bg-[var(--depth-color-primary)] px-4 py-2 text-sm font-semibold text-white shadow-depth-sm transition hover:-translate-y-0.5 hover:shadow-depth-md"
+            >
+              <span className="text-lg">🛡️</span>
+              Lihat Audit Logs
+            </Link>
+          </div>
+        )}
       </div>
     </div>
   ) : null;

@@ -6,6 +6,7 @@ import nilaiIcon from "../../../assets/nav/Icon-Nilai.svg";
 import leaderboardIcon from "../../../assets/nav/Icon-Leaderboard.svg";
 import asistenIcon from "../../../assets/nav/Icon-Asisten.svg";
 import pollingIcon from "../../../assets/nav/Icon-Polling.svg";
+import tpIcon from "../../../assets/nav/Icon-TP.svg";
 import changePassIcon from "../../../assets/nav/Icon-GantiPassword.svg";
 import logoutIcon from "../../../assets/nav/Icon-Logout.svg";
 import ModalLogout from './Modals/ModalLogout';
@@ -29,6 +30,13 @@ const NAV_ITEMS = [
         label: "Praktikum",
         alt: "praktikum",
         paths: ["/praktikum"],
+    },
+    {
+        href: "/tugas-pendahuluan",
+        icon: tpIcon,
+        label: "Tugas Pendahuluan",
+        alt: "tugas pendahuluan",
+        paths: ["/tugas-pendahuluan"],
     },
     {
         href: "/score-praktikan",

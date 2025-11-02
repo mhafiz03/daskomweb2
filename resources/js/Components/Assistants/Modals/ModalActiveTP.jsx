@@ -1,51 +1,87 @@
-import { useState, useEffect } from "react";
-import toast from "react-hot-toast";
-import closeIcon from "../../../../assets/modal/iconClose.svg";
-import editIcon from "../../../../assets/nav/Icon-Edit.svg";
-import { useTugasPendahuluanQuery, TUGAS_PENDAHULUAN_QUERY_KEY } from "@/hooks/useTugasPendahuluanQuery";
+import { useEffect, useMemo, useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import toast from "react-hot-toast";
+
+import { useModulesQuery } from "@/hooks/useModulesQuery";
+import {
+    useTugasPendahuluanQuery,
+    TUGAS_PENDAHULUAN_QUERY_KEY,
+} from "@/hooks/useTugasPendahuluanQuery";
 import { send } from "@/lib/wayfinder";
 import { update as updateTugasPendahuluanRoute } from "@/actions/App/Http/Controllers/API/TugasPendahuluanController";
 
+const normaliseModuleId = (module) => Number(module?.idM ?? module?.id ?? module?.modul_id ?? 0);
+
 export default function ModalActiveTP({ onClose }) {
-    const [modul, setModul] = useState([]);
-    const [config, setConfig] = useState({});
-    const [showModal, setShowModal] = useState(false);
     const queryClient = useQueryClient();
 
-    const {
-        data: tugasPendahuluan = [],
-        isLoading,
-        isError,
-        error,
-    } = useTugasPendahuluanQuery({
-        onSuccess: (data) => {
-            setModul(data);
-            const initialConfig = {};
-            data.forEach((tugas) => {
-                initialConfig[tugas.id] = Boolean(tugas.isActive);
-            });
-            setConfig(initialConfig);
-            setShowModal(true);
+    const modulesQuery = useModulesQuery({
+        onError: (error) => {
+            toast.error(error?.message ?? "Gagal memuat daftar modul.");
+        },
+    });
+    const tugasPendahuluanQuery = useTugasPendahuluanQuery({
+        onError: (error) => {
+            toast.error(error?.message ?? "Gagal memuat konfigurasi tugas pendahuluan.");
         },
     });
 
+    const modules = modulesQuery.data ?? [];
+    const tugasPendahuluan = tugasPendahuluanQuery.data ?? [];
+
+    const moduleMap = useMemo(() => {
+        return new Map(
+            modules.map((module) => [normaliseModuleId(module), module])
+        );
+    }, [modules]);
+
+    const regularModules = useMemo(
+        () => modules.filter((module) => Number(module?.isEnglish ?? 0) !== 1),
+        [modules]
+    );
+
+    const englishModules = useMemo(
+        () => modules.filter((module) => Number(module?.isEnglish ?? 0) === 1),
+        [modules]
+    );
+
+    const [regularSelection, setRegularSelection] = useState("");
+    const [englishSelection, setEnglishSelection] = useState("");
+
     useEffect(() => {
-        if (isError) {
-            setShowModal(false);
-            toast.error(error?.message ?? "Gagal memuat data tugas pendahuluan.");
+        if (modulesQuery.isLoading || tugasPendahuluanQuery.isLoading) {
+            return;
         }
-    }, [isError, error]);
 
-    // Fungsi untuk toggle switch on/off
-    const toggleSwitch = (key) => {
-        setConfig((prevConfig) => ({
-            ...prevConfig,
-            [key]: !prevConfig[key],
-        }));
-    };
+        const activeRegular = tugasPendahuluan.find((item) => {
+            const module = moduleMap.get(Number(item.modul_id));
+            return item.isActive && Number(module?.isEnglish ?? 0) !== 1;
+        });
 
-    const updateTugasPendahuluanMutation = useMutation({
+        const activeEnglish = tugasPendahuluan.find((item) => {
+            const module = moduleMap.get(Number(item.modul_id));
+            return item.isActive && Number(module?.isEnglish ?? 0) === 1;
+        });
+
+        const defaultRegular =
+            activeRegular?.modul_id ??
+            (regularModules[0] ? normaliseModuleId(regularModules[0]) : "");
+        const defaultEnglish =
+            activeEnglish?.modul_id ??
+            (englishModules[0] ? normaliseModuleId(englishModules[0]) : "");
+
+        setRegularSelection(defaultRegular ? String(defaultRegular) : "");
+        setEnglishSelection(defaultEnglish ? String(defaultEnglish) : "");
+    }, [
+        modulesQuery.isLoading,
+        tugasPendahuluanQuery.isLoading,
+        tugasPendahuluan,
+        moduleMap,
+        regularModules,
+        englishModules,
+    ]);
+
+    const updateMutation = useMutation({
         mutationFn: async (payload) => {
             const { data } = await send(updateTugasPendahuluanRoute(), payload);
             return data;
@@ -53,157 +89,154 @@ export default function ModalActiveTP({ onClose }) {
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: TUGAS_PENDAHULUAN_QUERY_KEY });
             toast.success("Konfigurasi tugas pendahuluan berhasil disimpan.");
-            onClose();
+            onClose?.();
         },
-        onError: (err) => {
-            console.error("Error saving configuration:", err);
-            toast.error(err?.response?.data?.message ?? err?.message ?? "Gagal menyimpan konfigurasi.");
+        onError: (error) => {
+            toast.error(error?.response?.data?.message ?? error?.message ?? "Gagal menyimpan konfigurasi.");
         },
     });
 
     const handleSave = () => {
-        const dataToSend = {
-            data: Object.keys(config).map((key) => ({
-                id: parseInt(key, 10),
-                isActive: config[key] ? 1 : 0,
-            })),
-        };
+        if (!Array.isArray(tugasPendahuluan) || tugasPendahuluan.length === 0) {
+            toast.error("Belum ada data tugas pendahuluan.");
+            return;
+        }
 
-        updateTugasPendahuluanMutation.mutate(dataToSend);
+        const payload = tugasPendahuluan.map((item) => {
+            const module = moduleMap.get(Number(item.modul_id));
+            const isEnglishModule = Number(module?.isEnglish ?? 0) === 1;
+            const shouldBeActive = isEnglishModule
+                ? englishSelection && Number(englishSelection) === Number(item.modul_id)
+                : regularSelection && Number(regularSelection) === Number(item.modul_id);
+
+            return {
+                id: item.id,
+                isActive: shouldBeActive ? 1 : 0,
+            };
+        });
+
+        updateMutation.mutate({ data: payload });
     };
 
-    // Pisahkan modul menjadi dua grup untuk tampilan tabel
-    const configKeys = Object.keys(config);
-    const group1 = configKeys.filter((_, index) => index % 2 === 0);
-    const group2 = configKeys.filter((_, index) => index % 2 === 1);
+    const isBusy =
+        modulesQuery.isLoading ||
+        tugasPendahuluanQuery.isLoading ||
+        updateMutation.isPending;
+
+    const handleOverlayClick = (event) => {
+        if (event.target === event.currentTarget) {
+            onClose?.();
+        }
+    };
 
     return (
-        <>
-            {/* Modal Utama */}
-            {showModal && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-                    <div className="bg-white rounded-lg p-6 w-[1000px] shadow-lg relative">
-                        {/* Header */}
-                        <div className="flex justify-between items-center mb-4 border-b border-gray-300">
-                            <h2 className="text-xl font-semibold flex items-center gap-2">
-                                <img className="edit-icon-filter w-8" src={editIcon} alt="praktikum" /> Tugas Pendahuluan
-                            </h2>
-                            {/* Tombol X untuk tutup */}
-                            <button
-                                onClick={onClose}
-                                className="absolute top-2 right-2 flex justify-center items-center"
-                            >
-                                <img className="w-9" src={closeIcon} alt="closeIcon" />
-                            </button>
-                        </div>
-
-                        {/* Switch Options - Scrollable Table */}
-                        <div className="max-h-[300px] overflow-y-auto">
-                            <table className="w-full border-collapse">
-                                <thead>
-                                    <tr>
-                                        <th className="text-left py-2 px-4 border-b">Module</th>
-                                        <th className="text-left py-2 px-4 border-b">Status</th>
-                                        <th className="text-left py-2 px-4 border-b">Module</th>
-                                        <th className="text-left py-2 px-4 border-b">Status</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {isLoading ? (
-                                        <tr>
-                                            <td colSpan="4" className="text-center py-4">Loading...</td>
-                                        </tr>
-                                    ) : isError ? (
-                                        <tr>
-                                            <td colSpan="4" className="text-center py-4 text-red-500">
-                                                {error?.message ?? "Gagal memuat data"}
-                                            </td>
-                                        </tr>
-                                    ) : group1.map((key, index) => {
-                                        const modul1 = modul.find((m) => m.id === parseInt(key));
-                                        const modul2 = group2[index] ? modul.find((m) => m.id === parseInt(group2[index])) : null;
-
-                                        return (
-                                            <tr key={key} className="even:bg-gray-100">
-                                                {/* Group 1 */}
-                                                <td className="py-2 px-4 capitalize">
-                                                    {modul1?.nama_modul || "N/A"}
-                                                </td>
-                                                <td className="py-2 px-4">
-                                                    <label className="inline-flex items-center cursor-pointer">
-                                                        <span className="text-xs font-bold text-gray-700 mr-2">
-                                                            {config[key] ? "ON" : "OFF"}
-                                                        </span>
-                                                        <input
-                                                            type="checkbox"
-                                                            checked={config[key]}
-                                                            onChange={() => toggleSwitch(key)}
-                                                            className="hidden"
-                                                        />
-                                                        <div
-                                                            className={`w-20 h-8 flex items-center rounded-full px-2 transition-all duration-300 ${
-                                                                config[key] ? "bg-deepForestGreen" : "bg-fireRed"
-                                                            }`}
-                                                        >
-                                                            <div
-                                                                className={`w-6 h-6 bg-white rounded-full shadow-md transform transition-transform ${
-                                                                    config[key] ? "translate-x-10" : "translate-x-0"
-                                                                }`}
-                                                            ></div>
-                                                        </div>
-                                                    </label>
-                                                </td>
-
-                                                {/* Group 2 */}
-                                                <td className="py-2 px-4 capitalize">
-                                                    {modul2?.nama_modul || "-"}
-                                                </td>
-                                                <td className="py-2 px-4">
-                                                    {modul2 && (
-                                                        <label className="inline-flex items-center cursor-pointer">
-                                                            <span className="text-xs font-bold text-gray-700 mr-2">
-                                                                {config[group2[index]] ? "ON" : "OFF"}
-                                                            </span>
-                                                            <input
-                                                                type="checkbox"
-                                                                checked={config[group2[index]]}
-                                                                onChange={() => toggleSwitch(group2[index])}
-                                                                className="hidden"
-                                                            />
-                                                            <div
-                                                                className={`w-20 h-8 flex items-center rounded-full px-2 transition-all duration-300 ${
-                                                                    config[group2[index]] ? "bg-deepForestGreen" : "bg-fireRed"
-                                                                }`}
-                                                            >
-                                                                <div
-                                                                    className={`w-6 h-6 bg-white rounded-full shadow-md transform transition-transform ${
-                                                                        config[group2[index]] ? "translate-x-10" : "translate-x-0"
-                                                                    }`}
-                                                                ></div>
-                                                            </div>
-                                                        </label>
-                                                    )}
-                                                </td>
-                                            </tr>
-                                        );
-                                    })}
-                                </tbody>
-                            </table>
-                        </div>
-
-                        {/* Save Button */}
-                        <div className="flex justify-center mt-5">
-                            <button
-                                onClick={handleSave}
-                                disabled={updateTugasPendahuluanMutation.isPending}
-                                className="w-1/4 py-2 bg-deepForestGreen text-white font-semibold rounded-lg shadow-md hover:bg-darkGreen transition disabled:opacity-50"
-                            >
-                                {updateTugasPendahuluanMutation.isPending ? "Menyimpan..." : "Simpan"}
-                            </button>
-                        </div>
-                    </div>
+        <div
+            className="depth-modal-overlay z-[9999]"
+            onClick={handleOverlayClick}
+        >
+            <div
+                className="depth-modal-container w-full max-w-2xl"
+                onClick={(event) => event.stopPropagation()}
+            >
+                <div className="depth-modal-header">
+                    <h2 className="depth-modal-title">Konfigurasi Modul Tugas Pendahuluan</h2>
+                    <button
+                        type="button"
+                        className="depth-modal-close"
+                        onClick={onClose}
+                    >
+                        <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
                 </div>
-            )}
-        </>
+
+                <p className="text-sm text-depth-secondary">
+                    Pilih modul yang aktif untuk praktikan reguler dan kelas English Lab.
+                    Perubahan akan segera berlaku setelah disimpan.
+                </p>
+
+                <div className="mt-6 space-y-6">
+                    <section className="rounded-depth-md border border-depth bg-depth-interactive/40 p-4 shadow-inner">
+                        <h3 className="text-sm font-semibold text-depth-primary">Modul Reguler</h3>
+                        <p className="mt-1 text-xs text-depth-secondary">
+                            Modul yang dipilih akan digunakan sebagai tugas pendahuluan utama.
+                        </p>
+                        <select
+                            className="mt-3 w-full rounded-depth-md border border-depth bg-depth-card/80 p-2 text-sm text-depth-primary shadow-depth-sm focus:border-[var(--depth-color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)]"
+                            value={regularSelection}
+                            onChange={(event) => setRegularSelection(event.target.value)}
+                            disabled={regularModules.length === 0 || isBusy}
+                        >
+                            {regularModules.length === 0 && (
+                                <option value="">Tidak ada modul reguler.</option>
+                            )}
+                            {regularModules.map((module) => {
+                                const moduleId = normaliseModuleId(module);
+                                return (
+                                    <option key={moduleId} value={moduleId}>
+                                        {module.judul}
+                                    </option>
+                                );
+                            })}
+                        </select>
+                    </section>
+
+                    <section className="rounded-depth-md border border-depth bg-depth-interactive/40 p-4 shadow-inner">
+                        <div className="flex items-center justify-between">
+                            <div>
+                                <h3 className="text-sm font-semibold text-depth-primary">Modul English Lab</h3>
+                                <p className="mt-1 text-xs text-depth-secondary">
+                                    Opsional untuk kelas berbahasa Inggris jika tersedia.
+                                </p>
+                            </div>
+                        </div>
+                        <select
+                            className="mt-3 w-full rounded-depth-md border border-depth bg-depth-card/80 p-2 text-sm text-depth-primary shadow-depth-sm focus:border-[var(--depth-color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)]"
+                            value={englishSelection}
+                            onChange={(event) => setEnglishSelection(event.target.value)}
+                            disabled={englishModules.length === 0 || isBusy}
+                        >
+                            {englishModules.length === 0 && (
+                                <option value="">Tidak ada modul English Lab.</option>
+                            )}
+                            {englishModules.map((module) => {
+                                const moduleId = normaliseModuleId(module);
+                                return (
+                                    <option key={moduleId} value={moduleId}>
+                                        {module.judul}
+                                    </option>
+                                );
+                            })}
+                        </select>
+                    </section>
+                </div>
+
+                <div className="mt-6 flex items-center justify-end gap-3">
+                    <button
+                        type="button"
+                        className="rounded-depth-md border border-depth bg-depth-interactive px-4 py-2 text-sm font-semibold text-depth-primary shadow-depth-sm transition hover:-translate-y-0.5 hover:shadow-depth-md"
+                        onClick={onClose}
+                        disabled={updateMutation.isPending}
+                    >
+                        Batal
+                    </button>
+                    <button
+                        type="button"
+                        className="inline-flex items-center justify-center rounded-depth-md bg-[var(--depth-color-primary)] px-4 py-2 text-sm font-semibold text-white shadow-depth-sm transition hover:-translate-y-0.5 hover:shadow-depth-md disabled:cursor-not-allowed disabled:opacity-60"
+                        onClick={handleSave}
+                        disabled={isBusy}
+                    >
+                        {updateMutation.isPending ? "Menyimpan..." : "Simpan"}
+                    </button>
+                </div>
+
+                {isBusy && (modulesQuery.isLoading || tugasPendahuluanQuery.isLoading) && (
+                    <div className="mt-4 rounded-depth-md border border-depth bg-depth-interactive/40 p-3 text-xs text-depth-secondary">
+                        Memuat data terbaru...
+                    </div>
+                )}
+            </div>
+        </div>
     );
 }
