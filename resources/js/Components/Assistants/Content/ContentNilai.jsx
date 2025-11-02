@@ -327,7 +327,7 @@ export default function ContentNilai({ asisten }) {
                                         {SCORE_FIELDS.map((field) => (
                                             <div
                                                 key={`${assignment.id}-${field.key}`}
-                                                className="flex items-center justify-around rounded-depth-sm border border-depth bg-depth-interactive/60 px-2 py-0.5 text-center"
+                                                className="flex flex-col items-center justify-around rounded-depth-sm border border-depth bg-depth-interactive/60 px-2 py-0.5 text-center"
                                             >
                                                 <span className="text-[8px] font-semibold uppercase tracking-wide">
                                                     {field.label}
