@@ -2,11 +2,10 @@
 
 namespace App\Http\Controllers\API;
 
-use App\Models\Asisten;
-use Illuminate\Http\Request;
-use App\Models\LaporanPraktikan;
 use App\Http\Controllers\Controller;
-use Illuminate\Container\Attributes\Auth;
+use App\Models\Asisten;
+use App\Models\LaporanPraktikan;
+use Illuminate\Http\Request;
 
 class LaporanPraktikanController extends Controller
 {
@@ -29,10 +28,13 @@ class LaporanPraktikanController extends Controller
             'kode' => 'required|string|max:3',
             'modul_id' => 'required|integer|exists:moduls,id',
             'praktikan_id' => 'required|integer|exists:praktikans,id',
+            'rating' => 'nullable|numeric|min:0|max:5',
+            'rating_praktikum' => 'nullable|numeric|min:0|max:5',
+            'rating_asisten' => 'nullable|numeric|min:0|max:5',
         ]);
         // Cari asisten berdasarkan kode
         $asisten = Asisten::where('kode', $request->kode)->first();
-        if (!$asisten) {
+        if (! $asisten) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'Asisten dengan kode tersebut tidak ditemukan tolong hubungi JIN/FYN.',
@@ -44,14 +46,16 @@ class LaporanPraktikanController extends Controller
             'asisten_id' => $asisten->id,
             'modul_id' => $request->modul_id,
             'praktikan_id' => $request->praktikan_id,
+            'rating_praktikum' => $request->input('rating_praktikum', $request->input('rating')),
+            'rating_asisten' => $request->input('rating_asisten'),
         ]);
+
         return response()->json([
             'status' => 'success',
             'message' => 'Feedback berhasil dikirim',
             'laporan_id' => $laporan->id,
         ], 201);
     }
-    
 
     /**
      * Display the specified resource.
@@ -66,6 +70,8 @@ class LaporanPraktikanController extends Controller
             ->select(
                 'laporan_praktikans.id',
                 'laporan_praktikans.pesan',
+                'laporan_praktikans.rating_praktikum',
+                'laporan_praktikans.rating_asisten',
                 'laporan_praktikans.created_at',
                 'laporan_praktikans.updated_at',
                 'laporan_praktikans.asisten_id',
@@ -87,14 +93,14 @@ class LaporanPraktikanController extends Controller
                 'message' => 'Tidak ada laporan yang ditemukan untuk asisten ini.',
             ], 404);
         }
+
         // Return laporan
         return response()->json([
             'status' => 'success',
             'laporan' => $laporan,
-            'message' => 'Laporan praktikan retrieved successfully.'
+            'message' => 'Laporan praktikan retrieved successfully.',
         ], 200);
     }
-    
 
     /**
      * Update the specified resource in storage.

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\API\AsistenController;
+use App\Http\Controllers\API\AutosaveSnapshotController;
 use App\Http\Controllers\API\ConfigurationController;
 use App\Http\Controllers\API\JadwalJagaController;
 use App\Http\Controllers\API\JawabanFITBController;
@@ -161,6 +162,24 @@ Route::prefix('api-v1')->middleware('audit.assistant')->group(function () {
 
     // Praktikan
     Route::patch('/praktikan/password', [PraktikanController::class, 'updatePassword'])->middleware('auth:praktikan');
+    Route::get('/praktikan/autosave', [AutosaveSnapshotController::class, 'index'])
+        ->name('praktikan.autosave.index')
+        ->middleware(['auth:praktikan', 'can:praktikum-lms']);
+    Route::post('/praktikan/autosave', [AutosaveSnapshotController::class, 'store'])
+        ->name('praktikan.autosave.store')
+        ->middleware(['auth:praktikan', 'can:praktikum-lms']);
+    Route::post('/praktikan/autosave/bulk-upsert', [AutosaveSnapshotController::class, 'bulkUpsert'])
+        ->name('praktikan.autosave.bulk')
+        ->middleware(['auth:praktikan', 'can:praktikum-lms']);
+    Route::delete('/praktikan/autosave', [AutosaveSnapshotController::class, 'destroy'])
+        ->name('praktikan.autosave.clear')
+        ->middleware(['auth:praktikan', 'can:praktikum-lms']);
+    Route::post('/praktikan/autosave/questions', [AutosaveSnapshotController::class, 'storeQuestionIds'])
+        ->name('praktikan.autosave.questions.store')
+        ->middleware(['auth:praktikan', 'can:praktikum-lms']);
+    Route::get('/praktikan/autosave/questions', [AutosaveSnapshotController::class, 'getQuestionIds'])
+        ->name('praktikan.autosave.questions.index')
+        ->middleware(['auth:praktikan', 'can:praktikum-lms']);
 
     // Asisten
     Route::patch('/asisten/password', [AsistenController::class, 'updatePassword'])->name('asisten.password.update')->middleware('auth:asisten');

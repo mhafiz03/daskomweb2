@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import debounce from "lodash/debounce";
 import PraktikanAuthenticated from "@/Layouts/PraktikanAuthenticatedLayout";
 import NoPraktikumSection from "@/Components/Praktikans/Sections/NoPraktikumSection";
 import TugasPendahuluan from "@/Components/Praktikans/Sections/TugasPendahuluan";
@@ -59,6 +60,14 @@ const TASK_CONFIG = {
         submitEndpoint: "/api-v1/jawaban-tk",
         variant: "multiple-choice",
     },
+};
+
+const AUTOSAVE_TYPE_MAP = {
+    TugasPendahuluan: "tp",
+    TesAwal: "ta",
+    Jurnal: "jurnal",
+    Mandiri: "mandiri",
+    TesKeterampilan: "tk",
 };
 
 const extractQuestions = (response) => {
@@ -134,6 +143,9 @@ export default function PraktikumPage({ auth }) {
         percentage: 0,
     });
 
+    const autosaveDebouncersRef = useRef({});
+    const isRestoringAutosaveRef = useRef(false);
+
     const praktikanData = auth?.praktikan ?? auth?.user ?? null;
     const praktikanId = praktikanData?.id ?? null;
     const kelasId =
@@ -146,6 +158,34 @@ export default function PraktikumPage({ auth }) {
         setQuestions([]);
         setAnswers([]);
         setQuestionsCount(0);
+    }, []);
+
+    const getAutosaveHandler = useCallback((tipeSoal) => {
+        if (!tipeSoal) {
+            return null;
+        }
+
+        if (!autosaveDebouncersRef.current[tipeSoal]) {
+            autosaveDebouncersRef.current[tipeSoal] = debounce(async (payload) => {
+                try {
+                    await api.post("/api-v1/praktikan/autosave", payload);
+                } catch (error) {
+                    console.warn(`[Autosave] Failed to save ${tipeSoal} snapshot`, error);
+                }
+            }, 600);
+        }
+
+        return autosaveDebouncersRef.current[tipeSoal];
+    }, []);
+
+    useEffect(() => {
+        return () => {
+            Object.values(autosaveDebouncersRef.current).forEach((handler) => {
+                if (handler && typeof handler.cancel === "function") {
+                    handler.cancel();
+                }
+            });
+        };
     }, []);
 
     const resetActiveTaskState = useCallback(() => {
@@ -295,13 +335,67 @@ export default function PraktikumPage({ auth }) {
                             : normalizeEssayQuestions(rawQuestions);
                 }
 
-                const initialAnswers = normalizedQuestions.map((question) =>
+                const defaultAnswers = normalizedQuestions.map((question) =>
                     question.questionType === "multiple-choice" ? null : ""
                 );
 
                 setQuestions(normalizedQuestions);
-                setAnswers(initialAnswers);
                 setQuestionsCount(normalizedQuestions.length);
+
+                const autosaveType = AUTOSAVE_TYPE_MAP[taskKey];
+                let answersToUse = defaultAnswers;
+
+                if (autosaveType && praktikanId) {
+                    try {
+                        const { data: autosaveResponse } = await api.get("/api-v1/praktikan/autosave", {
+                            params: {
+                                praktikan_id: praktikanId,
+                                modul_id: modulId,
+                                tipe_soal: autosaveType,
+                            },
+                        });
+
+                        const snapshotList = Array.isArray(autosaveResponse?.data)
+                            ? autosaveResponse.data
+                            : [];
+                        const snapshot = snapshotList.find(
+                            (item) => item?.tipe_soal === autosaveType
+                        );
+
+                        if (snapshot?.jawaban && typeof snapshot.jawaban === "object") {
+                            answersToUse = normalizedQuestions.map((question) => {
+                                const questionId = question?.id;
+                                if (!questionId) {
+                                    return question.questionType === "multiple-choice" ? null : "";
+                                }
+
+                                const storedAnswer = snapshot.jawaban[questionId];
+                                if (storedAnswer === undefined || storedAnswer === null) {
+                                    return question.questionType === "multiple-choice" ? null : "";
+                                }
+
+                                if (question.questionType === "multiple-choice") {
+                                    return storedAnswer;
+                                }
+
+                                const textAnswer =
+                                    typeof storedAnswer === "string"
+                                        ? storedAnswer
+                                        : String(storedAnswer ?? "");
+
+                                return textAnswer;
+                            });
+                        }
+                    } catch (error) {
+                        console.warn(`[Autosave] Failed to load ${autosaveType} snapshot`, error);
+                    }
+                }
+
+                isRestoringAutosaveRef.current = true;
+                setAnswers(answersToUse);
+                setTimeout(() => {
+                    isRestoringAutosaveRef.current = false;
+                }, 0);
             } catch (error) {
                 console.error("Failed to fetch task data", error);
                 const message = error?.response?.data?.message ?? error.message ?? "Gagal memuat data tugas.";
@@ -311,8 +405,72 @@ export default function PraktikumPage({ auth }) {
                 setIsLoadingTask(false);
             }
         },
-        [clearTaskProgress]
+        [clearTaskProgress, praktikanId]
     );
+
+    useEffect(() => {
+        const currentTask = activeTask;
+        const autosaveType = AUTOSAVE_TYPE_MAP[currentTask];
+
+        if (!autosaveType || !praktikanId || !activeModulId) {
+            return;
+        }
+
+        if (!Array.isArray(questions) || questions.length === 0) {
+            return;
+        }
+
+        if (!Array.isArray(answers) || answers.length === 0) {
+            return;
+        }
+
+        if (isRestoringAutosaveRef.current) {
+            return;
+        }
+
+        const jawabanEntries = {};
+
+        questions.forEach((question, index) => {
+            const questionId = question?.id;
+            if (!questionId) {
+                return;
+            }
+
+            const answerValue = answers[index];
+            if (question.questionType === "multiple-choice") {
+                if (answerValue === null || answerValue === undefined) {
+                    return;
+                }
+
+                jawabanEntries[questionId] = answerValue;
+
+                return;
+            }
+
+            const textAnswer = typeof answerValue === "string" ? answerValue : String(answerValue ?? "");
+            if (textAnswer.trim() === "") {
+                return;
+            }
+
+            jawabanEntries[questionId] = textAnswer;
+        });
+
+        if (Object.keys(jawabanEntries).length === 0) {
+            return;
+        }
+
+        const debouncedSaver = getAutosaveHandler(autosaveType);
+        if (!debouncedSaver) {
+            return;
+        }
+
+        debouncedSaver({
+            praktikan_id: praktikanId,
+            modul_id: activeModulId,
+            tipe_soal: autosaveType,
+            jawaban: jawabanEntries,
+        });
+    }, [answers, questions, activeTask, praktikanId, activeModulId, getAutosaveHandler]);
 
     const handlePraktikumStateChange = useCallback(
         (praktikumState) => {
@@ -465,6 +623,21 @@ export default function PraktikumPage({ auth }) {
                     }));
 
                     await api.post(config.submitEndpoint, payload);
+                }
+
+                const autosaveType = AUTOSAVE_TYPE_MAP[taskName];
+                if (autosaveType) {
+                    try {
+                        await api.delete("/api-v1/praktikan/autosave", {
+                            data: {
+                                praktikan_id: praktikanId,
+                                modul_id: activeModulId,
+                                tipe_soal: autosaveType,
+                            },
+                        });
+                    } catch (error) {
+                        console.warn(`[Autosave] Failed to clear ${autosaveType} snapshot`, error);
+                    }
                 }
 
                 persistAnswersToLocalStorage(taskName, taskAnswers, activeModulId);

@@ -7,7 +7,6 @@ use App\Models\Asisten;
 use App\Models\LaporanPraktikan;
 use App\Models\Nilai;
 use App\Models\Praktikan;
-use App\Models\Feedback;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -97,7 +96,7 @@ class PraktikanController extends Controller
                 ->where('modul_id', $request->modul_id)
                 ->first();
 
-            if (!$laporanPraktikan) {
+            if (! $laporanPraktikan) {
                 return response()->json([
                     'success' => false,
                     'message' => 'No record found for this praktikan and modul combination',
@@ -114,7 +113,7 @@ class PraktikanController extends Controller
                 $nilai->save();
             }
             $laporanPraktikan->asisten_id = $asisten->id;
-            $laporanPraktikan->pesan = "pulled by " . $asisten->kode;
+            $laporanPraktikan->pesan = 'pulled by '.$asisten->kode;
             $laporanPraktikan->updated_at = now();
             $laporanPraktikan->save();
 
@@ -178,6 +177,8 @@ class PraktikanController extends Controller
                 return [
                     'id' => $assignment->id,
                     'pesan' => $assignment->pesan,
+                    'rating_praktikum' => $assignment->rating_praktikum,
+                    'rating_asisten' => $assignment->rating_asisten,
                     'timestamps' => [
                         'assigned_at' => optional($assignment->created_at)->toIso8601String(),
                         'updated_at' => optional($assignment->updated_at)->toIso8601String(),

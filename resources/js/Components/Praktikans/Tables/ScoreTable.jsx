@@ -16,7 +16,7 @@ export default function ScoreTable() {
                 return data.nilai.map(item => ({
                     tanggal: new Date(item.created_at).toLocaleDateString('id-ID'),
                     modul: item.modul ? item.modul.judul : `Modul ${item.modul_id}`,
-                    nilai: `${item.tp}/${item.ta}/${item.d1}/${item.d2}/${item.d3}/${item.d4}/${item.l1}/${item.l2}`,
+                    nilai: `${item.tp}/${item.ta}/${item.d1}/${item.d2}/${item.d3}/${item.d4}/${item.i1 ?? item.l1}/${item.i2 ?? item.l2}`,
                     asisten: item.asisten ? item.asisten.nama : 'Unknown'
                 }));
             }

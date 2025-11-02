@@ -8,6 +8,17 @@ import {
     ASSIGNED_PRAKTIKAN_QUERY_KEY,
 } from "@/hooks/useAssignedPraktikanQuery";
 
+const SCORE_FIELDS = [
+    { key: "tp", label: "TP" },
+    { key: "ta", label: "TA" },
+    { key: "d1", label: "D1" },
+    { key: "d2", label: "D2" },
+    { key: "d3", label: "D3" },
+    { key: "d4", label: "D4" },
+    { key: "i1", label: "I1" },
+    { key: "i2", label: "I2" },
+];
+
 const toDisplayDate = (value) => {
     if (!value) {
         return "-";
@@ -43,13 +54,50 @@ const toDisplayTime = (value) => {
     });
 };
 
-const STATUS_CLASS = {
-    success: "border border-emerald-400/50 bg-emerald-400/15 text-emerald-400",
-    pending: "border border-amber-400/50 bg-amber-400/15 text-amber-400",
+const normalizeRating = (value) => {
+    if (value === null || value === undefined) {
+        return null;
+    }
+
+    const numeric = Number(value);
+
+    if (Number.isNaN(numeric)) {
+        return null;
+    }
+
+    return Number(numeric.toFixed(1));
+};
+
+const getScoreValue = (nilai, key) => {
+    if (!nilai) {
+        return "-";
+    }
+
+    let raw = nilai[key];
+
+    if (raw === undefined) {
+        if (key === "i1") {
+            raw = nilai.l1;
+        } else if (key === "i2") {
+            raw = nilai.l2;
+        }
+    }
+
+    if (raw === null || raw === undefined) {
+        return "-";
+    }
+
+    const numeric = Number(raw);
+
+    if (Number.isNaN(numeric)) {
+        return raw;
+    }
+
+    return Number.isInteger(numeric) ? numeric : numeric.toFixed(1);
 };
 
 export default function ContentNilai({ asisten }) {
-        const [search, setSearch] = useState("");
+    const [search, setSearch] = useState("");
     const [selectedAssignment, setSelectedAssignment] = useState(null);
     const queryClient = useQueryClient();
 
@@ -121,12 +169,19 @@ export default function ContentNilai({ asisten }) {
             </div>
 
             <div className="rounded-depth-lg border border-depth bg-depth-card p-3 shadow-depth-md">
-                <div className="grid grid-cols-5 gap-2 text-xs font-semibold uppercase tracking-wide text-white">
-                    <div className="rounded-depth-md bg-[var(--depth-color-primary)] px-3 py-2 text-center shadow-depth-sm">Tanggal</div>
-                    <div className="rounded-depth-md bg-[var(--depth-color-primary)] px-3 py-2 text-center shadow-depth-sm">Praktikan</div>
-                    <div className="rounded-depth-md bg-[var(--depth-color-primary)] px-3 py-2 text-center shadow-depth-sm">Kelas</div>
-                    <div className="rounded-depth-md bg-[var(--depth-color-primary)] px-3 py-2 text-center shadow-depth-sm">Waktu</div>
-                    <div className="rounded-depth-md bg-[var(--depth-color-primary)] px-3 py-2 text-center shadow-depth-sm">Review</div>
+                <div className="grid grid-cols-[1fr_1.6fr_2.6fr_auto] gap-2 text-xs font-semibold uppercase tracking-wide text-white">
+                    <div className="rounded-depth-md bg-[var(--depth-color-primary)] px-3 py-2 text-center shadow-depth-sm">
+                        Jadwal
+                    </div>
+                    <div className="rounded-depth-md bg-[var(--depth-color-primary)] px-3 py-2 text-center shadow-depth-sm">
+                        Praktikan
+                    </div>
+                    <div className="rounded-depth-md bg-[var(--depth-color-primary)] px-3 py-2 text-center shadow-depth-sm">
+                        Feedback
+                    </div>
+                    <div className="rounded-depth-md bg-[var(--depth-color-primary)] px-3 py-2 text-center shadow-depth-sm">
+                        Review
+                    </div>
                 </div>
             </div>
 
@@ -160,47 +215,130 @@ export default function ContentNilai({ asisten }) {
                 {!isLoading && !isError && filteredAssignments.length > 0 && (
                     <div className="divide-y divide-[color:var(--depth-border)] border-t border-[color:var(--depth-border)]">
                         {filteredAssignments.map((assignment) => {
-                            const isReviewed = Boolean(assignment?.nilai);
-                            const status = isReviewed
-                                ? { label: "Done", tone: STATUS_CLASS.success }
-                                : { label: "Unmarked", tone: STATUS_CLASS.pending };
+                            const tanggal = toDisplayDate(
+                                assignment?.datetime?.date ?? assignment?.timestamps?.updated_at,
+                            );
+                            const waktu = toDisplayTime(
+                                assignment?.datetime?.time ?? assignment?.timestamps?.updated_at,
+                            );
+                            const feedbackText =
+                                (assignment?.pesan && assignment.pesan.trim()) || "Belum ada feedback";
+                            const nilai = assignment?.nilai ?? null;
+                            const formattedPraktikumRating = normalizeRating(assignment?.rating_praktikum);
+                            const formattedAsistenRating = normalizeRating(assignment?.rating_asisten);
+                            const isMarked = Boolean(assignment?.nilai);
+                            const statusLabel = isMarked ? "Done" : "Unmarked";
+                            const statusTone = isMarked
+                                ? "border border-emerald-400/50 bg-emerald-400/15 text-emerald-200"
+                                : "border border-amber-400/50 bg-amber-400/15 text-amber-300";
+                            const statusAria = isMarked ? "marked" : "unmarked";
 
                             return (
-                                <div
+                                <article
                                     key={assignment.id}
-                                    className="grid grid-cols-5 items-center gap-2 bg-depth-card px-4 py-4 text-sm text-depth-primary transition hover:bg-depth-interactive even:bg-depth-interactive"
+                                    className="space-y-2 bg-depth-card px-4 py-3 text-sm text-depth-primary transition hover:bg-depth-interactive even:bg-depth-background hover:even:bg-depth-interactive"
                                 >
-                                    <div className="text-center font-medium">
-                                        {toDisplayDate(assignment?.datetime?.date ?? assignment?.timestamps?.updated_at)}
-                                    </div>
-                                    <div className="text-center">
-                                        <div className="font-semibold">{assignment?.praktikan?.nim ?? "-"}</div>
-                                        <div className="text-xs text-depth-secondary">
-                                            {assignment?.praktikan?.nama ?? "Tidak diketahui"}
+                                    <div className="grid grid-cols-[1fr_1.6fr_2.6fr_auto] gap-x-4">
+                                        {/* Jadwal */}
+                                        <div className="row-span-2 space-y-1 text-left">
+                                            <div className="font-semibold text-depth-primary">{tanggal}</div>
+                                            <div className="text-xs text-depth-secondary">{waktu}</div>
                                         </div>
+                                        {/* Praktikan NIM, nama, and kelas */}
+                                        <div className="row-span-2 space-y-1 text-left">
+                                            <div className="text-sm font-semibold text-depth-primary">
+                                                {assignment?.praktikan?.nim ?? "-"}
+                                            </div>
+                                            <div className="text-xs text-depth-secondary">
+                                                {`${assignment?.praktikan?.nama ?? "Tidak diketahui"} / ${assignment?.praktikan?.kelas?.nama ?? "-"
+                                                    }`}
+                                            </div>
+                                        </div>
+                                        {/* Rating and Feedback */}
+                                        <div className="row-span-2 space-y-1 text-left">
+                                            <div className="flex flex-wrap items-center gap-3 text-xs text-depth-secondary">
+                                                {formattedPraktikumRating === null && formattedAsistenRating === null ? (
+                                                    <span className="italic text-depth-secondary/80">Belum ada rating</span>
+                                                ) : (
+                                                    <>
+                                                        <span className="font-semibold text-depth-primary">
+                                                            Praktikum:
+                                                            <span className="ml-1 font-normal">{formattedPraktikumRating ?? "-"}</span>
+                                                        </span>
+                                                        <span className="font-semibold text-depth-primary">
+                                                            Asisten:
+                                                            <span className="ml-1 font-normal">{formattedAsistenRating ?? "-"}</span>
+                                                        </span>
+                                                    </>
+                                                )}
+                                            </div>
+                                            <p
+                                                className="max-h-12 overflow-hidden text-xs text-depth-secondary"
+                                                title={feedbackText}
+                                                aria-label={feedbackText}
+                                            >
+                                                {feedbackText}
+                                            </p>
+                                        </div>
+                                        {/* Status and Review button */}
+                                        <div className="row-span-2 flex items-center justify-between gap-2">
+                                            <span
+                                                aria-label={statusAria}
+                                                className={`inline-flex items-center gap-1 rounded-depth-full px-1 py-1 text-[11px] font-semibold ${statusTone}`}
+                                            >
+                                                {isMarked ? (
+                                                    <svg
+                                                        aria-hidden="true"
+                                                        className="h-5 w-5"
+                                                        fill="none"
+                                                        stroke="currentColor"
+                                                        strokeWidth={2}
+                                                        viewBox="0 0 24 24"
+                                                    >
+                                                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                                                    </svg>
+                                                ) : (
+                                                    <svg
+                                                        aria-hidden="true"
+                                                        className="h-5 w-5"
+                                                        fill="none"
+                                                        stroke="currentColor"
+                                                        strokeWidth={2}
+                                                        viewBox="0 0 24 24"
+                                                    >
+                                                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v4m0 4h.01M12 5.5a6.5 6.5 0 100 13 6.5 6.5 0 000-13z" />
+                                                    </svg>
+                                                )}
+                                            </span>
+                                            <button
+                                                type="button"
+                                                onClick={() => handleOpenModalInput(assignment)}
+                                                className="inline-flex h-9 w-9 items-center justify-center rounded-depth-md border border-depth bg-depth-interactive shadow-depth-sm transition hover:-translate-y-0.5 hover:shadow-depth-md"
+                                                aria-label="Tinjau nilai praktikan"
+                                            >
+                                                <img src={editIcon} alt="Edit" className="edit-icon-filter h-4 w-4" />
+                                            </button>
+                                        </div>
+
+
                                     </div>
-                                    <div className="text-center">
-                                        {assignment?.praktikan?.kelas?.nama ?? "-"}
+
+                                    <div className="grid grid-cols-8 gap-1 text-[11px] text-depth-secondary">
+                                        {SCORE_FIELDS.map((field) => (
+                                            <div
+                                                key={`${assignment.id}-${field.key}`}
+                                                className="flex items-center justify-around rounded-depth-sm border border-depth bg-depth-interactive/60 px-2 py-0.5 text-center"
+                                            >
+                                                <span className="text-[8px] font-semibold uppercase tracking-wide">
+                                                    {field.label}
+                                                </span>
+                                                <span className="text-sm font-semibold text-depth-primary">
+                                                    {getScoreValue(nilai, field.key)}
+                                                </span>
+                                            </div>
+                                        ))}
                                     </div>
-                                    <div className="text-center">
-                                        {toDisplayTime(assignment?.datetime?.time ?? assignment?.timestamps?.updated_at)}
-                                    </div>
-                                    <div className="flex items-center justify-center gap-3">
-                                        <span
-                                            className={`rounded-depth-full px-3 py-1 text-xs font-semibold text-center ${status.tone}`}
-                                        >
-                                            {status.label}
-                                        </span>
-                                        <button
-                                            type="button"
-                                            onClick={() => handleOpenModalInput(assignment)}
-                                            className="flex items-center gap-2 rounded-depth-md border border-depth bg-depth-interactive px-3 py-2 text-xs font-semibold text-depth-primary shadow-depth-sm transition hover:-translate-y-0.5 hover:shadow-depth-md"
-                                        >
-                                            <img src={editIcon} alt="edit icon" className="edit-icon-filter h-4 w-4" />
-                                            {/* {isReviewed ? "Edit Nilai" : "Input Nilai"} */}
-                                        </button>
-                                    </div>
-                                </div>
+                                </article>
                             );
                         })}
                     </div>
