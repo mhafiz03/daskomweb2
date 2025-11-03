@@ -6,7 +6,7 @@ export default function CardPraktikan({praktikan}) {
     return (
         <>
             <div className="mx-auto mt-[13vh] font-poppins items-center flex flex-col">
-                <div className="h-[436px] w-[352.8px] rounded-depth-lg border border-depth bg-depth-card pt-6 shadow-depth-xl">
+                <div className="h-[436px] w-[352.8px] rounded-depth-lg border border-depth bg-depth-card pt-6 shadow-depth-lg">
                     {/* <CircularImage className="h-36 w-36 rounded-depth-full object-cover" src={daskomIcon} alt="Logo Daskom" /> */}
                     <div className="mx-auto relative flex h-40 w-40 items-center justify-center rounded-depth-full border border-depth bg-depth-background shadow-depth-md">
                             <img

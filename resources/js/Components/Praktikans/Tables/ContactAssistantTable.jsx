@@ -90,7 +90,7 @@ export default function ContactAssistantTable() {
             {selectedAsisten && (
                 <Dialog open={true} onClose={closeModal} className="fixed inset-0 z-50 flex items-center justify-center">
                     <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={closeModal}></div>
-                    <div className="relative z-10 w-full max-w-md rounded-depth-lg border border-depth bg-depth-card p-8 text-center shadow-depth-xl">
+                    <div className="relative z-10 w-full max-w-md rounded-depth-lg border border-depth bg-depth-card p-8 text-center shadow-depth-lg">
                         {/* Close Button */}
                         <button 
                             onClick={closeModal} 

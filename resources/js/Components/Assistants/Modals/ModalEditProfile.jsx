@@ -254,7 +254,7 @@ export default function ModalEditProfile({ isOpen, onClose }) {
                         <div className="flex justify-center">
                             <button
                                 type="submit"
-                                className="w-full max-w-xs rounded-depth-md bg-[var(--depth-color-primary)] px-8 py-3 font-semibold text-white shadow-depth-lg transition hover:-translate-y-0.5 hover:shadow-depth-xl"
+                                className="w-full max-w-xs rounded-depth-md bg-[var(--depth-color-primary)] px-8 py-3 font-semibold text-white shadow-depth-lg transition hover:-translate-y-0.5 hover:shadow-depth-lg"
                             >
                                 Save
                             </button>

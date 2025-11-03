@@ -123,7 +123,7 @@ export default function PraktikanNav({ praktikan }) {
         <>
             <nav className="flex h-screen items-center">
                 <div
-                    className={`mx-2 flex h-[91vh] flex-col rounded-depth-lg border border-depth glass-surface shadow-depth-xl transition-all duration-300 ${
+                    className={`mx-2 flex h-[91vh] flex-col rounded-depth-lg border border-depth glass-surface shadow-depth-lg transition-all duration-300 ${
                         isCollapsed ? "w-12" : "w-[230px]"
                     }`}
                 >

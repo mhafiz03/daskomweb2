@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 import ModalInputNilai from "../Modals/ModalInputNilai";
@@ -149,23 +149,17 @@ export default function ContentNilai({ asisten }) {
         handleCloseModalInput();
     };
 
+    const handleSearchChange = useCallback((event) => setSearch(event.target.value), []);
+
     const toolbarConfig = useMemo(
         () => ({
-            title: "Input Nilai Praktikan",
-        }),
-        [],
-    );
-
-    useAssistantToolbar(toolbarConfig);
-
-    return (
-        <div className="space-y-6 text-depth-primary">
-            <div className="flex justify-end">
-                <div className="relative w-full md:w-80">
+            title: "Input Nilai",
+            right: (
+                <div className="relative min-w-[18rem] max-w-full">
                     <input
                         type="search"
                         value={search}
-                        onChange={(event) => setSearch(event.target.value)}
+                        onChange={handleSearchChange}
                         placeholder="Cari nama, NIM, modul..."
                         className="w-full rounded-depth-full border border-depth bg-depth-interactive py-2.5 pl-4 pr-11 text-sm text-depth-primary shadow-depth-inset transition focus:border-[var(--depth-color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)] focus:ring-offset-0 placeholder:text-depth-secondary"
                     />
@@ -173,8 +167,15 @@ export default function ContentNilai({ asisten }) {
                         🔍
                     </span>
                 </div>
-            </div>
+            ),
+        }),
+        [handleSearchChange, search],
+    );
 
+    useAssistantToolbar(toolbarConfig);
+
+    return (
+        <div className="space-y-6 text-depth-primary">
             <div className="rounded-depth-lg border border-depth bg-depth-card p-3 shadow-depth-md">
                 <div className="grid grid-cols-[1fr_1.6fr_2.6fr_auto] gap-2 text-xs font-semibold uppercase tracking-wide text-white">
                     <div className="rounded-depth-md bg-[var(--depth-color-primary)] px-3 py-2 text-center shadow-depth-sm">

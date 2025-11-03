@@ -343,14 +343,14 @@ export default function AssisstantNav({ asisten, permission_name = [], roleName 
         "inline-flex h-10 items-center gap-2 rounded-depth-md px-4 text-sm font-semibold text-depth-primary transition hover:-translate-y-1 hover:bg-depth-interactive hover:shadow-depth-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--depth-color-primary)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--depth-color-background)]";
 
     const menuContentBaseClass =
-        "pointer-events-none absolute left-1/2 top-full z-40 w-full -translate-x-1/2 translate-y-2 opacity-0 transition-all duration-200 group-hover:translate-y-0 group-hover:opacity-100 group-hover:pointer-events-auto group-focus-within:translate-y-0 group-focus-within:opacity-100 group-focus-within:pointer-events-auto";
+        "pointer-events-none absolute left-1/2 top-full z-40 w-full max-w-3xl -translate-x-1/2 translate-y-3 opacity-0 transition-all duration-200 group-hover:translate-y-0 group-hover:opacity-100 group-hover:pointer-events-auto group-focus-within:translate-y-0 group-focus-within:opacity-100 group-focus-within:pointer-events-auto md:max-w-4xl";
 
     const menuSurfaceClass =
-        "w-full rounded-depth-lg border border-depth bg-depth-card p-4 shadow-depth-xl";
+        "w-full min-w-[18rem] rounded-depth-lg border border-depth bg-depth-card p-5 shadow-depth-lg md:min-w-[34rem] md:p-6";
 
     const renderMenuItem = (item, closeMenu, { containerClass = "" } = {}) => {
         const isActive = isActiveItem(item);
-        const baseClass = `group flex h-full w-full transform items-center justify-start gap-3 rounded-depth-lg border border-depth px-4 py-3 text-left text-sm font-medium transition duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--depth-color-primary)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--depth-color-background)] ${
+        const baseClass = `group flex h-full w-full transform items-center justify-start gap-3 rounded-depth-lg border border-depth px-5 py-3 text-left text-sm font-medium transition duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--depth-color-primary)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--depth-color-background)] ${
             isActive
                 ? "bg-[var(--depth-color-primary)] text-white shadow-depth-lg"
                 : "bg-depth-card/95 text-depth-primary hover:-translate-y-0.5 hover:border-depth hover:bg-depth-interactive hover:text-depth-primary hover:shadow-depth-md"
@@ -379,7 +379,7 @@ export default function AssisstantNav({ asisten, permission_name = [], roleName 
         }
 
         return (
-            <li key={item.id} className={containerClass}>
+            <li key={item.id} className={`w-full ${containerClass}`}>
                 <Link
                     href={item.href}
                     className={baseClass}
@@ -450,10 +450,10 @@ export default function AssisstantNav({ asisten, permission_name = [], roleName 
     return (
         <>
             <nav className="relative z-30 flex w-full justify-center px-4">
-                <div className="glass-surface w-full max-w-full rounded-depth-lg border border-depth bg-depth-card/80 px-6 py-4 shadow-depth-xl backdrop-blur">
+                <div className="glass-surface w-full max-w-full rounded-depth-lg border border-depth bg-depth-card/80 px-6 py-4 shadow-depth-lg backdrop-blur">
                     <div className="flex flex-col gap-4 md:grid md:grid-cols-[minmax(0,1.2fr)_minmax(0,auto)_minmax(0,1fr)] md:items-center md:gap-6">
                         <div className="order-1 flex flex-wrap items-center gap-3">
-                            <div className="bg-[var(--depth-color-primary)] rounded-depth-lg border border-depth bg-depth-card/90 px-5 py-2 shadow-depth-sm">
+                            <div className="px-5 py-2">
                                 <h1 className="text-base font-semibold text-depth-primary md:text-lg">{navTitle}</h1>
                             </div>
                             {toolbarActions.length > 0 && (
@@ -464,7 +464,7 @@ export default function AssisstantNav({ asisten, permission_name = [], roleName 
                         </div>
 
                         <div className="order-2 w-full md:justify-self-center">
-                            <ul className="flex flex-wrap items-center justify-center gap-2 md:gap-4" role="menubar">
+                            <ul className="flex flex-wrap items-center justify-center gap-3 md:gap-5" role="menubar">
                                 {accessibleGroups.map((group) => {
                                     const groupHasActiveItem = group.items.some((item) => isActiveItem(item));
                                     const isGroupOpen = openGroup === group.id;
@@ -478,8 +478,8 @@ export default function AssisstantNav({ asisten, permission_name = [], roleName 
                                         : "";
                                     const isPraktikanGroup = group.id === "praktikan";
                                     const listLayoutClass = isPraktikanGroup
-                                        ? "flex flex-col gap-2 md:grid md:grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)] md:gap-3"
-                                        : "flex flex-col gap-2";
+                                        ? "grid grid-cols-1 gap-3 md:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)] md:gap-5"
+                                        : "grid grid-cols-1 gap-3 md:grid-cols-2 md:gap-5";
 
                                     return (
                                         <li

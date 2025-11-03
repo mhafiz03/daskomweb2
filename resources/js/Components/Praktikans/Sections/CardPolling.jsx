@@ -14,7 +14,7 @@ export default function CardPolling({
             } ${
                 isDisabled
                     ? "cursor-not-allowed"
-                    : "cursor-pointer hover:scale-105 hover:shadow-depth-xl"
+                    : "cursor-pointer hover:scale-105 hover:shadow-depth-lg"
             } ${
                 isSelected ? "ring-2 ring-[var(--depth-color-primary)] ring-offset-2" : ""
             }`}

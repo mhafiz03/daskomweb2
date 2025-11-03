@@ -35,7 +35,7 @@ export default function FeedbackModal({
             />
             
             {/* Modal */}
-            <div className="glass-surface relative z-10 w-full max-w-2xl rounded-depth-xl p-6 shadow-depth-xl rounded-lg">
+            <div className="glass-surface relative z-10 w-full max-w-2xl rounded-depth-lg p-6 shadow-depth-lg rounded-lg">
                 {/* Header */}
                 <div className="mb-6">
                     <h2 className="text-2xl font-bold text-depth-primary">Feedback Praktikum</h2>

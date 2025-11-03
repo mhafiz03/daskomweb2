@@ -31,7 +31,7 @@ export default function PraktikumControlModal({
             />
             
             {/* Modal */}
-            <div className="glass-surface relative z-10 w-full max-w-lg rounded-depth-xl p-6 shadow-depth-xl">
+            <div className="glass-surface relative z-10 w-full max-w-lg rounded-depth-lg p-6 shadow-depth-lg">
                 {/* Header */}
                 <div className="mb-6 flex items-center justify-between">
                     <h2 className="text-2xl font-bold text-depth-primary">Praktikum Control</h2>
