@@ -16,7 +16,7 @@ export default function TablePelanggaran() {
   return (
     <div className="mt-5">
       {/* Header dengan div */}
-      <div className="bg-deepForestGreen rounded-lg py-2 px-2 mb-2">
+      {/* <div className="bg-deepForestGreen rounded-lg py-2 px-2 mb-2">
         <div className="grid grid-cols-4 gap-1">
           <div className="bg-deepForestGreen hover:bg-darkOliveGreen rounded-lg p-1">
             <h1 className="font-bold text-white text-center">No</h1>
@@ -31,6 +31,14 @@ export default function TablePelanggaran() {
             <h1 className="font-bold text-white text-center">Status</h1>
           </div>
         </div>
+      </div> */}
+      <div className="rounded-depth-lg border border-depth bg-depth-card p-3 shadow-depth-md">
+        <div className="grid grid-cols-4 gap-2 text-xs font-semibold uppercase tracking-wide text-white">
+          <span className="rounded-depth-md bg-[var(--depth-color-primary)] px-3 py-2 text-center shadow-depth-sm">No</span>
+          <span className="rounded-depth-md bg-[var(--depth-color-primary)] px-3 py-2 text-center shadow-depth-sm">Nama</span>
+          <span className="rounded-depth-md bg-[var(--depth-color-primary)] px-3 py-2 text-center shadow-depth-sm">Kode</span>
+          <span className="rounded-depth-md bg-[var(--depth-color-primary)] px-3 py-2 text-center shadow-depth-sm">Status</span>
+        </div>
       </div>
 
       {/* Kontainer untuk tabel scrollable */}
@@ -44,9 +52,8 @@ export default function TablePelanggaran() {
             <div className="flex items-center justify-center h-full py-1 px-2">Aliza Nurfitrian M</div>
             <div className="flex items-center justify-center h-full py-1 px-2">1101223083{index + 1}</div>
             <div
-              className={`flex items-center justify-center h-full py-1 px-2 ${
-                index % 2 === 0 ? "text-fireRed font-bold" : ""
-              }`}
+              className={`flex items-center justify-center h-full py-1 px-2 ${index % 2 === 0 ? "text-fireRed font-bold" : ""
+                }`}
             >
               {index % 2 === 0 ? `Belum Input ${index + 1} Nilai` : "Aman"}
             </div>

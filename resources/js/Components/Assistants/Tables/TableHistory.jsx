@@ -61,12 +61,12 @@ export default function TableHistory() {
     return (
         <div className="space-y-4">
             <div className="rounded-depth-lg border border-depth bg-depth-card p-3 shadow-depth-md">
-                <div className="grid grid-cols-5 gap-2 text-xs font-semibold uppercase tracking-wide text-depth-secondary">
-                    <span className="rounded-depth-md bg-depth-interactive px-3 py-2 text-center shadow-depth-inset">Tanggal</span>
-                    <span className="rounded-depth-md bg-depth-interactive px-3 py-2 text-center shadow-depth-inset">Modul</span>
-                    <span className="rounded-depth-md bg-depth-interactive px-3 py-2 text-center shadow-depth-inset">Kelas</span>
-                    <span className="rounded-depth-md bg-depth-interactive px-3 py-2 text-center shadow-depth-inset">Laporan</span>
-                    <span className="rounded-depth-md bg-depth-interactive px-3 py-2 text-center shadow-depth-inset">PJ</span>
+                <div className="grid grid-cols-5 gap-2 text-xs font-semibold uppercase tracking-wide text-white">
+                    <span className="rounded-depth-md bg-[var(--depth-color-primary)] px-3 py-2 text-center shadow-depth-sm">Tanggal</span>
+                    <span className="rounded-depth-md bg-[var(--depth-color-primary)] px-3 py-2 text-center shadow-depth-sm">Modul</span>
+                    <span className="rounded-depth-md bg-[var(--depth-color-primary)] px-3 py-2 text-center shadow-depth-sm">Kelas</span>
+                    <span className="rounded-depth-md bg-[var(--depth-color-primary)] px-3 py-2 text-center shadow-depth-sm">Laporan</span>
+                    <span className="rounded-depth-md bg-[var(--depth-color-primary)] px-3 py-2 text-center shadow-depth-sm">PJ</span>
                 </div>
             </div>
 
