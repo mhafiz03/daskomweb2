@@ -7,10 +7,10 @@ import { Toaster } from "react-hot-toast";
 
 export default function AssistantLayout({
     children,
-    navClassName = "flex-grow md:w-1/4 h-full",
-    contentClassName = "flex-grow md:w-3/4 mt-10",
-    layoutClassName = "relative flex min-h-screen items-center justify-center bg-depth-gradient px-6 py-10 text-depth-primary transition-colors duration-300",
-    wrapperClassName = "flex w-full max-w-7xl flex-col gap-6 font-depth md:flex-row",
+    navClassName = "w-full",
+    contentClassName = "w-full flex-1 mt-10",
+    layoutClassName = "relative flex min-h-screen items-start justify-center bg-depth-gradient px-6 py-10 text-depth-primary transition-colors duration-300",
+    wrapperClassName = "flex w-full max-w-7xl flex-col gap-8 font-depth",
 }) {
     const { auth } = usePage().props ?? {};
     const asisten = auth?.asisten ?? null;
@@ -39,9 +39,7 @@ export default function AssistantLayout({
                     />
                 </div>
                 <div className={contentClassName}>
-                    {/* <div className="h-full rounded-depth-lg border border-depth bg-depth-card p-6 shadow-depth-lg transition-colors duration-300"> */}
                     {renderedChildren}
-                    {/* </div> */}
                 </div>
             </div>
             <Toaster position="top-right" reverseOrder={false} />
