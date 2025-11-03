@@ -12,6 +12,7 @@
         "intervention/image": "^3.11",
         "intervention/image-laravel": "^1.5",
         "laravel/framework": "^11.9",
+        "laravel/horizon": "^5.38",
         "laravel/reverb": "^1.0",
         "laravel/sanctum": "^4.0",
         "laravel/tinker": "^2.9",
@@ -25,7 +26,9 @@
     "require-dev": {
         "fakerphp/faker": "^1.23",
         "kitloong/laravel-migrations-generator": "^7.0",
+        "laravel/boost": "^1.1",
         "laravel/breeze": "^2.1",
+        "laravel/mcp": "^0.1.1",
         "laravel/pint": "^1.13",
         "laravel/sail": "^1.26",
         "mockery/mockery": "^1.6",
