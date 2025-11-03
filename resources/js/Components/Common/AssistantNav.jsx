@@ -99,7 +99,6 @@ export default function AssisstantNav({ asisten, permission_name = [], roleName 
         {
             id: "praktikum",
             label: "Praktikum",
-            description: "Kelola aktivitas praktikum harian.",
             items: [
                 {
                     id: "start-praktikum",
@@ -142,7 +141,6 @@ export default function AssisstantNav({ asisten, permission_name = [], roleName 
         {
             id: "materi",
             label: "Materi",
-            description: "Kelola modul dan tugas praktikum.",
             items: [
                 {
                     id: "manage-modul",
@@ -185,7 +183,6 @@ export default function AssisstantNav({ asisten, permission_name = [], roleName 
         {
             id: "praktikan",
             label: "Praktikan",
-            description: "Kelola data dan penilaian praktikan.",
             items: [
                 {
                     id: "nilai-praktikan",
@@ -219,7 +216,6 @@ export default function AssisstantNav({ asisten, permission_name = [], roleName 
         {
             id: "asisten",
             label: "Asisten",
-            description: "Manajemen kewenangan dan aktivitas asisten.",
             items: [
                 {
                     id: "manage-role",
@@ -264,7 +260,6 @@ export default function AssisstantNav({ asisten, permission_name = [], roleName 
         {
             id: "profile",
             label: "Profile",
-            description: "Pengaturan akun asisten.",
             items: [
                 {
                     id: "profile",
@@ -343,10 +338,10 @@ export default function AssisstantNav({ asisten, permission_name = [], roleName 
         "inline-flex h-10 items-center gap-2 rounded-depth-md px-4 text-sm font-semibold text-depth-primary transition hover:-translate-y-1 hover:bg-depth-interactive hover:shadow-depth-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--depth-color-primary)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--depth-color-background)]";
 
     const menuContentBaseClass =
-        "pointer-events-none absolute left-1/2 top-full z-40 w-full max-w-3xl -translate-x-1/2 translate-y-3 opacity-0 transition-all duration-200 group-hover:translate-y-0 group-hover:opacity-100 group-hover:pointer-events-auto group-focus-within:translate-y-0 group-focus-within:opacity-100 group-focus-within:pointer-events-auto md:max-w-4xl";
+        "pointer-events-none absolute left-1/2 top-full z-40 w-full -translate-x-1/2 translate-y-3 opacity-0 transition-all duration-200 group-hover:translate-y-0 group-hover:opacity-100 group-hover:pointer-events-auto group-focus-within:translate-y-0 group-focus-within:opacity-100 group-focus-within:pointer-events-auto";
 
     const menuSurfaceClass =
-        "w-full min-w-[18rem] rounded-depth-lg border border-depth bg-depth-card p-5 shadow-depth-lg md:min-w-[34rem] md:p-6";
+        "w-full rounded-depth-lg border border-depth bg-depth-card p-5 shadow-depth-lg md:p-6";
 
     const renderMenuItem = (item, closeMenu, { containerClass = "" } = {}) => {
         const isActive = isActiveItem(item);
@@ -464,7 +459,7 @@ export default function AssisstantNav({ asisten, permission_name = [], roleName 
                         </div>
 
                         <div className="order-2 w-full md:justify-self-center">
-                            <ul className="flex flex-wrap items-center justify-center gap-3 md:gap-5" role="menubar">
+                            <ul className="flex flex-wrap items-center justify-center gap-5" role="menubar">
                                 {accessibleGroups.map((group) => {
                                     const groupHasActiveItem = group.items.some((item) => isActiveItem(item));
                                     const isGroupOpen = openGroup === group.id;
@@ -477,9 +472,12 @@ export default function AssisstantNav({ asisten, permission_name = [], roleName 
                                         ? "pointer-events-auto translate-y-0 opacity-100"
                                         : "";
                                     const isPraktikanGroup = group.id === "praktikan";
+                                    const isProfileGroup = group.id === "profile";
                                     const listLayoutClass = isPraktikanGroup
-                                        ? "grid grid-cols-1 gap-3 md:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)] md:gap-5"
-                                        : "grid grid-cols-1 gap-3 md:grid-cols-2 md:gap-5";
+                                        ? "grid grid-cols-1 gap-1.5"
+                                        : isProfileGroup
+                                        ? "flex flex-col gap-1.5"
+                                        : "grid grid-cols-1 gap-1.5";
 
                                     return (
                                         <li
@@ -513,13 +511,20 @@ export default function AssisstantNav({ asisten, permission_name = [], roleName 
                                                 {group.label}
                                             </button>
                                             <div
-                                                className={`${menuContentBaseClass} ${menuVisibilityClass}`}
+                                                className={`${menuContentBaseClass} ${menuVisibilityClass} ${
+                                                    isProfileGroup ? "max-w-sm" : "max-w-3xl"
+                                                }`}
                                                 role="menu"
                                             >
-                                                <div className={menuSurfaceClass}>
-                                                    <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-depth-tertiary">
-                                                        {group.description}
-                                                    </p>
+                                                <div
+                                                    className={`${menuSurfaceClass} ${
+                                                        isProfileGroup
+                                                            ? "min-w-[16rem]"
+                                                            : isPraktikanGroup
+                                                            ? "min-w-[32rem]"
+                                                            : "min-w-[18rem]"
+                                                    }`}
+                                                >
                                                     <ul className={listLayoutClass} data-group={group.id}>
                                                         {group.items.map((item, index) =>
                                                             renderMenuItem(item, () => setOpenGroup(null), {
@@ -527,6 +532,8 @@ export default function AssisstantNav({ asisten, permission_name = [], roleName 
                                                                     ? index === 0
                                                                         ? "md:row-span-2 md:h-full"
                                                                         : "md:col-start-2"
+                                                                    : isProfileGroup
+                                                                    ? ""
                                                                     : "",
                                                             }),
                                                         )}
