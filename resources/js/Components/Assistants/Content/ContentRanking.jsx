@@ -1,16 +1,21 @@
+import { useMemo } from "react";
+import { useAssistantToolbar } from "@/Layouts/AssistantToolbarContext";
 import DropdownKelasRanking from "../Dropdowns/DropdownKelasRanking";
 import TableRanking from "../Tables/TableRanking";
 
 export default function ContentRanking() {
+    const toolbarConfig = useMemo(
+        () => ({
+            title: "Ranking Praktikan",
+        }),
+        [],
+    );
+
+    useAssistantToolbar(toolbarConfig);
+
     return (
         <section>
-            {/* button praktikan - kelas */}
-            <div className="flex gap-4 items-start">
-                <div className="border-2 border-darkBrown rounded-md shadow-md ">
-                    <h6 className="text-md text-darkBrown text-center py-1 font-semibold px-32">Praktikan</h6>
-                </div>
-
-                {/* Panggil komponen dropdown */}
+            <div className="mb-6">
                 <DropdownKelasRanking />
             </div>
 

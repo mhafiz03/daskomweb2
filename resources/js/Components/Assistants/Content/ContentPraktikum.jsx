@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { useAssistantToolbar } from "@/Layouts/AssistantToolbarContext";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 import { api } from "@/lib/api";
@@ -686,15 +687,17 @@ export default function ContentPraktikum() {
         : effectiveSession?.pj_id
             ? `Asisten #${effectiveSession.pj_id}`
             : "-";
+
+    const toolbarConfig = useMemo(
+        () => ({
+            title: "Start Praktikum",
+        }),
+        [],
+    );
+
+    useAssistantToolbar(toolbarConfig);
     return (
         <section className="space-y-6 text-depth-primary">
-            {/* Header */}
-            <div className="flex flex-wrap items-center gap-4">
-                <div className="rounded-depth-lg border border-depth bg-depth-card px-10 py-4 shadow-depth-sm">
-                    <h6 className="text-lg font-semibold text-depth-primary">Start Praktikum</h6>
-                </div>
-            </div>
-
             <div className="rounded-depth-lg border border-depth bg-depth-card shadow-depth-lg">
                 <div className="w-full overflow-y-auto p-6 md:h-96 lg:h-[48rem]">
                     <div className="mb-6 flex flex-col gap-4 lg:flex-row">

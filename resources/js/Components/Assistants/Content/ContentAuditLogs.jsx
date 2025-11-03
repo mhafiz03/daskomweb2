@@ -1,5 +1,6 @@
 import { router, usePage } from "@inertiajs/react";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useAssistantToolbar } from "@/Layouts/AssistantToolbarContext";
 import AuditLogsTable from "../Tables/AuditLogsTable";
 
 const inputBaseClass =
@@ -40,17 +41,18 @@ export default function ContentAuditLogs() {
         );
     };
 
+    const toolbarConfig = useMemo(
+        () => ({
+            title: "Audit Logs",
+        }),
+        [],
+    );
+
+    useAssistantToolbar(toolbarConfig);
+
     return (
         <section className="space-y-6 text-depth-primary">
-            <div className="flex flex-wrap items-center justify-between gap-4">
-                <div className="rounded-depth-lg border border-depth bg-depth-card px-6 py-3 shadow-depth-sm">
-                    <h6 className="text-lg font-semibold text-depth-primary">Audit Logs</h6>
-                    <p className="text-xs text-depth-secondary">
-                        Pantau aktivitas penting yang dilakukan oleh tim asisten.
-                    </p>
-                </div>
-
-                <form onSubmit={handleSubmit} className="flex flex-wrap items-center gap-3">
+            <form onSubmit={handleSubmit} className="flex flex-wrap items-center gap-3">
                     <input
                         type="search"
                         value={search}
@@ -75,7 +77,10 @@ export default function ContentAuditLogs() {
                         Cari
                     </button>
                 </form>
-            </div>
+
+            <p className="text-sm text-depth-secondary">
+                Pantau aktivitas penting yang dilakukan oleh tim asisten.
+            </p>
 
             <AuditLogsTable logs={logs} />
         </section>

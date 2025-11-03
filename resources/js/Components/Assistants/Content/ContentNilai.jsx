@@ -7,6 +7,7 @@ import {
     useAssignedPraktikanQuery,
     ASSIGNED_PRAKTIKAN_QUERY_KEY,
 } from "@/hooks/useAssignedPraktikanQuery";
+import { useAssistantToolbar } from "@/Layouts/AssistantToolbarContext";
 
 const SCORE_FIELDS = [
     { key: "tp", label: "TP" },
@@ -148,12 +149,18 @@ export default function ContentNilai({ asisten }) {
         handleCloseModalInput();
     };
 
+    const toolbarConfig = useMemo(
+        () => ({
+            title: "Input Nilai Praktikan",
+        }),
+        [],
+    );
+
+    useAssistantToolbar(toolbarConfig);
+
     return (
         <div className="space-y-6 text-depth-primary">
-            <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-                <div className="rounded-depth-lg border border-depth bg-depth-card px-10 py-4 shadow-depth-sm">
-                    <h6 className="text-lg font-semibold text-depth-primary">Input Nilai Praktikan</h6>
-                </div>
+            <div className="flex justify-end">
                 <div className="relative w-full md:w-80">
                     <input
                         type="search"
