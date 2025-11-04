@@ -11,9 +11,6 @@ const formatTimestamp = (value) => {
     }
 
     return date.toLocaleString("id-ID", {
-        day: "2-digit",
-        month: "2-digit",
-        year: "numeric",
         hour: "2-digit",
         minute: "2-digit",
         second: "2-digit",
@@ -28,13 +25,11 @@ const getBadgeClass = (row) => {
     if (phaseKey === "ta" || phaseKey === "tk") {
         if (answered >= 10) {
             return {
-                tone: "success",
                 className: "bg-emerald-500/15 text-emerald-400 ring-1 ring-emerald-400/40",
             };
         }
 
         return {
-            tone: "warning",
             className: "bg-amber-500/15 text-amber-400 ring-1 ring-amber-400/40",
         };
     }
@@ -42,26 +37,22 @@ const getBadgeClass = (row) => {
     if (total === 0) {
         if (answered > 0) {
             return {
-                tone: "success",
                 className: "bg-emerald-500/15 text-emerald-400 ring-1 ring-emerald-400/40",
             };
         }
 
         return {
-            tone: "neutral",
             className: "bg-depth-interactive/60 text-depth-secondary ring-1 ring-depth/50",
         };
     }
 
     if (answered >= total) {
         return {
-            tone: "success",
             className: "bg-emerald-500/15 text-emerald-400 ring-1 ring-emerald-400/40",
         };
     }
 
     return {
-        tone: "warning",
         className: "bg-amber-500/15 text-amber-400 ring-1 ring-amber-400/40",
     };
 };
@@ -91,7 +82,6 @@ export default function TablePraktikanProgress({
     }, [onlinePraktikan]);
 
     const lastGenerated = formatTimestamp(progress?.generatedAt ?? null);
-
     const toggleExpanded = () => setIsExpanded((prev) => !prev);
 
     return (
@@ -147,50 +137,58 @@ export default function TablePraktikanProgress({
                             Belum ada progres yang dapat ditampilkan.
                         </div>
                     ) : (
-                        <div className="overflow-hidden rounded-depth-lg border border-depth shadow-depth-md">
-                            <table className="w-full min-w-[720px] table-auto divide-y divide-[color:var(--depth-border)] text-sm">
-                                <tbody className="grid grid-cols-3 justify-between divide-y divide-[color:var(--depth-border)] bg-depth-card">
-                                    {rows.map((row) => {
-                                        const badge = getBadgeClass(row);
-                                        const answered = Number(row?.answeredCount ?? 0);
-                                        const totalRaw = row?.totalQuestions;
-                                        const totalValue = typeof totalRaw === "number" ? totalRaw : Number(totalRaw ?? 0);
-                                        const total = Number.isFinite(totalValue) ? totalValue : 0;
-                                        const displayTotal = total > 0 ? total : "-";
-                                        const isOnline = onlineSet.has(row?.id);
+                        <div className="grid gap-1 sm:grid-cols-3 xl:grid-cols-4">
+                            {rows.map((row) => {
+                                const badge = getBadgeClass(row);
+                                const answered = Number(row?.answeredCount ?? 0);
+                                const totalRaw = row?.totalQuestions;
+                                const totalValue = typeof totalRaw === "number" ? totalRaw : Number(totalRaw ?? 0);
+                                const total = Number.isFinite(totalValue) ? totalValue : 0;
+                                const displayTotal = total > 0 ? total : "-";
+                                const isOnline = onlineSet.has(row?.id);
+                                const lastUpdated = formatTimestamp(row?.lastUpdateAt ?? null);
 
-                                        return (
-                                            <tr key={row?.id ?? row?.nim} className="transition hover:bg-depth-interactive/40">
-                                                <td className="px-4 py-3 font-semibold text-depth-primary">{row?.nim ?? "-"}</td>
-                                                <td className="px-4 py-3 text-depth-secondary">
-                                                    <span className="flex items-center gap-2">
-                                                        {isOnline && (
-                                                            <span className="relative flex h-2.5 w-2.5">
-                                                                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-400 opacity-75" />
-                                                                <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-green-500" />
-                                                            </span>
-                                                        )}
-                                                        <span className="truncate" title={row?.nama ?? "Tidak diketahui"}>
-                                                            {row?.nama ?? "Tidak diketahui"}
-                                                        </span>
-                                                    </span>
-                                                </td>
-                                                <td className="px-4 py-3">
-                                                    <span
-                                                        className={`inline-flex gap-2 rounded-depth-full px-3 py-1 text-xs font-semibold ${badge.className}`}
-                                                    >
-                                                        <span>
-                                                            {answered}
-                                                            <span className="text-depth-secondary"> / </span>
-                                                            {displayTotal}
-                                                        </span>
-                                                    </span>
-                                                </td>
-                                            </tr>
-                                        );
-                                    })}
-                                </tbody>
-                            </table>
+                                return (
+                                    <div
+                                        key={row?.id ?? row?.nim}
+                                        className="grid gap-1 rounded-depth-sm border border-depth bg-depth-card/70 p-4 shadow-depth-sm transition hover:-translate-y-0.5 hover:shadow-depth-md"
+                                    >
+                                        <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3">
+                                            <div className="grid gap-1">
+                                                <span className="font-semibold text-depth-primary">{row?.nim ?? "-"}</span>
+                                            </div>
+                                            <span
+                                                className={`inline-flex items-center gap-2 rounded-depth-full px-3 py-1 text-xs font-semibold ${badge.className}`}
+                                            >
+                                                <span>
+                                                    {answered}
+                                                    <span className="text-depth-secondary"> / </span>
+                                                    {displayTotal}
+                                                </span>
+                                            </span>
+                                        </div>
+                                        <div className="grid grid-cols-[auto_minmax(0,1fr)] items-center gap-2 text-sm text-depth-secondary">
+                                            {isOnline && (
+                                                <span className="relative flex h-2.5 w-2.5">
+                                                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-400 opacity-75" />
+                                                    <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-green-500" />
+                                                </span>
+                                            )}
+                                            <span
+                                                className="truncate text-xs uppercase tracking-wide text-depth-secondary"
+                                                title={row?.nama ?? "Tidak diketahui"}
+                                            >
+                                                {row?.nama ?? "Tidak diketahui"}
+                                            </span>
+                                        </div>
+                                        <div className="-mt-4 grid justify-items-end text-xs text-depth-secondary">
+                                            <span className="whitespace-nowrap truncate" title={lastUpdated ?? "Belum ada pembaruan"}>
+                                                {lastUpdated}
+                                            </span>
+                                        </div>
+                                    </div>
+                                );
+                            })}
                         </div>
                     )}
                 </div>
