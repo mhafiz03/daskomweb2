@@ -119,20 +119,20 @@ export default function AssistantLayout({
 
         return (
             <div className="mb-6">
-                <div className="rounded-depth-lg border border-depth bg-depth-card/95 px-6 py-5 shadow-depth-lg">
-                    <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-                        <div className="flex flex-wrap items-center gap-3">
-                            {title ? (
-                                <h1 className="text-xl font-semibold text-depth-primary md:text-2xl">{title}</h1>
-                            ) : null}
-                            {toolbarActions.length > 0 ? (
-                                <div className="flex flex-wrap items-center gap-2">
-                                    {toolbarActions.map((action) => renderToolbarAction(action))}
-                                </div>
-                            ) : null}
-                        </div>
-                        {right ? <div className="flex w-full justify-start md:w-auto md:justify-end">{right}</div> : null}
+                <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                    <div className="flex flex-wrap items-center gap-4">
+                        {title ? (
+                            <div className="rounded-depth-lg border border-depth bg-depth-card px-10 py-4 shadow-depth-sm">
+                                <h6 className="text-lg font-semibold text-depth-primary">{title}</h6>
+                            </div>
+                        ) : null}
+                        {toolbarActions.length > 0 ? (
+                            <div className="flex flex-wrap items-center gap-2">
+                                {toolbarActions.map((action) => renderToolbarAction(action))}
+                            </div>
+                        ) : null}
                     </div>
+                    {right ? <div className="flex w-full justify-start md:w-auto md:justify-end">{right}</div> : null}
                 </div>
             </div>
         );
