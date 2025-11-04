@@ -150,7 +150,7 @@ export default function TableManageRole({ asisten }) {
             </div>
 
             <div className="rounded-depth-lg border border-depth bg-depth-card shadow-depth-lg">
-                <div className="max-h-[70vh] overflow-auto lg:max-h-[48rem]">
+                <div className="h-[70vh] overflow-auto lg:max-h-[48rem]">
                     <table className="min-w-full divide-y divide-[color:var(--depth-border)] text-sm text-depth-primary">
                         <thead className="bg-depth-interactive/60">
                             <tr className="text-left text-depth-secondary">

@@ -3,8 +3,12 @@ import AssistantLayout from "@/Layouts/AssistantLayout";
 
 export default function ProfileAssistant() {
     return (
-        <AssistantLayout contentClassName="mt-10 flex w-full justify-center">
-            {({ asisten }) => <CardAssistant asisten={asisten} />}
+        <AssistantLayout>
+            {({ asisten }) => (
+                <div className="flex min-h-full w-full items-center justify-center p-6">
+                    <CardAssistant asisten={asisten} />
+                </div>
+            )}
         </AssistantLayout>
     );
 }

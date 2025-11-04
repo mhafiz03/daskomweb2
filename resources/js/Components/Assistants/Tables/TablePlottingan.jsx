@@ -104,7 +104,7 @@ export default function TablePlottingan() {
                 </div>
             </div>
 
-            <div className="rounded-depth-lg border border-depth bg-depth-card shadow-depth-lg">
+            <div className="h-[73.7vh] overflow-y-auto rounded-depth-lg border border-depth bg-depth-card shadow-depth-lg">
                 {isLoading ? (
                     <div className="px-6 py-10 text-center text-depth-secondary">Memuat data...</div>
                 ) : isError ? (

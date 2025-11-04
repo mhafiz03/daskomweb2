@@ -70,7 +70,7 @@ export default function TableHistory() {
                 </div>
             </div>
 
-            <div className="overflow-x-auto rounded-depth-lg border border-depth bg-depth-card shadow-depth-lg">
+            <div className="overflow-x-auto rounded-depth-lg border border-depth bg-depth-card shadow-depth-lg h-[74.5vh]">
                 <div className="grid grid-cols-5 gap-1">
                     {isLoading ? (
                         <div className="col-span-5 flex items-center justify-center px-4 py-6 text-depth-secondary">

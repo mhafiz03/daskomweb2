@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import AssisstantNav from "@/Components/Common/AssistantNav";
 import ThemeToggle from "@/Components/Common/ThemeToggle";
 import auditIcon from "../../assets/nav/Icon-Audit.svg";
@@ -10,7 +10,7 @@ export default function AssistantLayout({
     children,
     navClassName = "flex-shrink-0 lg:sticky lg:top-10",
     contentClassName = "flex-1 min-w-0",
-    layoutClassName = "relative flex min-h-screen items-start justify-start bg-depth-gradient px-4 py-10 text-depth-primary transition-colors duration-300",
+    layoutClassName = "overflow-hidden relative flex items-start justify-start bg-depth-gradient px-4 py-10 text-depth-primary transition-colors duration-300",
     wrapperClassName = "flex w-full flex-col gap-8 font-depth lg:flex-row",
 }) {
     const { auth } = usePage().props ?? {};
@@ -20,6 +20,17 @@ export default function AssistantLayout({
     const roleName = asisten?.role?.name ?? null;
 
     const [toolbar, setToolbarState] = useState(null);
+
+    useEffect(() => {
+        const previousBodyOverflow = document.body.style.overflow;
+        const previousHtmlOverflow = document.documentElement.style.overflow;
+        document.body.style.overflow = "hidden";
+        document.documentElement.style.overflow = "hidden";
+        return () => {
+            document.body.style.overflow = previousBodyOverflow;
+            document.documentElement.style.overflow = previousHtmlOverflow;
+        };
+    }, []);
 
     const setToolbar = useCallback((value) => {
         setToolbarState(value);
@@ -148,9 +159,9 @@ export default function AssistantLayout({
                             roleName={roleName}
                         />
                     </div>
-                    <div className={`${contentClassName} flex flex-col`}>
+                    <div className={`${contentClassName} flex h-[calc(100vh-80px)] flex-col overflow-hidden`}>
                         {toolbarHeader}
-                        <div className="flex-1">{renderedChildren}</div>
+                        <div className="flex-1 overflow-y-auto">{renderedChildren}</div>
                     </div>
                 </div>
             </AssistantToolbarContext.Provider>

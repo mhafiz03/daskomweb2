@@ -94,7 +94,7 @@ export default function TableModule() {
 
     return (
         <div className="space-y-4">
-            <div className="rounded-depth-lg border border-depth bg-depth-card shadow-depth-lg">
+            <div className="h-[81vh] overflow-y-auto rounded-depth-lg border border-depth bg-depth-card shadow-depth-lg">
                 {modulesLoading ? (
                     <div className="px-6 py-10 text-center text-depth-secondary">Memuat data...</div>
                 ) : modulesError ? (

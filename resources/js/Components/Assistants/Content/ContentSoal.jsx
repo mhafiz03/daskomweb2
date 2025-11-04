@@ -24,7 +24,7 @@ export default function ContentSoal() {
             {/* all dropdown input soal */}
             <div className="mt-4 rounded-depth-lg border border-depth bg-depth-card shadow-depth-lg">
                 {/* Panggil komponen dropdown jenis soal */}
-                <div className="w-full overflow-y-auto rounded-depth-lg p-6 md:h-96 lg:h-[48rem]">
+                <div className="w-full overflow-y-auto rounded-depth-lg p-6 h-[80vh]">
                     <SoalInputForm />
                 </div>
             </div>
