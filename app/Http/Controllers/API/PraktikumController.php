@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers\API;
 
+use App\Events\PraktikumProgressUpdated;
 use App\Events\PraktikumStatusUpdated;
 use App\Http\Controllers\Controller;
 use App\Models\Praktikum;
+use App\Services\Praktikum\QuestionProgressService;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -167,6 +169,10 @@ class PraktikumController extends Controller
 
         $praktikum = $praktikum->fresh(['modul', 'kelas', 'pj']);
         broadcast(new PraktikumStatusUpdated($praktikum));
+
+        $progressService = app(QuestionProgressService::class);
+        $progressPayload = $progressService->buildForPraktikum($praktikum);
+        broadcast(new PraktikumProgressUpdated($praktikum->id, $progressPayload));
 
         return response()->json([
             'status' => 'success',

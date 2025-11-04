@@ -19,6 +19,7 @@ use App\Http\Controllers\API\NilaiController;
 use App\Http\Controllers\API\PollingsController;
 use App\Http\Controllers\API\PraktikanController;
 use App\Http\Controllers\API\PraktikumController;
+use App\Http\Controllers\API\PraktikumProgressController;
 use App\Http\Controllers\API\RoleController;
 use App\Http\Controllers\API\SoalCommentController;
 use App\Http\Controllers\API\SoalFITBController;
@@ -317,6 +318,7 @@ Route::prefix('api-v1')->middleware('audit.assistant')->group(function () {
     Route::get('/praktikum', [PraktikumController::class, 'index'])->name('get.praktikums')->middleware(['auth:asisten', 'can:manage-praktikum,see-praktikum']);
     Route::get('/praktikum/{idKelas}', [PraktikumController::class, 'show'])->name('show.praktikums')->middleware(['auth:asisten', 'can:manage-praktikum,see-praktikum']);
     Route::put('/praktikum/{id}', [PraktikumController::class, 'update'])->name('update.praktikums')->middleware(['auth:asisten', 'can:manage-praktikum']);
+    Route::get('/praktikum/{praktikum}/progress', [PraktikumProgressController::class, 'show'])->name('praktikum.progress.show');
 
     // tugas pendahuluan
     Route::get('/tugas-pendahuluan', [TugasPendahuluanController::class, 'index'])->name('index.tugaspendahuluans')->middleware(['auth:asisten,praktikan', 'permission:tugas-pendahuluan|lihat-modul|lms-configuration']);

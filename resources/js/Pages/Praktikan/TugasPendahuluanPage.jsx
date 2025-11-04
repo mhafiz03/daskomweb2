@@ -177,8 +177,6 @@ export default function TugasPendahuluanPage() {
 
     const handleQuestionsCount = useCallback(() => { }, []);
 
-    const isConfigurationLoading = modulesQuery.isLoading || tugasQuery.isLoading;
-
     return (
         <>
             <PraktikanAuthenticated

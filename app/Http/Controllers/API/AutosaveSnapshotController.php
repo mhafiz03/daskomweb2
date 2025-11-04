@@ -2,7 +2,10 @@
 
 namespace App\Http\Controllers\API;
 
+use App\Events\PraktikumProgressUpdated;
 use App\Http\Controllers\Controller;
+use App\Models\Praktikan;
+use App\Services\Praktikum\QuestionProgressService;
 use Illuminate\Cache\Repository as CacheRepository;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -29,7 +32,7 @@ class AutosaveSnapshotController extends Controller
 
     private string $cacheStore;
 
-    public function __construct()
+    public function __construct(private QuestionProgressService $progressService)
     {
         $this->cacheStore = (string) config('cache.snapshot_store', 'redis');
     }
@@ -196,6 +199,13 @@ class AutosaveSnapshotController extends Controller
         $ttl = (int) config('cache.snapshot_ttl', self::DEFAULT_TTL_SECONDS);
         $cache->put($key, $payload, $ttl);
 
+        $this->broadcastProgressUpdates([
+            [
+                'praktikan_id' => (int) $validated['praktikan_id'],
+                'modul_id' => (int) $validated['modul_id'],
+            ],
+        ]);
+
         return response()->json([
             'success' => true,
             'data' => $payload,
@@ -216,6 +226,8 @@ class AutosaveSnapshotController extends Controller
         $ttl = (int) config('cache.snapshot_ttl', self::DEFAULT_TTL_SECONDS);
         $timestamp = Carbon::now()->toISOString();
 
+        $pairs = [];
+
         foreach ($validated['items'] as $item) {
             $key = $this->cacheKey(
                 (int) $item['praktikan_id'],
@@ -235,7 +247,14 @@ class AutosaveSnapshotController extends Controller
             ];
 
             $cache->put($key, $payload, $ttl);
+
+            $pairs[] = [
+                'praktikan_id' => (int) $item['praktikan_id'],
+                'modul_id' => (int) $item['modul_id'],
+            ];
         }
+
+        $this->broadcastProgressUpdates($pairs);
 
         return response()->json([
             'success' => true,
@@ -262,6 +281,13 @@ class AutosaveSnapshotController extends Controller
                 $deleted++;
             }
 
+            $this->broadcastProgressUpdates([
+                [
+                    'praktikan_id' => $praktikanId,
+                    'modul_id' => $modulId,
+                ],
+            ]);
+
             return response()->json([
                 'success' => true,
                 'deleted' => $deleted,
@@ -274,6 +300,13 @@ class AutosaveSnapshotController extends Controller
                 $deleted++;
             }
         }
+
+        $this->broadcastProgressUpdates([
+            [
+                'praktikan_id' => $praktikanId,
+                'modul_id' => $modulId,
+            ],
+        ]);
 
         return response()->json([
             'success' => true,
@@ -323,6 +356,13 @@ class AutosaveSnapshotController extends Controller
         $ttl = (int) config('cache.question_snapshot_ttl', self::QUESTION_TTL_SECONDS);
         $cache->put($key, $payload, $ttl);
 
+        $this->broadcastProgressUpdates([
+            [
+                'praktikan_id' => (int) $validated['praktikan_id'],
+                'modul_id' => (int) $validated['modul_id'],
+            ],
+        ]);
+
         return response()->json([
             'success' => true,
             'question_ids' => $validated['question_ids'],
@@ -361,5 +401,65 @@ class AutosaveSnapshotController extends Controller
             'has_stored_questions' => true,
             'created_at' => $snapshot['created_at'] ?? null,
         ]);
+    }
+
+    private function broadcastProgressUpdates(array $pairs): void
+    {
+        if (empty($pairs)) {
+            return;
+        }
+
+        $praktikanIds = array_values(array_unique(array_map(
+            static fn (array $pair): int => (int) ($pair['praktikan_id'] ?? 0),
+            $pairs
+        )));
+
+        if (empty($praktikanIds)) {
+            return;
+        }
+
+        $praktikans = Praktikan::query()
+            ->select(['id', 'kelas_id'])
+            ->whereIn('id', $praktikanIds)
+            ->get()
+            ->keyBy('id');
+
+        $targets = [];
+
+        foreach ($pairs as $pair) {
+            $praktikanId = (int) ($pair['praktikan_id'] ?? 0);
+            $modulId = (int) ($pair['modul_id'] ?? 0);
+
+            if ($praktikanId === 0 || $modulId === 0) {
+                continue;
+            }
+
+            $praktikan = $praktikans->get($praktikanId);
+            if (! $praktikan || ! $praktikan->kelas_id) {
+                continue;
+            }
+
+            $key = $praktikan->kelas_id.':'.$modulId;
+
+            if (! isset($targets[$key])) {
+                $targets[$key] = [
+                    'kelas_id' => (int) $praktikan->kelas_id,
+                    'modul_id' => $modulId,
+                ];
+            }
+        }
+
+        foreach ($targets as $target) {
+            $progress = $this->progressService->buildForIdentifiers(
+                $target['kelas_id'],
+                $target['modul_id']
+            );
+
+            if (! $progress || empty($progress['praktikumId'])) {
+                continue;
+            }
+
+            broadcast(new PraktikumProgressUpdated($progress['praktikumId'], $progress));
+        }
     }
 }

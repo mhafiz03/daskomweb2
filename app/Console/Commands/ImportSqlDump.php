@@ -631,11 +631,11 @@ class ImportSqlDump extends Command
         $runStatement("TRUNCATE TABLE `{$newDb}`.`nilais`", 'TRUNCATE nilais');
         $runStatement(
             "INSERT INTO `{$newDb}`.`nilais`
-            (`id`,`tp`,`ta`,`d1`,`d2`,`d3`,`d4`,`l1`,`l2`,`avg`,`modul_id`,`asisten_id`,`kelas_id`,`praktikan_id`,`created_at`,`updated_at`)
+            (`id`,`tp`,`ta`,`d1`,`d2`,`d3`,`d4`,`l1`,`l2`,`avg`,`rating`,`modul_id`,`asisten_id`,`kelas_id`,`praktikan_id`,`created_at`,`updated_at`)
             SELECT n.id, n.tp, n.ta,
                    n.jurnal / 4, n.jurnal / 4, n.jurnal / 4, n.jurnal / 4,
                    n.tk, n.skill,
-                   (n.tp + n.ta + n.jurnal + n.skill + n.tk) / 8,
+                   (n.tp + n.ta + n.jurnal + n.skill + n.tk) / 8, n.rating,
                    n.modul_id, n.asisten_id, n.kelas_id, n.praktikan_id, n.created_at, n.updated_at
             FROM `{$legacyDb}`.`nilais` n",
             'Insert nilais from legacy'

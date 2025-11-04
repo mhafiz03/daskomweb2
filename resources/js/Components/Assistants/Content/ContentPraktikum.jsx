@@ -8,6 +8,7 @@ import { useKelasQuery } from "@/hooks/useKelasQuery";
 import { useAsistensQuery } from "@/hooks/useAsistensQuery";
 import { useJadwalJagaQuery } from "@/hooks/useJadwalJagaQuery";
 import { PRAKTIKUM_HISTORY_QUERY_KEY } from "@/hooks/usePraktikumHistoryQuery";
+import TablePraktikanProgress from "@/Components/Assistants/Tables/TablePraktikanProgress";
 
 const PHASE_SEQUENCE = [
     { key: "preparation", label: "Preparation" },
@@ -76,6 +77,8 @@ const getErrorMessage = (error) => {
 const getPhaseIndex = (phaseKey) =>
     PHASE_SEQUENCE.findIndex((phase) => phase.key === phaseKey);
 
+const PRAKTIKUM_PROGRESS_QUERY_KEY = "praktikum-progress";
+
 export default function ContentPraktikum() {
     const [selectedModul, setSelectedModul] = useState("");
     const [selectedKelas, setSelectedKelas] = useState("");
@@ -86,6 +89,8 @@ export default function ContentPraktikum() {
     const [onlinePraktikan, setOnlinePraktikan] = useState(new Set());
     const [isPraktikanExpanded, setIsPraktikanExpanded] = useState(false);
     const [isAsistenExpanded, setIsAsistenExpanded] = useState(false);
+    const [progressData, setProgressData] = useState(null);
+    const [isProgressPolling, setIsProgressPolling] = useState(false);
 
     const queryClient = useQueryClient();
 
@@ -236,6 +241,58 @@ export default function ContentPraktikum() {
     const effectiveSession = session ?? selectedPraktikum ?? null;
     const hasSelection = Boolean(selectedKelas) && Boolean(selectedModul);
 
+    const {
+        data: fetchedProgress,
+        isLoading: progressLoading,
+        isFetching: progressFetching,
+        refetch: refetchProgress,
+    } = useQuery({
+        queryKey: [PRAKTIKUM_PROGRESS_QUERY_KEY, selectedPraktikumId],
+        queryFn: async () => {
+            if (!selectedPraktikumId) {
+                return undefined;
+            }
+
+            const { data } = await api.get(`/api-v1/praktikum/${selectedPraktikumId}/progress`);
+            if (data?.data) {
+                return data.data;
+            }
+
+            if (data?.progress) {
+                return data.progress;
+            }
+
+            return data ?? null;
+        },
+        enabled: Boolean(selectedPraktikumId),
+        refetchInterval: isProgressPolling ? 10000 : false,
+        staleTime: 5000,
+    });
+
+    useEffect(() => {
+        const status = effectiveSession?.status ?? null;
+        setIsProgressPolling(status === "running" || status === "paused");
+    }, [effectiveSession?.status]);
+
+    useEffect(() => {
+        if (typeof fetchedProgress === "undefined") {
+            return;
+        }
+
+        setProgressData(fetchedProgress);
+    }, [fetchedProgress]);
+
+    useEffect(() => {
+        if (!selectedPraktikumId) {
+            setProgressData(null);
+            return;
+        }
+
+        if (refetchProgress) {
+            refetchProgress();
+        }
+    }, [selectedPraktikumId, refetchProgress]);
+
     const computeElapsedSeconds = useCallback((praktikum) => {
         if (!praktikum?.started_at) {
             return 0;
@@ -320,7 +377,7 @@ export default function ContentPraktikum() {
         const channelName = `praktikum.${selectedPraktikumId}`;
         const channel = window.Echo.channel(channelName);
 
-        const listener = (payload) => {
+        const statusListener = (payload) => {
             const updated = payload?.praktikum;
             if (!updated) {
                 return;
@@ -360,14 +417,34 @@ export default function ContentPraktikum() {
             } else {
                 setDisplaySeconds(computeElapsedSeconds(updated));
             }
+
+            if (refetchProgress) {
+                refetchProgress();
+            }
         };
 
-        channel.listen(".PraktikumStatusUpdated", listener);
+        const progressListener = (payload) => {
+            const praktikumId = Number(payload?.praktikum_id ?? payload?.praktikumId ?? 0);
+            if (praktikumId && selectedPraktikumId && praktikumId !== Number(selectedPraktikumId)) {
+                return;
+            }
+
+            const progressPayload = payload?.progress ?? null;
+            if (!progressPayload) {
+                return;
+            }
+
+            setProgressData(progressPayload);
+            queryClient.setQueryData([PRAKTIKUM_PROGRESS_QUERY_KEY, selectedPraktikumId], progressPayload);
+        };
+
+        channel.listen(".PraktikumStatusUpdated", statusListener);
+        channel.listen(".PraktikumProgressUpdated", progressListener);
 
         return () => {
             window.Echo.leave(channelName);
         };
-    }, [selectedPraktikumId, selectedKelas, computeElapsedSeconds, queryClient]);
+    }, [selectedPraktikumId, selectedKelas, computeElapsedSeconds, refetchProgress, queryClient]);
 
     // Presence channel for online praktikan tracking
     useEffect(() => {
@@ -882,80 +959,20 @@ export default function ContentPraktikum() {
                                     <p className="text-xs text-gray-500">Pilih kelas untuk melihat daftar asisten.</p>
                                 )}
                             </div>
-                            <div className="rounded-depth-lg p-3 shadow-depth-md border border-depth focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--depth-color-primary)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--depth-color-card)] enabled:text-white disabled:bg-depth-card disabled:text-depth-secondary">
-                                <div 
-                                    className="mb-2 flex cursor-pointer items-center gap-2 text-sm font-semibold text-depth-primary transition-colors hover:text-depth-primary/80 "
-                                    onClick={() => setIsPraktikanExpanded(!isPraktikanExpanded)}
-                                >
-                                    <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                                    </svg>
-                                    Praktikan
-                                    {selectedKelas && praktikanList.length > 0 && (
-                                        <span className="ml-auto flex items-center gap-1.5 rounded-full bg-depth-primary/10 px-2 py-0.5 text-xs font-medium text-depth-primary">
-                                            {onlinePraktikan.size > 0 && (
-                                                <span className="flex h-2 w-2">
-                                                    <span className="absolute inline-flex h-2 w-2 animate-ping rounded-full bg-green-400 opacity-75"></span>
-                                                    <span className="relative inline-flex h-2 w-2 rounded-full bg-green-500"></span>
-                                                </span>
-                                            )}
-                                            {onlinePraktikan.size}/{praktikanList.length}
-                                        </span>
-                                    )}
-                                    <svg 
-                                        className={`ml-2 h-4 w-4 transition-transform ${isPraktikanExpanded ? 'rotate-180' : ''}`} 
-                                        fill="none" 
-                                        viewBox="0 0 24 24" 
-                                        stroke="currentColor"
-                                    >
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                                    </svg>
-                                </div>
-                                {selectedKelas ? (
-                                    praktikanList.length > 0 ? (
-                                        isPraktikanExpanded && (
-                                            <div className="grid grid-cols-2 gap-2 max-h-48 overflow-y-auto pr-1">
-                                                {praktikanList.map((praktikan) => {
-                                                    const isOnline = onlinePraktikan.has(praktikan?.id);
-
-                                                    return (
-                                                        <div
-                                                            key={praktikan?.id ?? praktikan?.nim}
-                                                            className="relative rounded-depth-md border border-depth bg-depth-card/50 px-3 py-2 text-xs shadow-depth-sm transition-all hover:shadow-depth-md"
-                                                        >
-                                                            {isOnline && (
-                                                                <div className="absolute -right-1 -top-1 flex h-3 w-3">
-                                                                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-400 opacity-75"></span>
-                                                                    <span className="relative inline-flex h-3 w-3 rounded-full bg-green-500 ring-2 ring-white dark:ring-gray-800"></span>
-                                                                </div>
-                                                            )}
-                                                            <div className="flex items-center justify-between gap-3">
-                                                                <span className="font-semibold text-depth-primary">
-                                                                    {praktikan?.nim ?? "NIM N/A"}
-                                                                </span>
-                                                                <span
-                                                                    className="truncate text-depth-secondary"
-                                                                    title={praktikan?.nama ?? praktikan?.name ?? "Tidak tersedia"}
-                                                                >
-                                                                    {praktikan?.nama ?? praktikan?.name ?? "Tidak tersedia"}
-                                                                </span>
-                                                            </div>
-                                                        </div>
-                                                    );
-                                                })}
-                                            </div>
-                                        )
-                                    ) : (
-                                        <p className="text-xs text-gray-500">Belum ada data praktikan untuk kelas ini.</p>
-                                    )
-                                ) : (
-                                    <p className="text-xs text-gray-500">Pilih kelas untuk melihat daftar praktikan.</p>
-                                )}
-                            </div>
                         </div>
                     </div>
 
-                    <div className="mt-10 flex flex-col gap-6">
+                    <div className="mt-6 flex flex-col gap-6">
+                        {selectedPraktikumId && (
+                            <TablePraktikanProgress
+                                progress={progressData}
+                                onlinePraktikan={onlinePraktikan}
+                                isLoading={progressLoading}
+                                isFetching={progressFetching}
+                                onRefresh={refetchProgress}
+                            />
+                        )}
+
                         {/* Main Info Card */}
                         <div className="glass-surface flex flex-1 flex-col rounded-depth-lg border border-depth bg-depth-card p-6 shadow-depth-lg">
                             <div className="flex flex-col items-center gap-6">

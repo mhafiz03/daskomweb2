@@ -129,7 +129,7 @@ const BASE_NAV_ITEMS = [
         allowedRoles: ADMIN_ROLES,
         href: "/manage-role",
         label: "Manage Asisten",
-        icon: praktikanIcon,
+        icon: roleIcon,
         components: ["Assistants/ManageRole"],
         paths: ["/manage-role"],
     },
