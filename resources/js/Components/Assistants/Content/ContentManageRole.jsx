@@ -12,7 +12,7 @@ export default function ContentManageRole({ asisten }) {
 
     const toolbarConfig = useMemo(
         () => ({
-            title: "Manage Role",
+            title: "Manage Asisten",
             actions: [
                 {
                     id: "add-role",

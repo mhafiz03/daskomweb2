@@ -163,7 +163,7 @@ export default function PraktikanNav({ praktikan }) {
                                     isActive ? "opacity-100" : "opacity-70 group-hover:opacity-100"
                                 } ${getIconFilterClass(isActive)}`;
                                 const labelClasses = `${navLabelBaseClass} ${
-                                    isActive ? "text-white" : "text-depth-primary"
+                                    isActive ? "text-gray-50" : "text-depth-primary"
                                 }`;
 
                                 return (

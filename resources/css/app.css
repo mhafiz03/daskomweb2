@@ -10,7 +10,7 @@
         --depth-color-background: hsl(220, 15%, 96%);
         --depth-color-card: hsl(220, 15%, 100%);
         --depth-color-interactive: hsl(220, 15%, 94%);
-        --depth-color-primary: #304d30;
+        --depth-color-primary: hsl(116, 27%, 50%);
         --depth-text-primary: hsl(220, 25%, 20%);
         --depth-text-secondary: hsl(220, 10%, 45%);
         --depth-border: hsl(220, 15%, 90%);

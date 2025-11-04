@@ -6,6 +6,7 @@ import toast from "react-hot-toast";
 import PraktikanAuthenticated from "@/Layouts/PraktikanAuthenticatedLayout";
 import PraktikanUtilities from "@/Components/Praktikans/Layout/PraktikanUtilities";
 import TugasPendahuluan from "@/Components/Praktikans/Sections/TugasPendahuluan";
+import PraktikanPageHeader from "@/Components/Praktikans/Common/PraktikanPageHeader";
 import { useModulesQuery } from "@/hooks/useModulesQuery";
 import {
     useTugasPendahuluanQuery,
@@ -192,13 +193,7 @@ export default function TugasPendahuluanPage() {
                 <Head title="Tugas Pendahuluan" />
 
                 <div className="mt-1 flex flex-col gap-6">
-                    <div className="rounded-depth-lg border border-depth bg-depth-card/80 px-5 py-3 shadow-depth-lg w-fit self-start">
-                        <div className="flex flex-col gap-1 text-left">
-                            <h1 className="text-xl font-semibold text-depth-primary">
-                                Tugas Pendahuluan
-                            </h1>
-                        </div>
-                    </div>
+                    <PraktikanPageHeader title="Tugas Pendahuluan" />
 
                     <TugasPendahuluan
                         isLoading={questionsQuery.isLoading}

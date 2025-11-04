@@ -1,6 +1,7 @@
 import { Head } from "@inertiajs/react";
 import PraktikanAuthenticated from "@/Layouts/PraktikanAuthenticatedLayout";
 import ScoreTable from "@/Components/Praktikans/Tables/ScoreTable";
+import PraktikanPageHeader from "@/Components/Praktikans/Common/PraktikanPageHeader";
 import PraktikanUtilities from "@/Components/Praktikans/Layout/PraktikanUtilities";
 
 export default function ScorePraktikan({ auth }) {
@@ -18,7 +19,8 @@ export default function ScorePraktikan({ auth }) {
             >
                 <Head title="Nilai Praktikan" />
 
-                <div className="mt-[8vh] flex flex-col gap-6">
+                <div className="-mt-[7vh] flex flex-col gap-6">
+                    <PraktikanPageHeader title="Nilai Praktikan" />
                     <ScoreTable />
                 </div>
             </PraktikanAuthenticated>

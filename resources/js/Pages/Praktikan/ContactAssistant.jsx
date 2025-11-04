@@ -1,6 +1,7 @@
 import { Head, usePage } from "@inertiajs/react";
 import PraktikanAuthenticated from "@/Layouts/PraktikanAuthenticatedLayout";
 import ContactAssistantTable from "@/Components/Praktikans/Tables/ContactAssistantTable";
+import PraktikanPageHeader from "@/Components/Praktikans/Common/PraktikanPageHeader";
 import PraktikanUtilities from "@/Components/Praktikans/Layout/PraktikanUtilities";
 
 export default function ContactAssistant() {
@@ -20,7 +21,8 @@ export default function ContactAssistant() {
             >
                 <Head title="Contact Assistant" />
 
-                <div className="mt-[8vh] flex flex-col gap-6">
+                <div className="-mt-[1vh] flex flex-col gap-6">
+                    <PraktikanPageHeader title="Kontak Asisten" />
                     <ContactAssistantTable />
                 </div>
             </PraktikanAuthenticated>

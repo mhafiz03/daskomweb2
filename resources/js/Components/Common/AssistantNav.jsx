@@ -79,15 +79,6 @@ const BASE_NAV_ITEMS = [
         paths: ["/modul"],
     },
     {
-        id: "manage-praktikan",
-        permission: ["praktikan-regist", "manage-role"],
-        href: "/manage-praktikan",
-        label: "Manage Praktikan",
-        icon: praktikanIcon,
-        components: ["Assistants/ManagePraktikan"],
-        paths: ["/manage-praktikan"],
-    },
-    {
         id: "see-soal",
         permission: "manage-soal",
         href: "/soal",
@@ -137,10 +128,19 @@ const BASE_NAV_ITEMS = [
         permission: "manage-role",
         allowedRoles: ADMIN_ROLES,
         href: "/manage-role",
-        label: "Manage Role",
+        label: "Manage Asisten",
         icon: praktikanIcon,
         components: ["Assistants/ManageRole"],
         paths: ["/manage-role"],
+    },
+    {
+        id: "manage-praktikan",
+        permission: ["praktikan-regist", "manage-role"],
+        href: "/manage-praktikan",
+        label: "Manage Praktikan",
+        icon: praktikanIcon,
+        components: ["Assistants/ManagePraktikan"],
+        paths: ["/manage-praktikan"],
     },
     {
         id: "lihat-tp",
@@ -302,8 +302,8 @@ export default function AssisstantNav({ asisten, permission_name = [], roleName 
     const labelVisibilityClass = isCollapsed
         ? "opacity-0 delay-0"
         : isAnimating
-        ? "opacity-0"
-        : "opacity-100 delay-300";
+            ? "opacity-0"
+            : "opacity-100 delay-300";
 
     const navLabelBaseClass = `text-sm font-medium transition-opacity duration-300 whitespace-nowrap ${labelVisibilityClass}`;
 
@@ -312,9 +312,8 @@ export default function AssisstantNav({ asisten, permission_name = [], roleName 
     const renderNavLink = (item) => {
         const isActive = isActiveItem(item);
         const linkClasses = `${navLinkBaseClass} ${isActive ? activeLinkClass : inactiveLinkClass}`;
-        const iconClasses = `${navIconClass} ${
-            isActive ? "opacity-100" : "opacity-70 group-hover:opacity-100"
-        } ${getIconFilterClass(isActive)}`;
+        const iconClasses = `${navIconClass} ${isActive ? "opacity-100" : "opacity-70 group-hover:opacity-100"
+            } ${getIconFilterClass(isActive)}`;
         const labelClasses = `${navLabelBaseClass} ${isActive ? "text-white" : "text-depth-primary"}`;
         const altText = item.alt ?? item.label.toLowerCase();
 
@@ -351,9 +350,8 @@ export default function AssisstantNav({ asisten, permission_name = [], roleName 
         <>
             <nav className="flex h-screen items-start">
                 <div
-                    className={`flex h-[91vh] flex-col rounded-depth-lg border border-depth glass-surface text-left text-depth-primary font-depth font-semibold shadow-depth-lg transition-all duration-300 ${
-                        isCollapsed ? "w-12" : "w-[260px]"
-                    }`}
+                    className={`flex h-[91vh] flex-col rounded-depth-lg border border-depth glass-surface text-left text-depth-primary font-depth font-semibold shadow-depth-lg transition-all duration-300 ${isCollapsed ? "w-12" : "w-[260px]"
+                        }`}
                 >
                     <div className={`relative flex items-center ${isCollapsed ? "justify-center" : "justify-end"}`}>
                         <button
@@ -363,15 +361,13 @@ export default function AssisstantNav({ asisten, permission_name = [], roleName 
                             aria-label="Toggle navigation"
                         >
                             <div
-                                className={`${genericHamburgerLine} ${
-                                    isOpen ? "translate-y-3 rotate-45" : "translate-y-1 group-hover:translate-y-0"
-                                }`}
+                                className={`${genericHamburgerLine} ${isOpen ? "translate-y-3 rotate-45" : "translate-y-1 group-hover:translate-y-0"
+                                    }`}
                             />
                             <div className={`${genericHamburgerLine} ${isOpen ? "opacity-0" : "opacity-100"}`} />
                             <div
-                                className={`${genericHamburgerLine} ${
-                                    isOpen ? "-translate-y-3 -rotate-45" : "-translate-y-1 group-hover:translate-y-0"
-                                }`}
+                                className={`${genericHamburgerLine} ${isOpen ? "-translate-y-3 -rotate-45" : "-translate-y-1 group-hover:translate-y-0"
+                                    }`}
                             />
                         </button>
                     </div>

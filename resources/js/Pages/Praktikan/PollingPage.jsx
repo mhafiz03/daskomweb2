@@ -7,6 +7,7 @@ import { store as storePollings } from "@/lib/routes/pollings";
 import PraktikanAuthenticated from "@/Layouts/PraktikanAuthenticatedLayout";
 import PollingHeader from "@/Components/Praktikans/Sections/PollingHeader";
 import PollingContent from "@/Components/Praktikans/Sections/PollingContent";
+import PraktikanPageHeader from "@/Components/Praktikans/Common/PraktikanPageHeader";
 import ModalSuccessData from "@/Components/Praktikans/Modals/ModalSuccessData";
 import PraktikanUtilities from "@/Components/Praktikans/Layout/PraktikanUtilities";
 
@@ -181,13 +182,16 @@ export default function PollingPage({ auth }) {
                     }
                 >
                     <Head title="Polling Selesai" />
-                    <div className="mt-[8vh] flex min-h-[50vh] flex-col items-center justify-center gap-3 text-center">
-                        <h1 className="text-4xl font-bold text-deepForestGreen">
+                    <div className="mt-[8vh] flex flex-col gap-6">
+                        <PraktikanPageHeader title="Polling Asisten" />
+                                                <div className="flex min-h-[50vh] flex-col items-center justify-center gap-3 text-center">
+                            <h1 className="text-4xl font-bold text-deepForestGreen">
                             Terimakasih sudah melakukan praktikum
                         </h1>
                         <p className="text-lg text-gray-600">
                             Semua kategori polling telah berhasil dikirim
-                        </p>
+                                                    </p>
+                        </div>
                     </div>
                 </PraktikanAuthenticated>
                 <PraktikanUtilities />
@@ -209,7 +213,8 @@ export default function PollingPage({ auth }) {
             >
                 <Head title="Polling Praktikan" />
 
-                <div className="mt-[8vh] flex flex-col gap-6">
+                <div className="-mt-[10vh] flex flex-col gap-6">
+                    <PraktikanPageHeader title="Polling Asisten" />
                     <div className="flex items-center justify-end">
                         <button
                             type="button"

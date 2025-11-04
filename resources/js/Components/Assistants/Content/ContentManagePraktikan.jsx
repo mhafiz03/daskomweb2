@@ -89,6 +89,7 @@ export default function ContentManagePraktikan() {
                         id: "reset-filter",
                         label: "Reset",
                         onClick: resetToolbar,
+                        variant: "danger",
                     },
                 ],
                 right: (

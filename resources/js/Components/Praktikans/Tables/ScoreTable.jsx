@@ -153,9 +153,6 @@ export default function ScoreTable() {
 
     return (
         <div className="mx-auto w-full max-w-5xl rounded-depth-lg border border-depth bg-depth-card px-6 py-6 shadow-depth-lg">
-            <div className="rounded-depth-md bg-[var(--depth-color-primary)] px-4 py-3 text-center shadow-depth-md">
-                <h1 className="text-xl font-bold text-white">Rekap Nilai Praktikan</h1>
-            </div>
             <Table
                 rows={rows}
                 onOpenAnswers={(row) => setModalState({ modulId: row.modulId, modulTitle: row.modul })}

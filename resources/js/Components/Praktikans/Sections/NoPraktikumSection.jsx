@@ -34,9 +34,6 @@ export default function NoPraktikumSection({
     onPraktikumStateChange,
     moduleMeta,
 }) {
-    const [openModalAttempt, setOpenModalAttempt] = useState(null);
-    const [openModalReview, setOpenModalReview] = useState(null);
-    const [praktikumDebug, setPraktikumDebug] = useState("Debug: menunggu konfigurasi...");
     const [praktikumState, setPraktikumState] = useState(null);
     const applyPraktikumState = useCallback((payload) => {
         console.log(`[${new Date().toISOString()}] Applying praktikum payload:`, payload);
@@ -151,13 +148,6 @@ export default function NoPraktikumSection({
     }, [isVisible]);
 
     useEffect(() => {
-        if (!isVisible) {
-            setOpenModalAttempt(null);
-            setOpenModalReview(null);
-        }
-    }, [isVisible]);
-
-    useEffect(() => {
         onPraktikumStateChange(praktikumState);
     }, [praktikumState, onPraktikumStateChange]);
 
@@ -175,19 +165,13 @@ export default function NoPraktikumSection({
                     const praktikumPayload = data.data;
                     
                     applyPraktikumState(praktikumPayload);
-
-                    setPraktikumDebug(
-                        `Debug (initial load):\nStatus: ${praktikumPayload.status ?? "-"}\nTahap: ${praktikumPayload.current_phase ?? "-"}\nModul: ${praktikumPayload.modul?.judul ?? "-"}`
-                    );
                     console.log(`[${new Date().toISOString()}] Praktikum debug snapshot (initial load):`, praktikumPayload);
                 } else {
                     applyPraktikumState(null);
-                    setPraktikumDebug("Debug: Tidak ada praktikum aktif saat ini.");
                     console.log(`[${new Date().toISOString()}] Praktikum debug snapshot: tidak ada praktikum aktif.`);
                 }
             } catch (error) {
                 console.error('Failed to fetch active praktikum:', error);
-                setPraktikumDebug(`Debug: Error fetching praktikum - ${error.message}`);
                 console.log(`[${new Date().toISOString()}] Praktikum debug snapshot: error fetching praktikum`, error);
             }
         };
@@ -197,26 +181,16 @@ export default function NoPraktikumSection({
 
     useEffect(() => {
         if (typeof window === "undefined") {
-            setPraktikumDebug("Debug: window tidak tersedia (server-side render).");
             return undefined;
         }
 
         if (!kelasId) {
             applyPraktikumState(null);
-            setPraktikumDebug("Debug: kelas ID tidak tersedia untuk praktikum.");
             return undefined;
         }
 
         const echo = window.Echo;
-
-        if (!echo) {
-            setPraktikumDebug("Debug: Laravel Echo belum diinisialisasi.");
-            return undefined;
-        }
-
         const channelName = `praktikum.class.${kelasId}`;
-        setPraktikumDebug(`Debug: terhubung ke channel ${channelName}, menunggu update...`);
-
         const channel = echo.channel(channelName);
         const listener = (payload) => {
             const praktikumPayload = payload?.praktikum ?? payload ?? null;
@@ -230,21 +204,6 @@ export default function NoPraktikumSection({
             }
 
             applyPraktikumState(praktikumPayload);
-
-            const summary = praktikumPayload
-                ? [
-                    `Status: ${praktikumPayload.status ?? "-"}`,
-                    `Tahap: ${praktikumPayload.current_phase ?? "-"}`,
-                    `Modul: ${praktikumPayload.modul?.judul ??
-                    praktikumPayload.modul_id ??
-                    "-"
-                    }`,
-                ].join("\n")
-                : "Tidak ada data praktikum yang diterima.";
-
-            setPraktikumDebug(
-                `Debug update (${new Date().toLocaleTimeString()}):\n${summary}\n\nPayload mentah:\n${formatted}`
-            );
             console.log(`[${new Date().toISOString()}] Praktikum debug snapshot (channel update):`, praktikumPayload ?? payload);
         };
 
@@ -343,14 +302,6 @@ export default function NoPraktikumSection({
                         </p>
                     </div>
                 </div>
-            </div>
-            <div className="mb-6">
-                <p className="text-xs font-semibold uppercase tracking-wide text-depth-secondary">
-                    Debug Praktikum (Echo)
-                </p>
-                <pre className="mt-2 max-h-48 overflow-y-auto rounded-depth-md border border-dashed border-depth bg-depth-interactive p-3 text-[11px] leading-4 text-depth-secondary scrollbar-thin scrollbar-track-depth scrollbar-thumb-depth-secondary">
-                    {praktikumDebug}
-                </pre>
             </div>
             <div
                 className="space-y-4 overflow-y-auto scrollbar-thin scrollbar-track-depth scrollbar-thumb-depth-secondary"

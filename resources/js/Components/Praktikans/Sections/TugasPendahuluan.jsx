@@ -56,7 +56,7 @@ export default function TugasPendahuluan({
     }
 
     const containerClasses = "mx-auto mt-2 max-w-5xl space-y-6 rounded-depth-lg border border-depth bg-depth-card/70 p-6 shadow-depth-lg";
-    const contentClasses = "space-y-6 max-h-[75vh] overflow-y-auto bg-depth-interactive/40 p-5 shadow-inner";
+    const contentClasses = "space-y-6 max-h-[75vh] overflow-y-auto bg-depth-interactive/40 p-5";
     const answerTextareaClasses = "w-full dark:text-gray-700 rounded-depth-md border border-depth bg-depth-card/80 p-3 text-sm text-depth-primary shadow-depth-sm transition focus:border-[var(--depth-color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)]";
 
     return (
