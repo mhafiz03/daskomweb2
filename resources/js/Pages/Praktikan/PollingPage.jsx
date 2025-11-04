@@ -8,7 +8,6 @@ import PraktikanAuthenticated from "@/Layouts/PraktikanAuthenticatedLayout";
 import PollingHeader from "@/Components/Praktikans/Sections/PollingHeader";
 import PollingContent from "@/Components/Praktikans/Sections/PollingContent";
 import PraktikanPageHeader from "@/Components/Praktikans/Common/PraktikanPageHeader";
-import ModalSuccessData from "@/Components/Praktikans/Modals/ModalSuccessData";
 import PraktikanUtilities from "@/Components/Praktikans/Layout/PraktikanUtilities";
 
 export default function PollingPage({ auth }) {
@@ -251,8 +250,7 @@ export default function PollingPage({ auth }) {
                 </div>
             </PraktikanAuthenticated>
             <PraktikanUtilities />
-
-            <ModalSuccessData isVisible={showModal} />
+\\
         </>
     );
 }
