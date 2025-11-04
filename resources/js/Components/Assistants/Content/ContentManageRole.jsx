@@ -9,7 +9,6 @@ export default function ContentManageRole({ asisten }) {
 
     const handleOpenModal = useCallback(() => setShowModal(true), []);
     const handleCloseModal = useCallback(() => setShowModal(false), []);
-    const handleSearchChange = useCallback((event) => setSearchTerm(event.target.value), []);
 
     const toolbarConfig = useMemo(
         () => ({
@@ -21,21 +20,8 @@ export default function ContentManageRole({ asisten }) {
                     onClick: handleOpenModal,
                 },
             ],
-            right: (
-                <div className="relative min-w-[15rem] max-w-full">
-                    <input
-                        value={searchTerm}
-                        onChange={handleSearchChange}
-                        placeholder="Cari nama, kode, role..."
-                        className="w-full rounded-depth-full border border-depth bg-depth-interactive py-2.5 pl-4 pr-11 text-sm text-depth-primary shadow-depth-inset transition focus:border-[var(--depth-color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)] focus:ring-offset-0"
-                    />
-                    <span className="pointer-events-none absolute inset-y-0 right-4 flex items-center text-depth-secondary">
-                        🔍
-                    </span>
-                </div>
-            ),
         }),
-        [handleOpenModal, handleSearchChange, searchTerm],
+        [handleOpenModal],
     );
 
     useAssistantToolbar(toolbarConfig);

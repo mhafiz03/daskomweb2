@@ -86,10 +86,6 @@ Route::get('/list-laporan', function () {
     return Inertia::render('Assistants/ResultLaporan');
 })->name('list-laporan')->middleware(['auth:asisten', 'can:laporan-praktikum']);
 
-Route::get('/set-praktikan', function () {
-    return Inertia::render('Assistants/SetPraktikan');
-})->name('set-praktikan')->middleware(['auth:asisten', 'can:set-praktikan']);
-
 Route::get('/pelanggaran', function () {
     return Inertia::render('Assistants/PelanggaranAssistant');
 })->name('pelanggaran')->middleware(['auth:asisten', 'can:see-pelanggaran']);
@@ -116,7 +112,7 @@ Route::get('/nilai-praktikan', function () {
 
 Route::get('/manage-praktikan', function () {
     return Inertia::render('Assistants/ManagePraktikan');
-})->name('manage-praktikan')->middleware(['auth:asisten', 'permission:praktikan-regist|manage-role']);
+})->name('manage-praktikan')->middleware(['auth:asisten', 'can:set-praktikan']); // 'permission:praktikan-regist|manage-role'
 
 Route::get('/start-praktikum', function () {
     return Inertia::render('Assistants/StartPraktikum');

@@ -177,7 +177,7 @@ export default function ContentNilai({ asisten }) {
     return (
         <div className="space-y-6 text-depth-primary">
             <div className="rounded-depth-lg border border-depth bg-depth-card p-3 shadow-depth-md">
-                <div className="grid grid-cols-[1fr_1.6fr_2.6fr_auto] gap-2 text-xs font-semibold uppercase tracking-wide text-white">
+                <div className="grid grid-cols-2 gap-2 text-xs font-semibold uppercase tracking-wide text-white md:grid-cols-4">
                     <div className="rounded-depth-md bg-[var(--depth-color-primary)] px-3 py-2 text-center shadow-depth-sm">
                         Jadwal
                     </div>
@@ -244,16 +244,16 @@ export default function ContentNilai({ asisten }) {
                             return (
                                 <article
                                     key={assignment.id}
-                                    className="space-y-2 bg-depth-card px-4 py-3 text-sm text-depth-primary transition hover:bg-depth-interactive even:bg-depth-background hover:even:bg-depth-interactive"
+                                    className="space-y-3 bg-depth-card px-4 py-3 text-sm text-depth-primary transition hover:bg-depth-interactive even:bg-depth-background hover:even:bg-depth-interactive"
                                 >
-                                    <div className="grid grid-cols-[1fr_1.6fr_2.6fr_auto] gap-x-4">
+                                    <div className="grid grid-cols-1 gap-3 md:grid-cols-[1fr_1.6fr] lg:grid-cols-[1fr_1.6fr_2.6fr_auto] lg:gap-x-4">
                                         {/* Jadwal */}
-                                        <div className="row-span-2 space-y-1 text-left">
+                                        <div className="space-y-1 text-left">
                                             <div className="font-semibold text-depth-primary">{tanggal}</div>
                                             <div className="text-xs text-depth-secondary">{waktu}</div>
                                         </div>
                                         {/* Praktikan NIM, nama, and kelas */}
-                                        <div className="row-span-2 space-y-1 text-left">
+                                        <div className="space-y-1 text-left">
                                             <div className="text-sm font-semibold text-depth-primary">
                                                 {assignment?.praktikan?.nim ?? "-"}
                                             </div>
@@ -263,7 +263,7 @@ export default function ContentNilai({ asisten }) {
                                             </div>
                                         </div>
                                         {/* Rating and Feedback */}
-                                        <div className="row-span-2 space-y-1 text-left">
+                                        <div className="space-y-2 text-left md:col-span-2 lg:col-span-1">
                                             <div className="flex flex-wrap items-center gap-3 text-xs text-depth-secondary">
                                                 {formattedPraktikumRating === null && formattedAsistenRating === null ? (
                                                     <span className="italic text-depth-secondary/80">Belum ada rating</span>
@@ -281,7 +281,7 @@ export default function ContentNilai({ asisten }) {
                                                 )}
                                             </div>
                                             <p
-                                                className="max-h-12 overflow-hidden text-xs text-depth-secondary"
+                                                className="w-[30rem] overflow-hidden whitespace-pre-line break-words text-xs text-depth-secondary"
                                                 title={feedbackText}
                                                 aria-label={feedbackText}
                                             >
@@ -289,10 +289,10 @@ export default function ContentNilai({ asisten }) {
                                             </p>
                                         </div>
                                         {/* Status and Review button */}
-                                        <div className="row-span-2 flex items-center justify-between gap-2">
+                                        <div className="flex flex-col items-stretch gap-2 md:items-end">
                                             <span
                                                 aria-label={statusAria}
-                                                className={`inline-flex items-center gap-1 rounded-depth-full px-1 py-1 text-[11px] font-semibold ${statusTone}`}
+                                                className={`inline-flex items-center gap-1 rounded-depth-full px-2 py-1 text-[11px] font-semibold ${statusTone}`}
                                             >
                                                 {isMarked ? (
                                                     <svg
@@ -331,7 +331,7 @@ export default function ContentNilai({ asisten }) {
 
                                     </div>
 
-                                    <div className="grid grid-cols-8 gap-1 text-[11px] text-depth-secondary">
+                                    <div className="grid grid-cols-2 gap-1 text-[11px] text-depth-secondary sm:grid-cols-4 lg:grid-cols-8">
                                         {SCORE_FIELDS.map((field) => (
                                             <div
                                                 key={`${assignment.id}-${field.key}`}

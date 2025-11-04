@@ -10,6 +10,7 @@ import ModalUpsertPraktikan from "../Modals/ModalUpsertPraktikan";
 import ModalDeletePraktikan from "../Modals/ModalDeletePraktikan";
 import { send } from "@/lib/http";
 import { destroy as destroyPraktikan } from "@/lib/routes/praktikan";
+import ContentSetPraktikan from "./ContentSetPraktikan";
 
 export default function ContentManagePraktikan() {
     const queryClient = useQueryClient();
@@ -153,6 +154,7 @@ export default function ContentManagePraktikan() {
 
     return (
         <section className="space-y-6">
+            <ContentSetPraktikan />
             <TableManagePraktikan
                 items={praktikanItems}
                 meta={meta}

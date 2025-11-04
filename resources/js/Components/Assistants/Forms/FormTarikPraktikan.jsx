@@ -93,9 +93,9 @@ export default function FormTarikPraktikan() {
     };
 
     return (
-        <div className="w-[750px] rounded-depth-lg border border-depth bg-depth-card p-6 shadow-depth-lg">
+        <div className="w-full rounded-depth-lg border border-depth bg-depth-card p-6 shadow-depth-lg">
             <h2 className="mb-6 text-start text-xl font-bold text-depth-primary">Tarik Praktikan</h2>
-            <div className="flex items-center gap-4">
+            <div className="flex flex-col gap-4 lg:flex-row lg:items-end">
                 <div className="flex-1">
                     <label htmlFor="nim" className="mb-2 block text-sm font-medium text-depth-primary">
                         NIM
@@ -137,7 +137,7 @@ export default function FormTarikPraktikan() {
                             ))}
                     </select>
                 </div>
-                <div className="mt-6 flex-shrink-0">
+                <div className="lg:mt-6">
                     <button
                         onClick={handleSubmit}
                         disabled={tarikPraktikanMutation.isPending || modulesLoading}

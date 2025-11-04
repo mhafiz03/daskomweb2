@@ -88,9 +88,9 @@ export default function FormChangePassPraktikan() {
     };
 
     return (
-        <div className="w-full max-w-3xl rounded-depth-lg border border-depth bg-depth-card p-6 shadow-depth-lg">
+        <div className="w-full rounded-depth-lg border border-depth bg-depth-card p-6 shadow-depth-lg">
             <h2 className="mb-6 text-start text-xl font-bold text-depth-primary">Ganti Password Praktikan</h2>
-            <form onSubmit={handleSave} className="flex items-center gap-4">
+            <form onSubmit={handleSave} className="flex flex-col gap-4 lg:flex-row lg:items-end">
                 {/* Input NIM */}
                 <div className="flex-1">
                     <label htmlFor="nim" className="mb-2 block text-sm font-medium text-depth-primary">
@@ -122,7 +122,7 @@ export default function FormChangePassPraktikan() {
                     {errors.password && <p className="mt-1 text-xs text-red-500">{errors.password}</p>}
                 </div>
                 {/* Tombol Simpan */}
-                <div className="mt-6 flex-shrink-0">
+                <div className="lg:mt-6">
                     <button
                         type="submit"
                         disabled={isLoading}

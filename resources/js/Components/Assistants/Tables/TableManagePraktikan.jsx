@@ -114,16 +114,14 @@ export default function TableManagePraktikan({
                                             onClick={() => onEdit?.(praktikan)}
                                             className="inline-flex items-center gap-1 rounded-depth-md border border-depth bg-depth-interactive px-3 py-1 text-xs font-semibold text-depth-primary shadow-depth-sm transition hover:-translate-y-0.5 hover:shadow-depth-md"
                                         >
-                                            <img src={editIcon} alt="" className="h-4 w-4" />
-                                            Edit
+                                            <img src={editIcon} alt="" className="h-5 w-5" />
                                         </button>
                                         <button
                                             type="button"
                                             onClick={() => onDelete?.(praktikan)}
                                             className="inline-flex items-center gap-1 rounded-depth-md border border-red-500/60 bg-red-500/15 px-3 py-1 text-xs font-semibold text-red-400 shadow-depth-sm transition hover:-translate-y-0.5 hover:shadow-depth-md"
                                         >
-                                            <img src={deleteIcon} alt="" className="h-4 w-4" />
-                                            Hapus
+                                            <img src={deleteIcon} alt="" className="h-5 w-5" />
                                         </button>
                                     </div>
                                 </td>
@@ -146,7 +144,8 @@ export default function TableManagePraktikan({
                         disabled={currentPage <= 1}
                         className="rounded-depth-md border border-depth bg-depth-interactive px-3 py-1 text-xs font-semibold text-depth-primary shadow-depth-sm transition hover:-translate-y-0.5 hover:shadow-depth-md disabled:cursor-not-allowed disabled:opacity-60"
                     >
-                        Sebelumnya
+                        {/* Left arrow emoji */}
+                        <span role="img" aria-label="Sebelumnya">←</span>
                     </button>
                     <span className="text-xs text-depth-secondary">
                         Halaman <span className="font-semibold text-depth-primary">{currentPage}</span> /{" "}
@@ -158,7 +157,8 @@ export default function TableManagePraktikan({
                         disabled={currentPage >= lastPage}
                         className="rounded-depth-md border border-depth bg-depth-interactive px-3 py-1 text-xs font-semibold text-depth-primary shadow-depth-sm transition hover:-translate-y-0.5 hover:shadow-depth-md disabled:cursor-not-allowed disabled:opacity-60"
                     >
-                        Selanjutnya
+                        {/* Right arrow emoji */}
+                        <span role="img" aria-label="Berikutnya">→</span>
                     </button>
                 </div>
             </div>
