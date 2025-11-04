@@ -87,7 +87,6 @@ export default function ContentPraktikum() {
     const [reportText, setReportText] = useState("");
     const [pendingAction, setPendingAction] = useState(null);
     const [onlinePraktikan, setOnlinePraktikan] = useState(new Set());
-    const [isPraktikanExpanded, setIsPraktikanExpanded] = useState(false);
     const [isAsistenExpanded, setIsAsistenExpanded] = useState(false);
     const [progressData, setProgressData] = useState(null);
     const [isProgressPolling, setIsProgressPolling] = useState(false);
@@ -688,10 +687,10 @@ export default function ContentPraktikum() {
         if (!praktikum) {
             return;
         }
-        
+
         setSelectedKelas(String(praktikum.kelas_id));
         setSelectedModul(String(praktikum.modul_id));
-        
+
         // Scroll to top to see the selected praktikum
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }, []);
@@ -872,9 +871,8 @@ export default function ContentPraktikum() {
                                                 <div className="mt-1 flex items-center gap-3 text-xs text-depth-secondary dark:text-amber-200/80">
                                                     <span className="flex items-center gap-1">
                                                         <span
-                                                            className={`rounded-depth-full px-2 py-0.5 text-xs font-semibold text-white ${
-                                                                p.status === "running" ? "bg-emerald-500" : "bg-amber-500"
-                                                            }`}
+                                                            className={`rounded-depth-full px-2 py-0.5 text-xs font-semibold text-white ${p.status === "running" ? "bg-emerald-500" : "bg-amber-500"
+                                                                }`}
                                                         >
                                                             {statusLabel}
                                                         </span>
@@ -907,72 +905,7 @@ export default function ContentPraktikum() {
                             </div>
                         </div>
                     )}
-
-                    <div className="mt-6">
-                        <div className="grid grid-rows-1 gap-3">
-                            <div className="rounded-depth-lg p-3 shadow-depth-md border border-depth focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--depth-color-primary)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--depth-color-card)] enabled:text-white disabled:bg-depth-card disabled:text-depth-secondary">
-                                <div 
-                                    className="mb-2 flex cursor-pointer items-center gap-2 text-sm font-semibold text-depth-primary transition-colors hover:text-depth-primary/80"
-                                    onClick={() => setIsAsistenExpanded(!isAsistenExpanded)}
-                                >
-                                    <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-                                    </svg>
-                                    Asisten Jaga
-                                    {selectedKelas && asistenJagaList.length > 0 && (
-                                        <span className="ml-auto rounded-full bg-depth-primary/10 px-2 py-0.5 text-xs font-medium text-depth-primary">
-                                            {asistenJagaList.length}
-                                        </span>
-                                    )}
-                                    <svg 
-                                        className={`ml-2 h-4 w-4 transition-transform ${isAsistenExpanded ? 'rotate-180' : ''}`} 
-                                        fill="none" 
-                                        viewBox="0 0 24 24" 
-                                        stroke="currentColor"
-                                    >
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                                    </svg>
-                                </div>
-                                {jadwalLoading ? (
-                                    <p className="text-xs text-gray-500">Memuat daftar asisten...</p>
-                                ) : asistenJagaList.length > 0 ? (
-                                    isAsistenExpanded && (
-                                        <div className="flex gap-2 overflow-x-auto pb-2">
-                                            {asistenJagaList.map((item, idx) => {
-                                                const asistenDetail = item?.asisten ?? asistenMap.get(Number(item?.asisten_id));
-                                                const key = item?.id ?? `${item?.asisten_id ?? asistenDetail?.id ?? "asisten"}-${idx}`;
-
-                                                return (
-                                                    <div
-                                                        key={key}
-                                                        className="flex-shrink-0 rounded-depth-md border border-depth bg-depth-card/50 px-3 py-2 text-xs font-semibold shadow-depth-sm transition-all hover:shadow-depth-md"
-                                                    >
-                                                        {asistenDetail?.kode ?? item?.kode ?? "N/A"}
-                                                    </div>
-                                                );
-                                            })}
-                                        </div>
-                                    )
-                                ) : selectedKelas ? (
-                                    <p className="text-xs text-gray-500">Belum ada asisten jaga untuk kelas ini.</p>
-                                ) : (
-                                    <p className="text-xs text-gray-500">Pilih kelas untuk melihat daftar asisten.</p>
-                                )}
-                            </div>
-                        </div>
-                    </div>
-
                     <div className="mt-6 flex flex-col gap-6">
-                        {selectedPraktikumId && (
-                            <TablePraktikanProgress
-                                progress={progressData}
-                                onlinePraktikan={onlinePraktikan}
-                                isLoading={progressLoading}
-                                isFetching={progressFetching}
-                                onRefresh={refetchProgress}
-                            />
-                        )}
-
                         {/* Main Info Card */}
                         <div className="glass-surface flex flex-1 flex-col rounded-depth-lg border border-depth bg-depth-card p-6 shadow-depth-lg">
                             <div className="flex flex-col items-center gap-6">
@@ -1045,11 +978,10 @@ export default function ContentPraktikum() {
                                                         ? "Minimal 3 karakter sebelum mengirim."
                                                         : undefined
                                                 }
-                                                className={`glass-button flex items-center gap-2 rounded-depth-lg px-6 py-3 font-semibold shadow-depth-md transition-all ${
-                                                    reportSubmitDisabled
+                                                className={`glass-button flex items-center gap-2 rounded-depth-lg px-6 py-3 font-semibold shadow-depth-md transition-all ${reportSubmitDisabled
                                                         ? "cursor-not-allowed opacity-50"
                                                         : "hover:-translate-y-0.5 hover:shadow-depth-lg"
-                                                }`}
+                                                    }`}
                                                 style={{
                                                     background: reportSubmitDisabled
                                                         ? undefined
@@ -1134,8 +1066,7 @@ export default function ContentPraktikum() {
                                                         ? "Pause"
                                                         : "Resume"
                                         }
-                                        className={`flex w-full items-center justify-center rounded-depth-lg border border-depth bg-depth-interactive p-3 text-depth-primary shadow-depth-md transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--depth-color-primary)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--depth-color-card)] enabled:text-white disabled:bg-depth-card disabled:text-depth-secondary ${
-                                            (!hasSession || effectiveSession?.status === "idle"
+                                        className={`flex w-full items-center justify-center rounded-depth-lg border border-depth bg-depth-interactive p-3 text-depth-primary shadow-depth-md transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--depth-color-primary)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--depth-color-card)] enabled:text-white disabled:bg-depth-card disabled:text-depth-secondary ${(!hasSession || effectiveSession?.status === "idle"
                                                 ? startDisabled
                                                 : isTerminal
                                                     ? startDisabled
@@ -1144,7 +1075,7 @@ export default function ContentPraktikum() {
                                                         : resumeDisabled)
                                                 ? "cursor-not-allowed opacity-50"
                                                 : "hover:-translate-y-0.5 hover:shadow-depth-lg"
-                                        }`}
+                                            }`}
                                         style={{
                                             background: (!hasSession || effectiveSession?.status === "idle"
                                                 ? startDisabled
@@ -1197,11 +1128,10 @@ export default function ContentPraktikum() {
                                         disabled={nextDisabled}
                                         title="Next Phase"
                                         aria-label="Next Phase"
-                                        className={`flex w-full items-center justify-center rounded-depth-lg border border-depth bg-depth-interactive p-3 text-depth-primary shadow-depth-md transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--depth-color-primary)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--depth-color-card)] enabled:text-white disabled:bg-depth-card disabled:text-depth-secondary ${
-                                            nextDisabled
+                                        className={`flex w-full items-center justify-center rounded-depth-lg border border-depth bg-depth-interactive p-3 text-depth-primary shadow-depth-md transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--depth-color-primary)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--depth-color-card)] enabled:text-white disabled:bg-depth-card disabled:text-depth-secondary ${nextDisabled
                                                 ? "cursor-not-allowed opacity-50"
                                                 : "hover:-translate-y-0.5 hover:shadow-depth-lg"
-                                        }`}
+                                            }`}
                                         style={{
                                             background: nextDisabled
                                                 ? undefined
@@ -1219,11 +1149,10 @@ export default function ContentPraktikum() {
                                         disabled={exitDisabled}
                                         title="Exit Praktikum"
                                         aria-label="Exit Praktikum"
-                                        className={`flex w-full items-center justify-center rounded-depth-lg border border-depth bg-depth-interactive p-3 text-depth-primary shadow-depth-md transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--depth-color-primary)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--depth-color-card)] enabled:text-white disabled:bg-depth-card disabled:text-depth-secondary ${
-                                            exitDisabled
+                                        className={`flex w-full items-center justify-center rounded-depth-lg border border-depth bg-depth-interactive p-3 text-depth-primary shadow-depth-md transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--depth-color-primary)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--depth-color-card)] enabled:text-white disabled:bg-depth-card disabled:text-depth-secondary ${exitDisabled
                                                 ? "cursor-not-allowed opacity-50"
                                                 : "hover:-translate-y-0.5 hover:shadow-depth-lg"
-                                        }`}
+                                            }`}
                                         style={{
                                             background: exitDisabled
                                                 ? undefined
@@ -1237,6 +1166,69 @@ export default function ContentPraktikum() {
                                 </div>
                             </div>
                         )}
+
+                        
+                        <div className="grid grid-rows-1 gap-3">
+                            <div className="rounded-depth-lg p-3 shadow-depth-md border border-depth focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--depth-color-primary)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--depth-color-card)] enabled:text-white disabled:bg-depth-card disabled:text-depth-secondary">
+                                <div
+                                    className="mb-2 flex cursor-pointer items-center gap-2 text-sm font-semibold text-depth-primary transition-colors hover:text-depth-primary/80"
+                                    onClick={() => setIsAsistenExpanded(!isAsistenExpanded)}
+                                >
+                                    <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                                    </svg>
+                                    Asisten Jaga
+                                    {selectedKelas && asistenJagaList.length > 0 && (
+                                        <span className="ml-auto rounded-full bg-depth-primary/10 px-2 py-0.5 text-xs font-medium text-depth-primary">
+                                            {asistenJagaList.length}
+                                        </span>
+                                    )}
+                                    <svg
+                                        className={`ml-2 h-4 w-4 transition-transform ${isAsistenExpanded ? 'rotate-180' : ''}`}
+                                        fill="none"
+                                        viewBox="0 0 24 24"
+                                        stroke="currentColor"
+                                    >
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                    </svg>
+                                </div>
+                                {jadwalLoading ? (
+                                    <p className="text-xs text-gray-500">Memuat daftar asisten...</p>
+                                ) : asistenJagaList.length > 0 ? (
+                                    isAsistenExpanded && (
+                                        <div className="flex gap-2 overflow-x-auto pb-2">
+                                            {asistenJagaList.map((item, idx) => {
+                                                const asistenDetail = item?.asisten ?? asistenMap.get(Number(item?.asisten_id));
+                                                const key = item?.id ?? `${item?.asisten_id ?? asistenDetail?.id ?? "asisten"}-${idx}`;
+
+                                                return (
+                                                    <div
+                                                        key={key}
+                                                        className="flex-shrink-0 rounded-depth-md border border-depth bg-depth-card/50 px-3 py-2 text-xs font-semibold shadow-depth-sm transition-all hover:shadow-depth-md"
+                                                    >
+                                                        {asistenDetail?.kode ?? item?.kode ?? "N/A"}
+                                                    </div>
+                                                );
+                                            })}
+                                        </div>
+                                    )
+                                ) : selectedKelas ? (
+                                    <p className="text-xs text-gray-500">Belum ada asisten jaga untuk kelas ini.</p>
+                                ) : (
+                                    <p className="text-xs text-gray-500">Pilih kelas untuk melihat daftar asisten.</p>
+                                )}
+                            </div>
+                        
+                    </div>
+                    {selectedPraktikumId && (
+                        <TablePraktikanProgress
+                            progress={progressData}
+                            onlinePraktikan={onlinePraktikan}
+                            isLoading={progressLoading}
+                            isFetching={progressFetching}
+                            onRefresh={refetchProgress}
+                        />
+                    )}
                     </div>
                 </div>
             </div>

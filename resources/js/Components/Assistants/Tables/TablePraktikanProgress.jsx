@@ -10,11 +10,35 @@ const formatTimestamp = (value) => {
         return "-";
     }
 
-    return date.toLocaleString("id-ID", {
-        hour: "2-digit",
-        minute: "2-digit",
-        second: "2-digit",
-    });
+    const diffSeconds = Math.max(0, Math.floor((Date.now() - date.getTime()) / 1000));
+
+    if (diffSeconds < 60) {
+        return `${diffSeconds} secs ago`;
+    }
+
+    const diffMinutes = Math.floor(diffSeconds / 60);
+    if (diffMinutes < 60) {
+        return `${diffMinutes} mins ago`;
+    }
+
+    const diffHours = Math.floor(diffMinutes / 60);
+    if (diffHours < 24) {
+        return `${diffHours} hrs ago`;
+    }
+
+    const diffDays = Math.floor(diffHours / 24);
+    if (diffDays < 30) {
+        return `${diffDays} days ago`;
+    }
+
+    const diffMonths = Math.floor(diffDays / 30);
+    if (diffMonths < 12) {
+        return `${diffMonths} mos ago`;
+    }
+
+    const diffYears = Math.floor(diffMonths / 12);
+
+    return `${diffYears} yrs ago`;
 };
 
 const getBadgeClass = (row) => {
