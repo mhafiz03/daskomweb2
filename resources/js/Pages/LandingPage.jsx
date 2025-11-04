@@ -90,7 +90,6 @@ export default function LandingPage() {
             <LandingNavbar onAboutClick={openAboutModal} onContactClick={openContactModal} />
             <MainLanding onGetStartedClick={() => openAuthModal('login')} />
             <LandingSosmed />
-            {/* <LandingFooter /> */}
             
             <AuthModal 
                 isOpen={authModal.isOpen}
