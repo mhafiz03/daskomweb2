@@ -1,6 +1,6 @@
 import closeIcon from "../../../../assets/modal/iconClose.svg";
-import { submit } from "@/lib/wayfinder";
-import { destroy as logoutPraktikan } from "@/actions/App/Http/Controllers/Auth/LoginPraktikanController";
+import { submit } from "@/lib/http";
+import { destroy as logoutPraktikan } from "@/lib/routes/auth/loginPraktikan";
 
 export default function ModalLogout({ onClose, onConfirm }) {
     const handleConfirm = () => {

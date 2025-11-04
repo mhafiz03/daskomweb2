@@ -3,10 +3,14 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\StorePraktikanRequest;
+use App\Http\Requests\UpdatePraktikanRequest;
+use App\Http\Resources\PraktikanResource;
 use App\Models\Asisten;
 use App\Models\LaporanPraktikan;
 use App\Models\Nilai;
 use App\Models\Praktikan;
+use Illuminate\Database\QueryException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -18,41 +22,166 @@ class PraktikanController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request): JsonResponse
     {
-        //
+        $perPage = (int) $request->input('per_page', 15);
+        $perPage = max(5, min($perPage, 50));
+        $search = trim((string) $request->input('search', ''));
+        $kelasId = $request->input('kelas_id');
+
+        $praktikans = Praktikan::query()
+            ->with('kelas')
+            ->when($search !== '', static function ($query) use ($search) {
+                $query->where(function ($inner) use ($search) {
+                    $inner->where('nama', 'like', "%{$search}%")
+                        ->orWhere('nim', 'like', "%{$search}%")
+                        ->orWhere('email', 'like', "%{$search}%");
+                });
+            })
+            ->when($kelasId, static fn ($query) => $query->where('kelas_id', $kelasId))
+            ->orderBy('nama')
+            ->paginate($perPage)
+            ->appends($request->query());
+
+        return PraktikanResource::collection($praktikans)
+            ->additional([
+                'success' => true,
+                'filters' => [
+                    'search' => $search !== '' ? $search : null,
+                    'kelas_id' => $kelasId ? (int) $kelasId : null,
+                ],
+            ])
+            ->response();
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StorePraktikanRequest $request): JsonResponse
     {
-        //
+        $validated = $request->validated();
+
+        try {
+            $praktikan = Praktikan::create([
+                'nama' => $validated['nama'],
+                'nim' => $validated['nim'],
+                'email' => $validated['email'],
+                'nomor_telepon' => $validated['nomor_telepon'],
+                'alamat' => $validated['alamat'],
+                'kelas_id' => $validated['kelas_id'],
+                'password' => Hash::make($validated['password']),
+            ]);
+
+            $praktikan->assignRole('PRAKTIKAN');
+
+            return (new PraktikanResource($praktikan->load('kelas')))
+                ->additional([
+                    'success' => true,
+                    'message' => 'Praktikan berhasil ditambahkan.',
+                ])
+                ->response()
+                ->setStatusCode(201);
+        } catch (\Throwable $exception) {
+            report($exception);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan saat menambahkan praktikan.',
+                'error' => $exception->getMessage(),
+            ], 500);
+        }
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(Praktikan $praktikan): JsonResponse
     {
-        //
+        return (new PraktikanResource($praktikan->load('kelas')))
+            ->additional([
+                'success' => true,
+            ])
+            ->response();
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(UpdatePraktikanRequest $request, Praktikan $praktikan): JsonResponse
     {
-        //
+        $validated = $request->validated();
+
+        try {
+            $updatePayload = [
+                'nama' => $validated['nama'],
+                'nim' => $validated['nim'],
+                'email' => $validated['email'],
+                'nomor_telepon' => $validated['nomor_telepon'],
+                'alamat' => $validated['alamat'],
+                'kelas_id' => $validated['kelas_id'],
+            ];
+
+            if (! empty($validated['password'])) {
+                $updatePayload['password'] = Hash::make($validated['password']);
+            }
+
+            $praktikan->update($updatePayload);
+
+            return (new PraktikanResource($praktikan->fresh('kelas')))
+                ->additional([
+                    'success' => true,
+                    'message' => 'Praktikan berhasil diperbarui.',
+                ])
+                ->response();
+        } catch (\Throwable $exception) {
+            report($exception);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan saat memperbarui praktikan.',
+                'error' => $exception->getMessage(),
+            ], 500);
+        }
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(Praktikan $praktikan): JsonResponse
     {
-        //
+        try {
+            $praktikan->tokens()->delete();
+            $praktikan->delete();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Praktikan berhasil dihapus.',
+            ]);
+        } catch (QueryException $exception) {
+            if ($exception->getCode() === '23000') {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Praktikan tidak dapat dihapus karena masih memiliki relasi aktif.',
+                    'error' => $exception->getMessage(),
+                ], 409);
+            }
+
+            report($exception);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan saat menghapus praktikan.',
+                'error' => $exception->getMessage(),
+            ], 500);
+        } catch (\Throwable $exception) {
+            report($exception);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan saat menghapus praktikan.',
+                'error' => $exception->getMessage(),
+            ], 500);
+        }
     }
 
     public function setPraktikan(Request $request)

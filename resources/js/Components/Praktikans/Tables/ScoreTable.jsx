@@ -1,6 +1,7 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { api } from '@/lib/api';
+import ModalPraktikanAnswers from '@/Components/Praktikans/Modals/ModalPraktikanAnswers';
 
 export default function ScoreTable() {
     const nilaiQuery = useQuery({
@@ -17,6 +18,7 @@ export default function ScoreTable() {
 
                 return {
                     id: item.id ?? `${item.modul_id}-${item.praktikan_id}`,
+                    modulId: item.modul_id,
                     tanggal: createdAt && !Number.isNaN(createdAt.getTime())
                         ? createdAt.toLocaleDateString('id-ID')
                         : '-',
@@ -59,7 +61,9 @@ export default function ScoreTable() {
         return Number.isInteger(numeric) ? numeric : numeric.toFixed(2);
     };
 
-    const Table = ({ rows }) => {
+    const [modalState, setModalState] = useState(null);
+
+    const Table = ({ rows, onOpenAnswers }) => {
         if (loading) {
             return (
                 <div className="mt-6 flex h-[68vh] items-center justify-center">
@@ -112,6 +116,7 @@ export default function ScoreTable() {
                             <th className="px-4 py-3 text-center">I2</th>
                             <th className="px-4 py-3 text-center">Rata-rata</th>
                             <th className="px-4 py-3 text-left">Asisten</th>
+                            <th className="px-4 py-3 text-center">Jawaban</th>
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-depth">
@@ -129,6 +134,15 @@ export default function ScoreTable() {
                                 <td className="px-4 py-3 text-center text-depth-primary">{formatScore(row.scores.i2)}</td>
                                 <td className="px-4 py-3 text-center font-semibold text-[var(--depth-color-primary)]">{formatScore(row.scores.avg)}</td>
                                 <td className="px-4 py-3 text-depth-secondary">{row.asisten}</td>
+                                <td className="px-4 py-3 text-center">
+                                    <button
+                                        type="button"
+                                        onClick={() => onOpenAnswers(row)}
+                                        className="rounded-depth-md border border-depth bg-depth-interactive px-3 py-1.5 text-xs font-semibold text-depth-primary shadow-depth-sm transition hover:-translate-y-0.5 hover:shadow-depth-md"
+                                    >
+                                        Lihat Jawaban
+                                    </button>
+                                </td>
                             </tr>
                         ))}
                     </tbody>
@@ -142,7 +156,16 @@ export default function ScoreTable() {
             <div className="rounded-depth-md bg-[var(--depth-color-primary)] px-4 py-3 text-center shadow-depth-md">
                 <h1 className="text-xl font-bold text-white">Rekap Nilai Praktikan</h1>
             </div>
-            <Table rows={rows} />
+            <Table
+                rows={rows}
+                onOpenAnswers={(row) => setModalState({ modulId: row.modulId, modulTitle: row.modul })}
+            />
+            <ModalPraktikanAnswers
+                isOpen={Boolean(modalState)}
+                modulId={modalState?.modulId ?? null}
+                modulTitle={modalState?.modulTitle ?? null}
+                onClose={() => setModalState(null)}
+            />
         </div>
     );
 }

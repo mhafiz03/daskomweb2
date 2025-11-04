@@ -7,8 +7,8 @@ import {
     useTugasPendahuluanQuery,
     TUGAS_PENDAHULUAN_QUERY_KEY,
 } from "@/hooks/useTugasPendahuluanQuery";
-import { send } from "@/lib/wayfinder";
-import { update as updateTugasPendahuluanRoute } from "@/actions/App/Http/Controllers/API/TugasPendahuluanController";
+import { send } from "@/lib/http";
+import { update as updateTugasPendahuluanRoute } from "@/lib/routes/tugasPendahuluan";
 
 const normaliseModuleId = (module) => Number(module?.idM ?? module?.id ?? module?.modul_id ?? 0);
 
@@ -151,19 +151,19 @@ export default function ModalActiveTP({ onClose }) {
                     </button>
                 </div>
 
-                <p className="text-sm text-depth-secondary">
+                <p className="text-sm text-depth-secondary dark:text-depth-secondary/80">
                     Pilih modul yang aktif untuk praktikan reguler dan kelas English Lab.
                     Perubahan akan segera berlaku setelah disimpan.
                 </p>
 
                 <div className="mt-6 space-y-6">
-                    <section className="rounded-depth-md border border-depth bg-depth-interactive/40 p-4 shadow-inner">
-                        <h3 className="text-sm font-semibold text-depth-primary">Modul Reguler</h3>
-                        <p className="mt-1 text-xs text-depth-secondary">
+                    <section className="rounded-depth-md border border-depth bg-depth-interactive/40 p-4 shadow-inner dark:border-depth/80 dark:bg-depth-card/40">
+                        <h3 className="text-sm font-semibold text-depth-primary dark:text-white">Modul Reguler</h3>
+                        <p className="mt-1 text-xs text-depth-secondary dark:text-depth-secondary/80">
                             Modul yang dipilih akan digunakan sebagai tugas pendahuluan utama.
                         </p>
                         <select
-                            className="mt-3 w-full rounded-depth-md border border-depth bg-depth-card/80 p-2 text-sm text-depth-primary shadow-depth-sm focus:border-[var(--depth-color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)]"
+                            className="mt-3 w-full rounded-depth-md border border-depth bg-depth-card/80 p-2 text-sm text-depth-primary shadow-depth-sm transition focus:border-[var(--depth-color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)] dark:border-depth/70 dark:bg-depth-card/50 dark:text-gray-700"
                             value={regularSelection}
                             onChange={(event) => setRegularSelection(event.target.value)}
                             disabled={regularModules.length === 0 || isBusy}
@@ -182,17 +182,17 @@ export default function ModalActiveTP({ onClose }) {
                         </select>
                     </section>
 
-                    <section className="rounded-depth-md border border-depth bg-depth-interactive/40 p-4 shadow-inner">
+                    <section className="rounded-depth-md border border-depth bg-depth-interactive/40 p-4 shadow-inner dark:border-depth/80 dark:bg-depth-card/40">
                         <div className="flex items-center justify-between">
                             <div>
-                                <h3 className="text-sm font-semibold text-depth-primary">Modul English Lab</h3>
-                                <p className="mt-1 text-xs text-depth-secondary">
+                                <h3 className="text-sm font-semibold text-depth-primary dark:text-white">Modul English Lab</h3>
+                                <p className="mt-1 text-xs text-depth-secondary dark:text-depth-secondary/80">
                                     Opsional untuk kelas berbahasa Inggris jika tersedia.
                                 </p>
                             </div>
                         </div>
                         <select
-                            className="mt-3 w-full rounded-depth-md border border-depth bg-depth-card/80 p-2 text-sm text-depth-primary shadow-depth-sm focus:border-[var(--depth-color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)]"
+                            className="mt-3 w-full rounded-depth-md border border-depth bg-depth-card/80 p-2 text-sm text-depth-primary shadow-depth-sm transition focus:border-[var(--depth-color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)] dark:border-depth/70 dark:bg-depth-card/50 dark:text-gray-700"
                             value={englishSelection}
                             onChange={(event) => setEnglishSelection(event.target.value)}
                             disabled={englishModules.length === 0 || isBusy}

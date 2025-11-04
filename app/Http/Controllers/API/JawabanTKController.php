@@ -196,8 +196,17 @@ class JawabanTKController extends Controller
                 ], 403);
             }
 
+            $praktikan = auth('praktikan')->user();
+
+            if (! $praktikan) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Unauthorized.',
+                ], 401);
+            }
+
             $jawaban = JawabanTk::with(['soal_tk.options'])
-                ->where('praktikan_id', auth('sanctum')->id())
+                ->where('praktikan_id', $praktikan->id)
                 ->where('modul_id', $modulId)
                 ->get();
 

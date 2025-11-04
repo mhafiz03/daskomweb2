@@ -5,8 +5,8 @@ import eyeClose from '../../../../assets/form/eyeClose.png';
 import eyeOpen from '../../../../assets/form/eyeOpen.png';
 import ButtonOption from '../../Praktikans/Buttons/ButtonOption';
 import { useRolesQuery } from '@/hooks/useRolesQuery';
-import { submit } from '@/lib/wayfinder';
-import { store as registerAsisten } from '@/actions/App/Http/Controllers/Auth/RegisteredAsistenController';
+import { submit } from '@/lib/http';
+import { store as registerAsisten } from '@/lib/routes/auth/registeredAsisten';
 
 export default function RegistFormAssistant({ mode, onSwitchToLogin }) {
     

@@ -2,8 +2,8 @@ import { useState, useEffect } from "react";
 import { usePage } from "@inertiajs/react";
 import closeIcon from "../../../../assets/modal/iconClose.svg";
 import failedIcon from "../../../../assets/modal/failedSymbol.png";
-import { submit } from "@/lib/wayfinder";
-import { updatePassword as updateAssistantPassword } from "@/actions/App/Http/Controllers/API/AsistenController";
+import { submit } from "@/lib/http";
+import { updatePassword as updateAssistantPassword } from "@/lib/routes/asisten";
 
 export default function ModalPasswordAssistant({ onClose }) {
     const [values, setValues] = useState({

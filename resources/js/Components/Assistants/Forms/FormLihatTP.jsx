@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { api } from "@/lib/api";
 import { useModulesQuery } from "@/hooks/useModulesQuery";
@@ -7,6 +7,8 @@ import ContentLihatTP from "../Content/ContentLihatTP";
 export default function FormLihatTp() {
     const [nim, setNim] = useState("");
     const [selectedModulId, setSelectedModulId] = useState("");
+    const [selectedRegularId, setSelectedRegularId] = useState("");
+    const [selectedEnglishId, setSelectedEnglishId] = useState("");
     const [error, setError] = useState("");
     const [showResults, setShowResults] = useState(false);
     const [resultData, setResultData] = useState({
@@ -25,6 +27,29 @@ export default function FormLihatTp() {
             console.error("Error fetching modules:", err);
         },
     });
+
+    const getModuleId = (module) => String(module?.idM ?? module?.id ?? module?.modul_id ?? "");
+
+    const moduleMap = useMemo(
+        () =>
+            new Map(
+                modules.map((module) => {
+                    const key = getModuleId(module);
+                    return [key, module];
+                }),
+            ),
+        [modules],
+    );
+
+    const regularModules = useMemo(
+        () => modules.filter((module) => Number(module?.isEnglish ?? 0) !== 1),
+        [modules],
+    );
+
+    const englishModules = useMemo(
+        () => modules.filter((module) => Number(module?.isEnglish ?? 0) === 1),
+        [modules],
+    );
 
     const jawabanTpMutation = useMutation({
         mutationFn: async ({ nim: praktikanNim, modulId }) => {
@@ -58,8 +83,19 @@ export default function FormLihatTp() {
         setError("");
     };
 
-    const handleModulChange = (e) => {
-        setSelectedModulId(e.target.value);
+    const handleRegularModulChange = (event) => {
+        const value = event.target.value;
+        setSelectedRegularId(value);
+        setSelectedEnglishId("");
+        setSelectedModulId(value);
+        setError("");
+    };
+
+    const handleEnglishModulChange = (event) => {
+        const value = event.target.value;
+        setSelectedEnglishId(value);
+        setSelectedRegularId("");
+        setSelectedModulId(value);
         setError("");
     };
 
@@ -79,8 +115,37 @@ export default function FormLihatTp() {
         setShowResults(false);
         setNim("");
         setSelectedModulId("");
+        setSelectedRegularId("");
+        setSelectedEnglishId("");
         setError("");
     };
+
+    useEffect(() => {
+        if (!selectedModulId) {
+            setSelectedRegularId("");
+            setSelectedEnglishId("");
+            return;
+        }
+
+        const module = moduleMap.get(selectedModulId);
+
+        if (!module) {
+            setSelectedRegularId("");
+            setSelectedEnglishId("");
+            setSelectedModulId("");
+            return;
+        }
+
+        const isEnglishModule = Number(module?.isEnglish ?? 0) === 1;
+
+        if (isEnglishModule) {
+            setSelectedEnglishId(selectedModulId);
+            setSelectedRegularId("");
+        } else {
+            setSelectedRegularId(selectedModulId);
+            setSelectedEnglishId("");
+        }
+    }, [moduleMap, selectedModulId]);
 
     if (showResults) {
         return (
@@ -108,7 +173,7 @@ export default function FormLihatTp() {
                 <h1 className="mb-6 text-center text-2xl font-bold text-depth-primary">Lihat Jawaban TP</h1>
 
                 <form onSubmit={handleSubmit} className="mb-6">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                         <div>
                             <label htmlFor="nim" className="mb-1 block text-sm font-medium text-depth-primary">
                                 NIM Praktikan
@@ -124,31 +189,60 @@ export default function FormLihatTp() {
                         </div>
 
                         <div>
-                            <label htmlFor="modul" className="mb-1 block text-sm font-medium text-depth-primary">
-                                Modul
+                            <label htmlFor="modul-regular" className="mb-1 block text-sm font-medium text-depth-primary">
+                                Modul Reguler
                             </label>
                             <select
-                                id="modul"
-                                value={selectedModulId}
-                                onChange={handleModulChange}
+                                id="modul-regular"
+                                value={selectedRegularId}
+                                onChange={handleRegularModulChange}
                                 className="w-full rounded-depth-md border border-depth bg-depth-card p-2 text-sm text-depth-primary shadow-depth-sm transition focus:border-[var(--depth-color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)] focus:ring-offset-0"
-                                disabled={modulesLoading}
+                                disabled={modulesLoading || regularModules.length === 0}
                             >
-                                <option value="" disabled>
-                                    Pilih Modul
+                                <option value="">
+                                    {modulesLoading
+                                        ? "Memuat modul..."
+                                        : regularModules.length === 0
+                                            ? "Tidak ada modul reguler tersedia"
+                                            : "Pilih modul reguler"}
                                 </option>
-                                {modulesLoading && <option value="" disabled>Memuat modul...</option>}
-                                {modulesError && (
-                                    <option value="" disabled>
-                                        {modulesQueryError?.message ?? "Gagal memuat modul"}
-                                    </option>
-                                )}
-                                {!modulesLoading && !modulesError &&
-                                    modules.map((modul) => (
-                                        <option key={modul.idM} value={modul.idM}>
+                                {regularModules.map((modul) => {
+                                    const moduleId = getModuleId(modul);
+                                    return (
+                                        <option key={moduleId} value={moduleId}>
                                             {modul.judul}
                                         </option>
-                                    ))}
+                                    );
+                                })}
+                            </select>
+                        </div>
+
+                        <div>
+                            <label htmlFor="modul-english" className="mb-1 block text-sm font-medium text-depth-primary">
+                                Modul English Lab
+                            </label>
+                            <select
+                                id="modul-english"
+                                value={selectedEnglishId}
+                                onChange={handleEnglishModulChange}
+                                className="w-full rounded-depth-md border border-depth bg-depth-card p-2 text-sm text-depth-primary shadow-depth-sm transition focus:border-[var(--depth-color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)] focus:ring-offset-0"
+                                disabled={modulesLoading || englishModules.length === 0}
+                            >
+                                <option value="">
+                                    {modulesLoading
+                                        ? "Memuat modul..."
+                                        : englishModules.length === 0
+                                            ? "Tidak ada modul English Lab"
+                                            : "Pilih modul English Lab"}
+                                </option>
+                                {englishModules.map((modul) => {
+                                    const moduleId = getModuleId(modul);
+                                    return (
+                                        <option key={moduleId} value={moduleId}>
+                                            {modul.judul}
+                                        </option>
+                                    );
+                                })}
                             </select>
                         </div>
                     </div>
@@ -165,6 +259,12 @@ export default function FormLihatTp() {
                 {error && (
                     <div className="mb-4 rounded-depth-md border border-red-500/60 bg-red-500/15 px-4 py-3 text-sm text-red-400">
                         {error}
+                    </div>
+                )}
+
+                {modulesError && (
+                    <div className="mt-4 rounded-depth-md border border-red-500/60 bg-red-500/15 px-4 py-3 text-sm text-red-400">
+                        {modulesQueryError?.message ?? "Gagal memuat daftar modul."}
                     </div>
                 )}
             </div>

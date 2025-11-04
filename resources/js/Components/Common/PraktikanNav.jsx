@@ -11,8 +11,8 @@ import changePassIcon from "../../../assets/nav/Icon-GantiPassword.svg";
 import logoutIcon from "../../../assets/nav/Icon-Logout.svg";
 import ModalLogout from './Modals/ModalLogout';
 import ModalPassword from './Modals/ModalPassword';
-import { updatePassword as updatePraktikanPassword } from "@/actions/App/Http/Controllers/API/PraktikanController";
-import { destroy as logoutPraktikan } from "@/actions/App/Http/Controllers/Auth/LoginPraktikanController";
+import { updatePassword as updatePraktikanPassword } from "@/lib/routes/praktikan";
+import { destroy as logoutPraktikan } from "@/lib/routes/auth/loginPraktikan";
 
 const STORAGE_KEY = 'praktikanNavCollapsed';
 

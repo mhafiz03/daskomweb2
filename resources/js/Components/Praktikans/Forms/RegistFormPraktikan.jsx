@@ -5,8 +5,8 @@ import eyeClose from '../../../../assets/form/eyeClose.png';
 import eyeOpen from '../../../../assets/form/eyeOpen.png';
 import ButtonOption from '../Buttons/ButtonOption';
 import { useKelasQuery } from '@/hooks/useKelasQuery';
-import { submit } from '@/lib/wayfinder';
-import { store as registerPraktikan } from '@/actions/App/Http/Controllers/Auth/RegisteredPraktikanController';
+import { submit } from '@/lib/http';
+import { store as registerPraktikan } from '@/lib/routes/auth/registeredPraktikan';
 
 
 export default function RegistFormPraktikan({ mode, onSwitchToLogin }) {

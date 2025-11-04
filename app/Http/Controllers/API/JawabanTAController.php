@@ -185,7 +185,7 @@ class JawabanTAController extends Controller
         }
     }
 
-    public function show(string $id): JsonResponse
+    public function show(int $id): JsonResponse
     {
         try {
             $modul = Modul::findOrFail($id);
@@ -197,8 +197,17 @@ class JawabanTAController extends Controller
                 ]);
             }
 
+            $praktikan = auth('praktikan')->user();
+
+            if (! $praktikan) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Unauthorized.',
+                ], 401);
+            }
+
             $jawaban = JawabanTa::with(['soal_ta.options'])
-                ->where('praktikan_id', auth('sanctum')->id())
+                ->where('praktikan_id', $praktikan->id)
                 ->where('modul_id', $id)
                 ->get();
 

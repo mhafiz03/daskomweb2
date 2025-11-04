@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { send } from "@/lib/wayfinder";
+import { send } from "@/lib/http";
 import { useSoalQuery, soalQueryKey } from "@/hooks/useSoalQuery";
 import { getSoalController } from "@/lib/soalControllers";
 import ModalEditSoalPG from "../Modals/ModalEditSoalPG";

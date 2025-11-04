@@ -2,8 +2,8 @@ import { useState, useEffect } from "react";
 import { usePage } from "@inertiajs/react";
 import closeIcon from "../../../../assets/modal/iconClose.svg";
 import failedIcon from "../../../../assets/modal/failedSymbol.png";
-import { submit } from "@/lib/wayfinder";
-import { updatePassword as updatePraktikanPassword } from "@/actions/App/Http/Controllers/API/PraktikanController";
+import { submit } from "@/lib/http";
+import { updatePassword as updatePraktikanPassword } from "@/lib/routes/praktikan";
 
 export default function ModalPasswordPraktikan({ onClose }) {
     const [values, setValues] = useState({

@@ -3,9 +3,10 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
-use App\Models\Asisten;
 use App\Models\LaporanPraktikan;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class LaporanPraktikanController extends Controller
 {
@@ -116,5 +117,45 @@ class LaporanPraktikanController extends Controller
     public function destroy(string $id)
     {
         //
+    }
+
+    public function unmarkedSummary(): JsonResponse
+    {
+        $summary = LaporanPraktikan::query()
+            ->join('asistens', 'asistens.id', '=', 'laporan_praktikans.asisten_id')
+            ->leftJoin('nilais', function ($join) {
+                $join->on('nilais.praktikan_id', '=', 'laporan_praktikans.praktikan_id')
+                    ->on('nilais.modul_id', '=', 'laporan_praktikans.modul_id')
+                    ->on('nilais.asisten_id', '=', 'laporan_praktikans.asisten_id');
+            })
+            ->whereNull('nilais.id')
+            ->groupBy('asistens.id', 'asistens.nama', 'asistens.kode')
+            ->orderByDesc(DB::raw('COUNT(DISTINCT laporan_praktikans.id)'))
+            ->get([
+                'asistens.id',
+                'asistens.nama',
+                'asistens.kode',
+                DB::raw('COUNT(DISTINCT laporan_praktikans.id) as unmarked_reports'),
+                DB::raw('COUNT(DISTINCT laporan_praktikans.praktikan_id) as unmarked_praktikan'),
+            ]);
+
+        $data = $summary->map(static function ($row) {
+            return [
+                'asisten' => [
+                    'id' => (int) $row->id,
+                    'nama' => $row->nama,
+                    'kode' => $row->kode,
+                ],
+                'totals' => [
+                    'laporan' => (int) $row->unmarked_reports,
+                    'praktikan' => (int) $row->unmarked_praktikan,
+                ],
+            ];
+        });
+
+        return response()->json([
+            'success' => true,
+            'data' => $data,
+        ]);
     }
 }

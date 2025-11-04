@@ -12,6 +12,7 @@ use App\Http\Controllers\API\JawabanTMController;
 use App\Http\Controllers\API\JawabanTPController;
 use App\Http\Controllers\API\JenisPollingController;
 use App\Http\Controllers\API\KelasController;
+use App\Http\Controllers\API\LaporanPraktikanController;
 use App\Http\Controllers\API\LeaderBoardController;
 use App\Http\Controllers\API\ModulController;
 use App\Http\Controllers\API\NilaiController;
@@ -113,6 +114,10 @@ Route::get('/nilai-praktikan', function () {
     return Inertia::render('Assistants/NilaiPraktikan');
 })->name('nilai-praktikan')->middleware(['auth:asisten', 'can:nilai-praktikan']);
 
+Route::get('/manage-praktikan', function () {
+    return Inertia::render('Assistants/ManagePraktikan');
+})->name('manage-praktikan')->middleware(['auth:asisten', 'permission:praktikan-regist|manage-role']);
+
 Route::get('/start-praktikum', function () {
     return Inertia::render('Assistants/StartPraktikum');
 })->name('start-praktikum')->middleware(['auth:asisten', 'can:manage-praktikum, see-praktikum']);
@@ -185,6 +190,27 @@ Route::prefix('api-v1')->middleware('audit.assistant')->group(function () {
     Route::get('/praktikan/autosave/questions', [AutosaveSnapshotController::class, 'getQuestionIds'])
         ->name('praktikan.autosave.questions.index')
         ->middleware(['auth:praktikan', 'can:praktikum-lms']);
+    Route::get('/praktikan', [PraktikanController::class, 'index'])
+        ->name('praktikan.index')
+        ->middleware(['auth:asisten', 'permission:praktikan-regist|manage-role']);
+    Route::post('/praktikan', [PraktikanController::class, 'store'])
+        ->name('praktikan.store')
+        ->middleware(['auth:asisten', 'permission:praktikan-regist|manage-role']);
+    Route::get('/praktikan/{praktikan}', [PraktikanController::class, 'show'])
+        ->name('praktikan.show')
+        ->middleware(['auth:asisten', 'permission:praktikan-regist|manage-role']);
+    Route::put('/praktikan/{praktikan}', [PraktikanController::class, 'update'])
+        ->name('praktikan.update')
+        ->middleware(['auth:asisten', 'permission:praktikan-regist|manage-role']);
+    Route::patch('/praktikan/{praktikan}', [PraktikanController::class, 'update'])
+        ->name('praktikan.patch')
+        ->middleware(['auth:asisten', 'permission:praktikan-regist|manage-role']);
+    Route::delete('/praktikan/{praktikan}', [PraktikanController::class, 'destroy'])
+        ->name('praktikan.destroy')
+        ->middleware(['auth:asisten', 'permission:praktikan-regist|manage-role']);
+    Route::get('/laporan/unmarked-summary', [LaporanPraktikanController::class, 'unmarkedSummary'])
+        ->name('laporan.unmarked-summary')
+        ->middleware(['auth:asisten', 'permission:see-pelanggaran|manage-role']);
 
     Route::get('/asisten/soal-comment/{tipeSoal}/{modul}', [SoalCommentController::class, 'showByModul'])
         ->name('asisten.soal-comment.index')
@@ -207,7 +233,7 @@ Route::prefix('api-v1')->middleware('audit.assistant')->group(function () {
 
     // Modul
     // Route::get('/modul', [ModulController::class, 'index'])->name('get.modul');
-    Route::get('/modul', [ModulController::class, 'index'])->name('get.modul')->middleware(['auth:asisten,praktikan', 'can:manage-modul,lihat-modul']);
+    Route::get('/modul', [ModulController::class, 'index'])->name('get.modul')->middleware(['auth:asisten,praktikan', 'permission:manage-modul|lihat-modul']);
     Route::post('/modul', [ModulController::class, 'store'])->name('store.modul')->middleware(['auth:asisten', 'can:manage-modul']);
     // Route::put('/modul/{id}', [ModulController::class, 'update'])->name('update.modul')->middleware(['auth:asisten', 'can:manage-modul']);
     Route::patch('/modul/{id}', [ModulController::class, 'update'])->name('modul.update')->middleware(['auth:asisten', 'can:manage-modul']);
@@ -297,8 +323,8 @@ Route::prefix('api-v1')->middleware('audit.assistant')->group(function () {
     Route::put('/praktikum/{id}', [PraktikumController::class, 'update'])->name('update.praktikums')->middleware(['auth:asisten', 'can:manage-praktikum']);
 
     // tugas pendahuluan
-    Route::get('/tugas-pendahuluan', [TugasPendahuluanController::class, 'index'])->name('index.tugaspendahuluans')->middleware(['auth:asisten', 'can:tugas-pendahuluan']);
-    Route::put('/tugas-pendahuluan', [TugasPendahuluanController::class, 'update'])->name('update.tugaspendahuluans')->middleware(['auth:asisten', 'can:tugas-pendahuluan']);
+    Route::get('/tugas-pendahuluan', [TugasPendahuluanController::class, 'index'])->name('index.tugaspendahuluans')->middleware(['auth:asisten,praktikan', 'permission:tugas-pendahuluan|lihat-modul|lms-configuration']);
+    Route::put('/tugas-pendahuluan', [TugasPendahuluanController::class, 'update'])->name('update.tugaspendahuluans')->middleware(['auth:asisten', 'permission:tugas-pendahuluan|lms-configuration']);
 
     // leaderboard
     Route::get('/leaderboard', [LeaderBoardController::class, 'index'])->name('get.leaderboard')->middleware(['auth:asisten,praktikan', 'can:lihat-leaderboard,ranking-praktikan']);

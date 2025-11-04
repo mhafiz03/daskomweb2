@@ -21,24 +21,19 @@ export default function ScoreDisplayModal({
     const phaseLabel = phaseType === "tk" ? "Tes Keterampilan" : "Tes Awal";
     
     // Determine grade and color based on percentage
-    let grade = 'E';
     let gradeColor = 'text-red-600 dark:text-red-400';
     let bgGradient = 'linear-gradient(135deg, rgba(239, 68, 68, 0.9), rgba(220, 38, 38, 0.9))';
     
     if (scorePercentage >= 90) {
-        grade = 'A';
         gradeColor = 'text-green-600 dark:text-green-400';
         bgGradient = 'linear-gradient(135deg, rgba(34, 197, 94, 0.9), rgba(22, 163, 74, 0.9))';
     } else if (scorePercentage >= 80) {
-        grade = 'B';
         gradeColor = 'text-blue-600 dark:text-blue-400';
         bgGradient = 'linear-gradient(135deg, rgba(59, 130, 246, 0.9), rgba(37, 99, 235, 0.9))';
     } else if (scorePercentage >= 70) {
-        grade = 'C';
         gradeColor = 'text-cyan-600 dark:text-cyan-400';
         bgGradient = 'linear-gradient(135deg, rgba(6, 182, 212, 0.9), rgba(8, 145, 178, 0.9))';
     } else if (scorePercentage >= 60) {
-        grade = 'D';
         gradeColor = 'text-amber-600 dark:text-amber-400';
         bgGradient = 'linear-gradient(135deg, rgba(245, 158, 11, 0.9), rgba(217, 119, 6, 0.9))';
     }
@@ -81,9 +76,6 @@ export default function ScoreDisplayModal({
                             <div className="flex flex-col items-center justify-center gap-1">
                                 <span className="text-xs font-semibold tracking-wide text-depth-secondary">Nilai (%)</span>
                                 <span className="text-5xl font-black text-depth-primary">{scorePercentage}<span className="text-2xl align-top">%</span></span>
-                                <span className={`mt-2 inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold ${gradeColor} bg-white/60 dark:bg-white/10`}>
-                                    {grade} Grade
-                                </span>
                             </div>
                             <div className="flex flex-col items-center justify-center gap-3 rounded-2xl bg-depth-card/80 p-4 shadow-inner">
                                 <div className="text-xs font-semibold uppercase tracking-wide text-depth-secondary">Jawaban Benar</div>

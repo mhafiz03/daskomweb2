@@ -52,50 +52,38 @@ export default function TugasPendahuluanPage() {
         [modules]
     );
 
-    const regularModules = useMemo(
-        () => modules.filter((module) => Number(module?.isEnglish ?? 0) !== 1),
-        [modules]
-    );
-
-    const englishModules = useMemo(
-        () => modules.filter((module) => Number(module?.isEnglish ?? 0) === 1),
-        [modules]
-    );
-
-    const defaultModuleId = useMemo(() => {
+    const activeModuleEntry = useMemo(() => {
         if (!Array.isArray(tugasPendahuluan) || tugasPendahuluan.length === 0) {
-            const fallbackModule = isEnglishClass ? englishModules[0] : regularModules[0];
-            return fallbackModule ? normaliseModuleId(fallbackModule) : null;
+            return null;
         }
 
-        const activeEntry = tugasPendahuluan.find((item) => {
-            const module = moduleMap.get(Number(item.modul_id));
-            const isEnglishModule = Number(module?.isEnglish ?? 0) === 1;
+        return (
+            tugasPendahuluan.find((item) => {
+                const module = moduleMap.get(Number(item.modul_id));
+                if (!module) {
+                    return false;
+                }
+                const isEnglishModule = Number(module?.isEnglish ?? 0) === 1;
+                return item.isActive && (isEnglishClass ? isEnglishModule : !isEnglishModule);
+            }) ?? null
+        );
+    }, [tugasPendahuluan, moduleMap, isEnglishClass]);
 
-            return item.isActive && (isEnglishClass ? isEnglishModule : !isEnglishModule);
-        });
-
-        if (activeEntry) {
-            return Number(activeEntry.modul_id);
-        }
-
-        const fallbackModule = isEnglishClass ? englishModules[0] : regularModules[0];
-        return fallbackModule ? normaliseModuleId(fallbackModule) : null;
-    }, [
-        tugasPendahuluan,
-        moduleMap,
-        isEnglishClass,
-        englishModules,
-        regularModules,
-    ]);
+    const defaultModuleId = activeModuleEntry ? Number(activeModuleEntry.modul_id) : null;
+    const activeModule = defaultModuleId ? moduleMap.get(defaultModuleId) ?? null : null;
 
     const [selectedModul, setSelectedModul] = useState(defaultModuleId ? String(defaultModuleId) : "");
 
     useEffect(() => {
-        if (defaultModuleId) {
-            setSelectedModul(String(defaultModuleId));
-        }
+        setSelectedModul(defaultModuleId ? String(defaultModuleId) : "");
     }, [defaultModuleId]);
+
+    useEffect(() => {
+        if (!selectedModul) {
+            setQuestions([]);
+            setAnswers([]);
+        }
+    }, [selectedModul]);
 
     const questionsQuery = useQuery({
         queryKey: ["tp-questions", selectedModul],
@@ -165,7 +153,12 @@ export default function TugasPendahuluanPage() {
 
     const handleSubmitTask = useCallback(
         (taskName, currentAnswers) => {
-            if (taskName !== "TugasPendahuluan" || !praktikanId || !selectedModul) {
+            if (taskName !== "TugasPendahuluan" || !praktikanId) {
+                return;
+            }
+
+            if (!selectedModul) {
+                toast.error("Tidak ada modul tugas pendahuluan yang aktif saat ini.");
                 return;
             }
 
@@ -181,9 +174,9 @@ export default function TugasPendahuluanPage() {
         [praktikanId, selectedModul, questions, submitMutation]
     );
 
-    const handleQuestionsCount = useCallback(() => {}, []);
+    const handleQuestionsCount = useCallback(() => { }, []);
 
-    const hasModules = modules.length > 0;
+    const isConfigurationLoading = modulesQuery.isLoading || tugasQuery.isLoading;
 
     return (
         <>
@@ -198,64 +191,12 @@ export default function TugasPendahuluanPage() {
             >
                 <Head title="Tugas Pendahuluan" />
 
-                <div className="mt-[8vh] flex flex-col gap-6">
-                    <div className="rounded-depth-lg border border-depth bg-depth-card/80 p-6 shadow-depth-lg">
-                        <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
-                            <div>
-                                <h1 className="text-lg font-semibold text-depth-primary">Pilih Modul</h1>
-                                <p className="text-sm text-depth-secondary">
-                                    Tentukan modul yang ingin kamu kerjakan terlebih dahulu.
-                                </p>
-                            </div>
-                            <div className="flex flex-col gap-2 md:flex-row md:items-center">
-                                <select
-                                    className="rounded-depth-md border border-depth bg-depth-card/80 px-3 py-2 text-sm text-depth-primary shadow-depth-sm focus:border-[var(--depth-color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)]"
-                                    value={selectedModul}
-                                    onChange={(event) => setSelectedModul(event.target.value)}
-                                    disabled={!hasModules || modulesQuery.isLoading}
-                                >
-                                    {!hasModules && <option value="">Tidak ada modul tersedia</option>}
-                                    {hasModules && (
-                                        <>
-                                            {regularModules.length > 0 && (
-                                                <optgroup label="Reguler">
-                                                    {regularModules.map((module) => {
-                                                        const moduleId = normaliseModuleId(module);
-                                                        return (
-                                                            <option key={moduleId} value={moduleId}>
-                                                                {module.judul}
-                                                            </option>
-                                                        );
-                                                    })}
-                                                </optgroup>
-                                            )}
-                                            {englishModules.length > 0 && (
-                                                <optgroup label="English Lab">
-                                                    {englishModules.map((module) => {
-                                                        const moduleId = normaliseModuleId(module);
-                                                        return (
-                                                            <option key={moduleId} value={moduleId}>
-                                                                {module.judul}
-                                                            </option>
-                                                        );
-                                                    })}
-                                                </optgroup>
-                                            )}
-                                        </>
-                                    )}
-                                </select>
-                                <button
-                                    type="button"
-                                    onClick={() => {
-                                        answersQuery.refetch();
-                                        questionsQuery.refetch();
-                                    }}
-                                    className="inline-flex items-center justify-center rounded-depth-md border border-depth bg-depth-interactive px-3 py-2 text-xs font-semibold text-depth-primary shadow-depth-sm transition hover:-translate-y-0.5 hover:shadow-depth-md"
-                                    disabled={modulesQuery.isLoading || questionsQuery.isLoading}
-                                >
-                                    Refresh
-                                </button>
-                            </div>
+                <div className="mt-1 flex flex-col gap-6">
+                    <div className="rounded-depth-lg border border-depth bg-depth-card/80 px-5 py-3 shadow-depth-lg w-fit self-start">
+                        <div className="flex flex-col gap-1 text-left">
+                            <h1 className="text-xl font-semibold text-depth-primary">
+                                Tugas Pendahuluan
+                            </h1>
                         </div>
                     </div>
 
@@ -270,7 +211,6 @@ export default function TugasPendahuluanPage() {
                         tipeSoal="tp"
                         praktikanId={praktikanId}
                         isCommentEnabled={isTotClass}
-                        variant="standalone"
                         showSubmitButton={Boolean(selectedModul)}
                         submitLabel={submitMutation.isPending ? "Menyimpan..." : "Simpan Jawaban"}
                     />

@@ -1,12 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import toast from "react-hot-toast";
-import { submit } from "@/lib/wayfinder";
+import { submit } from "@/lib/http";
 import { api } from "@/lib/api";
 import {
     store as storeNilai,
     update as updateNilai,
-} from "@/actions/App/Http/Controllers/API/NilaiController";
+} from "@/lib/routes/nilai";
 
 const scoresSchema = [
     { key: "tp", label: "TP" },

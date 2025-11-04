@@ -120,60 +120,65 @@ class ModulController extends BaseController
             'deskripsi' => 'required|string',
             'isEnglish' => 'required|integer',
             'isUnlocked' => 'required|integer',
-            'modul_link' => 'required|string',
-            'ppt_link' => 'required|string',
-            'video_link' => 'required|string',
+            'modul_link' => 'nullable|string',
+            'ppt_link' => 'nullable|string',
+            'video_link' => 'nullable|string',
         ]);
 
         if ($validator->fails()) {
-            return redirect()->back()->withErrors($validator)->withInput();
+            return response()->json([
+                'message' => 'Validasi gagal.',
+                'errors' => $validator->errors(),
+            ], 422);
         }
 
         try {
-            // Check if title is being changed and if new title already exists
             $modul = Modul::findOrFail($id);
-            if ($request->judul !== $modul->judul) {
-                $existingModul = Modul::where('judul', $request->judul)->first();
-                if ($existingModul) {
-                    return redirect()->back()->withErrors([
-                        'judul' => 'Judul "'.$request->judul.'" sudah terdaftar.',
-                    ])->withInput();
-                }
+
+            $judulTelahDigunakan = Modul::where('judul', $request->judul)
+                ->where('id', '!=', $modul->id)
+                ->exists();
+
+            if ($judulTelahDigunakan) {
+                return response()->json([
+                    'message' => 'Judul "'.$request->judul.'" sudah terdaftar.',
+                    'errors' => [
+                        'judul' => ['Judul "'.$request->judul.'" sudah terdaftar.'],
+                    ],
+                ], 422);
             }
 
-            $resource = Resource::where('modul_id', $modul->id)->first();
+            $resource = Resource::firstOrNew(['modul_id' => $modul->id]);
 
-            if (! $resource) {
-                // Create a new resource if one doesn't exist
-                $resource = new Resource;
-                $resource->modul_id = $modul->id;
-                // Set other required fields
-            }
-
-            //            if (!$resource) {
-            //                return redirect()->back()->withErrors([
-            //                    'general' => 'Resource tidak ditemukan untuk modul ini.'
-            //                ])->withInput();
-            //            }
-
-            // Update modul
             $modul->judul = $request->judul;
             $modul->deskripsi = $request->deskripsi;
-            $modul->isEnglish = $request->isEnglish;
-            $modul->isUnlocked = $request->isUnlocked;
+            $modul->isEnglish = (int) $request->isEnglish;
+            $modul->isUnlocked = (int) $request->isUnlocked;
             $modul->save();
 
-            // Update resource
-            $resource->modul_link = $request->modul_link;
-            $resource->ppt_link = $request->ppt_link;
-            $resource->video_link = $request->video_link;
+            $resource->modul_link = $request->modul_link ?? '';
+            $resource->ppt_link = $request->ppt_link ?? '';
+            $resource->video_link = $request->video_link ?? '';
             $resource->save();
 
-            return redirect()->back()->with('success', 'Modul berhasil diupdate.');
+            return response()->json([
+                'message' => 'Modul berhasil diperbarui.',
+                'data' => [
+                    'idM' => $modul->id,
+                    'judul' => $modul->judul,
+                    'deskripsi' => $modul->deskripsi,
+                    'isEnglish' => (int) $modul->isEnglish,
+                    'isUnlocked' => (int) $modul->isUnlocked,
+                    'modul_link' => $resource->modul_link,
+                    'ppt_link' => $resource->ppt_link,
+                    'video_link' => $resource->video_link,
+                ],
+            ]);
         } catch (\Exception $e) {
-            return redirect()->back()->withErrors([
-                'general' => 'Terjadi kesalahan saat mengupdate modul: '.$e->getMessage(),
-            ])->withInput();
+            return response()->json([
+                'message' => 'Terjadi kesalahan saat mengupdate modul.',
+                'error' => $e->getMessage(),
+            ], 500);
         }
     }
 

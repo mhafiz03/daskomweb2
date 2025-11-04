@@ -3,15 +3,15 @@ import toast from "react-hot-toast";
 import closeIcon from "../../../../assets/modal/iconClose.svg";
 import deleteIcon from "../../../../assets/nav/Icon-Delete.svg";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { send } from "@/lib/wayfinder";
-import { update as updateKelas } from "@/actions/App/Http/Controllers/API/KelasController";
+import { send } from "@/lib/http";
+import { update as updateKelas } from "@/lib/routes/kelas";
 import { KELAS_QUERY_KEY } from "@/hooks/useKelasQuery";
 import { useAsistensQuery } from "@/hooks/useAsistensQuery";
 import { useJadwalJagaQuery, JADWAL_JAGA_QUERY_KEY } from "@/hooks/useJadwalJagaQuery";
 import {
     destroy as destroyJadwalJaga,
     store as storeJadwalJaga,
-} from "@/actions/App/Http/Controllers/API/JadwalJagaController";
+} from "@/lib/routes/jadwalJaga";
 
 export default function ModalEditPlotting({ onClose, kelas }) {
     const [formData, setFormData] = useState({ kelas: "", hari: "", shift: "", totalGroup: "" });

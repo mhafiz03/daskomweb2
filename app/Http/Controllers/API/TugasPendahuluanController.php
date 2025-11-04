@@ -17,13 +17,25 @@ class TugasPendahuluanController extends Controller
         try {
             // Ambil data tugas pendahuluan dengan join ke tabel modul
             $tugas = Tugaspendahuluan::leftJoin('moduls', 'moduls.id', '=', 'tugaspendahuluans.modul_id')
-                ->select('tugaspendahuluans.*', 'moduls.judul as nama_modul') // Ambil judul modul sebagai nama_modul
+                ->select('tugaspendahuluans.*', 'moduls.judul as nama_modul')
                 ->get();
 
             if ($tugas->isEmpty()) {
-                return response()->json([
-                    "message" => "Tidak ada tugas ditemukan.",
-                ], 404);
+                $modules = Modul::select('id')->get();
+
+                foreach ($modules as $module) {
+                    Tugaspendahuluan::firstOrCreate(
+                        ['modul_id' => $module->id],
+                        [
+                            'pembahasan' => 'empty',
+                            'isActive' => 0,
+                        ]
+                    );
+                }
+
+                $tugas = Tugaspendahuluan::leftJoin('moduls', 'moduls.id', '=', 'tugaspendahuluans.modul_id')
+                    ->select('tugaspendahuluans.*', 'moduls.judul as nama_modul')
+                    ->get();
             }
 
             return response()->json([

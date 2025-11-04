@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import closeIcon from "../../../../assets/modal/iconClose.svg";
-import { usePage } from "@inertiajs/react";
-import { submit } from "@/lib/wayfinder";
-import { update as updateModul } from "@/actions/App/Http/Controllers/API/ModulController";
+import { send } from "@/lib/http";
+import { update as updateModul } from "@/lib/routes/modul";
 import DepthToggle from "@/Components/Common/DepthToggle";
+import { api } from "@/lib/api";
 
 export default function ModalEditModule({ onClose, modules, selectedModuleId, onUpdate }) {
     const [values, setValues] = useState({
@@ -18,10 +18,12 @@ export default function ModalEditModule({ onClose, modules, selectedModuleId, on
     });
     const [isEnglishOn, setIsEnglishOn] = useState(false);
     const [isUnlockedOn, setIsUnlockedOn] = useState(false);
-
-    const { errors } = usePage().props;
+    const [isDetailLoading, setIsDetailLoading] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [formErrors, setFormErrors] = useState({});
 
     useEffect(() => {
+        setFormErrors({});
         const selected = modules.find((module) => module.idM === selectedModuleId);
         if (selected) {
             setValues({
@@ -36,36 +38,94 @@ export default function ModalEditModule({ onClose, modules, selectedModuleId, on
             setIsEnglishOn(selected.isEnglish === 1);
             setIsUnlockedOn(selected.isUnlocked === 1);
         }
+
+        if (!selectedModuleId) {
+            setFormErrors({});
+            return;
+        }
+
+        let ignore = false;
+
+        const fetchDetail = async () => {
+            setIsDetailLoading(true);
+            try {
+                const { data } = await api.get(`/api-v1/modul/${selectedModuleId}`);
+                const detail = data?.data ?? null;
+
+                if (!detail || ignore) {
+                    return;
+                }
+
+                setValues({
+                    judul: detail.judul ?? "",
+                    deskripsi: detail.deskripsi ?? "",
+                    modul_link: detail.modul_link ?? "",
+                    ppt_link: detail.ppt_link ?? "",
+                    video_link: detail.video_link ?? "",
+                    isEnglish: detail.isEnglish ?? 0,
+                    isUnlocked: detail.isUnlocked ?? 0,
+                });
+                setIsEnglishOn(detail.isEnglish === 1);
+                setIsUnlockedOn(detail.isUnlocked === 1);
+            } catch (error) {
+                if (!ignore) {
+                    const message = error?.response?.data?.message ?? error?.message ?? "Gagal memuat detail modul.";
+                    toast.error(message);
+                }
+            } finally {
+                if (!ignore) {
+                    setIsDetailLoading(false);
+                }
+            }
+        };
+
+        fetchDetail();
+
+        return () => {
+            ignore = true;
+        };
     }, [modules, selectedModuleId]);
 
-    const handleSave = () => {
+    const handleSave = async () => {
         if (!selectedModuleId) {
             toast.error("ID modul tidak valid.");
             return;
         }
 
-        submit(updateModul(selectedModuleId), {
-            data: values,
-            preserveScroll: true,
-            onSuccess: () => {
-                const updatedModule = {
-                    ...(modules.find((m) => m.idM === selectedModuleId) ?? {}),
-                    idM: selectedModuleId,
-                    ...values,
-                };
+        try {
+            setIsSubmitting(true);
+            setFormErrors({});
 
-                if (typeof onUpdate === "function") {
-                    onUpdate(updatedModule);
-                }
+            const response = await send(updateModul(selectedModuleId), values);
+            const responseData = response?.data?.data ?? null;
+            const payload = responseData ?? values;
+            const updatedModule = {
+                ...(modules.find((module) => module.idM === selectedModuleId) ?? {}),
+                idM: selectedModuleId,
+                ...payload,
+            };
+            updatedModule.isEnglish = Number(payload?.isEnglish ?? updatedModule.isEnglish ?? 0);
+            updatedModule.isUnlocked = Number(payload?.isUnlocked ?? updatedModule.isUnlocked ?? 0);
 
-                toast.success("Modul berhasil diperbarui.");
-                onClose();
-            },
-            onError: (error) => {
-                const message = error?.response?.data?.message ?? "Gagal memperbarui modul.";
+            if (typeof onUpdate === "function") {
+                onUpdate(updatedModule);
+            }
+
+            toast.success(response?.data?.message ?? "Modul berhasil diperbarui.");
+            onClose();
+        } catch (error) {
+            const status = error?.response?.status ?? 500;
+            if (status === 422) {
+                const errorBag = error?.response?.data?.errors ?? {};
+                setFormErrors(errorBag);
+                toast.error(error?.response?.data?.message ?? "Validasi gagal, periksa kembali data Anda.");
+            } else {
+                const message = error?.response?.data?.message ?? error?.message ?? "Gagal memperbarui modul.";
                 toast.error(message);
-            },
-        });
+            }
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
     const linkFields = [
@@ -73,6 +133,10 @@ export default function ModalEditModule({ onClose, modules, selectedModuleId, on
         { key: "video_link", label: "Link Video Youtube", tone: "red" },
         { key: "modul_link", label: "Link Modul", tone: "blue" },
     ];
+
+    const generalErrorMessage = Array.isArray(formErrors?.general)
+        ? formErrors.general.join(", ")
+        : formErrors?.general;
 
     return (
         <div className="depth-modal-overlay z-50">
@@ -86,14 +150,14 @@ export default function ModalEditModule({ onClose, modules, selectedModuleId, on
                     </button>
                 </div>
 
-                {errors?.general && (
+                {generalErrorMessage && (
                     <div className="rounded-depth-md border border-red-400 bg-red-500/10 px-3 py-2 text-sm text-red-500">
-                        {errors.general}
+                        {generalErrorMessage}
                     </div>
                 )}
 
                 <div className="space-y-6">
-                    <FieldGroup label="Judul Modul" error={errors?.judul}>
+                    <FieldGroup label="Judul Modul" error={formErrors?.judul?.[0] ?? formErrors?.judul}>
                         <input
                             id="judul"
                             type="text"
@@ -104,7 +168,7 @@ export default function ModalEditModule({ onClose, modules, selectedModuleId, on
                         />
                     </FieldGroup>
 
-                    <FieldGroup label="Pencapaian Pembelajaran" error={errors?.deskripsi}>
+                    <FieldGroup label="Pencapaian Pembelajaran" error={formErrors?.deskripsi?.[0] ?? formErrors?.deskripsi}>
                         <textarea
                             className="w-full rounded-depth-lg border border-depth bg-depth-card px-3 py-2 text-sm text-depth-primary shadow-depth-sm transition focus:border-[var(--depth-color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)] focus:ring-offset-0"
                             placeholder="Masukkan poin pembelajaran"
@@ -116,7 +180,12 @@ export default function ModalEditModule({ onClose, modules, selectedModuleId, on
 
                     <div className="space-y-4">
                         {linkFields.map(({ key, label, tone }) => (
-                            <FieldGroup key={key} label={label} tone={tone} error={errors?.[key]}>
+                            <FieldGroup
+                                key={key}
+                                label={label}
+                                tone={tone}
+                                error={formErrors?.[key]?.[0] ?? formErrors?.[key]}
+                            >
                                 <input
                                     id={key}
                                     type="url"
@@ -141,6 +210,7 @@ export default function ModalEditModule({ onClose, modules, selectedModuleId, on
                                         return next;
                                     })
                                 }
+                                disabled={isDetailLoading || isSubmitting}
                             />
                             <DepthToggle
                                 label="Unlocked"
@@ -152,6 +222,7 @@ export default function ModalEditModule({ onClose, modules, selectedModuleId, on
                                         return next;
                                     })
                                 }
+                                disabled={isDetailLoading || isSubmitting}
                             />
                         </div>
 
@@ -166,9 +237,10 @@ export default function ModalEditModule({ onClose, modules, selectedModuleId, on
                             <button
                                 type="button"
                                 onClick={handleSave}
-                                className="rounded-depth-md bg-[var(--depth-color-primary)] px-5 py-2 text-sm font-semibold text-white shadow-depth-sm transition hover:-translate-y-0.5 hover:shadow-depth-md"
+                                disabled={isDetailLoading || isSubmitting}
+                                className="rounded-depth-md bg-[var(--depth-color-primary)] px-5 py-2 text-sm font-semibold text-white shadow-depth-sm transition hover:-translate-y-0.5 hover:shadow-depth-md disabled:cursor-not-allowed disabled:opacity-60"
                             >
-                                Simpan
+                                {isSubmitting ? "Menyimpan..." : "Simpan"}
                             </button>
                         </div>
                     </div>

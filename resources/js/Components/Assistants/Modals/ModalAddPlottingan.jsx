@@ -2,12 +2,12 @@ import { useMemo, useState } from "react";
 import closeIcon from "../../../../assets/modal/iconClose.svg";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { KELAS_QUERY_KEY } from "@/hooks/useKelasQuery";
-import { send } from "@/lib/wayfinder";
-import { store as storeKelas } from "@/actions/App/Http/Controllers/API/KelasController";
+import { send } from "@/lib/http";
+import { store as storeKelas } from "@/lib/routes/kelas";
 import toast from "react-hot-toast";
 import { useAsistensQuery } from "@/hooks/useAsistensQuery";
 import { JADWAL_JAGA_QUERY_KEY } from "@/hooks/useJadwalJagaQuery";
-import { store as storeJadwalJaga } from "@/actions/App/Http/Controllers/API/JadwalJagaController";
+import { store as storeJadwalJaga } from "@/lib/routes/jadwalJaga";
 
 export default function ModalAddPlottingan({ onClose, fetchKelas }) {
     const [isSwitchOn, setIsSwitchOn] = useState(0); // 0 untuk false, 1 untuk true

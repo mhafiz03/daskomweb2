@@ -1,6 +1,7 @@
-import { useState } from "react";  
-import { submit } from "@/lib/wayfinder";
-import { setPassword as setPraktikanPassword } from "@/actions/App/Http/Controllers/API/PraktikanController";
+import { useState } from "react";
+import toast from "react-hot-toast";
+import { submit } from "@/lib/http";
+import { setPassword as setPraktikanPassword } from "@/lib/routes/praktikan";
 
 export default function FormChangePassPraktikan() {
     const [values, setValues] = useState({
@@ -24,10 +25,12 @@ export default function FormChangePassPraktikan() {
         
         if(Object.keys(newErrors).length > 0) {
             setErrors(newErrors);
-            setModalMessage('Harap isi semua kolom, jangan tertinggal!');
+            const validationMessage = 'Harap isi semua kolom, jangan tertinggal!';
+            setModalMessage(validationMessage);
             setIsSuccess(false);
             setIsModalOpen(true);
             setIsLoading(false);
+            toast.error(validationMessage);
             return;
         }
 
@@ -35,9 +38,11 @@ export default function FormChangePassPraktikan() {
         submit(setPraktikanPassword(), {
             data: values,
             onSuccess: () => {
-                setModalMessage('Password Praktikan telah berhasil diganti.');
+                const successMessage = 'Password Praktikan telah berhasil diganti.';
+                setModalMessage(successMessage);
                 setIsSuccess(true);
                 setIsModalOpen(true);
+                toast.success(successMessage);
                 
                 setValues({
                     nim: '',
@@ -50,9 +55,12 @@ export default function FormChangePassPraktikan() {
             },
             onError: (errors) => {
                 setErrors(errors);
-                setModalMessage(Object.values(errors).flat().join('\n'));
+                const parsedMessage = Object.values(errors).flat().join('\n');
+                const errorMessage = parsedMessage || 'Gagal mengganti password praktikan.';
+                setModalMessage(errorMessage);
                 setIsSuccess(false);
                 setIsModalOpen(true);
+                toast.error(errorMessage);
             },
             onFinish: () => {
                 setIsLoading(false);

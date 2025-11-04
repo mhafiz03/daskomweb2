@@ -1,12 +1,12 @@
 import { useState, useEffect } from "react";
 import { usePage } from "@inertiajs/react";
 import closeIcon from "../../../../assets/modal/iconClose.svg";
-import { submit } from "@/lib/wayfinder";
+import { submit } from "@/lib/http";
 import {
     update as updateAsisten,
     updatePp as updateAsistenPhoto,
     destroyPp as destroyAsistenPhoto,
-} from "@/actions/App/Http/Controllers/API/AsistenController";
+} from "@/lib/routes/asisten";
 
 export default function ModalEditProfile({ isOpen, onClose }) {
     // const [isSuccessModalOpen, setSuccessModalOpen] = useState(false);

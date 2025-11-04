@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { index as modulIndex } from "@/actions/App/Http/Controllers/API/ModulController";
+import { index as modulIndex } from "@/lib/routes/modul";
 import { api } from "@/lib/api";
 
 export const MODULES_QUERY_KEY = ["modules"];

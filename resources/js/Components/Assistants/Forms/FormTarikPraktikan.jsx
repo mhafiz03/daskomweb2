@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { useModulesQuery } from "@/hooks/useModulesQuery";
-import { send } from "@/lib/wayfinder";
+import { send } from "@/lib/http";
 import toast from "react-hot-toast";
-import { setPraktikan } from "@/actions/App/Http/Controllers/API/PraktikanController";
+import { setPraktikan } from "@/lib/routes/praktikan";
 
 export default function FormTarikPraktikan() {
     const [nim, setNim] = useState("");

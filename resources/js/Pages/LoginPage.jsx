@@ -9,7 +9,7 @@ import ButtonGroup from '@/Components/Praktikans/Buttons/ButtonGroup';
 export default function LoginPage() {
     const { ziggy } = usePage().props; 
     
-    const [mode, setMode] = useState();
+    const [mode, setMode] = useState('praktikan');
 
     useEffect(() => {
         const currentMode = ziggy?.location
@@ -22,7 +22,7 @@ export default function LoginPage() {
         <>
             <Head title={mode === 'praktikan' ? "Login - Praktikan" : "Login - Asisten"} />
 
-            <div className="bg-depth-background min-h-screen flex items-center justify-center p-4">
+            <div className="min-h-screen flex items-center justify-center p-4 bg-depth-background">
                 <Toaster />
                 <div className="bg-depth-card flex items-center rounded-depth-lg shadow-depth-lg max-w-4xl w-full p-5 border border-depth">
                     {mode === 'praktikan' ? (           

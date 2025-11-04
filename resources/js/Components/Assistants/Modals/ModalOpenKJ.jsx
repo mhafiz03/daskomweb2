@@ -3,8 +3,8 @@ import toast from "react-hot-toast";
 import closeIcon from "../../../../assets/modal/iconClose.svg";
 import editIcon from "../../../../assets/nav/Icon-Edit.svg";
 import { useModulesQuery } from "@/hooks/useModulesQuery";
-import { send } from "@/lib/wayfinder";
-import { update as updateModul } from "@/actions/App/Http/Controllers/API/ModulController";
+import { send } from "@/lib/http";
+import { update as updateModul } from "@/lib/routes/modul";
 
 export default function ModalOpenKJ({ onClose, modules }) {
     const [modul, setModul] = useState(modules || []);

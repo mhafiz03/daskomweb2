@@ -2,7 +2,6 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import debounce from "lodash/debounce";
 import PraktikanAuthenticated from "@/Layouts/PraktikanAuthenticatedLayout";
 import NoPraktikumSection from "@/Components/Praktikans/Sections/NoPraktikumSection";
-import TugasPendahuluan from "@/Components/Praktikans/Sections/TugasPendahuluan";
 import TesAwal from "@/Components/Praktikans/Sections/TesAwal";
 import Jurnal from "@/Components/Praktikans/Sections/Jurnal";
 import Mandiri from "@/Components/Praktikans/Sections/Mandiri";
@@ -13,7 +12,6 @@ import FeedbackModal from "@/Components/Modals/FeedbackModal";
 import ScoreDisplayModal from "@/Components/Modals/ScoreDisplayModal";
 
 const TASK_COMPONENTS = {
-    TugasPendahuluan,
     TesAwal,
     Jurnal,
     Mandiri,
@@ -30,12 +28,6 @@ const INITIAL_COMPLETED_STATE = TASK_NAMES.reduce((accumulator, key) => {
 }, {});
 
 const TASK_CONFIG = {
-    TugasPendahuluan: {
-        questionEndpoint: (modulId) => `/api-v1/soal-tp/${modulId}`,
-        submitEndpoint: "/api-v1/jawaban-tp",
-        variant: "essay",
-        commentType: "tp",
-    },
     TesAwal: {
         questionEndpoint: (modulId) => `/api-v1/soal-ta/${modulId}`,
         submitEndpoint: "/api-v1/jawaban-ta",
@@ -68,7 +60,6 @@ const TASK_CONFIG = {
 };
 
 const AUTOSAVE_TYPE_MAP = {
-    TugasPendahuluan: "tp",
     TesAwal: "ta",
     Jurnal: "jurnal",
     Mandiri: "mandiri",

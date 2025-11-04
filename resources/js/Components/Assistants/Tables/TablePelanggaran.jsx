@@ -1,65 +1,112 @@
+import { useUnmarkedLaporanQuery } from "@/hooks/useUnmarkedLaporanQuery";
+
+const formatAssistantName = (asisten) => {
+    if (!asisten) {
+        return "-";
+    }
+
+    return asisten.nama ?? "-";
+};
+
 export default function TablePelanggaran() {
-  // Data dummy untuk tabel pelanggaran
-  const dataPelanggaran = [
-    { no: 1, nama: "John Doe", kode: "ALL", status: "Belum Input", jumlahBelumInput: 3 },
-    { no: 2, nama: "Jane Smith", kode: "DEY", status: "Aman", jumlahBelumInput: 0 },
-    { no: 3, nama: "Mark Johnson", kode: "FYN", status: "Belum Input", jumlahBelumInput: 1 },
-    { no: 4, nama: "Emily Davis", kode: "GTY", status: "Aman", jumlahBelumInput: 0 },
-    { no: 5, nama: "Chris Brown", kode: "CVX", status: "Belum Input", jumlahBelumInput: 2 },
-    { no: 6, nama: "Alice Green", kode: "RPR", status: "Aman", jumlahBelumInput: 0 },
-    { no: 7, nama: "Michael White", kode: "QTY", status: "Belum Input", jumlahBelumInput: 4 },
-    { no: 8, nama: "Sarah Miller", kode: "SHR", status: "Aman", jumlahBelumInput: 0 },
-    { no: 9, nama: "David Clark", kode: "STL", status: "Belum Input", jumlahBelumInput: 5 },
-    { no: 10, nama: "Olivia Moore", kode: "OPL", status: "Aman", jumlahBelumInput: 0 },
-  ];
+    const {
+        data = [],
+        isLoading,
+        isFetching,
+        isError,
+        error,
+        refetch,
+    } = useUnmarkedLaporanQuery();
 
-  return (
-    <div className="mt-5">
-      {/* Header dengan div */}
-      {/* <div className="bg-deepForestGreen rounded-lg py-2 px-2 mb-2">
-        <div className="grid grid-cols-4 gap-1">
-          <div className="bg-deepForestGreen hover:bg-darkOliveGreen rounded-lg p-1">
-            <h1 className="font-bold text-white text-center">No</h1>
-          </div>
-          <div className="bg-deepForestGreen hover:bg-darkOliveGreen rounded-lg p-1">
-            <h1 className="font-bold text-white text-center">Nama</h1>
-          </div>
-          <div className="bg-deepForestGreen hover:bg-darkOliveGreen rounded-lg p-1">
-            <h1 className="font-bold text-white text-center">Kode</h1>
-          </div>
-          <div className="bg-deepForestGreen hover:bg-darkOliveGreen rounded-lg p-1">
-            <h1 className="font-bold text-white text-center">Status</h1>
-          </div>
-        </div>
-      </div> */}
-      <div className="rounded-depth-lg border border-depth bg-depth-card p-3 shadow-depth-md">
-        <div className="grid grid-cols-4 gap-2 text-xs font-semibold uppercase tracking-wide text-white">
-          <span className="rounded-depth-md bg-[var(--depth-color-primary)] px-3 py-2 text-center shadow-depth-sm">No</span>
-          <span className="rounded-depth-md bg-[var(--depth-color-primary)] px-3 py-2 text-center shadow-depth-sm">Nama</span>
-          <span className="rounded-depth-md bg-[var(--depth-color-primary)] px-3 py-2 text-center shadow-depth-sm">Kode</span>
-          <span className="rounded-depth-md bg-[var(--depth-color-primary)] px-3 py-2 text-center shadow-depth-sm">Status</span>
-        </div>
-      </div>
-
-      {/* Kontainer untuk tabel scrollable */}
-      <div className="overflow-x-auto lg:max-h-[48rem] md:max-h-96">
-        {[...Array(10)].map((_, index) => (
-          <div
-            key={index}
-            className="grid grid-cols-4 gap-1 bg-white dark:bg-slate-800 py-1 px-2 mb-2 rounded-lg"
-          >
-            <div className="flex items-center justify-center h-full py-1 px-2 ">{index + 1}</div>
-            <div className="flex items-center justify-center h-full py-1 px-2">Aliza Nurfitrian M</div>
-            <div className="flex items-center justify-center h-full py-1 px-2">1101223083{index + 1}</div>
-            <div
-              className={`flex items-center justify-center h-full py-1 px-2 ${index % 2 === 0 ? "text-fireRed font-bold" : ""
-                }`}
-            >
-              {index % 2 === 0 ? `Belum Input ${index + 1} Nilai` : "Aman"}
+    if (isLoading) {
+        return (
+            <div className="rounded-depth-lg border border-depth bg-depth-card p-12 text-center text-depth-secondary shadow-depth-lg">
+                <div className="mx-auto mb-4 h-10 w-10 animate-spin rounded-full border-4 border-depth border-t-[var(--depth-color-primary)]" />
+                Memuat rekap laporan belum dinilai...
             </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
+        );
+    }
+
+    if (isError) {
+        const message = error?.response?.data?.message ?? error?.message ?? "Gagal memuat rekap laporan.";
+
+        return (
+            <div className="rounded-depth-lg border border-depth bg-depth-card p-10 text-center text-red-400 shadow-depth-lg">
+                <p>{message}</p>
+                <button
+                    type="button"
+                    onClick={() => refetch()}
+                    className="mt-4 rounded-depth-md bg-[var(--depth-color-primary)] px-4 py-2 text-sm font-semibold text-white shadow-depth-sm transition hover:-translate-y-0.5 hover:shadow-depth-md"
+                >
+                    Coba Lagi
+                </button>
+            </div>
+        );
+    }
+
+    if (!data.length) {
+        return (
+            <div className="rounded-depth-lg border border-depth bg-depth-card p-12 text-center text-depth-secondary shadow-depth-lg">
+                Seluruh laporan praktikan telah dinilai 🎉
+            </div>
+        );
+    }
+
+    return (
+        <div className="space-y-3 rounded-depth-lg border border-depth bg-depth-card shadow-depth-lg">
+            <div className="flex items-center justify-between border-b border-[color:var(--depth-border)] px-6 py-4">
+                <div>
+                    <h3 className="text-base font-semibold text-depth-primary">Rekap Praktikan Belum Dinilai</h3>
+                    <p className="text-xs text-depth-secondary">
+                        Menampilkan daftar asisten dengan jumlah praktikan yang belum diberikan nilai.
+                    </p>
+                </div>
+                <button
+                    type="button"
+                    onClick={() => refetch()}
+                    disabled={isFetching}
+                    className="rounded-depth-md border border-depth bg-depth-interactive px-4 py-2 text-xs font-semibold text-depth-primary shadow-depth-sm transition hover:-translate-y-0.5 hover:shadow-depth-md disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                    {isFetching ? "Memuat..." : "Muat Ulang"}
+                </button>
+            </div>
+
+            <div className="overflow-x-auto">
+                <table className="min-w-full divide-y divide-[color:var(--depth-border)] text-sm">
+                    <thead className="bg-depth-interactive/80 text-xs font-semibold uppercase tracking-wide text-depth-secondary">
+                        <tr>
+                            <th className="px-6 py-3 text-left">No</th>
+                            <th className="px-6 py-3 text-left">Asisten</th>
+                            <th className="px-6 py-3 text-left">Kode</th>
+                            <th className="px-6 py-3 text-center">Praktikan Belum Dinilai</th>
+                            <th className="px-6 py-3 text-center">Total Laporan</th>
+                        </tr>
+                    </thead>
+                    <tbody className="divide-y divide-[color:var(--depth-border)] bg-depth-card text-depth-primary">
+                        {data.map((entry, index) => (
+                            <tr key={entry?.asisten?.id ?? index} className="transition hover:bg-depth-interactive/40">
+                                <td className="px-6 py-3 text-sm font-semibold text-depth-secondary">{index + 1}</td>
+                                <td className="px-6 py-3 text-sm font-semibold text-depth-primary">
+                                    {formatAssistantName(entry?.asisten)}
+                                </td>
+                                <td className="px-6 py-3 text-depth-secondary">{entry?.asisten?.kode ?? "-"}</td>
+                                <td className="px-6 py-3 text-center text-sm font-semibold text-amber-400">
+                                    {entry?.totals?.praktikan ?? 0}
+                                </td>
+                                <td className="px-6 py-3 text-center text-sm text-depth-secondary">
+                                    {entry?.totals?.laporan ?? 0}
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
+
+            {isFetching && (
+                <div className="px-6 pb-4 text-xs text-depth-secondary">
+                    Memuat data terbaru...
+                </div>
+            )}
+        </div>
+    );
 }

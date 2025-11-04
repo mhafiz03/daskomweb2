@@ -5,8 +5,8 @@ import ModalConfirmDeleteRole from "../Modals/ModalConfirmDeleteRole";
 import ModalEditRole from "../Modals/ModalEditRole";
 import editIcon from "../../../../assets/nav/Icon-Edit.svg";
 import { useAsistensQuery, ASISTENS_QUERY_KEY } from "@/hooks/useAsistensQuery";
-import { submit } from "@/lib/wayfinder";
-import { destroy as destroyAsistens } from "@/actions/App/Http/Controllers/API/AsistenController";
+import { submit } from "@/lib/http";
+import { destroy as destroyAsistens } from "@/lib/routes/asisten";
 
 const ROLE_BADGE = {
     SOFTWARE: "border border-blue-400/40 bg-blue-400/15 text-blue-300",

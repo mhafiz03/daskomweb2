@@ -88,7 +88,6 @@ export default function NoPraktikumSection({
     };
 
     const categoryLabels = {
-        TugasPendahuluan: "Tugas Pendahuluan",
         TesAwal: "Tes Awal",
         Jurnal: "Jurnal",
         Mandiri: "Mandiri",
@@ -111,9 +110,7 @@ export default function NoPraktikumSection({
     };
 
     const handleAttemptComplete = (key) => {
-        if (key === "TugasPendahuluan") {
-            onNavigate("TugasPendahuluan");
-        } else if (key === "TesAwal") {
+        if (key === "TesAwal") {
             onNavigate("TesAwal");
         } else if (key === "Jurnal") {
             onNavigate("Jurnal");

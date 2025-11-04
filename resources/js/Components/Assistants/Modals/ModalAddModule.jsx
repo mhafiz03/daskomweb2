@@ -1,8 +1,8 @@
 import { useState } from "react";
 import toast from "react-hot-toast";
 import closeIcon from "../../../../assets/modal/iconClose.svg";
-import { submit } from "@/lib/wayfinder";
-import { store as storeModul } from "@/actions/App/Http/Controllers/API/ModulController";
+import { submit } from "@/lib/http";
+import { store as storeModul } from "@/lib/routes/modul";
 import DepthToggle from "@/Components/Common/DepthToggle";
 
 export default function ModalAddModule({ onClose }) {

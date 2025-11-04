@@ -4,8 +4,8 @@ import closeIcon from "../../../../assets/modal/iconClose.svg";
 import editIcon from "../../../../assets/nav/Icon-Edit.svg";
 import { useConfigurationQuery, CONFIG_QUERY_KEY } from "@/hooks/useConfigurationQuery";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { send } from "@/lib/wayfinder";
-import { update as updateConfigurationRoute } from "@/actions/App/Http/Controllers/API/ConfigurationController";
+import { send } from "@/lib/http";
+import { update as updateConfigurationRoute } from "@/lib/routes/configuration";
 
 export default function ModalKonfigurasi({ onClose }) {
     const [isTugasPendahuluanOn, setIsTugasPendahuluanOn] = useState(false);

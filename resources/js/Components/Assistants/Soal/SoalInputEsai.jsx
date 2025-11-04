@@ -4,7 +4,7 @@ import trashIcon from "../../../../assets/nav/Icon-Delete.svg";
 import editIcon from "../../../../assets/nav/Icon-Edit.svg";
 import { useSoalQuery, soalQueryKey } from "@/hooks/useSoalQuery";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { send } from "@/lib/wayfinder";
+import { send } from "@/lib/http";
 import { getSoalController } from "@/lib/soalControllers";
 import toast from "react-hot-toast";
 import ModalBatchEditSoal from "../Modals/ModalBatchEditSoal";

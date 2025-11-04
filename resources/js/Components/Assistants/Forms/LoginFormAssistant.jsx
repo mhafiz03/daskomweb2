@@ -5,8 +5,8 @@ import eyeOpen from '../../../../assets/form/eyeOpen.png';
 import ButtonOption from '../../Praktikans/Buttons/ButtonOption';
 import Modal from '../../Praktikans/Modals/Modal';
 import ModalForgotPass from '../Modals/ModalForgotPass';
-import { submit } from '@/lib/wayfinder';
-import { store as loginAsisten } from '@/actions/App/Http/Controllers/Auth/LoginAsistenController';
+import { submit } from '@/lib/http';
+import { store as loginAsisten } from '@/lib/routes/auth/loginAsisten';
 
 export default function LoginFormAssistant({ mode, onSwitchToRegister }) {
     const [values, setValues] = useState({

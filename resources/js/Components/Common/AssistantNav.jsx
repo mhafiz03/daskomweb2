@@ -1,15 +1,14 @@
 import { useCallback, useMemo, useState } from "react";
 import { Link, usePage } from "@inertiajs/react";
 import ThemeToggle from "./ThemeToggle";
-import Clock from "./Clock";
 import ModalPassword from "./Modals/ModalPassword";
 import ModalLogout from "./Modals/ModalLogout";
 import ModalKonfigurasi from "../Assistants/Modals/ModalKonfigurasi";
 import ModalOpenKJ from "../Assistants/Modals/ModalOpenKJ";
 import ModalActiveTP from "../Assistants/Modals/ModalActiveTP";
 import ModalSoftware from "../Assistants/Modals/ModalSoftware";
-import { updatePassword as updateAssistantPassword } from "@/actions/App/Http/Controllers/API/AsistenController";
-import { destroy as logoutAsisten } from "@/actions/App/Http/Controllers/Auth/LoginAsistenController";
+import { updatePassword as updateAssistantPassword } from "@/lib/routes/asisten";
+import { destroy as logoutAsisten } from "@/lib/routes/auth/loginAsisten";
 import { useAssistantToolbarContext } from "@/Layouts/AssistantToolbarContext";
 
 import profileIcon from "../../../assets/nav/Icon-Profile.svg";
@@ -185,6 +184,15 @@ export default function AssisstantNav({ asisten, permission_name = [], roleName 
             label: "Praktikan",
             items: [
                 {
+                    id: "manage-praktikan",
+                    label: "Manage Praktikan",
+                    href: "/manage-praktikan",
+                    permission: ["praktikan-regist", "manage-role"],
+                    icon: praktikanIcon,
+                    components: ["Assistants/ManagePraktikan"],
+                    paths: ["/manage-praktikan"],
+                },
+                {
                     id: "nilai-praktikan",
                     label: "Nilai Praktikan",
                     href: "/nilai-praktikan",
@@ -335,7 +343,9 @@ export default function AssisstantNav({ asisten, permission_name = [], roleName 
     const navTitle = toolbar?.title ?? currentNavItemEntry?.item?.label ?? fallbackTitle;
 
     const triggerBaseClass =
-        "inline-flex h-10 items-center gap-2 rounded-depth-md px-4 text-sm font-semibold text-depth-primary transition hover:-translate-y-1 hover:bg-depth-interactive hover:shadow-depth-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--depth-color-primary)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--depth-color-background)]";
+        "inline-flex h-10 items-center gap-2 rounded-depth-md px-4 text-sm font-semibold transition hover:-translate-y-1 hover:shadow-depth-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--depth-color-primary)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--depth-color-background)]";
+    const triggerActiveClass = "bg-[var(--depth-color-primary)] text-white shadow-depth-md";
+    const triggerInactiveClass = "text-depth-primary hover:bg-depth-interactive";
 
     const menuContentBaseClass =
         "pointer-events-none absolute left-1/2 top-full z-40 w-full -translate-x-1/2 translate-y-3 opacity-0 transition-all duration-200 group-hover:translate-y-0 group-hover:opacity-100 group-hover:pointer-events-auto group-focus-within:translate-y-0 group-focus-within:opacity-100 group-focus-within:pointer-events-auto";
@@ -464,9 +474,7 @@ export default function AssisstantNav({ asisten, permission_name = [], roleName 
                                     const groupHasActiveItem = group.items.some((item) => isActiveItem(item));
                                     const isGroupOpen = openGroup === group.id;
                                     const triggerClass = `${triggerBaseClass} ${
-                                        groupHasActiveItem || isGroupOpen
-                                            ? "bg-[var(--depth-color-primary)] text-white shadow-depth-md"
-                                            : "text-depth-primary hover:bg-depth-interactive"
+                                        groupHasActiveItem || isGroupOpen ? triggerActiveClass : triggerInactiveClass
                                     }`;
                                     const menuVisibilityClass = isGroupOpen
                                         ? "pointer-events-auto translate-y-0 opacity-100"
@@ -548,8 +556,6 @@ export default function AssisstantNav({ asisten, permission_name = [], roleName 
 
                         <div className="order-3 flex items-center justify-end gap-3 md:justify-self-end">
                             <ThemeToggle storageKey="assistant-theme" />
-                            {/* <ModalSoftware className="flex h-10 w-10" roleName={roleName} /> */}
-                            {/* <Clock className="hidden rounded-depth-lg border border-depth bg-depth-interactive px-4 py-2.5 text-sm font-semibold text-depth-primary shadow-depth-sm transition hover:shadow-depth-md md:flex" /> */}
                         </div>
                     </div>
                 </div>

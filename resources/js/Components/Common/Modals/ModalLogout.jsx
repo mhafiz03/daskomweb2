@@ -1,6 +1,6 @@
 import toast from "react-hot-toast";
 import closeIcon from "../../../../assets/modal/iconClose.svg";
-import { submit } from "@/lib/wayfinder";
+import { submit } from "@/lib/http";
 
 export default function ModalLogout({ isOpen, onClose, onConfirm, logoutAction, onLogoutSuccess }) {
     if (!isOpen) return null;

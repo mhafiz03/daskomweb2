@@ -113,7 +113,6 @@ export default function TableModule() {
                                     className="flex w-full items-center justify-between gap-4 px-6 py-4 text-left"
                                 >
                                     <div className="space-y-1">
-                                        <p className="text-sm font-semibold text-depth-secondary">Modul {index + 1}</p>
                                         <h3 className="text-lg font-semibold text-depth-primary">{module.judul}</h3>
                                     </div>
                                     <div className="flex items-center gap-2">

@@ -2,8 +2,8 @@ import { useState } from "react";
 import toast from "react-hot-toast";
 import closeIcon from "../../../../assets/modal/iconClose.svg";
 import { useRolesQuery } from "@/hooks/useRolesQuery";
-import { submit } from "@/lib/wayfinder";
-import { update as updateRole } from "@/actions/App/Http/Controllers/API/RoleController";
+import { submit } from "@/lib/http";
+import { update as updateRole } from "@/lib/routes/role";
 
 export default function ModalEditRole({ onClose, asistenId }) {
     const [selectedRole, setSelectedRole] = useState("");

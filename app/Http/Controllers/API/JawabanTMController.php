@@ -114,10 +114,19 @@ class JawabanTMController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show($idModul)
+    public function show(int $idModul): JsonResponse
     {
         try {
-            $jawaban = JawabanMandiri::where('praktikan_id', auth('sanctum')->user()->id)
+            $praktikan = auth('praktikan')->user();
+
+            if (! $praktikan) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Unauthorized.',
+                ], 401);
+            }
+
+            $jawaban = JawabanMandiri::where('praktikan_id', $praktikan->id)
                 ->where('modul_id', $idModul)
                 ->get();
             if ($jawaban->isEmpty()) {

@@ -1,8 +1,8 @@
 import { useState } from "react";
 import toast from "react-hot-toast";
 import closeIcon from "../../../../assets/modal/iconClose.svg";
-import { submit } from "@/lib/wayfinder";
-import { store as storeRole } from "@/actions/App/Http/Controllers/API/RoleController";
+import { submit } from "@/lib/http";
+import { store as storeRole } from "@/lib/routes/role";
 
 export default function ButtonAddRole({ onClose, defaultChecked = ['asisten'] }) {
     const [roleName, setRoleName] = useState("");

@@ -1,7 +1,7 @@
 import toast from "react-hot-toast";
 import closeIcon from "../../../../assets/modal/iconClose.svg";
-import { submit } from "@/lib/wayfinder";
-import { destroy as logoutAsisten } from "@/actions/App/Http/Controllers/Auth/LoginAsistenController";
+import { submit } from "@/lib/http";
+import { destroy as logoutAsisten } from "@/lib/routes/auth/loginAsisten";
 
 export default function ModalLogout({ onClose, onConfirm }) {
     const handleConfirm = () => {

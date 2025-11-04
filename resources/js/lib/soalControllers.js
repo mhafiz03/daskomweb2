@@ -1,9 +1,9 @@
-import * as SoalTAController from "@/actions/App/Http/Controllers/API/SoalTAController";
-import * as SoalTKController from "@/actions/App/Http/Controllers/API/SoalTKController";
-import * as SoalTPController from "@/actions/App/Http/Controllers/API/SoalTPController";
-import * as SoalFITBController from "@/actions/App/Http/Controllers/API/SoalFITBController";
-import * as SoalJurnalController from "@/actions/App/Http/Controllers/API/SoalJurnalController";
-import * as SoalTMController from "@/actions/App/Http/Controllers/API/SoalTMController";
+import * as SoalTAController from "@/lib/routes/soalTA";
+import * as SoalTKController from "@/lib/routes/soalTK";
+import * as SoalTPController from "@/lib/routes/soalTP";
+import * as SoalFITBController from "@/lib/routes/soalFITB";
+import * as SoalJurnalController from "@/lib/routes/soalJurnal";
+import * as SoalTMController from "@/lib/routes/soalTM";
 
 const SOAL_CONTROLLERS = {
     ta: SoalTAController,

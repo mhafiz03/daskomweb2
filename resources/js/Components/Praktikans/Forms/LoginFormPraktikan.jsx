@@ -6,8 +6,8 @@ import eyeOpen from '../../../../assets/form/eyeOpen.png';
 import ButtonOption from '../Buttons/ButtonOption';
 import Modal from '../Modals/Modal';
 import ModalForgotPass from '../Modals/ModalForgotPass';
-import { submit } from '@/lib/wayfinder';
-import { store as loginPraktikan } from '@/actions/App/Http/Controllers/Auth/LoginPraktikanController';
+import { submit } from '@/lib/http';
+import { store as loginPraktikan } from '@/lib/routes/auth/loginPraktikan';
 
 export default function LoginFormPraktikan({ mode, onSwitchToRegister }) {
     const [values, setValues] = useState({

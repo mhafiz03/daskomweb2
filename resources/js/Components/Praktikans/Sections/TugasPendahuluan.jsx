@@ -12,7 +12,6 @@ export default function TugasPendahuluan({
     tipeSoal = null,
     praktikanId = null,
     isCommentEnabled = false,
-    variant = "embedded",
     showSubmitButton = false,
     submitLabel = "Simpan Jawaban",
 }) {
@@ -56,42 +55,12 @@ export default function TugasPendahuluan({
         );
     }
 
-    const containerClasses =
-        variant === "standalone"
-            ? "mx-auto mt-8 max-w-5xl space-y-6 rounded-depth-lg border border-depth bg-depth-card/70 p-6 shadow-depth-lg"
-            : "mt-[1vh] p-5 transition-all duration-300 max-w-4xl mx-auto rounded-lg";
-
-    const headerClasses =
-        variant === "standalone"
-            ? "flex items-center justify-between rounded-depth-md bg-[var(--depth-color-primary)] px-4 py-3 shadow-depth-md"
-            : "flex bg-deepForestGreen rounded-lg py-2 px-2 mb-4 justify-center";
-
-    const titleClasses =
-        variant === "standalone"
-            ? "text-lg font-semibold text-white"
-            : "text-white text-center font-bold text-2xl bg-deepForestGreen hover:bg-darkOliveGreen rounded-lg p-1 w-[50%]";
-
-    const contentClasses =
-        variant === "standalone"
-            ? "space-y-6 max-h-[60vh] overflow-y-auto rounded-depth-md border border-depth bg-depth-interactive/40 p-5 shadow-inner"
-            : "space-y-6 max-h-[55vh] p-4 rounded-lg border-4 bg-softIvory border-softPearl transition-colors duration-300 overflow-y-auto overflow-x-hidden";
-
-    const answerTextareaClasses =
-        variant === "standalone"
-            ? "w-full rounded-depth-md border border-depth bg-depth-card/80 p-3 text-sm text-depth-primary shadow-depth-sm transition focus:border-[var(--depth-color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)]"
-            : "shadow-lg w-full bg-gainsboro min-h-[96px] p-2 border border-gray-300 rounded-md";
+    const containerClasses = "mx-auto mt-2 max-w-5xl space-y-6 rounded-depth-lg border border-depth bg-depth-card/70 p-6 shadow-depth-lg";
+    const contentClasses = "space-y-6 max-h-[75vh] overflow-y-auto bg-depth-interactive/40 p-5 shadow-inner";
+    const answerTextareaClasses = "w-full dark:text-gray-700 rounded-depth-md border border-depth bg-depth-card/80 p-3 text-sm text-depth-primary shadow-depth-sm transition focus:border-[var(--depth-color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)]";
 
     return (
         <div className={containerClasses}>
-            <div className={headerClasses}>
-                <h1 className={titleClasses}>Tugas Pendahuluan</h1>
-                {variant === "standalone" && (
-                    <p className="text-xs font-medium text-white/80">
-                        Lengkapi jawabanmu sebelum praktikum dimulai.
-                    </p>
-                )}
-            </div>
-
             <div className={contentClasses}>
                 {questions.map((question, index) => (
                     <div key={question.id ?? index} className="space-y-3">

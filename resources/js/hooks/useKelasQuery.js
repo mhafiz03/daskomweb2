@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { index as kelasIndex } from "@/actions/App/Http/Controllers/API/KelasController";
+import { index as kelasIndex } from "@/lib/routes/kelas";
 import { api } from "@/lib/api";
 
 export const KELAS_QUERY_KEY = ["kelas"];

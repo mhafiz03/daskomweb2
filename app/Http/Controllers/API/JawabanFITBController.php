@@ -5,6 +5,7 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\Controller;
 use App\Models\JawabanFitb;
 use App\Models\Modul;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class JawabanFITBController extends Controller
@@ -51,12 +52,21 @@ class JawabanFITBController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show($idModul)
+    public function show(int $idModul): JsonResponse
     {
         try {
+            $praktikan = auth('praktikan')->user();
+
+            if (! $praktikan) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Unauthorized.',
+                ], 401);
+            }
+
             $modul = Modul::findOrFail($idModul);
             if ($modul->isUnlocked) {
-                $jawaban = JawabanFitb::where('praktikan_id', auth('sanctum')->user()->id)
+                $jawaban = JawabanFitb::where('praktikan_id', $praktikan->id)
                     ->where('modul_id', $idModul)
                     ->get();
 
