@@ -8,10 +8,7 @@ import { AssistantToolbarContext } from "./AssistantToolbarContext";
 
 export default function AssistantLayout({
     children,
-    navClassName = "flex-shrink-0 lg:sticky lg:top-10",
-    contentClassName = "flex-1 min-w-0",
     layoutClassName = "overflow-hidden relative flex items-start justify-start bg-depth-gradient px-4 py-10 text-depth-primary transition-colors duration-300",
-    wrapperClassName = "flex w-full flex-col gap-8 font-depth lg:flex-row",
 }) {
     const { auth } = usePage().props ?? {};
     const asisten = auth?.asisten ?? null;
@@ -151,15 +148,15 @@ export default function AssistantLayout({
                     </Link>
                 </div>
 
-                <div className={wrapperClassName}>
-                    <div className={navClassName}>
+                <div className="flex w-full flex-row gap-8 font-depth justify-start">
+                    <div className="flex-shrink-0 lg:sticky lg:top-10 basis-64">
                         <AssisstantNav
                             asisten={asisten}
                             permission_name={permissionNames}
                             roleName={roleName}
                         />
                     </div>
-                    <div className={`${contentClassName} flex h-[calc(100vh-80px)] flex-col overflow-hidden`}>
+                    <div className="h-[calc(100vh-80px)] flex-col overflow-hidden w-3/4 max-w max-w-7xl px-6">
                         {toolbarHeader}
                         <div className="flex-1 overflow-y-auto">{renderedChildren}</div>
                     </div>
