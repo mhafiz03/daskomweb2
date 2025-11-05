@@ -29,6 +29,22 @@ const clampScore = (value) => {
     return Math.min(Math.max(parsed, 0), 100);
 };
 
+const clampRating = (value) => {
+    if (value === "" || value === null || value === undefined) {
+        return null;
+    }
+
+    const parsed = Number(value);
+
+    if (Number.isNaN(parsed)) {
+        return null;
+    }
+
+    const clamped = Math.min(Math.max(parsed, 0.1), 5);
+
+    return Number(clamped.toFixed(1));
+};
+
 const QUESTION_TABS = [
     { key: "tp", label: "Tugas Pendahuluan", needsNim: true },
     { key: "ta", label: "Tes Awal" },
@@ -56,6 +72,7 @@ export default function ModalInputNilai({
     });
     const [isSaving, setIsSaving] = useState(false);
     const [activeQuestionTab, setActiveQuestionTab] = useState(null);
+    const [rating, setRating] = useState(null);
 
     const nilaiSebelumnya = assignment?.nilai ?? null;
     const praktikan = assignment?.praktikan ?? null;
@@ -388,6 +405,7 @@ export default function ModalInputNilai({
                 i1: clampScore(nilaiSebelumnya.i1 ?? nilaiSebelumnya.l1),
                 i2: clampScore(nilaiSebelumnya.i2 ?? nilaiSebelumnya.l2),
             });
+            setRating(clampRating(nilaiSebelumnya.rating));
         } else {
             setScores({
                 tp: 0,
@@ -399,6 +417,7 @@ export default function ModalInputNilai({
                 i1: 0,
                 i2: 0,
             });
+            setRating(null);
         }
     }, [nilaiSebelumnya]);
 
@@ -415,6 +434,22 @@ export default function ModalInputNilai({
         setScores((prev) => ({ ...prev, [key]: value }));
     };
 
+    const handleRatingNumberChange = (event) => {
+        const { value } = event.target;
+
+        if (value === "") {
+            setRating(null);
+
+            return;
+        }
+
+        setRating(clampRating(value));
+    };
+
+    const handleRatingSliderChange = (event) => {
+        setRating(clampRating(event.target.value));
+    };
+
     const handleSubmit = () => {
         if (!asistenId) {
             toast.error(
@@ -428,6 +463,11 @@ export default function ModalInputNilai({
             return;
         }
 
+        if (rating !== null && (rating < 0.1 || rating > 5)) {
+            toast.error("Rating harus berada di antara 0.1 hingga 5.0.");
+            return;
+        }
+
         setIsSaving(true);
 
         const payload = {
@@ -436,6 +476,7 @@ export default function ModalInputNilai({
             asisten_id: asistenId,
             kelas_id: kelas.id,
             praktikan_id: praktikan.id,
+            rating: rating,
         };
 
         const action = nilaiSebelumnya?.id
@@ -481,7 +522,7 @@ export default function ModalInputNilai({
 
                     <div className="min-h-0 flex-1 pr-1 sm:pr-2">
                         <div className="space-y-6 pb-1">
-                            <div className="grid grid-cols-9 gap-4">
+                            <div className="grid grid-cols-10 gap-4">
                                 {scoresSchema.map(({ key, label }) => (
                                     <label
                                         key={key}
@@ -516,6 +557,33 @@ export default function ModalInputNilai({
                                             appearance: "textfield",
                                         }}
                                         onWheel={(e) => e.target.blur()}
+                                    />
+                                </label>
+                                <label className="flex flex-col gap-1 text-xs font-semibold text-depth-primary">
+                                    <span>Rating</span>
+                                    <input
+                                        type="number"
+                                        inputMode="decimal"
+                                        min={0.1}
+                                        max={5}
+                                        step={0.1}
+                                        value={rating ?? ""}
+                                        onChange={handleRatingNumberChange}
+                                        className="h-10 rounded-depth-md border border-depth bg-depth-card p-2 text-center text-sm text-depth-primary shadow-depth-sm transition focus:border-[var(--depth-color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)] focus:ring-offset-0"
+                                        style={{
+                                            MozAppearance: "textfield",
+                                            appearance: "textfield",
+                                        }}
+                                        onWheel={(e) => e.target.blur()}
+                                    />
+                                    <input
+                                        type="range"
+                                        min={0.1}
+                                        max={5}
+                                        step={0.1}
+                                        value={rating ?? 0.1}
+                                        onChange={handleRatingSliderChange}
+                                        className="mt-2"
                                     />
                                 </label>
                             </div>

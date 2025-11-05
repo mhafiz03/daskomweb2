@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link, usePage } from "@inertiajs/react";
 import profileIcon from "../../../assets/nav/Icon-Profile.svg";
 import praktikumIcon from "../../../assets/nav/Icon-Praktikum.svg";
+import moduleIcon from "../../../assets/nav/Icon-Module.svg";
 import nilaiIcon from "../../../assets/nav/Icon-Nilai.svg";
 import leaderboardIcon from "../../../assets/nav/Icon-Leaderboard.svg";
 import asistenIcon from "../../../assets/nav/Icon-Asisten.svg";
@@ -30,6 +31,13 @@ const NAV_ITEMS = [
         label: "Praktikum",
         alt: "praktikum",
         paths: ["/praktikum"],
+    },
+    {
+        href: "/praktikan-modul",
+        icon: moduleIcon,
+        label: "Modul",
+        alt: "modul",
+        paths: ["/praktikan-modul"],
     },
     {
         href: "/tugas-pendahuluan",

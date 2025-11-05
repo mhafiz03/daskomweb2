@@ -123,28 +123,27 @@ export default function ModalBatchEditSoal({
                             </div>
                             <div className="mb-2">
                                 <strong>Pilihan:</strong>
-                                    <ul className="ml-4 mt-1 space-y-2">
-                                        {item.options.map((option, optionIndex) => (
-                                            <li
-                                                key={`pg-option-${index}-${optionIndex}`}
-                                                className={`rounded-depth-md border px-3 py-2 text-sm shadow-depth-sm ${
-                                                    option.isCorrect
-                                                        ? "border-[var(--depth-color-primary)] bg-[var(--depth-color-primary)] text-white shadow-depth-md"
-                                                        : "border-depth bg-depth-interactive text-depth-primary"
+                                <ul className="ml-4 mt-1 space-y-2">
+                                    {item.options.map((option, optionIndex) => (
+                                        <li
+                                            key={`pg-option-${index}-${optionIndex}`}
+                                            className={`rounded-depth-md border px-3 py-2 text-sm shadow-depth-sm ${option.isCorrect
+                                                ? "border-[var(--depth-color-primary)] bg-[var(--depth-color-primary)] text-white shadow-depth-md"
+                                                : "border-depth bg-depth-interactive text-depth-primary"
                                                 }`}
-                                            >
-                                                <div className="flex items-center justify-between gap-2">
-                                            <div className={`flex-1 ${proseClassName}`}>
-                                                <ReactMarkdown
-                                                    remarkPlugins={[remarkGfm, remarkBreaks]}
-                                                    components={markdownComponents}
-                                                >
-                                                    {option.text || "_(kosong)_"}
-                                                </ReactMarkdown>
+                                        >
+                                            <div className="flex items-center justify-between gap-2">
+                                                <div className={`flex-1 ${proseClassName}`}>
+                                                    <ReactMarkdown
+                                                        remarkPlugins={[remarkGfm, remarkBreaks]}
+                                                        components={markdownComponents}
+                                                    >
+                                                        {option.text || "_(kosong)_"}
+                                                    </ReactMarkdown>
+                                                </div>
                                             </div>
-                                        </div>
-                                    </li>
-                                ))}
+                                        </li>
+                                    ))}
                                 </ul>
                             </div>
                         </li>
@@ -201,13 +200,13 @@ export default function ModalBatchEditSoal({
 
         setIsSubmitting(true);
         try {
-        await onSubmit({
-            rawContent: content,
-            items: previewItems,
-            modulId: selectedModuleId,
-        });
-        onClose();
-    } catch (error) {
+            await onSubmit({
+                rawContent: content,
+                items: previewItems,
+                modulId: selectedModuleId,
+            });
+            onClose();
+        } catch (error) {
             console.error("Batch edit submission failed:", error);
         } finally {
             setIsSubmitting(false);
@@ -222,19 +221,22 @@ export default function ModalBatchEditSoal({
             >
                 <div className="depth-modal-header">
                     <h2 className="depth-modal-title">{title}</h2>
-                    {normalizedModuleOptions.length > 0 && (
-                        <select
-                            className="w-full rounded-depth-md border border-depth bg-depth-card px-3 py-2 text-sm text-depth-primary shadow-depth-sm transition focus:border-[var(--depth-color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)] focus:ring-offset-0 md:w-auto"
-                            value={selectedModuleId}
-                            onChange={(event) => setSelectedModuleId(event.target.value)}
-                        >
-                            {normalizedModuleOptions.map((option) => (
-                                <option key={option.value} value={option.value}>
-                                    {option.label}
-                                </option>
-                            ))}
-                        </select>
-                )}
+                    <div className="flex items-center gap-3">
+                        <p>Move into: </p>
+                        {normalizedModuleOptions.length > 0 && (
+                            <select
+                                className="w-full rounded-depth-md border border-depth bg-depth-card px-3 py-2 text-sm text-depth-primary shadow-depth-sm transition focus:border-[var(--depth-color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)] focus:ring-offset-0 md:w-auto"
+                                value={selectedModuleId}
+                                onChange={(event) => setSelectedModuleId(event.target.value)}
+                            >
+                                {normalizedModuleOptions.map((option) => (
+                                    <option key={option.value} value={option.value}>
+                                        {option.label}
+                                    </option>
+                                ))}
+                            </select>
+                        )}
+                    </div>
                     <button onClick={onClose} type="button" className="depth-modal-close">
                         <img className="h-7 w-7" src={closeIcon} alt="Tutup" />
                     </button>
@@ -248,11 +250,10 @@ export default function ModalBatchEditSoal({
                                 key={tab.key}
                                 onClick={() => setActiveTab(tab.key)}
                                 type="button"
-                                className={`rounded-depth-md px-4 py-2 text-sm font-semibold transition ${
-                                    isActive
-                                        ? "bg-[var(--depth-color-primary)] text-white shadow-depth-md"
-                                        : "border border-depth bg-depth-interactive text-depth-primary shadow-depth-sm hover:-translate-y-0.5 hover:shadow-depth-md"
-                                }`}
+                                className={`rounded-depth-md px-4 py-2 text-sm font-semibold transition ${isActive
+                                    ? "bg-[var(--depth-color-primary)] text-white shadow-depth-md"
+                                    : "border border-depth bg-depth-interactive text-depth-primary shadow-depth-sm hover:-translate-y-0.5 hover:shadow-depth-md"
+                                    }`}
                             >
                                 {tab.label}
                             </button>

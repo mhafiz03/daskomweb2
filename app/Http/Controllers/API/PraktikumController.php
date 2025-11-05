@@ -5,6 +5,7 @@ namespace App\Http\Controllers\API;
 use App\Events\PraktikumProgressUpdated;
 use App\Events\PraktikumStatusUpdated;
 use App\Http\Controllers\Controller;
+use App\Models\LaporanPraktikan;
 use App\Models\Praktikum;
 use App\Services\Praktikum\QuestionProgressService;
 use Carbon\Carbon;
@@ -350,6 +351,39 @@ class PraktikumController extends Controller
                 ->whereIn('status', ['running', 'paused'])
                 ->first();
 
+            $latestCompletedPraktikum = Praktikum::query()
+                ->where('kelas_id', $kelasId)
+                ->where('status', 'completed')
+                ->orderByDesc('ended_at')
+                ->orderByDesc('updated_at')
+                ->first();
+
+            $feedbackPending = false;
+            $pendingModulId = null;
+            $pendingAsistenId = null;
+
+            if ($latestCompletedPraktikum) {
+                $hasSubmittedFeedback = LaporanPraktikan::query()
+                    ->where('praktikan_id', $user->id)
+                    ->where('modul_id', $latestCompletedPraktikum->modul_id)
+                    ->exists();
+
+                if (! $hasSubmittedFeedback) {
+                    $feedbackPending = true;
+                    $pendingModulId = $latestCompletedPraktikum->modul_id;
+                    $pendingAsistenId = $latestCompletedPraktikum->pj_id;
+                }
+            }
+
+            if ($activePraktikum) {
+                $activePraktikum->setAttribute(
+                    'feedback_pending',
+                    $feedbackPending && $pendingModulId !== null && $pendingModulId === $activePraktikum->modul_id
+                );
+                $activePraktikum->setAttribute('feedback_modul_id', $pendingModulId);
+                $activePraktikum->setAttribute('feedback_asisten_id', $pendingAsistenId);
+            }
+
             return response()->json([
                 'status' => 'success',
                 'message' => $activePraktikum
@@ -357,6 +391,9 @@ class PraktikumController extends Controller
                     : 'No active praktikum for this kelas.',
                 'data' => $activePraktikum,
                 'phases' => self::PHASE_SEQUENCE,
+                'feedback_pending' => $feedbackPending,
+                'feedback_modul_id' => $pendingModulId,
+                'feedback_asisten_id' => $pendingAsistenId,
             ]);
         } catch (\Throwable $th) {
             return $this->respondWithServerError($th);

@@ -1,23 +1,138 @@
-import { useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
-export default function FeedbackModal({ 
-    isOpen, 
-    onClose, 
+const STAR_VALUES = [1, 2, 3, 4, 5];
+
+const formatAssistantOption = (assistant) => {
+    if (!assistant) {
+        return '';
+    }
+
+    const code = assistant.kode ?? assistant.code ?? '';
+    const name = assistant.nama ?? assistant.name ?? '';
+
+    if (!code && !name) {
+        return '';
+    }
+
+    if (!name) {
+        return code;
+    }
+
+    if (!code) {
+        return name;
+    }
+
+    return `${code} — ${name}`;
+};
+
+export default function FeedbackModal({
+    isOpen,
+    onClose,
     onSubmit,
     isPending,
     praktikumId,
+    assistantOptions = [],
+    defaultAssistantId = null,
 }) {
     const [feedback, setFeedback] = useState('');
-    const [rating, setRating] = useState(0);
+    const [ratingPraktikum, setRatingPraktikum] = useState(0);
+    const [ratingAsisten, setRatingAsisten] = useState(0);
+    const [selectedAssistantId, setSelectedAssistantId] = useState(null);
+    const [searchTerm, setSearchTerm] = useState('');
+    const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
-    const handleSubmit = async () => {
-        if (feedback.trim().length < 10) {
+    const dropdownRef = useRef(null);
+
+    useEffect(() => {
+        if (!isOpen) {
             return;
         }
-        
-        await onSubmit({ feedback, rating });
+
+        const defaultId = defaultAssistantId ?? null;
+        const normalizedDefaultId = defaultId !== null && defaultId !== undefined ? String(defaultId) : null;
+        setSelectedAssistantId(normalizedDefaultId);
+
+        if (normalizedDefaultId) {
+            const defaultAssistant = assistantOptions.find((assistant) => String(assistant?.id) === normalizedDefaultId);
+            setSearchTerm(formatAssistantOption(defaultAssistant));
+        } else {
+            setSearchTerm('');
+        }
+    }, [assistantOptions, defaultAssistantId, isOpen]);
+
+    useEffect(() => {
+        if (!isOpen) {
+            setIsDropdownOpen(false);
+        }
+    }, [isOpen]);
+
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (!dropdownRef.current) {
+                return;
+            }
+
+            if (!dropdownRef.current.contains(event.target)) {
+                setIsDropdownOpen(false);
+            }
+        };
+
+        document.addEventListener('mousedown', handleClickOutside);
+
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, []);
+
+    const filteredAssistants = useMemo(() => {
+        if (!searchTerm) {
+            return assistantOptions;
+        }
+
+        const normalizedQuery = searchTerm.toLowerCase();
+
+        return assistantOptions.filter((assistant) => {
+            const candidate = formatAssistantOption(assistant).toLowerCase();
+
+            return candidate.includes(normalizedQuery);
+        });
+    }, [assistantOptions, searchTerm]);
+
+    const resetForm = () => {
         setFeedback('');
-        setRating(0);
+        setRatingPraktikum(0);
+        setRatingAsisten(0);
+        const normalizedDefaultId = defaultAssistantId !== null && defaultAssistantId !== undefined ? String(defaultAssistantId) : null;
+        setSelectedAssistantId(normalizedDefaultId);
+        const assistant = assistantOptions.find((option) => String(option?.id) === normalizedDefaultId);
+        setSearchTerm(formatAssistantOption(assistant));
+    };
+
+    const handleAssistantSelect = (assistantId) => {
+        const resolvedId = assistantId !== null && assistantId !== undefined ? String(assistantId) : null;
+        setSelectedAssistantId(resolvedId);
+
+        const selectedAssistant = assistantOptions.find((assistant) => String(assistant?.id) === resolvedId);
+        setSearchTerm(formatAssistantOption(selectedAssistant));
+        setIsDropdownOpen(false);
+    };
+
+    const handleSubmit = async () => {
+        const trimmedFeedback = feedback.trim();
+
+        if (trimmedFeedback.length < 10 || !selectedAssistantId) {
+            return;
+        }
+
+        await onSubmit({
+            feedback: trimmedFeedback,
+            rating_praktikum: ratingPraktikum,
+            rating_asisten: ratingAsisten,
+            asisten_id: selectedAssistantId !== null ? Number(selectedAssistantId) : null,
+            praktikum_id: praktikumId,
+        });
+
+        resetForm();
         onClose();
     };
 
@@ -25,7 +140,47 @@ export default function FeedbackModal({
         return null;
     }
 
-    const isSubmitDisabled = feedback.trim().length < 10 || isPending;
+    const isSubmitDisabled = feedback.trim().length < 10 || isPending || !selectedAssistantId;
+
+    const renderRatingGroup = (label, description, value, onChange) => (
+        <div className="mb-6">
+            <label className="mb-3 block text-sm font-semibold text-depth-primary">
+                {label}
+            </label>
+            <div className="flex gap-2">
+                {STAR_VALUES.map((star) => (
+                    <button
+                        key={`${label}-${star}`}
+                        type="button"
+                        onClick={() => onChange(star)}
+                        className="transition-transform hover:scale-110"
+                    >
+                        <svg
+                            className={`h-8 w-8 ${
+                                star <= value
+                                    ? 'fill-amber-400 text-amber-400'
+                                    : 'fill-none text-gray-400 dark:text-gray-600'
+                            }`}
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                            strokeWidth={2}
+                        >
+                            <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"
+                            />
+                        </svg>
+                    </button>
+                ))}
+            </div>
+            {value > 0 && (
+                <p className="mt-2 text-xs text-depth-secondary">
+                    {description(value)}
+                </p>
+            )}
+        </div>
+    );
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
@@ -42,40 +197,82 @@ export default function FeedbackModal({
                     <p className="mt-1 text-sm text-depth-secondary">Berikan feedback tentang praktikum hari ini</p>
                 </div>
 
-                {/* Rating */}
-                <div className="mb-6">
+                {/* Assistant Selector */}
+                <div className="mb-6" ref={dropdownRef}>
                     <label className="mb-3 block text-sm font-semibold text-depth-primary">
-                        Rating Praktikum (Opsional)
+                        Pilih Asisten Penanggung Jawab
+                        <span className="text-red-500">*</span>
                     </label>
-                    <div className="flex gap-2">
-                        {[1, 2, 3, 4, 5].map((star) => (
-                            <button
-                                key={star}
-                                type="button"
-                                onClick={() => setRating(star)}
-                                className="transition-transform hover:scale-110"
-                            >
-                                <svg 
-                                    className={`h-8 w-8 ${
-                                        star <= rating 
-                                            ? 'fill-amber-400 text-amber-400' 
-                                            : 'fill-none text-gray-400 dark:text-gray-600'
-                                    }`}
-                                    viewBox="0 0 24 24" 
-                                    stroke="currentColor"
-                                    strokeWidth={2}
-                                >
-                                    <path strokeLinecap="round" strokeLinejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
-                                </svg>
-                            </button>
-                        ))}
+                    <div className="relative">
+                        <input
+                            type="search"
+                            value={searchTerm}
+                            onChange={(event) => {
+                                setSearchTerm(event.target.value);
+                                setIsDropdownOpen(true);
+                            }}
+                            onFocus={() => setIsDropdownOpen(true)}
+                            placeholder="Cari asisten berdasarkan kode atau nama"
+                            className="w-full rounded-depth-lg border border-depth bg-depth-card px-4 py-3 text-sm text-depth-primary shadow-depth-inset transition focus:border-[var(--depth-color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)] focus:ring-offset-0"
+                        />
+                        {isDropdownOpen && (
+                            <div className="absolute z-20 mt-2 max-h-56 w-full overflow-y-auto rounded-depth-lg border border-depth bg-depth-card shadow-depth-lg">
+                                {filteredAssistants.length === 0 ? (
+                                    <div className="px-4 py-3 text-sm text-depth-secondary">
+                                        Asisten tidak ditemukan.
+                                    </div>
+                                ) : (
+                                    <ul className="divide-y divide-[color:var(--depth-border)]">
+                                        {filteredAssistants.map((assistant) => (
+                                            <li key={`assistant-option-${assistant.id}`}>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => handleAssistantSelect(assistant.id)}
+                                                    className={`flex w-full items-center justify-between px-4 py-3 text-left text-sm transition hover:bg-depth-interactive ${
+                                                        String(assistant.id) === selectedAssistantId ? 'bg-depth-interactive/80 font-semibold' : 'text-depth-primary'
+                                                    }`}
+                                                >
+                                                    <span>{formatAssistantOption(assistant)}</span>
+                                                    {String(assistant.id) === selectedAssistantId && (
+                                                        <svg
+                                                            className="h-4 w-4 text-[var(--depth-color-primary)]"
+                                                            viewBox="0 0 24 24"
+                                                            fill="none"
+                                                            stroke="currentColor"
+                                                            strokeWidth={2}
+                                                        >
+                                                            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                                                        </svg>
+                                                    )}
+                                                </button>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                )}
+                            </div>
+                        )}
                     </div>
-                    {rating > 0 && (
+                    {selectedAssistantId && (
                         <p className="mt-2 text-xs text-depth-secondary">
-                            Anda memberikan {rating} dari 5 bintang
+                            Asisten terpilih: {formatAssistantOption(assistantOptions.find((assistant) => String(assistant?.id) === selectedAssistantId))}
                         </p>
                     )}
                 </div>
+
+                {/* Ratings */}
+                {renderRatingGroup(
+                    'Rating Praktikum (Opsional)',
+                    (value) => `Anda memberikan ${value} dari 5 bintang untuk praktikum`,
+                    ratingPraktikum,
+                    setRatingPraktikum
+                )}
+
+                {renderRatingGroup(
+                    'Rating Asisten (Opsional)',
+                    (value) => `Anda memberikan ${value} dari 5 bintang untuk asisten`,
+                    ratingAsisten,
+                    setRatingAsisten
+                )}
 
                 {/* Feedback Text */}
                 <div className="mb-6">

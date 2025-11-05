@@ -47,26 +47,29 @@ export default function ModalEditSoalEssay({ onClose, soalItem, onSave }) {
             <div className="depth-modal-container max-w-3xl">
                 <div className="depth-modal-header">
                     <h2 className="depth-modal-title">Edit Soal</h2>
-                    <select
-                        id="modul_id"
-                        className="w-full rounded-depth-md border border-depth bg-depth-card p-2 text-sm text-depth-primary shadow-depth-sm transition focus:border-[var(--depth-color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)] focus:ring-offset-0 md:w-60"
-                        value={selectedModul}
-                        onChange={(e) => setSelectedModul(e.target.value)}
-                    >
-                        <option value="">- Pilih Modul -</option>
-                        {modulesLoading && <option disabled>Memuat modul...</option>}
-                        {modulesError && (
-                            <option disabled>
-                                {modulesQueryError?.message ?? "Gagal memuat modul"}
-                            </option>
-                        )}
-                        {!modulesLoading && !modulesError &&
-                            moduls.map((modul) => (
-                                <option key={modul.idM} value={String(modul.idM)}>
-                                    {modul.judul}
+                    <div className="flex items-center gap-3">
+                        <p>Move into:</p>
+                        <select
+                            id="modul_id"
+                            className="w-full rounded-depth-md border border-depth bg-depth-card p-2 text-sm text-depth-primary shadow-depth-sm transition focus:border-[var(--depth-color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)] focus:ring-offset-0 md:w-60"
+                            value={selectedModul}
+                            onChange={(e) => setSelectedModul(e.target.value)}
+                        >
+                            <option value="">- Pilih Modul -</option>
+                            {modulesLoading && <option disabled>Memuat modul...</option>}
+                            {modulesError && (
+                                <option disabled>
+                                    {modulesQueryError?.message ?? "Gagal memuat modul"}
                                 </option>
-                            ))}
-                    </select>
+                            )}
+                            {!modulesLoading && !modulesError &&
+                                moduls.map((modul) => (
+                                    <option key={modul.idM} value={String(modul.idM)}>
+                                        {modul.judul}
+                                    </option>
+                                ))}
+                        </select>
+                    </div>
 
                     <button onClick={onClose} type="button" className="depth-modal-close">
                         <img className="h-6 w-6" src={closeIcon} alt="Tutup" />

@@ -35,6 +35,7 @@ class NilaiController extends Controller
             'asisten_id' => 'required|exists:asistens,id',
             'kelas_id' => 'required|exists:kelas,id',
             'praktikan_id' => 'required|exists:praktikans,id',
+            'rating' => 'nullable|numeric|min:0.1|max:5',
         ]);
         try {
             $avg = (
@@ -61,6 +62,7 @@ class NilaiController extends Controller
                 'asisten_id' => $validatedData['asisten_id'],
                 'kelas_id' => $validatedData['kelas_id'],
                 'praktikan_id' => $validatedData['praktikan_id'],
+                'rating' => $validatedData['rating'] ?? null,
             ]);
 
             return response()->json([
@@ -157,6 +159,7 @@ class NilaiController extends Controller
             'asisten_id' => 'required|exists:asistens,id',
             'kelas_id' => 'required|exists:kelas,id',
             'praktikan_id' => 'required|exists:praktikans,id',
+            'rating' => 'nullable|numeric|min:0.1|max:5',
         ]);
     }
 
@@ -166,7 +169,7 @@ class NilaiController extends Controller
             $nilai = Nilai::find($id);
             if (! $nilai) {
                 return response()->json([
-                    'message' => 'Data nilai dengan ID ' . $id . ' tidak ditemukan.',
+                    'message' => 'Data nilai dengan ID '.$id.' tidak ditemukan.',
                 ], 404);
             }
             $validatedData = $this->validateRequest($request);
@@ -184,7 +187,7 @@ class NilaiController extends Controller
 
             return response()->json([
                 'message' => 'Data nilai berhasil diperbarui.',
-                'nilai' => $nilai,
+                'nilai' => $nilai->fresh(),
             ], 200);
         } catch (\Exception $e) {
             return response()->json([

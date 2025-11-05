@@ -61,6 +61,9 @@ export default function NoPraktikumSection({
                 ended_at: payload.ended_at ?? previousState?.ended_at ?? null,
                 pj: payload.pj ?? previousState?.pj ?? null,
                 pj_id: payload.pj_id ?? previousState?.pj_id ?? null,
+                feedback_pending: Boolean(payload.feedback_pending ?? previousState?.feedback_pending ?? false),
+                feedback_modul_id: payload.feedback_modul_id ?? previousState?.feedback_modul_id ?? payload.modul_id ?? null,
+                feedback_asisten_id: payload.feedback_asisten_id ?? previousState?.feedback_asisten_id ?? payload.pj_id ?? null,
             };
         });
     }, []);
@@ -160,12 +163,25 @@ export default function NoPraktikumSection({
         const fetchActivePraktikum = async () => {
             try {
                 const { data } = await api.get('/api-v1/praktikum/check-praktikum');
-                
-                if (data?.status === 'success' && data?.data) {
-                    const praktikumPayload = data.data;
-                    
-                    applyPraktikumState(praktikumPayload);
-                    console.log(`[${new Date().toISOString()}] Praktikum debug snapshot (initial load):`, praktikumPayload);
+
+                if (data?.status === 'success') {
+                    const praktikumPayload = data?.data ?? null;
+                    const feedbackPending = Boolean(data?.feedback_pending ?? praktikumPayload?.feedback_pending ?? false);
+                    const mergedPayload = praktikumPayload
+                        ? { ...praktikumPayload }
+                        : {};
+
+                    const payloadToApply = feedbackPending || praktikumPayload
+                        ? {
+                            ...mergedPayload,
+                            feedback_pending: feedbackPending,
+                            feedback_modul_id: data?.feedback_modul_id ?? mergedPayload.feedback_modul_id ?? mergedPayload.modul_id ?? null,
+                            feedback_asisten_id: data?.feedback_asisten_id ?? mergedPayload.feedback_asisten_id ?? mergedPayload.pj_id ?? null,
+                        }
+                        : null;
+
+                    applyPraktikumState(payloadToApply);
+                    console.log(`[${new Date().toISOString()}] Praktikum debug snapshot (initial load):`, payloadToApply);
                 } else {
                     applyPraktikumState(null);
                     console.log(`[${new Date().toISOString()}] Praktikum debug snapshot: tidak ada praktikum aktif.`);

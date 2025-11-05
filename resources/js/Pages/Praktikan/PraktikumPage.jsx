@@ -10,6 +10,7 @@ import { api } from "@/lib/api";
 import PraktikanUtilities from "@/Components/Praktikans/Layout/PraktikanUtilities";
 import FeedbackModal from "@/Components/Modals/FeedbackModal";
 import ScoreDisplayModal from "@/Components/Modals/ScoreDisplayModal";
+import { useAsistensQuery } from "@/hooks/useAsistensQuery";
 
 const TASK_COMPONENTS = {
     TesAwal,
@@ -131,6 +132,11 @@ export default function PraktikumPage({ auth }) {
     const [submissionError, setSubmissionError] = useState(null);
     const [isFeedbackModalOpen, setIsFeedbackModalOpen] = useState(false);
     const [isFeedbackPending, setIsFeedbackPending] = useState(false);
+    const [feedbackReminder, setFeedbackReminder] = useState({
+        isPending: false,
+        modulId: null,
+        asistenId: null,
+    });
     const [scoreModalState, setScoreModalState] = useState({
         isOpen: false,
         phaseType: null,
@@ -156,6 +162,8 @@ export default function PraktikumPage({ auth }) {
         setAnswers([]);
         setQuestionsCount(0);
     }, []);
+
+    const { data: assistantOptions = [] } = useAsistensQuery();
 
     const getAutosaveHandler = useCallback((tipeSoal) => {
         if (!tipeSoal) {
@@ -478,19 +486,34 @@ export default function PraktikumPage({ auth }) {
                 setModuleMeta(null);
                 resetActiveTaskState();
                 setActiveComponent("NoPraktikumSection");
+                setFeedbackReminder({ isPending: false, modulId: null, asistenId: null });
 
                 return;
             }
 
-            setActiveModulId(praktikumState.modul_id ?? null);
+            const pending = Boolean(praktikumState.feedback_pending ?? praktikumState.feedbackPending);
+            const pendingModulId = praktikumState.feedback_modul_id ?? praktikumState.modul_id ?? null;
+            const pendingAsistenId = praktikumState.feedback_asisten_id ?? praktikumState.pj_id ?? null;
+
+            setFeedbackReminder({
+                isPending: pending,
+                modulId: pendingModulId,
+                asistenId: pendingAsistenId,
+            });
+
+            setActiveModulId(praktikumState.modul_id ?? pendingModulId ?? null);
             setModuleMeta(praktikumState);
 
             if (praktikumState.status === "exited" || praktikumState.status === "paused") {
                 resetActiveTaskState();
                 setActiveComponent("NoPraktikumSection");
             }
+
+            if ((praktikumState.current_phase === "feedback" || pending) && !isFeedbackModalOpen) {
+                setIsFeedbackModalOpen(true);
+            }
         },
-        [resetActiveTaskState]
+        [resetActiveTaskState, isFeedbackModalOpen]
     );
 
     const handleNavigate = useCallback(
@@ -696,10 +719,10 @@ export default function PraktikumPage({ auth }) {
     }, [moduleMeta?.current_phase, activeModulId]);
 
     useEffect(() => {
-        if (moduleMeta?.current_phase !== "feedback" && isFeedbackModalOpen) {
+        if (moduleMeta?.current_phase !== "feedback" && !feedbackReminder.isPending && isFeedbackModalOpen) {
             setIsFeedbackModalOpen(false);
         }
-    }, [moduleMeta?.current_phase, isFeedbackModalOpen]);
+    }, [moduleMeta?.current_phase, feedbackReminder.isPending, isFeedbackModalOpen]);
 
     const ActiveTaskComponent = TASK_COMPONENTS[activeComponent] ?? null;
     const activeTaskConfig = TASK_CONFIG[activeComponent] ?? null;
@@ -777,17 +800,61 @@ export default function PraktikumPage({ auth }) {
         handlePhaseChange(newPhase);
     }, [moduleMeta?.current_phase, activeModulId, answers, activeComponent, activeTask, isSubmittingTask, handleTaskSubmit, handlePhaseChange, fetchPhaseScore]);
 
-    const handleFeedbackSubmit = async ({ feedback, rating }) => {
+    const handleFeedbackSubmit = async ({ feedback, rating_praktikum, rating_asisten, asisten_id }) => {
         setIsFeedbackPending(true);
         try {
+            const resolvedModulId = feedbackReminder.modulId ?? activeModulId;
+
+            if (!resolvedModulId) {
+                throw new Error("Modul feedback tidak ditemukan.");
+            }
+
             await api.post('/api-v1/laporan-praktikan', {
                 praktikan_id: praktikanId,
-                modul_id: activeModulId,
+                modul_id: resolvedModulId,
                 laporan: feedback,
-                rating: rating || null,
+                pesan: feedback,
+                rating: rating_praktikum ?? null,
+                rating_praktikum: rating_praktikum ?? null,
+                rating_asisten: rating_asisten ?? null,
+                asisten_id: asisten_id ?? null,
             });
 
             setIsFeedbackModalOpen(false);
+            setFeedbackReminder({ isPending: false, modulId: null, asistenId: null });
+            setModuleMeta((previous) => {
+                if (!previous) {
+                    return previous;
+                }
+
+                return {
+                    ...previous,
+                    feedback_pending: false,
+                };
+            });
+
+            try {
+                const { data: refreshData } = await api.get('/api-v1/praktikum/check-praktikum');
+                if (refreshData?.status === 'success') {
+                    const refreshedPayload = refreshData?.data ?? null;
+                    const refreshedPending = refreshData?.feedback_pending ?? refreshedPayload?.feedback_pending ?? false;
+                    const mergedPayload = refreshedPayload ? { ...refreshedPayload } : null;
+                    const payloadHasMeta = refreshedPending || (refreshData?.feedback_modul_id ?? null) !== null;
+
+                    if (mergedPayload || payloadHasMeta) {
+                        handlePraktikumStateChange({
+                            ...(mergedPayload ?? {}),
+                            feedback_pending: refreshedPending,
+                            feedback_modul_id: refreshData?.feedback_modul_id ?? mergedPayload?.feedback_modul_id ?? mergedPayload?.modul_id ?? null,
+                            feedback_asisten_id: refreshData?.feedback_asisten_id ?? mergedPayload?.feedback_asisten_id ?? mergedPayload?.pj_id ?? null,
+                        });
+                    } else {
+                        handlePraktikumStateChange(null);
+                    }
+                }
+            } catch (refreshError) {
+                console.warn('Failed to refresh praktikum state after feedback submission', refreshError);
+            }
         } catch (error) {
             console.error('Failed to submit feedback:', error);
             throw error;
@@ -864,7 +931,9 @@ export default function PraktikumPage({ auth }) {
                 onClose={() => setIsFeedbackModalOpen(false)}
                 onSubmit={handleFeedbackSubmit}
                 isPending={isFeedbackPending}
-                praktikumId={activeModulId}
+                praktikumId={feedbackReminder.modulId ?? activeModulId}
+                assistantOptions={assistantOptions}
+                defaultAssistantId={feedbackReminder.asistenId ?? moduleMeta?.pj_id ?? null}
             />
 
             <ScoreDisplayModal

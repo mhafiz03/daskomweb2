@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
+use App\Models\Asisten;
 use App\Models\LaporanPraktikan;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -21,39 +22,62 @@ class LaporanPraktikanController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(Request $request): JsonResponse
     {
-        // Validasi input
-        $request->validate([
-            'pesan' => 'required|string',
-            'kode' => 'required|string|max:3',
+        $validated = $request->validate([
+            'pesan' => 'required_without:laporan|string',
+            'laporan' => 'required_without:pesan|string',
             'modul_id' => 'required|integer|exists:moduls,id',
             'praktikan_id' => 'required|integer|exists:praktikans,id',
+            'asisten_id' => 'required_without:kode|nullable|integer|exists:asistens,id',
+            'kode' => 'required_without:asisten_id|nullable|string|max:3',
             'rating' => 'nullable|numeric|min:0|max:5',
             'rating_praktikum' => 'nullable|numeric|min:0|max:5',
             'rating_asisten' => 'nullable|numeric|min:0|max:5',
         ]);
-        // Cari asisten berdasarkan kode
-        $asisten = Asisten::where('kode', $request->kode)->first();
-        if (! $asisten) {
+
+        $message = $validated['pesan'] ?? $validated['laporan'] ?? '';
+        $trimmedMessage = trim($message);
+
+        if ($trimmedMessage === '') {
             return response()->json([
                 'status' => 'error',
-                'message' => 'Asisten dengan kode tersebut tidak ditemukan tolong hubungi JIN/FYN.',
+                'message' => 'Pesan feedback tidak boleh kosong.',
+            ], 422);
+        }
+
+        $assistant = null;
+
+        if (! empty($validated['asisten_id'])) {
+            $assistant = Asisten::find($validated['asisten_id']);
+        }
+
+        if (! $assistant && ! empty($validated['kode'])) {
+            $assistant = Asisten::where('kode', $validated['kode'])->first();
+        }
+
+        if (! $assistant) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Asisten tidak ditemukan. Mohon konfirmasi dengan tim JIN/FYN.',
             ], 404);
         }
-        // Simpan laporan
+
+        $ratingPraktikum = $validated['rating_praktikum'] ?? $validated['rating'] ?? null;
+        $ratingAsisten = $validated['rating_asisten'] ?? null;
+
         $laporan = LaporanPraktikan::create([
-            'pesan' => $request->pesan,
-            'asisten_id' => $asisten->id,
-            'modul_id' => $request->modul_id,
-            'praktikan_id' => $request->praktikan_id,
-            'rating_praktikum' => $request->input('rating_praktikum', $request->input('rating')),
-            'rating_asisten' => $request->input('rating_asisten'),
+            'pesan' => $trimmedMessage,
+            'asisten_id' => $assistant->id,
+            'modul_id' => $validated['modul_id'],
+            'praktikan_id' => $validated['praktikan_id'],
+            'rating_praktikum' => $ratingPraktikum,
+            'rating_asisten' => $ratingAsisten,
         ]);
 
         return response()->json([
             'status' => 'success',
-            'message' => 'Feedback berhasil dikirim',
+            'message' => 'Feedback berhasil dikirim.',
             'laporan_id' => $laporan->id,
         ], 201);
     }
