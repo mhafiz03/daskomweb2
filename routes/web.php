@@ -326,6 +326,9 @@ Route::prefix('api-v1')->middleware('audit.assistant')->group(function () {
 
     // leaderboard
     Route::get('/leaderboard', [LeaderBoardController::class, 'index'])->name('get.leaderboard')->middleware(['auth:asisten,praktikan', 'permission:lihat-leaderboard|ranking-praktikan']);
+    Route::get('/leaderboard/praktikan/{praktikan}', [LeaderBoardController::class, 'detail'])
+        ->name('detail.leaderboard')
+        ->middleware(['auth:asisten', 'can:ranking-praktikan']);
     Route::get('/leaderboard/{idKelas}', [LeaderBoardController::class, 'show'])->name('show.leaderboard')->middleware(['auth:asisten', 'can:ranking-praktikan']);
 
     // nilais
