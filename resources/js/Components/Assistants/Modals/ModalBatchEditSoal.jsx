@@ -291,7 +291,7 @@ export default function ModalBatchEditSoal({
     );
 }
 
-const parseEssayMarkdown = (markdown) => {
+export const parseEssayMarkdown = (markdown) => {
     if (!markdown) {
         return [];
     }
@@ -312,7 +312,7 @@ const parseEssayMarkdown = (markdown) => {
     });
 };
 
-const parsePgMarkdown = (markdown) => {
+export const parsePgMarkdown = (markdown) => {
     if (!markdown) {
         return [];
     }

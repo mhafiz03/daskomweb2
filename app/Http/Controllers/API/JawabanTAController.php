@@ -185,6 +185,86 @@ class JawabanTAController extends Controller
         }
     }
 
+    public function analysis(int $modulId): JsonResponse
+    {
+        try {
+            $questions = SoalTa::with('options')
+                ->where('modul_id', $modulId)
+                ->get();
+
+            if ($questions->isEmpty()) {
+                return response()->json([
+                    'success' => true,
+                    'summary' => [
+                        'total_questions' => 0,
+                        'total_responses' => 0,
+                        'respondent_count' => 0,
+                    ],
+                    'questions' => [],
+                ]);
+            }
+
+            $optionCounts = JawabanTa::select('soal_id', 'opsi_id', DB::raw('COUNT(*) as total'))
+                ->where('modul_id', $modulId)
+                ->groupBy('soal_id', 'opsi_id')
+                ->get()
+                ->groupBy('soal_id');
+
+            $respondentCount = JawabanTa::where('modul_id', $modulId)
+                ->distinct('praktikan_id')
+                ->count('praktikan_id');
+
+            $questionsPayload = $questions->map(function (SoalTa $soal) use ($optionCounts) {
+                $optionStats = $optionCounts->get($soal->id, collect());
+                $totalResponses = (int) $optionStats->sum('total');
+
+                $options = $soal->options
+                    ->map(function (SoalOpsi $option) use ($optionStats, $totalResponses, $soal) {
+                        $count = (int) ($optionStats->firstWhere('opsi_id', $option->id)?->total ?? 0);
+                        $percentage = $totalResponses > 0
+                            ? round(($count / $totalResponses) * 100, 2)
+                            : 0;
+
+                        return [
+                            'id' => $option->id,
+                            'text' => $option->text,
+                            'count' => $count,
+                            'percentage' => $percentage,
+                            'is_correct' => $option->id === $soal->opsi_benar_id,
+                        ];
+                    })
+                    ->values();
+
+                return [
+                    'soal_id' => $soal->id,
+                    'pertanyaan' => $soal->pertanyaan,
+                    'total_responses' => $totalResponses,
+                    'options' => $options,
+                ];
+            });
+
+            $totalResponses = $questionsPayload->sum('total_responses');
+
+            return response()->json([
+                'success' => true,
+                'summary' => [
+                    'total_questions' => $questions->count(),
+                    'total_responses' => $totalResponses,
+                    'respondent_count' => $respondentCount,
+                ],
+                'questions' => $questionsPayload,
+            ]);
+        } catch (\Throwable $e) {
+            report($e);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan saat menghitung analisis jawaban TA.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
     public function show(int $id): JsonResponse
     {
         try {

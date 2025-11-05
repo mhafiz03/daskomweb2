@@ -8,7 +8,10 @@ import trashIcon from "../../../../assets/nav/Icon-Delete.svg";
 import editIcon from "../../../../assets/nav/Icon-Edit.svg";
 import toast from "react-hot-toast";
 import ModalBatchEditSoal from "../Modals/ModalBatchEditSoal";
+import ModalCompareSoal from "../Modals/ModalCompareSoal";
+import ModalAnalyzeSoalPG from "../Modals/ModalAnalyzeSoalPG";
 import SoalCommentsButton from "./SoalCommentsButton";
+import { useSoalComparison } from "@/hooks/useSoalComparison";
 
 const OPTION_COUNT = 4;
 const EMPTY_OPTIONS = Array.from({ length: OPTION_COUNT }, () => "");
@@ -53,6 +56,29 @@ export default function SoalInputPG({ kategoriSoal, modul, modules = [], onModal
     const [isModalOpenEdit, setIsModalOpenEdit] = useState(false);
     const [editingSoal, setEditingSoal] = useState(null);
     const [isBatchModalOpen, setIsBatchModalOpen] = useState(false);
+    const [compareState, setCompareState] = useState({
+        isOpen: false,
+        regularModuleId: "",
+        englishModuleId: "",
+    });
+    const [isAnalyzeModalOpen, setIsAnalyzeModalOpen] = useState(false);
+    const [analyzeModuleId, setAnalyzeModuleId] = useState(modul ? String(modul) : "");
+    const isAnalysisSupported = kategoriSoal === "ta" || kategoriSoal === "tk";
+
+    const getModuleId = (moduleItem) => {
+        const possibleId = moduleItem?.idM ?? moduleItem?.id ?? moduleItem?.value ?? moduleItem?.uuid ?? moduleItem?.ID;
+        return possibleId === undefined || possibleId === null ? "" : String(possibleId);
+    };
+
+    const regularModules = useMemo(
+        () => (modules ?? []).filter((moduleItem) => Number(moduleItem?.isEnglish ?? 0) !== 1),
+        [modules],
+    );
+
+    const englishModules = useMemo(
+        () => (modules ?? []).filter((moduleItem) => Number(moduleItem?.isEnglish ?? 0) === 1),
+        [modules],
+    );
 
     const queryClient = useQueryClient();
     const soalQuery = useSoalQuery(kategoriSoal, modul);
@@ -369,6 +395,119 @@ export default function SoalInputPG({ kategoriSoal, modul, modules = [], onModal
         }
     };
 
+    const handleOpenCompareModal = () => {
+        const hasModules = regularModules.length > 0 || englishModules.length > 0;
+        if (!hasModules) {
+            toast.error("Belum ada modul untuk dibandingkan.");
+            return;
+        }
+
+        const currentModuleId = modul ? String(modul) : "";
+        const currentModule = modules.find((moduleItem) => getModuleId(moduleItem) === currentModuleId);
+        const isCurrentEnglish = Number(currentModule?.isEnglish ?? 0) === 1;
+        const firstRegularId = getModuleId(regularModules[0]);
+        const firstEnglishId = getModuleId(englishModules[0]);
+
+        setCompareState((previous) => ({
+            isOpen: true,
+            regularModuleId:
+                previous.regularModuleId
+                || (!isCurrentEnglish && currentModuleId ? currentModuleId : firstRegularId || ""),
+            englishModuleId:
+                previous.englishModuleId
+                || (isCurrentEnglish && currentModuleId ? currentModuleId : firstEnglishId || ""),
+        }));
+    };
+
+    const handleCloseCompareModal = () => {
+        setCompareState((previous) => ({
+            ...previous,
+            isOpen: false,
+        }));
+    };
+
+    const handleSelectCompareRegular = (value) => {
+        setCompareState((previous) => ({
+            ...previous,
+            regularModuleId: value,
+        }));
+    };
+
+    const handleSelectCompareEnglish = (value) => {
+        setCompareState((previous) => ({
+            ...previous,
+            englishModuleId: value,
+        }));
+    };
+
+    const handleExportJson = () => {
+        if (!Array.isArray(soalList) || soalList.length === 0) {
+            toast.error("Belum ada soal untuk diekspor.");
+            return;
+        }
+
+        try {
+            const moduleLabel = modules.find((moduleItem) => getModuleId(moduleItem) === String(modul))?.judul;
+            const payload = {
+                kategori: kategoriSoal,
+                modul_id: modul ?? null,
+                modul_label: moduleLabel ?? null,
+                exported_at: new Date().toISOString(),
+                soal: soalList,
+            };
+
+            const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+            const url = URL.createObjectURL(blob);
+            const anchor = document.createElement("a");
+            anchor.href = url;
+            const safeCategory = kategoriSoal ?? "soal";
+            const moduleSuffix = modul ? `-modul-${modul}` : "";
+            anchor.download = `soal-${safeCategory}${moduleSuffix}.json`;
+            document.body.appendChild(anchor);
+            anchor.click();
+            document.body.removeChild(anchor);
+            URL.revokeObjectURL(url);
+            toast.success("Soal berhasil diekspor.");
+        } catch (error) {
+            console.error("Error exporting soal:", error);
+            toast.error("Gagal mengekspor data soal.");
+        }
+    };
+
+    const handleOpenAnalyzeModal = () => {
+        if (!String(modul)) {
+            toast.error("Pilih modul terlebih dahulu sebelum menganalisis.");
+            return;
+        }
+
+        setAnalyzeModuleId(String(modul));
+        setIsAnalyzeModalOpen(true);
+    };
+
+    const handleCloseAnalyzeModal = () => {
+        setIsAnalyzeModalOpen(false);
+    };
+
+    const {
+        data: comparisonData,
+        isLoading: isComparisonLoading,
+        isFetching: isComparisonFetching,
+        refetch: refetchComparison,
+    } = useSoalComparison(
+        kategoriSoal,
+        compareState.isOpen ? compareState.regularModuleId : null,
+        compareState.isOpen ? compareState.englishModuleId : null,
+        {
+            enabled:
+                compareState.isOpen
+                && Boolean(
+                    kategoriSoal
+                    && (compareState.regularModuleId || compareState.englishModuleId),
+                ),
+            keepPreviousData: true,
+        },
+    );
+
     return (
         <div className="space-y-6 text-depth-primary">
             <div className="space-y-2">
@@ -415,7 +554,33 @@ export default function SoalInputPG({ kategoriSoal, modul, modules = [], onModal
                 </div>
             </div>
 
-            <div className="flex justify-end gap-3">
+            <div className="flex flex-wrap justify-end gap-3">
+                {isAnalysisSupported && (
+                    <button
+                        className="rounded-depth-md border border-depth bg-depth-interactive px-6 py-2 text-sm font-semibold text-depth-primary shadow-depth-sm transition duration-200 hover:-translate-y-0.5 hover:shadow-depth-md disabled:cursor-not-allowed disabled:opacity-60"
+                        onClick={handleOpenAnalyzeModal}
+                        type="button"
+                        disabled={!String(modul)}
+                    >
+                        Analyze TA/TK
+                    </button>
+                )}
+                <button
+                    className="rounded-depth-md border border-depth bg-depth-card px-6 py-2 text-sm font-semibold text-depth-primary shadow-depth-sm transition duration-200 hover:-translate-y-0.5 hover:shadow-depth-md disabled:cursor-not-allowed disabled:opacity-60"
+                    onClick={handleOpenCompareModal}
+                    type="button"
+                    disabled={regularModules.length === 0 && englishModules.length === 0}
+                >
+                    Compare
+                </button>
+                <button
+                    className="rounded-depth-md border border-depth bg-depth-interactive px-6 py-2 text-sm font-semibold text-depth-primary shadow-depth-sm transition duration-200 hover:-translate-y-0.5 hover:shadow-depth-md disabled:cursor-not-allowed disabled:opacity-60"
+                    onClick={handleExportJson}
+                    type="button"
+                    disabled={!Array.isArray(soalList) || soalList.length === 0}
+                >
+                    Export JSON
+                </button>
                 <button
                     className="rounded-depth-md border border-depth bg-depth-card px-6 py-2 text-sm font-semibold text-depth-primary shadow-depth-sm transition duration-200 hover:-translate-y-0.5 hover:shadow-depth-md disabled:opacity-60"
                     onClick={() => setIsBatchModalOpen(true)}
@@ -517,6 +682,31 @@ export default function SoalInputPG({ kategoriSoal, modul, modules = [], onModal
                     </ul>
                 )}
             </div>
+            {compareState.isOpen && (
+                <ModalCompareSoal
+                    kategoriSoal={kategoriSoal}
+                    regularModules={regularModules}
+                    englishModules={englishModules}
+                    selectedRegularModuleId={compareState.regularModuleId}
+                    selectedEnglishModuleId={compareState.englishModuleId}
+                    onSelectRegularModule={handleSelectCompareRegular}
+                    onSelectEnglishModule={handleSelectCompareEnglish}
+                    regularDataset={comparisonData?.regular ?? null}
+                    englishDataset={comparisonData?.english ?? null}
+                    isLoading={isComparisonLoading}
+                    isFetching={isComparisonFetching}
+                    onRefresh={refetchComparison}
+                    onClose={handleCloseCompareModal}
+                />
+            )}
+            {isAnalyzeModalOpen && (
+                <ModalAnalyzeSoalPG
+                    kategoriSoal={kategoriSoal}
+                    modules={modules}
+                    initialModuleId={analyzeModuleId}
+                    onClose={handleCloseAnalyzeModal}
+                />
+            )}
             {isModalOpenEdit && (
                 <ModalEditSoalPG
                     soalItem={editingSoal}

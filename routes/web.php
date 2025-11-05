@@ -307,12 +307,18 @@ Route::prefix('api-v1')->middleware('audit.assistant')->group(function () {
     Route::post('/soal-ta/{idModul}', [SoalTAController::class, 'store'])->name('store.soalta')->middleware(['auth:asisten', 'can:manage-soal']);
     Route::put('/soal-ta/{idSoal}', [SoalTAController::class, 'update'])->name('update.soalta')->middleware(['auth:asisten', 'can:manage-soal']);
     Route::delete('/soal-ta/{idSoal}', [SoalTAController::class, 'destroy'])->name('delete.soalta')->middleware(['auth:asisten', 'can:manage-soal']);
+    Route::get('/soal-ta/{idModul}/analysis', [JawabanTAController::class, 'analysis'])
+        ->name('analysis.soalta')
+        ->middleware(['auth:asisten', 'permission:see-soal|manage-soal']);
 
     // soal tk
     Route::get('/soal-tk/{idModul}', [SoalTKController::class, 'show'])->name('show.soaltk')->middleware(['auth:asisten,praktikan', 'permission:see-soal|lihat-modul']);
     Route::post('/soal-tk/{idModul}', [SoalTKController::class, 'store'])->name('store.soaltk')->middleware(['auth:asisten', 'can:manage-soal']);
     Route::put('/soal-tk/{idSoal}', [SoalTKController::class, 'update'])->name('update.soaltk')->middleware(['auth:asisten', 'can:manage-soal']);
     Route::delete('/soal-tk/{idSoal}', [SoalTKController::class, 'destroy'])->name('delete.soaltk')->middleware(['auth:asisten', 'can:manage-soal']);
+    Route::get('/soal-tk/{idModul}/analysis', [JawabanTKController::class, 'analysis'])
+        ->name('analysis.soaltk')
+        ->middleware(['auth:asisten', 'permission:see-soal|manage-soal']);
 
     // praktikums
     Route::get('/praktikum', [PraktikumController::class, 'index'])->name('get.praktikums')->middleware(['auth:asisten', 'permission:manage-praktikum|see-praktikum']);

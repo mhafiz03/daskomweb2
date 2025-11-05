@@ -7,3 +7,8 @@ export const store = makeRoute("post", (modulId) => `${BASE_PATH}/${ensureId(mod
 export const update = makeRoute("put", (soalId) => `${BASE_PATH}/${ensureId(soalId, "soal id")}`);
 
 export const destroy = makeRoute("delete", (soalId) => `${BASE_PATH}/${ensureId(soalId, "soal id")}`);
+
+export const analysis = makeRoute(
+	"get",
+	(modulId) => `${BASE_PATH}/${ensureId(modulId, "modul id")}/analysis`,
+);
