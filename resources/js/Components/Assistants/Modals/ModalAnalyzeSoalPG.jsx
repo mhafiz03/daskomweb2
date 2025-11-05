@@ -32,38 +32,6 @@ const SummaryCard = ({ title, value, tone = "primary" }) => {
     );
 };
 
-const OptionBar = ({ option, maxPercentage }) => {
-    const percentage = Number.isFinite(option?.percentage) ? option.percentage : 0;
-    const safePercentage = Math.min(Math.max(percentage, 0), 100);
-    const label = option?.text?.trim() || "Pilihan belum diisi";
-    const barWidth = maxPercentage > 0 ? `${(safePercentage / maxPercentage) * 100}%` : `${safePercentage}%`;
-
-    return (
-        <div className={`rounded-depth-md border px-3 py-2 text-sm shadow-depth-sm ${
-            option?.is_correct
-                ? "border-[var(--depth-color-primary)] bg-[var(--depth-color-primary)]/10"
-                : "border-depth bg-depth-interactive"
-        }`}>
-            <div className="flex items-center justify-between gap-3 text-xs font-semibold uppercase tracking-wide text-depth-secondary">
-                <span>{option?.is_correct ? "Jawaban Benar" : "Pilihan"}</span>
-                <span>{safePercentage.toFixed(1)}%</span>
-            </div>
-            <p className="mt-1 text-sm font-medium text-depth-primary">{label}</p>
-            <div className="mt-2 h-2 rounded-depth-full bg-depth-card">
-                <div
-                    className={`h-2 rounded-depth-full ${
-                        option?.is_correct ? "bg-[var(--depth-color-primary)]" : "bg-depth-secondary/70"
-                    }`}
-                    style={{ width: barWidth }}
-                />
-            </div>
-            <p className="mt-1 text-xs text-depth-secondary">
-                {option?.count ?? 0} jawaban
-            </p>
-        </div>
-    );
-};
-
 export default function ModalAnalyzeSoalPG({
     kategoriSoal,
     modules = [],
@@ -107,6 +75,49 @@ export default function ModalAnalyzeSoalPG({
     };
 
     const questions = Array.isArray(analytics?.questions) ? analytics.questions : [];
+    const maxOptionCount = useMemo(
+        () => questions.reduce((acc, question) => {
+            const totalOptions = Array.isArray(question?.options) ? question.options.length : 0;
+            return Math.max(acc, totalOptions);
+        }, 0),
+        [questions],
+    );
+
+    const formatPercentage = (rawValue) => {
+        const value = Number.isFinite(rawValue) ? rawValue : 0;
+        return `${Math.min(Math.max(value, 0), 100).toFixed(1)}%`;
+    };
+
+    const renderOptionCell = (option, maxPercentage) => {
+        const percentage = Number.isFinite(option?.percentage) ? option.percentage : 0;
+        const safePercentage = Math.min(Math.max(percentage, 0), 100);
+        const optionLabel = option?.text?.trim() || "Pilihan belum diisi";
+        const barWidth = maxPercentage > 0 ? `${(safePercentage / maxPercentage) * 100}%` : `${safePercentage}%`;
+        const isCorrect = Boolean(option?.is_correct);
+
+        return (
+            <div className="space-y-1.5" title={optionLabel}>
+                <div className="flex items-center justify-between gap-2 text-xs font-semibold uppercase tracking-wide text-depth-secondary">
+                    <span className="text-sm font-semibold text-depth-primary">{safePercentage.toFixed(1)}%</span>
+                </div>
+                <div className="flex items-center gap-2">
+                    <span className={`max-w-[14rem] truncate text-sm font-medium ${isCorrect ? "text-[var(--depth-color-primary)]" : "text-depth-primary"}`}>
+                        {optionLabel}
+                    </span>
+                </div>
+                <div className="h-1.5 rounded-depth-full bg-depth-card">
+                    <div
+                        className={`h-full rounded-depth-full ${isCorrect ? "bg-[var(--depth-color-primary)]" : "bg-depth-secondary/70"
+                            }`}
+                        style={{ width: barWidth }}
+                    />
+                </div>
+                <div className="flex items-center justify-between text-[11px] text-depth-secondary">
+                    <span>{option?.count ?? 0} jawaban</span>
+                </div>
+            </div>
+        );
+    };
 
     return (
         <div className="depth-modal-overlay z-50">
@@ -171,39 +182,86 @@ export default function ModalAnalyzeSoalPG({
                                 />
                             </div>
 
-                            <div className="space-y-5">
-                                {questions.map((question) => {
-                                    const options = Array.isArray(question?.options) ? question.options : [];
-                                    const maxPercentage = options.reduce(
-                                        (acc, option) => Math.max(acc, Number(option?.percentage ?? 0)),
-                                        0,
-                                    );
+                            <div className="space-y-3">
+                                {isFetching ? (
+                                    <div className="rounded-depth-md border border-depth bg-depth-card px-4 py-2 text-xs text-depth-secondary shadow-depth-sm">
+                                        Memperbarui data…
+                                    </div>
+                                ) : null}
+                                <div className="overflow-x-auto rounded-depth-lg border border-depth bg-depth-card shadow-depth-lg">
+                                    <table className="min-w-[60rem] table-fixed divide-y divide-[color:var(--depth-border)] text-sm">
+                                        <thead className="bg-[var(--depth-color-primary)]/10 text-xs font-semibold uppercase tracking-wide text-depth-secondary">
+                                            <tr>
+                                                <th className="px-4 py-3 text-left text-depth-primary">Pertanyaan</th>
+                                                <th className="px-4 py-3 text-left text-depth-primary">Jawaban Benar</th>
+                                                <th className="px-4 py-3 text-left text-depth-primary">Opsi 1</th>
+                                                <th className="px-4 py-3 text-left text-depth-primary">Opsi 2</th>
+                                                <th className="px-4 py-3 text-left text-depth-primary">Opsi 3</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody className="divide-y divide-[color:var(--depth-border)]">
+                                            {questions.map((question) => {
+                                                const options = Array.isArray(question?.options) ? question.options : [];
+                                                const maxPercentage = options.reduce(
+                                                    (acc, option) => Math.max(acc, Number(option?.percentage ?? 0)),
+                                                    0,
+                                                );
+                                                const correctOption = options.find((item) => Boolean(item?.is_correct));
 
-                                    return (
-                                        <div
-                                            key={question?.soal_id ?? question?.id}
-                                            className="space-y-3 rounded-depth-lg border border-depth bg-depth-card p-5 shadow-depth-sm"
-                                        >
-                                            <div className="space-y-2">
-                                                <div className="text-xs font-semibold uppercase tracking-wide text-depth-secondary">
-                                                    Soal
-                                                </div>
-                                                <p className="text-base font-semibold text-depth-primary">
-                                                    {question?.pertanyaan ?? "Pertanyaan belum tersedia."}
-                                                </p>
-                                                <div className="text-xs text-depth-secondary">
-                                                    {question?.total_responses ?? 0} jawaban | {options.length} pilihan
-                                                </div>
-                                            </div>
+                                                return (
+                                                    <tr key={question?.soal_id ?? question?.id} className="align-top">
+                                                        <td className="px-4 py-4 max-w-[2rem]">
+                                                            <div className="space-y-1" title={question?.pertanyaan ?? "Pertanyaan belum tersedia."}>
+                                                                <p className="max-w-[5rem] truncate text-sm font-semibold text-depth-primary">
+                                                                    {question?.pertanyaan ?? "Pertanyaan belum tersedia."}
+                                                                </p>
+                                                                <div className="text-[11px] text-depth-secondary">
+                                                                    {question?.total_responses ?? 0} jawaban | {options.length} pilihan
+                                                                </div>
+                                                            </div>
+                                                        </td>
+                                                        <td className="px-4 py-4 max-w-[5rem]">
+                                                            {correctOption ? (
+                                                                <div className="space-y-1.5" title={correctOption?.text ?? "Jawaban benar"}>
 
-                                            <div className="space-y-3">
-                                                {options.map((option) => (
-                                                    <OptionBar key={option?.id ?? option?.text} option={option} maxPercentage={maxPercentage} />
-                                                ))}
-                                            </div>
-                                        </div>
-                                    );
-                                })}
+                                                                    <div className="flex items-center justify-between text-xs font-semibold uppercase tracking-wide text-depth-secondary">
+                                                                        <span className="text-sm font-semibold text-depth-primary">
+                                                                            {formatPercentage(correctOption?.percentage)}
+                                                                        </span>
+                                                                    </div>
+                                                                    <div className="max-w-[12rem] h-1.5 rounded-depth-full bg-depth-card">
+                                                                        <div
+                                                                            className="h-full rounded-depth-full bg-[var(--depth-color-primary)]"
+                                                                            style={{ width: `${Math.min(Math.max(correctOption?.percentage ?? 0, 0), 100)}%` }}
+                                                                        />
+                                                                    </div>
+                                                                    <p className="max-w-[12rem] truncate text-sm font-semibold text-[var(--depth-color-primary)]">
+                                                                        {correctOption?.text ?? "-"}
+                                                                    </p>
+                                                                    <div className="text-[11px] text-depth-secondary">
+                                                                        {correctOption?.count ?? 0} jawaban
+                                                                    </div>
+                                                                </div>
+                                                            ) : (
+                                                                <span className="text-sm text-depth-secondary">-</span>
+                                                            )}
+                                                        </td>
+                                                        {Array.from({ length: maxOptionCount }).map((_, optionIndex) => {
+                                                            const option = options[optionIndex];
+                                                            const isCorrectOption = option && Boolean(option?.is_correct);
+
+                                                            return (
+                                                                <td key={`question-${question?.soal_id ?? question?.id}-option-${optionIndex}`} className="max-w-[5rem] px-4 py-4">
+                                                                    {option && !isCorrectOption ? renderOptionCell(option, maxPercentage) : null}
+                                                                </td>
+                                                            );
+                                                        })}
+                                                    </tr>
+                                                );
+                                            })}
+                                        </tbody>
+                                    </table>
+                                </div>
                             </div>
                         </div>
                     )}
