@@ -117,23 +117,6 @@ export default function ModalAnalyzeSoalPG({
                 <div className="depth-modal-header">
                     <h2 className="depth-modal-title">Analisis Jawaban Praktikan</h2>
                     <div className="flex items-center gap-3">
-                        {isFetching ? <span className="text-xs text-depth-secondary">Memuat data…</span> : null}
-                        <button
-                            type="button"
-                            onClick={refetch}
-                            className="rounded-depth-md border border-depth bg-depth-interactive px-3 py-1 text-xs font-semibold text-depth-primary shadow-depth-sm transition hover:-translate-y-0.5 hover:shadow-depth-md"
-                            disabled={isLoading}
-                        >
-                            Segarkan
-                        </button>
-                    </div>
-                    <button type="button" onClick={onClose} className="depth-modal-close">
-                        <img className="h-7 w-7" src={closeIcon} alt="Tutup" />
-                    </button>
-                </div>
-
-                <div className="px-6 py-3">
-                    <div className="flex flex-wrap items-center gap-3">
                         <label className="text-xs font-semibold uppercase tracking-wide text-depth-secondary">
                             Pilih Modul
                         </label>
@@ -150,6 +133,9 @@ export default function ModalAnalyzeSoalPG({
                             ))}
                         </select>
                     </div>
+                    <button type="button" onClick={onClose} className="depth-modal-close">
+                        <img className="h-7 w-7" src={closeIcon} alt="Tutup" />
+                    </button>
                 </div>
 
                 <div className="flex-1 overflow-y-auto px-6 py-4">

@@ -131,7 +131,7 @@ const renderPgPreview = (items = [], markdownComponents) => {
             {items.map((item, index) => (
                 <li
                     key={`pg-preview-${index}`}
-                    className="rounded-depth-lg border border-depth bg-depth-card p-4 shadow-depth-sm"
+                    className="bg-depth-card p-4"
                 >
                     <div className="mb-3 space-y-1">
                         <strong>Soal {index + 1}</strong>
@@ -142,18 +142,16 @@ const renderPgPreview = (items = [], markdownComponents) => {
                         </div>
                     </div>
                     <div className="space-y-2">
-                        <strong>Pilihan</strong>
                         <ul className="space-y-2">
                             {(item?.options ?? []).map((option, optionIndex) => {
                                 const isCorrect = Boolean(option?.isCorrect ?? option?.is_correct);
                                 return (
                                     <li
                                         key={`pg-option-${index}-${optionIndex}`}
-                                        className={`rounded-depth-md border px-3 py-2 text-sm shadow-depth-sm ${
-                                            isCorrect
+                                        className={`rounded-depth-md border px-3 py-2 text-md shadow-depth-sm ${isCorrect
                                                 ? "border-[var(--depth-color-primary)] bg-[var(--depth-color-primary)] text-white"
                                                 : "border-depth bg-depth-interactive text-depth-primary"
-                                        }`}
+                                            }`}
                                     >
                                         <div className={proseClassName}>
                                             <ReactMarkdown
@@ -295,7 +293,7 @@ export default function ModalCompareSoal({
 
             {activeTab === "edit" ? (
                 <textarea
-                    className="min-h-[320px] w-full rounded-depth-lg border border-depth bg-depth-card p-4 font-mono text-sm text-depth-primary shadow-depth-sm focus:border-[var(--depth-color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)] focus:ring-offset-0"
+                    className="min-h-[55vh] w-full rounded-depth-lg border border-depth bg-depth-card p-4 font-mono text-sm text-depth-primary shadow-depth-sm focus:border-[var(--depth-color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)] focus:ring-offset-0"
                     value={contentValue}
                     onChange={(event) => onContentChange?.(event.target.value)}
                     placeholder="Konten soal dalam format Markdown..."
@@ -313,52 +311,36 @@ export default function ModalCompareSoal({
     return (
         <div className="depth-modal-overlay z-50">
             <div
-                className="depth-modal-container flex max-h-[90vh] flex-col overflow-hidden"
+                className="depth-modal-container flex h-[80vh] max-h-[90vh] flex-col overflow-hidden"
                 style={{ "--depth-modal-max-width": "78rem" }}
             >
                 <div className="depth-modal-header">
                     <h2 className="depth-modal-title">Perbandingan Soal</h2>
-                    <div className="flex items-center gap-2 text-sm text-depth-secondary">
-                        {isFetching ? <span>Memuat data…</span> : null}
-                        {typeof onRefresh === "function" && (
-                            <button
-                                type="button"
-                                onClick={onRefresh}
-                                className="inline-flex items-center gap-1 rounded-depth-md border border-depth bg-depth-interactive px-3 py-1 text-xs font-semibold text-depth-primary shadow-depth-sm transition hover:-translate-y-0.5 hover:shadow-depth-md"
-                                disabled={isLoading}
-                            >
-                                <span className="text-base leading-none">↻</span>
-                                Segarkan
-                            </button>
-                        )}
+                    <div className="flex items-center gap-2 text-sm text-depth-secondary -translate-x-20">
+                        {["edit", "preview"].map((tabKey) => {
+                            const isActive = activeTab === tabKey;
+                            const label = tabKey === "edit" ? "Edit" : "Preview";
+                            return (
+                                <button
+                                    key={tabKey}
+                                    type="button"
+                                    onClick={() => setActiveTab(tabKey)}
+                                    className={`rounded-depth-md px-4 py-2 text-sm font-semibold transition ${isActive
+                                            ? "bg-[var(--depth-color-primary)] text-white shadow-depth-md"
+                                            : "border border-depth bg-depth-interactive text-depth-primary shadow-depth-sm hover:-translate-y-0.5 hover:shadow-depth-md"
+                                        }`}
+                                >
+                                    {label}
+                                </button>
+                            );
+                        })}
                     </div>
                     <button type="button" onClick={onClose} className="depth-modal-close">
                         <img className="h-7 w-7" src={closeIcon} alt="Tutup" />
                     </button>
                 </div>
 
-                <div className="-mt-3 flex gap-2 border-b border-[color:var(--depth-border)] px-6 py-3">
-                    {["edit", "preview"].map((tabKey) => {
-                        const isActive = activeTab === tabKey;
-                        const label = tabKey === "edit" ? "Edit" : "Preview";
-                        return (
-                            <button
-                                key={tabKey}
-                                type="button"
-                                onClick={() => setActiveTab(tabKey)}
-                                className={`rounded-depth-md px-4 py-2 text-sm font-semibold transition ${
-                                    isActive
-                                        ? "bg-[var(--depth-color-primary)] text-white shadow-depth-md"
-                                        : "border border-depth bg-depth-interactive text-depth-primary shadow-depth-sm hover:-translate-y-0.5 hover:shadow-depth-md"
-                                }`}
-                            >
-                                {label}
-                            </button>
-                        );
-                    })}
-                </div>
-
-        <div className="flex-1 overflow-y-auto px-6 py-4">
+                <div className="flex-1 overflow-y-auto px-6 py-4">
                     {isLoading ? (
                         <div className="flex h-full items-center justify-center text-sm text-depth-secondary">
                             Memuat data perbandingan soal…
