@@ -208,6 +208,9 @@ Route::prefix('api-v1')->middleware('audit.assistant')->group(function () {
     Route::get('/laporan/unmarked-summary', [LaporanPraktikanController::class, 'unmarkedSummary'])
         ->name('laporan.unmarked-summary')
         ->middleware(['auth:asisten', 'permission:see-pelanggaran|manage-role']);
+    Route::post('/laporan-praktikan', [LaporanPraktikanController::class, 'store'])
+        ->name('laporan-praktikan.store')
+        ->middleware(['auth:praktikan', 'can:praktikum-lms']);
 
     Route::get('/asisten/soal-comment/{tipeSoal}/{modul}', [SoalCommentController::class, 'showByModul'])
         ->name('asisten.soal-comment.index')
