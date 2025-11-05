@@ -2,39 +2,35 @@
 
 namespace App\Http\Controllers\API;
 
-use ImageKit\ImageKit;
+use App\Http\Controllers\Controller;
 use App\Models\Asisten;
 use App\Models\FotoAsisten;
+use App\Services\ImageKitService;
 use Illuminate\Http\Request;
-use App\Adapter\ImageKitAdapter;
-use Spatie\Permission\Models\Role;
-use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Hash;
-use Intervention\Image\ImageManager;
 use Illuminate\Support\Facades\Validator;
-use Intervention\Image\Drivers\Gd\Driver;
-use Intervention\Image\Encoders\WebpEncoder;
+use Spatie\Permission\Models\Role;
 
 class AsistenController extends Controller
 {
-
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
         try {
-            if(!auth()->guard('asisten')->user()) {
+            if (! auth()->guard('asisten')->user()) {
                 $asisten = Asisten::leftJoin('foto_asistens', 'foto_asistens.kode', '=', 'asistens.kode')
                     ->select('asistens.id', 'nama', 'asistens.kode', 'foto_asistens.foto', 'nomor_telepon', 'id_line', 'instagram', 'deskripsi')
-                    ->orderBy('asistens.kode', 'asc')->get(); 
-                
-            }else{
+                    ->orderBy('asistens.kode', 'asc')->get();
+
+            } else {
                 $asisten = Asisten::leftJoin('roles', 'roles.id', '=', 'asistens.role_id')
-                ->leftJoin('foto_asistens', 'foto_asistens.kode', '=', 'asistens.kode')
-                ->select('asistens.id', 'nama', 'asistens.kode', 'foto_asistens.foto', 'roles.name as role', 'role_id', 'nomor_telepon', 'id_line', 'instagram', 'deskripsi')
-                ->orderBy('asistens.kode', 'asc')->get();
+                    ->leftJoin('foto_asistens', 'foto_asistens.kode', '=', 'asistens.kode')
+                    ->select('asistens.id', 'nama', 'asistens.kode', 'foto_asistens.foto', 'roles.name as role', 'role_id', 'nomor_telepon', 'id_line', 'instagram', 'deskripsi')
+                    ->orderBy('asistens.kode', 'asc')->get();
             }
+
             return response()->json([
                 'success' => true,
                 'asisten' => $asisten,
@@ -76,7 +72,7 @@ class AsistenController extends Controller
         ]);
         try {
             $asisten = Asisten::find(auth()->guard('asisten')->user()->id);
-            if (!$asisten) {
+            if (! $asisten) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Asisten not found.',
@@ -98,104 +94,81 @@ class AsistenController extends Controller
         }
     }
 
-    public function updatePp(Request $request){
-        // //inii bedaaa lagi
-        if ($request->hasFile('upload')) {
-            try {
-                $validator = Validator::make($request->all(), [
-                    'upload' => 'image|mimes:jpeg,png,jpg|max:512',
-                ]);
+    public function updatePp(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'file_id' => 'required|string',
+            'url' => 'required|string|url',
+            'file_path' => 'nullable|string',
+        ]);
 
-                if ($validator->fails()) {
-                    return back()->withErrors($validator->errors()); // Inertia handles errors automatically
-                }
-
-                $imageKit = new ImageKit(
-                    env('IMAGEKIT_PUBLIC_KEY'),
-                    env('IMAGEKIT_PRIVATE_KEY'),
-                    env('IMAGEKIT_ENDPOINT_URL')
-                );
-
-                $user = auth('asisten')->user();
-                $file = $request->file('upload');
-
-                // Find existing record
-                $foto = FotoAsisten::where('kode', $user->kode)->first();
-
-                // Initialize adapter
-                $adapter = new ImageKitAdapter($imageKit);
-
-                // If an old image exists, delete it from ImageKit
-                if ($foto && $foto->foto) {
-                    $adapter->delete($foto->fileId);
-                }
-
-            
-                // Upload to ImageKit
-                $result = $adapter->upload('ProfilePicDaskom/' . $user->kode . '.' . $file->getClientOriginalExtension(), $file)->result;
-
-                // Create or update FotoAsisten entry
-                if ($foto) {
-                    $foto->update([
-                        'foto' => env('IMAGEKIT_ENDPOINT_URL') . $result->filePath. '?updatedAt='. now()->timestamp * 1000,
-                        'fileId' => $result->fileId,
-                    ]);
-                } else {
-                    FotoAsisten::create([
-                        'kode' => $user->kode,
-                        'foto' => env('IMAGEKIT_ENDPOINT_URL') . $result-> filePath . '?updatedAt=' . now()->timestamp * 1000,
-                        'fileId' => $result->fileId,
-                        'created_at' => now(),
-                        'updated_at' => now(),
-                    ]);
-                }
-
-                return back()->with('success', 'Profile picture updated successfully.');
-            } catch (\Exception $e) {
-                return back()->with('error', 'Something went wrong: ' . $e->getMessage());
-            }
+        if ($validator->fails()) {
+            return back()->withErrors($validator->errors());
         }
 
-        return back()->with('error', 'No file uploaded.');
-        
-    }
-
-
-    public function destroyPp(){
-
         try {
-            $imageKit = new ImageKit(
-                env('IMAGEKIT_PUBLIC_KEY'),
-                env('IMAGEKIT_PRIVATE_KEY'),
-                env('IMAGEKIT_ENDPOINT_URL')
-            );
-
             $user = auth('asisten')->user();
+            $imageKitService = app(ImageKitService::class);
 
             // Find existing record
             $foto = FotoAsisten::where('kode', $user->kode)->first();
 
             // If an old image exists, delete it from ImageKit
-            $adapter = new ImageKitAdapter($imageKit);
+            if ($foto && $foto->file_id) {
+                try {
+                    $imageKitService->deleteFile($foto->file_id);
+                } catch (\Exception $e) {
+                    // Log but don't fail - old file might already be deleted
+                    report($e);
+                }
+            }
 
-            if ($foto && $foto->foto) {
-                $adapter->delete($foto->fileId);
+            // Create or update FotoAsisten entry with metadata from client
+            if ($foto) {
+                $foto->update([
+                    'foto' => $request->url,
+                    'file_id' => $request->file_id,
+                ]);
+            } else {
+                FotoAsisten::create([
+                    'kode' => $user->kode,
+                    'foto' => $request->url,
+                    'file_id' => $request->file_id,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+            }
+
+            return back()->with('success', 'Profile picture updated successfully.');
+        } catch (\Exception $e) {
+            return back()->with('error', 'Something went wrong: '.$e->getMessage());
+        }
+    }
+
+    public function destroyPp()
+    {
+        try {
+            $imageKitService = app(ImageKitService::class);
+            $user = auth('asisten')->user();
+
+            // Find existing record
+            $foto = FotoAsisten::where('kode', $user->kode)->first();
+
+            // If an image exists, delete it from ImageKit
+            if ($foto && $foto->file_id) {
+                $imageKitService->deleteFile($foto->file_id);
                 FotoAsisten::where('kode', $user->kode)->delete();
             }
 
             return back()->with('success', 'Profile picture deleted successfully.');
         } catch (\Exception $e) {
-            return back()->with('error', 'Failed to delete profile picture: ' . $e->getMessage());
+            return back()->with('error', 'Failed to delete profile picture: '.$e->getMessage());
         }
-
     }
-
-
 
     /**
      * change password of asisten fixed
      */
-
     public function updatePassword(Request $request)
     {
         $request->validate([
@@ -207,15 +180,15 @@ class AsistenController extends Controller
 
             $asisten = Asisten::find(auth()->guard('asisten')->user()->id);
 
-            if (!$asisten) {
+            if (! $asisten) {
                 return redirect()->back()->withErrors([
-                    'error' => 'Asisten not found.'
+                    'error' => 'Asisten not found.',
                 ]);
             }
 
-            if (!Hash::check($request->current_password, $asisten->password)) {
+            if (! Hash::check($request->current_password, $asisten->password)) {
                 return redirect()->back()->withErrors([
-                    'current_password' => 'Password Sebelunmnya tidak sesuai'
+                    'current_password' => 'Password Sebelunmnya tidak sesuai',
                 ]);
             }
 
@@ -232,33 +205,32 @@ class AsistenController extends Controller
         }
     }
 
-
     public function destroy(Request $request)
     {
         try {
-        $data = request()->input('asistens', []);
+            $data = request()->input('asistens', []);
 
-        if (empty($data)) {
-            return redirect(route('manage-role'))->with('error', 'No data provided.');
-        }
-
-        foreach ($data as $kode) {
-            $asisten = Asisten::where('kode', $kode)->first();
-
-            if (!$asisten) {
-                return redirect(route('manage-role'))->with('error', "Asisten with kode $kode not found.");
+            if (empty($data)) {
+                return redirect(route('manage-role'))->with('error', 'No data provided.');
             }
 
-            $role = Role::find($asisten->role_id);
-            if ($role) {
-                $asisten->removeRole($role->name);
+            foreach ($data as $kode) {
+                $asisten = Asisten::where('kode', $kode)->first();
+
+                if (! $asisten) {
+                    return redirect(route('manage-role'))->with('error', "Asisten with kode $kode not found.");
+                }
+
+                $role = Role::find($asisten->role_id);
+                if ($role) {
+                    $asisten->removeRole($role->name);
+                }
+
+                $asisten->delete();
             }
 
-            $asisten->delete();
-        }
-
-        // Return success message
-        return redirect(route('manage-role'))->with('success', 'Selected Asistens deleted successfully.');
+            // Return success message
+            return redirect(route('manage-role'))->with('success', 'Selected Asistens deleted successfully.');
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
             return response()->json([
                 'success' => false,

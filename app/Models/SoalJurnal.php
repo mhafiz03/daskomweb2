@@ -19,7 +19,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
  * @property string $soal
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
- * @property bool|null $isSulit
  * 
  * @property Modul $modul
  * @property Collection|JawabanJurnal[] $jawaban_jurnals
@@ -33,12 +32,12 @@ class SoalJurnal extends Model
 
 	protected $casts = [
 		'modul_id' => 'int',
-		'isSulit' => 'bool'
 	];
 
 	protected $fillable = [
 		'modul_id',
 		'soal',
+		'enable_file_upload',
 	];
 
 	public function modul()

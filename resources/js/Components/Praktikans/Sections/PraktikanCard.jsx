@@ -1,21 +1,53 @@
+import { useState } from "react";
+import { Image } from "@imagekit/react";
 import daskomIcon from "../../../../../resources/assets/daskom.svg";
-import CircularImage from "../../Common/CircularImage";
+import editIcon from "../../../../assets/nav/Icon-Edit.svg";
+import ModalEditProfilePraktikan from "../Modals/ModalEditProfilePraktikan";
 
 export default function CardPraktikan({praktikan}) {
-    console.log(praktikan)
+    const [isModalOpen, setModalOpen] = useState(false);
+
+    const handleOpenModal = () => setModalOpen(true);
+    const handleCloseModal = () => setModalOpen(false);
+
     return (
         <>
             <div className="mx-auto mt-[13vh] font-poppins items-center flex flex-col">
                 <div className="h-[436px] w-[352.8px] rounded-depth-lg border border-depth bg-depth-card pt-6 shadow-depth-lg">
-                    {/* <CircularImage className="h-36 w-36 rounded-depth-full object-cover" src={daskomIcon} alt="Logo Daskom" /> */}
+                    {/* Edit Button */}
+                    <div className="flex justify-end translate-x-12 -translate-y-4">
+                        <button
+                            type="button"
+                            onClick={handleOpenModal}
+                            className="group inline-flex items-center gap-2 rounded-depth-full border border-transparent bg-depth-interactive px-4 py-2 text-sm font-semibold text-depth-secondary shadow-depth-sm transition hover:-translate-y-0.5 hover:shadow-depth-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--depth-color-primary)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--depth-color-card)]"
+                        >
+                            <img
+                                className="edit-icon-filter h-4 w-4 opacity-70 transition group-hover:opacity-100"
+                                src={editIcon}
+                                alt="Edit profil"
+                            />
+                        </button>
+                    </div>
+
+                    {/* Profile Picture */}
                     <div className="mx-auto relative flex h-40 w-40 items-center justify-center rounded-depth-full border border-depth bg-depth-background shadow-depth-md">
+                        {praktikan?.profile_picture_url ? (
+                            <Image
+                                src={praktikan.profile_picture_url}
+                                transformation={[{ height: "144", width: "144", crop: "maintain_ratio" }]}
+                                alt={praktikan?.nama || "Foto Praktikan"}
+                                className="h-36 w-36 rounded-depth-full object-cover"
+                                loading="lazy"
+                            />
+                        ) : (
                             <img
                                 src={daskomIcon}
                                 alt="Logo Daskom"
                                 className="h-36 w-36 rounded-depth-full object-cover"
                             />
-                            <span className="pointer-events-none absolute inset-0 rounded-depth-full border border-white/20 shadow-[inset_0_2px_6px_rgba(255,255,255,0.25)]" />
-                        </div>
+                        )}
+                        <span className="pointer-events-none absolute inset-0 rounded-depth-full border border-white/20 shadow-[inset_0_2px_6px_rgba(255,255,255,0.25)]" />
+                    </div>
 
                     <div className="mb-3 mt-4 flex justify-center">
                         <h1 className="max-w-[320px] truncate font-poppins text-lg font-bold text-depth-primary">
@@ -61,6 +93,13 @@ export default function CardPraktikan({praktikan}) {
                     </div>
                 </div>
             </div>
+
+            {/* Edit Profile Modal */}
+            <ModalEditProfilePraktikan 
+                isOpen={isModalOpen}
+                onClose={handleCloseModal}
+                praktikan={praktikan}
+            />
         </>
     );
 }

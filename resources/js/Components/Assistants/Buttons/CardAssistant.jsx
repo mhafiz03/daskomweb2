@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { Image } from "@imagekit/react";
 import ModalEditProfile from "../Modals/ModalEditProfile";
 import iconWA from "../../../../assets/contact/iconWhatsapp.svg";
 import iconLine from "../../../../assets/contact/iconLine.svg";
@@ -55,11 +56,21 @@ export default function CardAssistant({ asisten }) {
 
                     <div className="flex flex-col items-center gap-4">
                         <div className="relative mb-4 flex h-40 w-40 items-center justify-center rounded-depth-full border border-depth bg-depth-background shadow-depth-md">
-                            <img
-                                src={asisten?.kode ? `${import.meta.env.VITE_IMAGEKIT_ENDPOINT_URL}${asisten.kode}.webp` : daskomIcon}
-                                alt={asisten?.nama || "Foto Asisten"}
-                                className="h-36 w-36 rounded-depth-full object-cover"
-                            />
+                            {asisten?.foto_asistens?.foto ? (
+                                <Image
+                                    src={asisten.foto_asistens.foto}
+                                    transformation={[{ height: "144", width: "144", crop: "maintain_ratio" }]}
+                                    alt={asisten?.nama || "Foto Asisten"}
+                                    className="h-36 w-36 rounded-depth-full object-cover"
+                                    loading="lazy"
+                                />
+                            ) : (
+                                <img
+                                    src={daskomIcon}
+                                    alt={asisten?.nama || "Foto Asisten"}
+                                    className="h-36 w-36 rounded-depth-full object-cover"
+                                />
+                            )}
                             <span className="pointer-events-none absolute inset-0 rounded-depth-full border border-white/20 shadow-[inset_0_2px_6px_rgba(255,255,255,0.25)]" />
                         </div>
 

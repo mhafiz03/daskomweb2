@@ -7,19 +7,18 @@
 namespace App\Models;
 
 use Carbon\Carbon;
-use Illuminate\Support\Str;
-use Spatie\Permission\Role;
-use Laravel\Sanctum\HasApiTokens;
-use Laravel\Sanctum\NewAccessToken;
-use Spatie\Permission\Traits\HasRoles;
-use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Str;
+use Laravel\Sanctum\HasApiTokens;
+use Laravel\Sanctum\NewAccessToken;
+use Spatie\Permission\Traits\HasRoles;
 
 /**
  * Class Praktikan
- * 
+ *
  * @property int $id
  * @property string $nama
  * @property string $nim
@@ -32,7 +31,6 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
  * @property string|null $remember_token
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
- * 
  * @property Kelas $kelas
  * @property Collection|Feedback[] $feedback
  * @property Collection|JawabanFitb[] $jawaban_fitbs
@@ -46,112 +44,112 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
  * @property Collection|Nilai[] $nilais
  * @property Collection|Polling[] $pollings
  * @property Collection|TempJawabantp[] $temp_jawabantps
- *
- * @package App\Models
  */
 class Praktikan extends Authenticatable
 {
-	use HasFactory, Notifiable , HasApiTokens, HasRoles;
+    use HasApiTokens, HasFactory , HasRoles, Notifiable;
 
-	protected $guard = 'praktikan';
-	protected $table = 'praktikans';
+    protected $guard = 'praktikan';
 
-	protected $casts = [
-		'kelas_id' => 'int'
-	];
+    protected $table = 'praktikans';
 
-	protected $hidden = [
-		'password',
-		'api_token',
-		'remember_token'
-	];
+    protected $casts = [
+        'kelas_id' => 'int',
+    ];
 
-	protected $fillable = [
-		'nama',
-		'nim',
-		'password',
-		'api_token',
-		'kelas_id',
-		'alamat',
-		'nomor_telepon',
-		'email',
-		'remember_token'
-	];
+    protected $hidden = [
+        'password',
+        'api_token',
+        'remember_token',
+    ];
 
+    protected $fillable = [
+        'nama',
+        'nim',
+        'password',
+        'api_token',
+        'kelas_id',
+        'alamat',
+        'nomor_telepon',
+        'email',
+        'profile_picture_url',
+        'profile_picture_file_id',
+        'remember_token',
+    ];
 
-	public function createToken(string $name, array $abilities = ['*'])
-	{
-		$token = $this->tokens()->create([
-			'name' => $name,
-			'token' => hash('sha256', $plainTextToken = Str::random(240)),
-			'abilities' => $abilities,
-		]);
+    public function createToken(string $name, array $abilities = ['*'])
+    {
+        $token = $this->tokens()->create([
+            'name' => $name,
+            'token' => hash('sha256', $plainTextToken = Str::random(240)),
+            'abilities' => $abilities,
+        ]);
 
-		return new NewAccessToken($token, $token->getKey() . '|' . $plainTextToken);
-	}
+        return new NewAccessToken($token, $token->getKey().'|'.$plainTextToken);
+    }
 
-	public function kelas()
-	{
-		return $this->belongsTo(Kelas::class, 'kelas_id');
-	}
+    public function kelas()
+    {
+        return $this->belongsTo(Kelas::class, 'kelas_id');
+    }
 
-	public function feedback()
-	{
-		return $this->hasMany(Feedback::class);
-	}
+    public function feedback()
+    {
+        return $this->hasMany(Feedback::class);
+    }
 
-	public function jawaban_fitbs()
-	{
-		return $this->hasMany(JawabanFitb::class);
-	}
+    public function jawaban_fitbs()
+    {
+        return $this->hasMany(JawabanFitb::class);
+    }
 
-	public function jawaban_jurnals()
-	{
-		return $this->hasMany(JawabanJurnal::class);
-	}
+    public function jawaban_jurnals()
+    {
+        return $this->hasMany(JawabanJurnal::class);
+    }
 
-	public function jawaban_mandiris()
-	{
-		return $this->hasMany(JawabanMandiri::class);
-	}
+    public function jawaban_mandiris()
+    {
+        return $this->hasMany(JawabanMandiri::class);
+    }
 
-	public function jawaban_tas()
-	{
-		return $this->hasMany(JawabanTa::class);
-	}
+    public function jawaban_tas()
+    {
+        return $this->hasMany(JawabanTa::class);
+    }
 
-	public function jawaban_tks()
-	{
-		return $this->hasMany(JawabanTk::class);
-	}
+    public function jawaban_tks()
+    {
+        return $this->hasMany(JawabanTk::class);
+    }
 
-	public function jawaban_tps()
-	{
-		return $this->hasMany(JawabanTp::class);
-	}
+    public function jawaban_tps()
+    {
+        return $this->hasMany(JawabanTp::class);
+    }
 
-	public function kumpul_tps()
-	{
-		return $this->hasMany(KumpulTp::class);
-	}
+    public function kumpul_tps()
+    {
+        return $this->hasMany(KumpulTp::class);
+    }
 
-	public function laporan_praktikans()
-	{
-		return $this->hasMany(LaporanPraktikan::class);
-	}
+    public function laporan_praktikans()
+    {
+        return $this->hasMany(LaporanPraktikan::class);
+    }
 
-	public function nilais()
-	{
-		return $this->hasMany(Nilai::class);
-	}
+    public function nilais()
+    {
+        return $this->hasMany(Nilai::class);
+    }
 
-	public function pollings()
-	{
-		return $this->hasMany(Polling::class);
-	}
+    public function pollings()
+    {
+        return $this->hasMany(Polling::class);
+    }
 
-	public function temp_jawabantps()
-	{
-		return $this->hasMany(TempJawabantp::class);
-	}
+    public function temp_jawabantps()
+    {
+        return $this->hasMany(TempJawabantp::class);
+    }
 }

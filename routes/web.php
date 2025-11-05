@@ -3,6 +3,7 @@
 use App\Http\Controllers\API\AsistenController;
 use App\Http\Controllers\API\AutosaveSnapshotController;
 use App\Http\Controllers\API\ConfigurationController;
+use App\Http\Controllers\API\ImageKitAuthController;
 use App\Http\Controllers\API\JadwalJagaController;
 use App\Http\Controllers\API\JawabanFITBController;
 use App\Http\Controllers\API\JawabanJurnalController;
@@ -158,6 +159,12 @@ Route::get('/polling-assistant', function () {
 
 // ///////////////////////////////////// Data Routes ///////////////////////////////////////
 Route::prefix('api-v1')->middleware('audit.assistant')->group(function () {
+    // ImageKit authentication endpoint
+    Route::get('/imagekit/auth', [ImageKitAuthController::class, 'generateAuth'])->name('imagekit.auth');
+    
+    // ImageKit server-side upload endpoint
+    Route::post('/imagekit/upload', [ImageKitAuthController::class, 'upload'])->name('imagekit.upload');
+
     Route::put('/asisten', [AsistenController::class, 'update'])->name('update.asisten')->middleware(['auth:asisten', 'can:manage-profile']);
     Route::post('/profilePic', [AsistenController::class, 'updatePp'])->name('updatePp.asisten');
     Route::delete('/profilePic', [AsistenController::class, 'destroyPp'])->name('destroyPp.asisten');
@@ -168,7 +175,10 @@ Route::prefix('api-v1')->middleware('audit.assistant')->group(function () {
     Route::get('/get-kelas', [RegisteredPraktikanController::class, 'getKelas'])->name('public-getkelas')->middleware('guest');
 
     // Praktikan
+    Route::put('/praktikan', [PraktikanController::class, 'updateProfile'])->middleware('auth:praktikan');
     Route::patch('/praktikan/password', [PraktikanController::class, 'updatePassword'])->middleware('auth:praktikan');
+    Route::post('/praktikan/profile-picture', [PraktikanController::class, 'updateProfilePicture'])->middleware('auth:praktikan');
+    Route::delete('/praktikan/profile-picture', [PraktikanController::class, 'deleteProfilePicture'])->middleware('auth:praktikan');
     Route::get('/praktikan/autosave', [AutosaveSnapshotController::class, 'index'])
         ->name('praktikan.autosave.index')
         ->middleware(['auth:praktikan', 'can:praktikum-lms']);

@@ -29,6 +29,8 @@ class JawabanJurnalController extends Controller
                 '0.modul_id' => 'required|integer',
                 '*.soal_id' => 'required|integer',
                 '*.jawaban' => 'nullable|string',
+                '*.attachment_url' => 'nullable|string',
+                '*.attachment_file_id' => 'nullable|string',
             ]);
             JawabanJurnal::where('praktikan_id', $request->input('0.praktikan_id'))
                 ->where('modul_id', $request->input('0.modul_id'))
@@ -39,6 +41,8 @@ class JawabanJurnalController extends Controller
                     'modul_id' => $data['modul_id'],
                     'soal_id' => $data['soal_id'],
                     'jawaban' => empty($data['jawaban']) ? '-' : $data['jawaban'],
+                    'attachment_url' => $data['attachment_url'] ?? null,
+                    'attachment_file_id' => $data['attachment_file_id'] ?? null,
                 ]);
             }
 
@@ -120,6 +124,8 @@ class JawabanJurnalController extends Controller
                         'soal_id' => $item->soal_id,
                         'soal_text' => $item->soal_jurnal?->soal,
                         'jawaban' => $item->jawaban,
+                        'attachment_url' => $item->attachment_url,
+                        'attachment_file_id' => $item->attachment_file_id,
                     ];
                 })
                 ->values();

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Image } from "@imagekit/react";
 import toast from "react-hot-toast";
 import daskomIcon from "../../../../../resources/assets/daskom.svg";
 import { Dialog } from "@headlessui/react";
@@ -35,11 +36,21 @@ export default function ContactAssistantTable() {
             <div className="flex items-center justify-between rounded-depth-md border border-depth bg-depth-card px-4 py-3 shadow-depth-md transition-all duration-200 hover:-translate-y-0.5 hover:shadow-depth-lg">
                 <div className="flex items-center gap-4">
                     <div className="h-12 w-12 overflow-hidden rounded-full border-2 border-depth shadow-depth-sm">
-                        <img 
-                            src={asisten?.kode ? `${import.meta.env.VITE_IMAGEKIT_ENDPOINT_URL}${asisten.kode}.webp` : daskomIcon}
-                            alt={asisten.kode} 
-                            className="h-full w-full object-cover object-top" 
-                        />
+                        {asisten?.foto ? (
+                            <Image
+                                src={asisten.foto}
+                                transformation={[{ height: "48", width: "48", crop: "maintain_ratio" }]}
+                                alt={asisten.kode}
+                                className="h-full w-full object-cover object-top"
+                                loading="lazy"
+                            />
+                        ) : (
+                            <img 
+                                src={daskomIcon}
+                                alt={asisten.kode} 
+                                className="h-full w-full object-cover object-top" 
+                            />
+                        )}
                     </div>
                     <span className="min-w-[145px] max-w-[146px] break-words text-center font-semibold text-depth-primary">
                         {asisten.nama}
@@ -101,11 +112,21 @@ export default function ContactAssistantTable() {
                         
                         <h2 className="mb-6 text-xl font-bold text-depth-primary">Detail Asisten</h2>
                         <div className="mb-6 flex flex-col items-center">
-                            <img 
-                                src={selectedAsisten.foto || daskomIcon} 
-                                alt={selectedAsisten.kode} 
-                                className="mb-4 h-40 w-40 rounded-full border-4 border-[var(--depth-color-primary)] object-cover shadow-depth-lg" 
-                            />
+                            {selectedAsisten.foto ? (
+                                <Image
+                                    src={selectedAsisten.foto}
+                                    transformation={[{ height: "160", width: "160", crop: "maintain_ratio" }]}
+                                    alt={selectedAsisten.kode}
+                                    className="mb-4 h-40 w-40 rounded-full border-4 border-[var(--depth-color-primary)] object-cover shadow-depth-lg"
+                                    loading="lazy"
+                                />
+                            ) : (
+                                <img 
+                                    src={daskomIcon} 
+                                    alt={selectedAsisten.kode} 
+                                    className="mb-4 h-40 w-40 rounded-full border-4 border-[var(--depth-color-primary)] object-cover shadow-depth-lg" 
+                                />
+                            )}
                             <h3 className="text-lg font-bold text-[var(--depth-color-primary)]">{selectedAsisten.kode}</h3>
                             <hr className="my-2 w-full border-depth" />
                             <p className="text-sm font-medium text-depth-secondary">{selectedAsisten.nama}</p>

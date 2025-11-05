@@ -10,6 +10,7 @@ use App\Models\Asisten;
 use App\Models\LaporanPraktikan;
 use App\Models\Nilai;
 use App\Models\Praktikan;
+use App\Services\ImageKitService;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -458,6 +459,162 @@ class PraktikanController extends Controller
             return redirect()->back()->withErrors([
                 'error' => 'Gagal mengubah password: '.$e->getMessage(),
             ]);
+        }
+    }
+
+    /**
+     * Update praktikan profile picture with ImageKit metadata
+     */
+    /**
+     * Update authenticated praktikan's profile
+     */
+    public function updateProfile(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'nomor_telepon' => 'required|string',
+            'email' => 'required|email',
+            'alamat' => 'required|string',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation failed.',
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        try {
+            $praktikan = auth()->guard('praktikan')->user();
+
+            if (! $praktikan) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Unauthorized.',
+                ], 401);
+            }
+
+            $praktikan->nomor_telepon = $request->nomor_telepon;
+            $praktikan->email = $request->email;
+            $praktikan->alamat = $request->alamat;
+            $praktikan->save();
+
+            return redirect()->back()->with('success', 'Profile updated successfully.');
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to update profile.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Update praktikan profile picture
+     */
+    public function updateProfilePicture(Request $request): JsonResponse
+    {
+        $validator = Validator::make($request->all(), [
+            'file_id' => 'required|string',
+            'url' => 'required|string|url',
+            'file_path' => 'nullable|string',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation failed.',
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        try {
+            $praktikan = auth()->guard('praktikan')->user();
+
+            if (! $praktikan) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Unauthorized.',
+                ], 401);
+            }
+
+            $imageKitService = app(ImageKitService::class);
+
+            // If an old image exists, delete it from ImageKit
+            if ($praktikan->profile_picture_file_id) {
+                try {
+                    $imageKitService->deleteFile($praktikan->profile_picture_file_id);
+                } catch (\Exception $e) {
+                    // Log but don't fail - old file might already be deleted
+                    report($e);
+                }
+            }
+
+            // Update praktikan with new ImageKit metadata
+            $praktikan->update([
+                'profile_picture_url' => $request->url,
+                'profile_picture_file_id' => $request->file_id,
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Profile picture updated successfully.',
+                'data' => [
+                    'profile_picture_url' => $praktikan->profile_picture_url,
+                    'profile_picture_file_id' => $praktikan->profile_picture_file_id,
+                ],
+            ]);
+        } catch (\Throwable $exception) {
+            report($exception);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to update profile picture.',
+                'error' => $exception->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Delete praktikan profile picture
+     */
+    public function deleteProfilePicture(): JsonResponse
+    {
+        try {
+            $praktikan = auth()->guard('praktikan')->user();
+
+            if (! $praktikan) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Unauthorized.',
+                ], 401);
+            }
+
+            $imageKitService = app(ImageKitService::class);
+
+            // If an image exists, delete it from ImageKit
+            if ($praktikan->profile_picture_file_id) {
+                $imageKitService->deleteFile($praktikan->profile_picture_file_id);
+            }
+
+            // Clear profile picture fields
+            $praktikan->update([
+                'profile_picture_url' => null,
+                'profile_picture_file_id' => null,
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Profile picture deleted successfully.',
+            ]);
+        } catch (\Throwable $exception) {
+            report($exception);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to delete profile picture.',
+                'error' => $exception->getMessage(),
+            ], 500);
         }
     }
 }

@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { Image } from "@imagekit/react";
 import daskomIcon from "../../../../assets/daskom.svg";
 import CardPolling from "./CardPolling";
 
@@ -70,8 +71,7 @@ export default function PollingContent({
                         asistens.map((asisten) => (
                             <CardPolling
                                 key={asisten.kode}
-                                // image={asisten.foto ? asisten.foto : daskomIcon}
-                                image={asisten?.kode ? `${import.meta.env.VITE_IMAGEKIT_ENDPOINT_URL}${asisten.kode}.webp` : daskomIcon}
+                                image={asisten?.foto}
                                 name={`${asisten.kode} | ${asisten.nama}`}
                                 description={asisten.deskripsi || "Asisten Laboratorium Daskom"}
                                 onClick={() => handleCardClick(asisten)}
@@ -92,12 +92,21 @@ export default function PollingContent({
             {activeModalCards[activeCategory] && (
                 <div className="pointer-events-none absolute inset-0 z-50 flex items-center justify-center">
                     <div className="pointer-events-auto h-[50vh] w-[23vw] rounded-depth-lg border-2 border-[var(--depth-color-primary)] bg-depth-card p-6 shadow-depth-xl backdrop-blur-sm">
-                        <img
-                            // src={activeModalCards[activeCategory]?.foto || daskomIcon}
-                            src={activeModalCards[activeCategory]?.kode ? `${import.meta.env.VITE_IMAGEKIT_ENDPOINT_URL}${activeModalCards[activeCategory]?.kode}.webp` : daskomIcon}
-                            alt={activeModalCards[activeCategory]?.nama || "Asisten"}
-                            className="mx-auto mb-4 h-[165px] w-[165px] rounded-full object-cover shadow-depth-md ring-2 ring-[var(--depth-color-primary)] ring-offset-2"
-                        />
+                        {activeModalCards[activeCategory]?.foto ? (
+                            <Image
+                                src={activeModalCards[activeCategory].foto}
+                                transformation={[{ height: "165", width: "165", crop: "maintain_ratio" }]}
+                                alt={activeModalCards[activeCategory]?.nama || "Asisten"}
+                                className="mx-auto mb-4 h-[165px] w-[165px] rounded-full object-cover shadow-depth-md ring-2 ring-[var(--depth-color-primary)] ring-offset-2"
+                                loading="lazy"
+                            />
+                        ) : (
+                            <img
+                                src={daskomIcon}
+                                alt={activeModalCards[activeCategory]?.nama || "Asisten"}
+                                className="mx-auto mb-4 h-[165px] w-[165px] rounded-full object-cover shadow-depth-md ring-2 ring-[var(--depth-color-primary)] ring-offset-2"
+                            />
+                        )}
                         <h2 className="mb-5 text-center text-xl font-bold text-depth-primary">
                             {activeModalCards[activeCategory]?.kode || ""} | {activeModalCards[activeCategory]?.nama || ""}
                         </h2>

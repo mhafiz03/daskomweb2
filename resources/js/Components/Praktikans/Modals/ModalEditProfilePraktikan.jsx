@@ -1,173 +1,155 @@
-import { useState, useEffect } from "react";
-import { usePage } from "@inertiajs/react";
-import closeIcon from "../../../../assets/modal/iconClose.svg";
-import { submit } from "@/lib/http";
-import { useImageKitUpload } from "@/hooks/useImageKitUpload";
-import {
-    update as updateAsisten,
-    updatePp as updateAsistenPhoto,
-    destroyPp as destroyAsistenPhoto,
-} from "@/lib/routes/asisten";
+import { useState } from 'react';
+import { useForm } from '@inertiajs/react';
+import { useImageKitUpload } from '../../../hooks/useImageKitUpload';
+import axios from 'axios';
 
-export default function ModalEditProfile({ isOpen, onClose }) {
-    // const [isSuccessModalOpen, setSuccessModalOpen] = useState(false);
-    const { success } = usePage().props;
-    const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
-    const [errorMessage, setErrorMessage] = useState("");
-    const [photoError, setPhotoError] = useState(""); // Only for photo errors
+export default function ModalEditProfilePraktikan({ isOpen, onClose, praktikan }) {
     const [avatar, setAvatar] = useState(null);
-    const [values, setValues] = useState({
-        nomor_telepon: "",
-        id_line: "",
-        instagram: "",
-        deskripsi: "",
+    const [isUploading, setIsUploading] = useState(false);
+    const [progress, setProgress] = useState(0);
+    const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
+    const [photoError, setPhotoError] = useState(false);
+    const { upload } = useImageKitUpload();
 
+    const { data: values, setData: setValues, put, errors } = useForm({
+        nomor_telepon: praktikan?.nomor_telepon || '',
+        email: praktikan?.email || '',
+        alamat: praktikan?.alamat || '',
     });
 
-    const { upload, isUploading, progress, error: uploadError } = useImageKitUpload();
-    const { auth, errors } = usePage().props; // Fetch shared props from Inertia
-    const asisten = auth.asisten;
-
-    // Populate the form fields with current data from `asisten`
-    useEffect(() => {
-        // Show error only for photo uploads
-        if (errors?.upload) {
-            setPhotoError(errors.upload[0]);
-            setIsSuccessModalOpen(true); // Ensure modal opens for errors
-        } else {
-            setPhotoError(""); // Clear photo error if fixed
-        }
-
-       // ✅ Ensure success modal shows when update is successful
-        if (success && !errors?.upload) {
-            setIsSuccessModalOpen(true);
-        }
-
-
-        if (asisten) {
-            setValues({
-                nomor_telepon: asisten.nomor_telepon || "",
-                id_line: asisten.id_line || "",
-                instagram: asisten.instagram || "",
-                deskripsi: asisten.deskripsi || "",
-            });
-            setAvatar(asisten.avatar_url || null); // Assuming there's an avatar URL
-        }
-    }, [asisten, errors, success]);
-
-    const handleSave = async (e) => {
-        e.preventDefault();
-        submit(updateAsisten(), {
-            data: values,
-            preserveScroll: true,
-            onSuccess: () => {
-                setIsSuccessModalOpen(true);
-                setTimeout(() => {
-                    setIsSuccessModalOpen(false);
-                    onClose();
-                }, 3000);
-            },
-            onError: (errors) => {
-                console.error("Validation Errors:", errors);
-            },
-        });
-    };
-
     const handleChange = (e) => {
-        const key = e.target.id;
-        const value = e.target.value;
-        setValues((prevValues) => ({
-            ...prevValues,
-            [key]: value,
-        }));
+        const { name, value } = e.target;
+        setValues(name, value);
     };
 
     const handleAvatarUpload = async (e) => {
         const file = e.target.files[0];
-        if (!file) return;
+        
+        if (!file) {
+            return;
+        }
 
-        // Validate file size (512KB = 512 * 1024 bytes)
-        if (file.size > 512 * 1024) {
-            setPhotoError("Photo must be less than 512kb");
+        // Check file size (512KB = 524288 bytes)
+        if (file.size > 524288) {
+            setPhotoError(true);
             setIsSuccessModalOpen(true);
             return;
         }
 
-        try {
-            // Show preview immediately
-            setAvatar(URL.createObjectURL(file));
-            
-            // Upload to ImageKit
-            const fileName = `${asisten.kode}.${file.name.split('.').pop()}`;
-            const result = await upload(file, 'daskom/profil-asisten', fileName);
+        setIsUploading(true);
+        setProgress(0);
 
-            // Send metadata to Laravel
-            submit(updateAsistenPhoto(), {
-                data: {
-                    file_id: result.fileId,
-                    url: result.url,
-                    file_path: result.filePath,
-                },
-                preserveScroll: true,
-                onSuccess: (page) => {
-                    setAvatar(page.props.auth.asisten.foto_asistens?.foto || null);
-                    setPhotoError("");
-                },
-                onError: (errors) => {
-                    console.error("Upload Error:", errors);
-                    setPhotoError("Failed to save photo metadata");
-                    setIsSuccessModalOpen(true);
-                },
+        try {
+            // Create preview
+            const previewUrl = URL.createObjectURL(file);
+            setAvatar(previewUrl);
+
+            // Upload to ImageKit via server
+            const uploadResult = await upload(file, 'daskom/profil-praktikan', null, true);
+
+            // Update praktikan profile picture
+            await axios.post('/api-v1/praktikan/profile-picture', {
+                file_id: uploadResult.fileId,
+                url: uploadResult.url,
+                file_path: uploadResult.filePath,
             });
+
+            setPhotoError(false);
+            setIsSuccessModalOpen(true);
+            
+            // Reload page after short delay to show new avatar
+            setTimeout(() => {
+                window.location.reload();
+            }, 1500);
+
         } catch (error) {
-            console.error("ImageKit Upload Error:", error);
-            setPhotoError(error.message || "Upload failed");
+            console.error('Upload error:', error);
+            setPhotoError(true);
+            setIsSuccessModalOpen(true);
+        } finally {
+            setIsUploading(false);
+        }
+    };
+
+    const handleDeleteAvatar = async () => {
+        if (!praktikan?.profile_picture_file_id) {
+            return;
+        }
+
+        if (!confirm('Are you sure you want to delete your profile picture?')) {
+            return;
+        }
+
+        try {
+            await axios.delete('/api-v1/praktikan/profile-picture');
+            setAvatar(null);
+            setPhotoError(false);
+            setIsSuccessModalOpen(true);
+            
+            setTimeout(() => {
+                window.location.reload();
+            }, 1500);
+        } catch (error) {
+            console.error('Delete error:', error);
+            setPhotoError(true);
             setIsSuccessModalOpen(true);
         }
     };
 
-    const handleDeleteAvatar = () => {
-        submit(destroyAsistenPhoto(), {
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        
+        put('/api-v1/praktikan', {
             preserveScroll: true,
             onSuccess: () => {
-                setAvatar(null);
+                setPhotoError(false);
+                setIsSuccessModalOpen(true);
             },
-            onError: (errors) => {
-                console.error("Delete Avatar Error:", errors);
+            onError: () => {
+                setPhotoError(true);
+                setIsSuccessModalOpen(true);
             },
         });
     };
 
-    if (!isOpen) return null;
+    if (!isOpen) {
+        return null;
+    }
 
     return (
         <>
-            {/* Modal Edit Profile */}
-            <div className="depth-modal-overlay">
-                <div className="depth-modal-container max-w-2xl">
-                    {/* Close Button */}
-                    <button
-                        onClick={onClose}
-                        type="button"
-                        className="depth-modal-close"
-                    >
-                        <img className="h-6 w-6" src={closeIcon} alt="closeIcon" />
-                    </button>
+            {/* Main Modal */}
+            <div className="depth-modal-overlay" onClick={onClose}>
+                <div className="depth-modal-container max-w-3xl" onClick={(e) => e.stopPropagation()}>
+                    {/* Header */}
+                    <div className="mb-6 flex items-center justify-between border-b border-depth pb-4">
+                        <h2 className="text-2xl font-bold text-depth-primary">
+                            Edit Profile
+                        </h2>
+                        <button
+                            onClick={onClose}
+                            className="rounded-depth-md p-2 text-depth-secondary transition hover:bg-depth-hover hover:text-depth-primary"
+                        >
+                            <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </div>
 
-                    <h2 className="depth-modal-title mb-6">Edit Profile</h2>
-
-                    <form onSubmit={handleSave} encType="multipart/form-data">
-                        <div className="flex gap-6 p-4">
-                            <div className="flex-1">
-                                {/* WhatsApp */}
-                                <div className="mb-4">
+                    {/* Form */}
+                    <form onSubmit={handleSubmit}>
+                        <div className="mb-6 grid grid-cols-2 gap-6">
+                            {/* Left Column - Form Fields */}
+                            <div className="space-y-4">
+                                {/* Phone Number */}
+                                <div>
                                     <label className="mb-2 block text-sm font-semibold text-depth-primary">
-                                        WhatsApp:
+                                        Phone Number:
                                     </label>
                                     <input
                                         type="text"
                                         className="w-full rounded-depth-md border border-depth bg-depth-card px-3 py-2 text-sm text-depth-primary shadow-depth-sm transition focus:border-[var(--depth-color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)] focus:ring-offset-0"
-                                        placeholder="Enter WhatsApp number"
+                                        placeholder="Enter phone number"
                                         name="nomor_telepon"
                                         id="nomor_telepon"
                                         value={values.nomor_telepon}
@@ -177,46 +159,52 @@ export default function ModalEditProfile({ isOpen, onClose }) {
                                         <p className="mt-1 text-xs text-red-500">{errors.nomor_telepon}</p>
                                     )}
                                 </div>
-                                {/* ID Line */}
-                                <div className="mb-4">
+
+                                {/* Email */}
+                                <div>
                                     <label className="mb-2 block text-sm font-semibold text-depth-primary">
-                                        ID Line:
+                                        Email:
                                     </label>
                                     <input
-                                        type="text"
+                                        type="email"
                                         className="w-full rounded-depth-md border border-depth bg-depth-card px-3 py-2 text-sm text-depth-primary shadow-depth-sm transition focus:border-[var(--depth-color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)] focus:ring-offset-0"
-                                        placeholder="Enter Line ID"
-                                        name="id_line"
-                                        id="id_line"
-                                        value={values.id_line}
+                                        placeholder="Enter email"
+                                        name="email"
+                                        id="email"
+                                        value={values.email}
                                         onChange={handleChange}
                                     />
-                                    {errors.id_line && (
-                                        <p className="mt-1 text-xs text-red-500">{errors.id_line}</p>
+                                    {errors.email && (
+                                        <p className="mt-1 text-xs text-red-500">{errors.email}</p>
                                     )}
                                 </div>
-                                {/* Instagram */}
-                                <div className="mb-4">
+
+                                {/* Address */}
+                                <div>
                                     <label className="mb-2 block text-sm font-semibold text-depth-primary">
-                                        Instagram:
+                                        Address:
                                     </label>
-                                    <input
-                                        type="text"
+                                    <textarea
                                         className="w-full rounded-depth-md border border-depth bg-depth-card px-3 py-2 text-sm text-depth-primary shadow-depth-sm transition focus:border-[var(--depth-color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)] focus:ring-offset-0"
-                                        placeholder="Enter Instagram username"
-                                        name="instagram"
-                                        id="instagram"
-                                        value={values.instagram}
+                                        placeholder="Enter address"
+                                        rows="3"
+                                        name="alamat"
+                                        id="alamat"
+                                        value={values.alamat}
                                         onChange={handleChange}
-                                    />
+                                    ></textarea>
+                                    {errors.alamat && (
+                                        <p className="mt-1 text-xs text-red-500">{errors.alamat}</p>
+                                    )}
                                 </div>
                             </div>
-                            {/* Avatar */}
+
+                            {/* Right Column - Avatar */}
                             <div className="flex flex-col items-center">
                                 <div className="mb-4 flex h-32 w-32 items-center justify-center overflow-hidden rounded-full border-2 border-depth bg-depth-background shadow-depth-md">
-                                    {asisten?.foto_asistens?.foto || avatar ? (
+                                    {praktikan?.profile_picture_url || avatar ? (
                                         <img 
-                                            src={asisten?.foto_asistens?.foto || avatar} 
+                                            src={praktikan?.profile_picture_url || avatar} 
                                             alt="Avatar" 
                                             className="h-full w-full object-cover" 
                                         />
@@ -252,25 +240,6 @@ export default function ModalEditProfile({ isOpen, onClose }) {
                                     </button>
                                 </div>
                             </div>
-                        </div>
-
-                        {/* About Me */}
-                        <div className="mb-6">
-                            <label className="mb-2 block text-sm font-semibold text-depth-primary">
-                                About Me:
-                            </label>
-                            <textarea
-                                className="w-full rounded-depth-md border border-depth bg-depth-card px-3 py-2 text-sm text-depth-primary shadow-depth-sm transition focus:border-[var(--depth-color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)] focus:ring-offset-0"
-                                placeholder="Tell us about yourself"
-                                rows="4"
-                                name="deskripsi"
-                                id="deskripsi"
-                                value={values.deskripsi}
-                                onChange={handleChange}
-                            ></textarea>
-                            {errors.deskripsi && (
-                                <p className="mt-1 text-xs text-red-500">{errors.deskripsi}</p>
-                            )}
                         </div>
 
                         {/* Save Button */}
@@ -332,9 +301,6 @@ export default function ModalEditProfile({ isOpen, onClose }) {
                     </div>
                 </div>
             )}
-
-
-            
         </>
     );
 }
