@@ -269,8 +269,8 @@ Route::prefix('api-v1')->middleware('audit.assistant')->group(function () {
     Route::put('/praktikum/{id}', [PraktikumController::class, 'update'])->name('api.update.praktikums')->middleware(['auth:asisten', 'can:manage-praktikum']);
 
     // Configuration
-    Route::get('/config', [ConfigurationController::class, 'index'])->name('get.config')->middleware(['auth:asisten', 'permission:lms-configuration|tp-configuration,praktikan-regist']);
-    Route::put('/config', [ConfigurationController::class, 'update'])->name('update.config')->middleware(['auth:asisten', 'permission:lms-configuration|tp-configuration,praktikan-regist']);
+    Route::get('/config', [ConfigurationController::class, 'index'])->name('get.config')->middleware(['auth:asisten', 'permission:lms-configuration|tp-configuration|praktikan-regist']);
+    Route::put('/config', [ConfigurationController::class, 'update'])->name('update.config')->middleware(['auth:asisten', 'permission:lms-configuration|tp-configuration|praktikan-regist']);
 
     // Jenis Polling
     Route::get('/jenis-polling', [JenisPollingController::class, 'index'])->name('get.jenis.poling'); // ->middleware(['auth:asisten,praktikan', 'can:see-polling']);
