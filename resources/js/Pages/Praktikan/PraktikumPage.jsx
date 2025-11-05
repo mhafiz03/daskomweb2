@@ -509,9 +509,12 @@ export default function PraktikumPage({ auth }) {
                 setActiveComponent("NoPraktikumSection");
             }
 
-            if ((praktikumState.current_phase === "feedback" || pending) && !isFeedbackModalOpen) {
+            // Only open feedback modal on explicit phase change, not on refresh with pending feedback
+            if (praktikumState.current_phase === "feedback" && !isFeedbackModalOpen) {
                 setIsFeedbackModalOpen(true);
             }
+            // Note: pending feedback reminder is tracked in feedbackReminder state
+            // but modal won't auto-open on page refresh to avoid disrupting user flow
         },
         [resetActiveTaskState, isFeedbackModalOpen]
     );
@@ -934,6 +937,7 @@ export default function PraktikumPage({ auth }) {
                 praktikumId={feedbackReminder.modulId ?? activeModulId}
                 assistantOptions={assistantOptions}
                 defaultAssistantId={feedbackReminder.asistenId ?? moduleMeta?.pj_id ?? null}
+                modulLabel={moduleMeta?.modul?.judul ?? moduleMeta?.modul_name ?? null}
             />
 
             <ScoreDisplayModal

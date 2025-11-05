@@ -33,6 +33,7 @@ export default function FeedbackModal({
     praktikumId,
     assistantOptions = [],
     defaultAssistantId = null,
+    modulLabel = null,
 }) {
     const [feedback, setFeedback] = useState('');
     const [ratingPraktikum, setRatingPraktikum] = useState(0);
@@ -195,6 +196,11 @@ export default function FeedbackModal({
                 <div className="mb-6">
                     <h2 className="text-2xl font-bold text-depth-primary">Feedback Praktikum</h2>
                     <p className="mt-1 text-sm text-depth-secondary">Berikan feedback tentang praktikum hari ini</p>
+                    {modulLabel && (
+                        <p className="mt-2 text-xs font-medium text-depth-tertiary">
+                            Modul Praktikum: <span className="text-depth-primary">{modulLabel}</span>
+                        </p>
+                    )}
                 </div>
 
                 {/* Assistant Selector */}
