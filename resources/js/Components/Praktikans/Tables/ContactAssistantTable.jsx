@@ -36,7 +36,7 @@ export default function ContactAssistantTable() {
                 <div className="flex items-center gap-4">
                     <div className="h-12 w-12 overflow-hidden rounded-full border-2 border-depth shadow-depth-sm">
                         <img 
-                            src={asisten?.foto ? asisten.foto : daskomIcon} 
+                            src={asisten?.kode ? `${import.meta.env.VITE_IMAGEKIT_ENDPOINT_URL}${asisten.kode}.webp` : daskomIcon}
                             alt={asisten.kode} 
                             className="h-full w-full object-cover object-top" 
                         />

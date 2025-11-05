@@ -56,7 +56,7 @@ export default function CardAssistant({ asisten }) {
                     <div className="flex flex-col items-center gap-4">
                         <div className="relative mb-4 flex h-40 w-40 items-center justify-center rounded-depth-full border border-depth bg-depth-background shadow-depth-md">
                             <img
-                                src={asisten?.foto_asistens?.foto || daskomIcon}
+                                src={asisten?.kode ? `${import.meta.env.VITE_IMAGEKIT_ENDPOINT_URL}${asisten.kode}.webp` : daskomIcon}
                                 alt={asisten?.nama || "Foto Asisten"}
                                 className="h-36 w-36 rounded-depth-full object-cover"
                             />
