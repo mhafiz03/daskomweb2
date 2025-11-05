@@ -70,7 +70,8 @@ export default function PollingContent({
                         asistens.map((asisten) => (
                             <CardPolling
                                 key={asisten.kode}
-                                image={asisten.foto ? asisten.foto : daskomIcon}
+                                // image={asisten.foto ? asisten.foto : daskomIcon}
+                                image={asisten?.kode ? `${import.meta.env.VITE_IMAGEKIT_ENDPOINT_URL}${asisten.kode}.webp` : daskomIcon}
                                 name={`${asisten.kode} | ${asisten.nama}`}
                                 description={asisten.deskripsi || "Asisten Laboratorium Daskom"}
                                 onClick={() => handleCardClick(asisten)}
@@ -92,7 +93,8 @@ export default function PollingContent({
                 <div className="pointer-events-none absolute inset-0 z-50 flex items-center justify-center">
                     <div className="pointer-events-auto h-[50vh] w-[23vw] rounded-depth-lg border-2 border-[var(--depth-color-primary)] bg-depth-card p-6 shadow-depth-xl backdrop-blur-sm">
                         <img
-                            src={activeModalCards[activeCategory]?.foto || daskomIcon}
+                            // src={activeModalCards[activeCategory]?.foto || daskomIcon}
+                            src={activeModalCards[activeCategory]?.kode ? `${import.meta.env.VITE_IMAGEKIT_ENDPOINT_URL}${activeModalCards[activeCategory]?.kode}.webp` : daskomIcon}
                             alt={activeModalCards[activeCategory]?.nama || "Asisten"}
                             className="mx-auto mb-4 h-[165px] w-[165px] rounded-full object-cover shadow-depth-md ring-2 ring-[var(--depth-color-primary)] ring-offset-2"
                         />
