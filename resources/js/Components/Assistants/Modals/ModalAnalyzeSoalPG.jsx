@@ -20,7 +20,7 @@ const normalizeModuleOption = (module) => {
 
 const SummaryCard = ({ title, value, tone = "primary" }) => {
     const toneClass = {
-        primary: "border-[var(--depth-color-primary)] bg-[var(--depth-color-primary)]/10 text-[var(--depth-color-primary)]",
+        primary: "border-[var(--depth-color-primary)] bg-[var(--depth-color</p>-primary)]/10 text-[var(--depth-color-primary)]",
         secondary: "border-depth bg-depth-card text-depth-primary",
     }[tone];
 
@@ -88,7 +88,7 @@ export default function ModalAnalyzeSoalPG({
         return `${Math.min(Math.max(value, 0), 100).toFixed(1)}%`;
     };
 
-    const renderOptionCell = (option, maxPercentage) => {
+    const renderOptionCell = (option, maxPercentage, isHighest = false) => {
         const percentage = Number.isFinite(option?.percentage) ? option.percentage : 0;
         const safePercentage = Math.min(Math.max(percentage, 0), 100);
         const optionLabel = option?.text?.trim() || "Pilihan belum diisi";
@@ -96,18 +96,20 @@ export default function ModalAnalyzeSoalPG({
         const isCorrect = Boolean(option?.is_correct);
 
         return (
-            <div className="space-y-1.5" title={optionLabel}>
+            <div className={`space-y-1.5 rounded-depth-md p-2 transition-all ${isHighest ? 'bg-[var(--depth-color-primary)]/10 ring-2 ring-[var(--depth-color-primary)]/30' : ''}`} title={optionLabel}>
                 <div className="flex items-center justify-between gap-2 text-xs font-semibold uppercase tracking-wide text-depth-secondary">
-                    <span className="text-sm font-semibold text-depth-primary">{safePercentage.toFixed(1)}%</span>
+                    <span className={`text-sm font-semibold ${isHighest ? 'text-[var(--depth-color-primary)]' : 'text-depth-primary'}`}>
+                        {safePercentage.toFixed(1)}%
+                    </span>
                 </div>
                 <div className="flex items-center gap-2">
-                    <span className={`max-w-[14rem] truncate text-sm font-medium ${isCorrect ? "text-[var(--depth-color-primary)]" : "text-depth-primary"}`}>
+                    <span className={`max-w-[14rem] truncate text-sm font-medium ${isCorrect ? "text-[var(--depth-color-primary)]" : isHighest ? "text-[var(--depth-color-primary)]" : "text-depth-primary"}`}>
                         {optionLabel}
                     </span>
                 </div>
                 <div className="h-1.5 rounded-depth-full bg-depth-card">
                     <div
-                        className={`h-full rounded-depth-full ${isCorrect ? "bg-[var(--depth-color-primary)]" : "bg-depth-secondary/70"
+                        className={`h-full rounded-depth-full ${isCorrect ? "bg-[var(--depth-color-primary)]" : isHighest ? "bg-[var(--depth-color-primary)]/80" : "bg-depth-secondary/70"
                             }`}
                         style={{ width: barWidth }}
                     />
@@ -207,6 +209,12 @@ export default function ModalAnalyzeSoalPG({
                                                     0,
                                                 );
                                                 const correctOption = options.find((item) => Boolean(item?.is_correct));
+                                                
+                                                // Find the highest percentage among all options
+                                                const highestPercentage = options.reduce(
+                                                    (max, opt) => Math.max(max, Number(opt?.percentage ?? 0)),
+                                                    0
+                                                );
 
                                                 return (
                                                     <tr key={question?.soal_id ?? question?.id} className="align-top">
@@ -222,10 +230,10 @@ export default function ModalAnalyzeSoalPG({
                                                         </td>
                                                         <td className="px-4 py-4 max-w-[5rem]">
                                                             {correctOption ? (
-                                                                <div className="space-y-1.5" title={correctOption?.text ?? "Jawaban benar"}>
+                                                                <div className={`space-y-1.5 rounded-depth-md p-2 transition-all ${Number(correctOption?.percentage ?? 0) === highestPercentage && highestPercentage > 0 ? 'bg-[var(--depth-color-primary)]/10 ring-2 ring-[var(--depth-color-primary)]/20' : ''}`} title={correctOption?.text ?? "Jawaban benar"}>
 
                                                                     <div className="flex items-center justify-between text-xs font-semibold uppercase tracking-wide text-depth-secondary">
-                                                                        <span className="text-sm font-semibold text-depth-primary">
+                                                                        <span className={`text-sm font-semibold ${Number(correctOption?.percentage ?? 0) === highestPercentage && highestPercentage > 0 ? 'text-[var(--depth-color-primary)]' : 'text-depth-primary'}`}>
                                                                             {formatPercentage(correctOption?.percentage)}
                                                                         </span>
                                                                     </div>
@@ -249,10 +257,11 @@ export default function ModalAnalyzeSoalPG({
                                                         {Array.from({ length: maxOptionCount }).map((_, optionIndex) => {
                                                             const option = options[optionIndex];
                                                             const isCorrectOption = option && Boolean(option?.is_correct);
+                                                            const isHighest = option && !isCorrectOption && Number(option?.percentage ?? 0) === highestPercentage && highestPercentage > 0;
 
                                                             return (
                                                                 <td key={`question-${question?.soal_id ?? question?.id}-option-${optionIndex}`} className="max-w-[5rem] px-4 py-4">
-                                                                    {option && !isCorrectOption ? renderOptionCell(option, maxPercentage) : null}
+                                                                    {option && !isCorrectOption ? renderOptionCell(option, maxPercentage, isHighest) : null}
                                                                 </td>
                                                             );
                                                         })}

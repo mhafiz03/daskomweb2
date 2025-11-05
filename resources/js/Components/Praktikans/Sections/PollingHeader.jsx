@@ -25,7 +25,11 @@ export default function PollingHeader({ onCategoryClick, activeCategory, availab
     };
 
     if (!availableCategories || availableCategories.length === 0) {
-        return <div>No categories available...</div>;
+        return (
+            <div className="rounded-depth-lg border border-depth bg-depth-card px-4 py-3 text-center text-depth-secondary shadow-depth-lg">
+                No categories available...
+            </div>
+        );
     }
 
     return (

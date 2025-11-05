@@ -140,15 +140,6 @@ export default function ContentRanking() {
     const toolbarConfig = useMemo(
         () => ({
             title: "Leaderboard Praktikan",
-            actions: [
-                {
-                    id: "refresh-praktikan-leaderboard",
-                    label: isFetching ? "Memuat..." : "Muat ulang",
-                    onClick: () => refetch(),
-                    icon: "↻",
-                    disabled: isFetching,
-                },
-            ],
         }),
         [isFetching, refetch],
     );

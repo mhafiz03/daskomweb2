@@ -80,22 +80,26 @@ export default function PollingPage({ auth }) {
         queryFn: async () => {
             const { data } = await api.get('/api-v1/asisten');
             if (data?.success) {
-                return data.asisten ?? [];
+                // Filter out BOT assistants
+                const filteredAsisten = (data.asisten ?? []).filter(
+                    asisten => asisten.kode !== 'BOT'
+                );
+                return filteredAsisten;
             }
             throw new Error(data?.message ?? 'Failed to fetch asisten');
-        },
-        onSuccess: (data) => {
-            setAsistens(data);
-            setError(null);
-        },
-        onError: (err) => {
-            setError(err.message ?? 'Failed to fetch asisten');
         },
     });
 
     useEffect(() => {
+        if (asistenQuery.isSuccess && asistenQuery.data) {
+            setAsistens(asistenQuery.data);
+            setError(null);
+        }
+        if (asistenQuery.isError) {
+            setError(asistenQuery.error?.message ?? 'Failed to fetch asisten');
+        }
         setLoading(asistenQuery.isLoading);
-    }, [asistenQuery.isLoading]);
+    }, [asistenQuery.isLoading, asistenQuery.isSuccess, asistenQuery.isError, asistenQuery.data, asistenQuery.error]);
 
     const handleSubmitAll = async () => {
         if (!user || !selectedCards) {
@@ -182,16 +186,16 @@ export default function PollingPage({ auth }) {
                 >
                     <Head title="Polling Selesai" />
                     <div className="mt-[8vh] flex flex-col gap-6">
-                        <PraktikanPageHeader title="Polling Asisten" />
-                                                <div className="flex min-h-[50vh] flex-col items-center justify-center gap-3 text-center">
-                            <h1 className="text-4xl font-bold text-deepForestGreen">
+                    <PraktikanPageHeader title="Polling Asisten" />
+                    <div className="flex min-h-[50vh] flex-col items-center justify-center gap-3 text-center">
+                        <h1 className="text-4xl font-bold text-[var(--depth-color-primary)]">
                             Terimakasih sudah melakukan praktikum
                         </h1>
-                        <p className="text-lg text-gray-600">
+                        <p className="text-lg text-depth-secondary">
                             Semua kategori polling telah berhasil dikirim
-                                                    </p>
-                        </div>
+                        </p>
                     </div>
+                </div>
                 </PraktikanAuthenticated>
                 <PraktikanUtilities />
             </>
@@ -218,9 +222,9 @@ export default function PollingPage({ auth }) {
                         <button
                             type="button"
                             onClick={handleSubmit}
-                            className={`inline-flex w-[120px] items-center justify-center rounded-depth-md border-2 border-depth px-4 py-2 text-sm font-semibold text-white shadow-depth-md transition-all ${
+                            className={`inline-flex w-[120px] items-center justify-center rounded-depth-md border border-depth px-4 py-2 text-sm font-semibold text-white shadow-depth-md transition-all ${
                                 isSubmitted
-                                    ? "cursor-not-allowed bg-gray-400"
+                                    ? "cursor-not-allowed bg-depth-secondary opacity-50"
                                     : "cursor-pointer bg-[var(--depth-color-primary)] hover:-translate-y-0.5 hover:shadow-depth-lg"
                             }`}
                             disabled={isSubmitted}
@@ -229,7 +233,9 @@ export default function PollingPage({ auth }) {
                         </button>
                     </div>
                     {submitError && (
-                        <p className="text-sm text-red-500">{submitError}</p>
+                        <div className="rounded-depth-md border border-red-300 bg-red-50 p-3 shadow-depth-sm">
+                            <p className="text-sm text-red-600">{submitError}</p>
+                        </div>
                     )}
                     <PollingHeader
                         onCategoryClick={(category) =>

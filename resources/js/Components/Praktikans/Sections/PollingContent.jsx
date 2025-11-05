@@ -43,7 +43,7 @@ export default function PollingContent({
 
     if (loading) {
         return (
-            <div className="mt-4 flex h-[59vh] items-center justify-center">
+            <div className="mt-4 flex h-[59vh] items-center justify-center rounded-depth-lg border border-depth bg-depth-card shadow-depth-lg">
                 <div className="text-center">
                     <div className="mx-auto mb-4 h-12 w-12 animate-spin rounded-full border-4 border-depth border-t-[var(--depth-color-primary)]"></div>
                     <p className="text-depth-secondary">Mengambil Data...</p>
@@ -54,7 +54,7 @@ export default function PollingContent({
 
     if (error) {
         return (
-            <div className="mt-4 flex h-[59vh] items-center justify-center">
+            <div className="mt-4 flex h-[59vh] items-center justify-center rounded-depth-lg border border-depth bg-depth-card shadow-depth-lg">
                 <div className="text-center">
                     <p className="text-red-500">Error: {error}</p>
                 </div>
@@ -90,11 +90,11 @@ export default function PollingContent({
             {/* Modal for selected asisten */}
             {activeModalCards[activeCategory] && (
                 <div className="pointer-events-none absolute inset-0 z-50 flex items-center justify-center">
-                    <div className="pointer-events-auto h-[50vh] w-[23vw] rounded-depth-lg border-2 border-depth bg-depth-card p-6 shadow-depth-lg backdrop-blur-sm">
+                    <div className="pointer-events-auto h-[50vh] w-[23vw] rounded-depth-lg border-2 border-[var(--depth-color-primary)] bg-depth-card p-6 shadow-depth-xl backdrop-blur-sm">
                         <img
                             src={activeModalCards[activeCategory]?.foto || daskomIcon}
                             alt={activeModalCards[activeCategory]?.nama || "Asisten"}
-                            className="mx-auto mb-4 h-[165px] w-[165px] rounded-full object-cover shadow-depth-md"
+                            className="mx-auto mb-4 h-[165px] w-[165px] rounded-full object-cover shadow-depth-md ring-2 ring-[var(--depth-color-primary)] ring-offset-2"
                         />
                         <h2 className="mb-5 text-center text-xl font-bold text-depth-primary">
                             {activeModalCards[activeCategory]?.kode || ""} | {activeModalCards[activeCategory]?.nama || ""}
