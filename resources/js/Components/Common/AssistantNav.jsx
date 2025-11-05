@@ -15,7 +15,7 @@ import praktikumIcon from "../../../assets/nav/Icon-Praktikum.svg";
 import historyIcon from "../../../assets/nav/Icon-History.svg";
 import moduleIcon from "../../../assets/nav/Icon-Module.svg";
 import inputSoalIcon from "../../../assets/nav/Icon-InputSoal.svg";
-import rankingIcon from "../../../assets/nav/Icon-Ranking.svg";
+import leaderboardIcon from "../../../assets/nav/Icon-Leaderboard.svg";
 import pollingIcon from "../../../assets/nav/Icon-Polling.svg";
 import plottingIcon from "../../../assets/nav/Icon-Plotting.svg";
 import nilaiIcon from "../../../assets/nav/Icon-Nilai.svg";
@@ -88,13 +88,13 @@ const BASE_NAV_ITEMS = [
         paths: ["/soal"],
     },
     {
-        id: "ranking-praktikan",
-        permission: "see-ranking",
-        href: "/ranking",
-        label: "Ranking Praktikan",
-        icon: rankingIcon,
-        components: ["Assistants/RankingPraktikan"],
-        paths: ["/ranking"],
+        id: "leaderboard-ranking",
+        permission: "nilai-praktikan",
+        href: "/leaderboard-ranking",
+        label: "Leaderboard Ranking",
+        icon: leaderboardIcon,
+        components: ["Assistants/LeaderboardRanking"],
+        paths: ["/leaderboard-ranking"],
     },
     {
         id: "see-polling",
@@ -240,12 +240,26 @@ export default function AssisstantNav({ asisten, permission_name = [], roleName 
 
     const isActiveItem = useCallback(
         (item) => {
-            if (!item.href) {
+            if (!item?.href) {
                 return false;
             }
 
             const matchesComponent = item.components?.some((name) => component === name);
-            const matchesPath = item.paths?.some((path) => url?.startsWith(path));
+            const matchesPath = item.paths?.some((path) => {
+                if (!url || !path) {
+                    return false;
+                }
+
+                if (path === '/') {
+                    return url === '/';
+                }
+
+                if (url === path) {
+                    return true;
+                }
+
+                return url.startsWith(`${path}/`);
+            });
 
             return Boolean(matchesComponent || matchesPath);
         },
