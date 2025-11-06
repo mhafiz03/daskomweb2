@@ -33,11 +33,10 @@
         --depth-heading-gradient-start: hsl(83, 76%, 45%);
         --depth-heading-gradient-end: hsl(128, 42%, 44%);
         --typewriter-cursor-color: hsla(83, 67%, 30%, 0.9);
-        --nav-icon-filter: brightness(0) saturate(100%) invert(68%) sepia(34%)
-            saturate(728%) hue-rotate(38deg) brightness(94%) contrast(90%);
-        --nav-icon-filter-hover: brightness(0) saturate(100%) invert(82%)
-            sepia(18%) saturate(1234%) hue-rotate(38deg) brightness(97%)
-            contrast(92%);
+        --nav-icon-filter: brightness(0) saturate(100%) invert(82%) sepia(38%)
+            saturate(928%) hue-rotate(38deg) brightness(96%) contrast(90%);
+        --nav-icon-filter-hover: brightness(0) saturate(100%) invert(92%) sepia(8%)
+            saturate(1234%) hue-rotate(38deg) brightness(97%) contrast(92%);
         --nav-icon-filter-active: brightness(0) invert(1);
         --depth-shadow-sm: inset 0 1px 1px #ffffff80, 0 1px 2px #0000001a,
             0 2px 4px #0000001a;
