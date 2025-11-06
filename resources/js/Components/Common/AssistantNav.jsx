@@ -70,13 +70,13 @@ const BASE_NAV_ITEMS = [
         paths: ["/nilai-praktikan"],
     },
     {
-        id: "manage-modul",
-        permission: "manage-modul",
-        href: "/modul",
-        label: "Manage Modul",
-        icon: moduleIcon,
-        components: ["Assistants/ModulePraktikum"],
-        paths: ["/modul"],
+        id: "lihat-tp",
+        permission: "check-tugas-pendahuluan",
+        href: "/lihat-tp",
+        label: "Lihat TP",
+        icon: jawabanTP,
+        components: ["Assistants/LihatTP", "Assistants/ResultLihatTP"],
+        paths: ["/lihat-tp", "/jawaban-tp"],
     },
     {
         id: "see-soal",
@@ -86,6 +86,24 @@ const BASE_NAV_ITEMS = [
         icon: inputSoalIcon,
         components: ["Assistants/SoalPraktikum"],
         paths: ["/soal"],
+    },
+    {
+        id: "manage-modul",
+        permission: "manage-modul",
+        href: "/modul",
+        label: "Manage Modul",
+        icon: moduleIcon,
+        components: ["Assistants/ModulePraktikum"],
+        paths: ["/modul"],
+    },
+    {
+        id: "see-plot",
+        permission: "see-plot",
+        href: "/plottingan",
+        label: "Plotting Jadwal",
+        icon: plottingIcon,
+        components: ["Assistants/PlottingAssistant"],
+        paths: ["/plottingan"],
     },
     {
         id: "leaderboard-ranking",
@@ -104,15 +122,6 @@ const BASE_NAV_ITEMS = [
         icon: pollingIcon,
         components: ["Assistants/PollingAssistant"],
         paths: ["/polling"],
-    },
-    {
-        id: "see-plot",
-        permission: "see-plot",
-        href: "/plottingan",
-        label: "Plotting Jadwal",
-        icon: plottingIcon,
-        components: ["Assistants/PlottingAssistant"],
-        paths: ["/plottingan"],
     },
     {
         id: "see-pelanggaran",
@@ -141,15 +150,6 @@ const BASE_NAV_ITEMS = [
         icon: praktikanIcon,
         components: ["Assistants/ManagePraktikan"],
         paths: ["/manage-praktikan"],
-    },
-    {
-        id: "lihat-tp",
-        permission: "check-tugas-pendahuluan",
-        href: "/lihat-tp",
-        label: "Lihat TP",
-        icon: jawabanTP,
-        components: ["Assistants/LihatTP", "Assistants/ResultLihatTP"],
-        paths: ["/lihat-tp", "/jawaban-tp"],
     },
 ];
 
@@ -386,12 +386,12 @@ export default function AssisstantNav({ asisten, permission_name = [], roleName 
                         </button>
                     </div>
 
-                    <div className="flex flex-1 flex-col overflow-hidden -mt-3">
+                    <div className="flex flex-1 flex-col overflow-hidden -mt-4">
                         <ul className={`flex flex-col gap-1 py-2 ${isCollapsed ? "px-1" : "px-4"}`}>
                             {availableNavItems.map((item) => renderNavLink(item))}
                         </ul>
 
-                        <ul className={`mt-auto flex flex-col gap-1 py-3 ${isCollapsed ? "px-1" : "px-4"}`}>
+                        <ul className={`mt-auto flex flex-col gap-1 py-6 ${isCollapsed ? "px-1" : "px-4"}`}>
                             {footerActions.map((action) => renderActionButton(action))}
                         </ul>
                     </div>

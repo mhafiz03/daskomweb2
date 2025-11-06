@@ -7,11 +7,18 @@ import editIcon from "../../../../assets/nav/Icon-Edit.svg";
 import { useKelasQuery, KELAS_QUERY_KEY } from "@/hooks/useKelasQuery";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/lib/api";
+import { index as praktikanIndex } from "@/lib/routes/praktikan";
+import { ModalOverlay } from "@/Components/Common/ModalPortal";
+import ModalCloseButton from "@/Components/Common/ModalCloseButton";
 
 export default function TablePlottingan() {
     const [isModalOpenDelete, setIsModalOpenDelete] = useState(false);
     const [isModalOpenEdit, setIsModalOpenEdit] = useState(false);
+    const [isModalViewPraktikanOpen, setIsModalViewPraktikanOpen] = useState(false);
     const [selectedKelas, setSelectedKelas] = useState(null);
+    const [praktikanList, setPraktikanList] = useState([]);
+    const [isLoadingPraktikanList, setIsLoadingPraktikanList] = useState(false);
+    const [praktikanError, setPraktikanError] = useState(null);
     const queryClient = useQueryClient();
 
     // Urutan hari untuk sorting
@@ -86,6 +93,39 @@ export default function TablePlottingan() {
         queryClient.invalidateQueries({ queryKey: KELAS_QUERY_KEY });
     };
 
+    const handleOpenViewPraktikan = async (kelasItem) => {
+        setSelectedKelas(kelasItem);
+        setIsModalViewPraktikanOpen(true);
+        setIsLoadingPraktikanList(true);
+        setPraktikanError(null);
+        try {
+            const { data } = await api.get(
+                praktikanIndex.url({
+                    query: {
+                        kelas_id: kelasItem.id,
+                        per_page: 200,
+                    },
+                }),
+            );
+
+            setPraktikanList(Array.isArray(data?.data) ? data.data : []);
+        } catch (err) {
+            const message = err?.response?.data?.message ?? err?.message ?? "Gagal memuat daftar praktikan.";
+            setPraktikanError(message);
+            toast.error(message);
+            setPraktikanList([]);
+        } finally {
+            setIsLoadingPraktikanList(false);
+        }
+    };
+
+    const handleCloseViewPraktikan = () => {
+        setIsModalViewPraktikanOpen(false);
+        setSelectedKelas(null);
+        setPraktikanList([]);
+        setPraktikanError(null);
+    };
+
     // const handleOpenModalPlot = (kelas) => {
     //     setSelectedKelas(kelas);
     //     setIsModalOpenPlot(true);
@@ -121,11 +161,40 @@ export default function TablePlottingan() {
                                 key={kelasItem.id}
                                 className="grid grid-cols-5 items-center gap-2 px-4 py-3 text-sm text-depth-primary"
                             >
-                                <span className="text-center font-semibold">{kelasItem.kelas}</span>
+                                <span className="flex items-center justify-center gap-2 font-semibold">
+                                    {kelasItem.kelas}
+                                    {Number(kelasItem.isEnglish) === 1 && (
+                                        <span className="rounded-depth-full border border-depth bg-depth-interactive px-3 py-1 text-xs font-semibold text-depth-primary">
+                                            English
+                                        </span>
+                                    )}
+                                </span>
                                 <span className="text-center text-depth-secondary">{kelasItem.hari}</span>
                                 <span className="text-center text-depth-secondary">{kelasItem.shift}</span>
                                 <span className="text-center text-depth-secondary">{kelasItem.totalGroup}</span>
                                 <div className="flex items-center justify-center gap-2">
+                                    <button
+                                        type="button"
+                                        onClick={() => handleOpenViewPraktikan(kelasItem)}
+                                        className="flex h-9 w-9 items-center justify-center rounded-depth-md border border-depth shadow-depth-sm transition hover:-translate-y-0.5 hover:shadow-depth-md bg-[var(--depth-color-primary)] text-white "
+                                        aria-label={`Lihat praktikan kelas ${kelasItem.kelas}`}
+                                    >
+                                        <svg
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            fill="none"
+                                            viewBox="0 0 24 24"
+                                            strokeWidth="2"
+                                            stroke="currentColor"
+                                            className="h-4 w-4"
+                                        >
+                                            <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                            <path
+                                                strokeLinecap="round"
+                                                strokeLinejoin="round"
+                                                d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                                            />
+                                        </svg>
+                                    </button>
                                     <button
                                         type="button"
                                         onClick={() => handleOpenModalEdit(kelasItem)}
@@ -160,6 +229,63 @@ export default function TablePlottingan() {
 
             {isModalOpenEdit && (
                 <ModalEditPlotting onClose={handleCloseModalEdit} kelas={selectedKelas} />
+            )}
+
+            {isModalViewPraktikanOpen && (
+                <ModalOverlay onClose={handleCloseViewPraktikan} className="depth-modal-overlay z-[70]">
+                    <div className="depth-modal-container w-full max-w-3xl space-y-6">
+                        <div className="depth-modal-header">
+                            <div>
+                                <p className="text-xs font-semibold uppercase tracking-wide text-depth-secondary">Daftar Praktikan</p>
+                                <h2 className="depth-modal-title">
+                                    {selectedKelas?.kelas ?? "Kelas"}
+                                </h2>
+                                <p className="text-xs text-depth-secondary">
+                                    Hari {selectedKelas?.hari ?? "-"} • Shift {selectedKelas?.shift ?? "-"}
+                                </p>
+                            </div>
+                            <ModalCloseButton onClick={handleCloseViewPraktikan} ariaLabel="Tutup daftar praktikan" />
+                        </div>
+
+                        <div className="max-h-[60vh] overflow-y-auto rounded-depth-md border border-depth bg-depth-card shadow-depth-sm">
+                            {isLoadingPraktikanList ? (
+                                <div className="px-6 py-10 text-center text-depth-secondary">Memuat daftar praktikan…</div>
+                            ) : praktikanError ? (
+                                <div className="px-6 py-10 text-center text-red-500">{praktikanError}</div>
+                            ) : praktikanList.length === 0 ? (
+                                <div className="px-6 py-10 text-center text-depth-secondary">
+                                    Belum ada praktikan yang terdaftar di kelas ini.
+                                </div>
+                            ) : (
+                                <table className="min-w-full table-auto text-sm text-depth-primary">
+                                    <thead className="bg-depth-interactive/60 text-xs font-semibold uppercase tracking-wide text-depth-secondary">
+                                        <tr>
+                                            <th className="px-4 py-3 text-left">Nama</th>
+                                            <th className="px-4 py-3 text-left">NIM</th>
+                                            <th className="px-4 py-3 text-left">Email</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-[color:var(--depth-border)]">
+                                        {praktikanList.map((praktikan) => (
+                                            <tr key={praktikan.id}>
+                                                <td className="px-4 py-3 font-semibold text-depth-primary">{praktikan.nama}</td>
+                                                <td className="px-4 py-3 text-depth-secondary">{praktikan.nim}</td>
+                                                <td className="px-4 py-3">
+                                                    <a
+                                                        href={`mailto:${praktikan.email}`}
+                                                        className="text-[var(--depth-color-primary)] underline-offset-2 hover:underline"
+                                                    >
+                                                        {praktikan.email}
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            )}
+                        </div>
+                    </div>
+                </ModalOverlay>
             )}
         </div>
     );

@@ -3,11 +3,11 @@ import { Image } from "@imagekit/react";
 import toast from "react-hot-toast";
 import daskomIcon from "../../../../../resources/assets/daskom.svg";
 import { Dialog } from "@headlessui/react";
-import closeIcon from "../../../../assets/modal/iconClose.svg";
 import iconWA from "../../../../assets/contact/iconWhatsapp.svg";
 import iconLine from "../../../../assets/contact/iconLine.svg";
 import iconIG from "../../../../assets/contact/iconInstagram.svg";
 import { useAsistensQuery } from "@/hooks/useAsistensQuery";
+import ModalCloseButton from "@/Components/Common/ModalCloseButton";
 
 export default function ContactAssistantTable() {
     const [selectedAsisten, setSelectedAsisten] = useState(null);
@@ -103,12 +103,11 @@ export default function ContactAssistantTable() {
                     <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={closeModal}></div>
                     <div className="relative z-10 w-full max-w-md rounded-depth-lg border border-depth bg-depth-card p-8 text-center shadow-depth-lg">
                         {/* Close Button */}
-                        <button 
-                            onClick={closeModal} 
-                            className="absolute right-3 top-3 flex items-center justify-center rounded-depth-full p-2 text-depth-secondary transition hover:bg-depth-interactive hover:text-depth-primary focus:outline-none"
-                        >
-                            <img className="w-6" src={closeIcon} alt="closeIcon" />
-                        </button>
+                        <ModalCloseButton
+                            onClick={closeModal}
+                            ariaLabel="Tutup detail asisten"
+                            className="absolute right-3 top-3"
+                        />
                         
                         <h2 className="mb-6 text-xl font-bold text-depth-primary">Detail Asisten</h2>
                         <div className="mb-6 flex flex-col items-center">

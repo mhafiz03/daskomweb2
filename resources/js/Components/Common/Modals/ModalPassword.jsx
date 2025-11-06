@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { usePage } from "@inertiajs/react";
-import closeIcon from "../../../../assets/modal/iconClose.svg";
 import failedIcon from "../../../../assets/modal/failedSymbol.png";
 import { submit } from "@/lib/http";
 import { ModalOverlay } from "@/Components/Common/ModalPortal";

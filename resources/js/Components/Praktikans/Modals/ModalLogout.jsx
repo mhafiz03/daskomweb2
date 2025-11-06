@@ -1,6 +1,6 @@
-import closeIcon from "../../../../assets/modal/iconClose.svg";
 import { submit } from "@/lib/http";
 import { destroy as logoutPraktikan } from "@/lib/routes/auth/loginPraktikan";
+import ModalCloseButton from "@/Components/Common/ModalCloseButton";
 
 export default function ModalLogout({ onClose, onConfirm }) {
     const handleConfirm = () => {
@@ -24,12 +24,11 @@ export default function ModalLogout({ onClose, onConfirm }) {
         <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex justify-center items-center">
             <div className="bg-softGray p-6 rounded shadow-lg w-1/4 relative">
                 {/* Close Button */}
-                <button
+                <ModalCloseButton
                     onClick={onClose}
-                    className="absolute top-2 right-2 flex justify-center items-center"
-                >
-                    <img className="w-9" src={closeIcon} alt="Close Icon" />
-                </button>
+                    ariaLabel="Tutup konfirmasi logout"
+                    className="absolute right-2 top-2"
+                />
 
                 <h2 className="text-xl font-bold text-center mt-8 mb-5 text-black">Apakah Kamu Yakin?</h2>
 

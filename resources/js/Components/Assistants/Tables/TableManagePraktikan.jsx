@@ -122,7 +122,7 @@ export default function TableManagePraktikan({
                                                 onClick={() => onDelete?.(praktikan)}
                                                 className="flex h-9 w-9 items-center justify-center rounded-depth-md border border-red-500/60 bg-red-500/15 text-red-400 shadow-depth-sm transition duration-150 hover:-translate-y-0.5 hover:border-red-400 hover:shadow-depth-md"
                                             >
-                                                <img src={deleteIcon} alt="" className="edit-icon-filter h-4 w-4"/>
+                                                <img src={deleteIcon} alt="" className="h-4 w-4"/>
                                             </button>
                                         </div>
                                     </td>

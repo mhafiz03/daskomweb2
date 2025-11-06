@@ -4,6 +4,7 @@ import toast from "react-hot-toast";
 import { api } from "@/lib/api";
 import { ModalOverlay } from "@/Components/Common/ModalPortal";
 import ModalCloseButton from "@/Components/Common/ModalCloseButton";
+import deleteIcon from "../../../../assets/nav/Icon-Delete.svg";
 
 const noop = () => {};
 
@@ -143,12 +144,15 @@ export default function DropdownPolling({
 
     return (
         <>
-            <div className="flex items-center gap-3">
-                <div className="relative flex-1">
+            <div className="flex flex-wrap items-center gap-3">
+                <span className="text-sm font-semibold uppercase tracking-wide text-depth-secondary">
+                    Jenis Polling
+                </span>
+                <div className="relative">
                     <select
                         value={selectedCategory}
                         onChange={handleCategoryChange}
-                        className="w-full appearance-none rounded-depth-md border border-depth bg-depth-card px-4 py-2 text-sm font-semibold text-depth-primary shadow-depth-sm transition focus:border-[var(--depth-color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)] focus:ring-offset-0"
+                        className="min-w-[220px] appearance-none rounded-depth-md border border-depth bg-depth-card px-4 py-2 text-sm font-semibold text-depth-primary shadow-depth-sm transition focus:border-[var(--depth-color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)] focus:ring-offset-0"
                     >
                         <option value="">Pilih Jenis Polling</option>
                         {categories.map((category) => (
@@ -165,7 +169,7 @@ export default function DropdownPolling({
                     disabled={!selectedCategory || isBusy}
                     className="inline-flex items-center gap-2 rounded-depth-md border border-red-500/60 bg-red-500/15 px-4 py-2 text-xs font-semibold text-red-400 shadow-depth-sm transition hover:-translate-y-0.5 hover:shadow-depth-md disabled:cursor-not-allowed disabled:opacity-60"
                 >
-                    Hapus
+                    <img src={deleteIcon} alt="" className="h-4 w-4"/>
                 </button>
             </div>
 

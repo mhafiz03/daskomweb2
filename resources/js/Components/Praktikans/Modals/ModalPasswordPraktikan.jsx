@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react";
 import { usePage } from "@inertiajs/react";
-import closeIcon from "../../../../assets/modal/iconClose.svg";
 import failedIcon from "../../../../assets/modal/failedSymbol.png";
 import { submit } from "@/lib/http";
 import { updatePassword as updatePraktikanPassword } from "@/lib/routes/praktikan";
+import ModalCloseButton from "@/Components/Common/ModalCloseButton";
 
 export default function ModalPasswordPraktikan({ onClose }) {
     const [values, setValues] = useState({
@@ -91,13 +91,11 @@ export default function ModalPasswordPraktikan({ onClose }) {
             <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-10">
                 <div className="bg-softGray p-8 rounded shadow-lg w-[30%] relative">
                     {/* Close button */}
-                    <button
-                        type="button"
+                    <ModalCloseButton
                         onClick={onClose}
-                        className="absolute top-2 right-2 flex justify-center items-center"
-                    >
-                        <img className="w-9" src={closeIcon} alt="closeIcon" />
-                    </button>
+                        ariaLabel="Tutup ganti password"
+                        className="absolute right-2 top-2"
+                    />
 
                     <h2 className="text-3xl font-bold text-center mt-4 mb-9 text-black">Ganti Password</h2>
 
@@ -141,13 +139,11 @@ export default function ModalPasswordPraktikan({ onClose }) {
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-20">
                     <div className="bg-softGray p-8 rounded shadow-lg w-[30%] relative flex flex-col items-center">
                         {/* Close button */}
-                        <button
-                            type="button"
+                        <ModalCloseButton
                             onClick={closeErrorModal}
-                            className="absolute top-2 right-2 flex justify-center items-center"
-                        >
-                            <img className="w-9" src={closeIcon} alt="closeIcon" />
-                        </button>
+                            ariaLabel="Tutup pesan error"
+                            className="absolute right-2 top-2"
+                        />
 
                         {/* Error icon */}
                         <img className="w-28 mb-4" src={failedIcon} alt="failedIcon" />
@@ -171,13 +167,11 @@ export default function ModalPasswordPraktikan({ onClose }) {
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-20">
                     <div className="bg-softGray p-8 rounded shadow-lg w-[30%] relative flex flex-col items-center">
                         {/* Close button */}
-                        <button
-                            type="button"
+                        <ModalCloseButton
                             onClick={closeSuccessModal}
-                            className="absolute top-2 right-2 flex justify-center items-center"
-                        >
-                            <img className="w-9" src={closeIcon} alt="closeIcon" />
-                        </button>
+                            ariaLabel="Tutup pesan sukses"
+                            className="absolute right-2 top-2"
+                        />
 
                         {/* Success message */}
                         <p className="text-center mt-4 text-xl font-semibold text-darkGreen">Password Anda telah berhasil diganti.</p>
