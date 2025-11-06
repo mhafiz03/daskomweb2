@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import closeIcon from "../../../../assets/modal/iconClose.svg";
 import { api } from "@/lib/api";
+import ModalPortal from "@/Components/Common/ModalPortal";
 
 const fetchJawabanTp = async ({ nim, modulId }) => {
     if (!nim || !modulId) {
@@ -33,8 +34,9 @@ export default function ModalJawabanTP({ onClose, nim, modulId, assignment }) {
     const jawabanList = data?.jawabanData ?? [];
 
     return (
-        <div className="depth-modal-overlay z-50">
-            <div className="depth-modal-container max-w-6xl" style={{ "--depth-modal-max-width": "56rem" }}>
+        <ModalPortal>
+            <div className="depth-modal-overlay z-50">
+                <div className="depth-modal-container max-w-6xl" style={{ "--depth-modal-max-width": "56rem" }}>
                 <div className="depth-modal-header">
                     <div className="text-center flex-1">
                         <h3 className="depth-modal-title">Jawaban Tugas Pendahuluan</h3>
@@ -108,7 +110,6 @@ export default function ModalJawabanTP({ onClose, nim, modulId, assignment }) {
                     </button>
                 </div>
             </div>
-        </div>
+        </ModalPortal>
     );
 }
-

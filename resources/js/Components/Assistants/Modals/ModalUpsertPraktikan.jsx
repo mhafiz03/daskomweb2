@@ -9,6 +9,7 @@ import {
 } from "@/lib/routes/praktikan";
 import { MANAGE_PRAKTIKAN_QUERY_KEY } from "@/hooks/useManagePraktikanQuery";
 import closeIcon from "../../../../assets/modal/iconClose.svg";
+import ModalPortal from "@/Components/Common/ModalPortal";
 
 const DEFAULT_FORM = {
     nama: "",
@@ -136,11 +137,12 @@ export default function ModalUpsertPraktikan({
     };
 
     return (
-        <div className="depth-modal-overlay z-[9999]" onClick={(event) => event.target === event.currentTarget && !mutation.isPending && onClose?.()}>
-            <div
-                className="depth-modal-container w-full max-w-2xl"
-                onClick={(event) => event.stopPropagation()}
-            >
+        <ModalPortal>
+            <div className="depth-modal-overlay z-[9999]" onClick={(event) => event.target === event.currentTarget && !mutation.isPending && onClose?.()}>
+                <div
+                    className="depth-modal-container w-full max-w-2xl"
+                    onClick={(event) => event.stopPropagation()}
+                >
                 <div className="depth-modal-header">
                     <h2 className="depth-modal-title">
                         {isEdit ? "Edit Praktikan" : "Tambah Praktikan"}
@@ -299,7 +301,8 @@ export default function ModalUpsertPraktikan({
                         </button>
                     </div>
                 </form>
+                </div>
             </div>
-        </div>
+        </ModalPortal>
     );
 }

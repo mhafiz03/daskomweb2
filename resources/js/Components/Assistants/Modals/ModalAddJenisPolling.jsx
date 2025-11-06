@@ -2,6 +2,7 @@ import { useState } from "react";
 import toast from "react-hot-toast";
 import closeIcon from "../../../../assets/modal/iconClose.svg";
 import { api } from "@/lib/api";
+import ModalPortal from "@/Components/Common/ModalPortal";
 
 const normalizeTitle = (value) => value?.trim() ?? "";
 
@@ -56,16 +57,17 @@ export default function ModalAddJenisPolling({ onClose, onSuccess, existingCateg
     };
 
     return (
-        <div className="depth-modal-overlay">
-            <div className="depth-modal-container max-w-lg">
-                <div className="depth-modal-header">
-                    <h2 className="depth-modal-title">Tambah Jenis Polling</h2>
-                    <button type="button" onClick={handleClose} className="depth-modal-close">
-                        <img className="h-6 w-6" src={closeIcon} alt="Tutup" />
-                    </button>
-                </div>
+        <ModalPortal>
+            <div className="depth-modal-overlay">
+                <div className="depth-modal-container max-w-lg">
+                    <div className="depth-modal-header">
+                        <h2 className="depth-modal-title">Tambah Jenis Polling</h2>
+                        <button type="button" onClick={handleClose} className="depth-modal-close">
+                            <img className="h-6 w-6" src={closeIcon} alt="Tutup" />
+                        </button>
+                    </div>
 
-                <form onSubmit={handleSubmit} className="space-y-5">
+                    <form onSubmit={handleSubmit} className="space-y-5">
                     <div className="space-y-2">
                         <label htmlFor="jenisPollingName" className="text-sm font-semibold text-depth-secondary">
                             Nama Jenis Polling
@@ -84,7 +86,7 @@ export default function ModalAddJenisPolling({ onClose, onSuccess, existingCateg
                         ) : null}
                     </div>
 
-                    <div className="flex justify-end gap-3">
+                        <div className="flex justify-end gap-3">
                         <button
                             type="button"
                             onClick={handleClose}
@@ -100,9 +102,10 @@ export default function ModalAddJenisPolling({ onClose, onSuccess, existingCateg
                         >
                             {isSubmitting ? "Menyimpan..." : "Simpan"}
                         </button>
-                    </div>
-                </form>
+                        </div>
+                    </form>
+                </div>
             </div>
-        </div>
+        </ModalPortal>
     );
 }

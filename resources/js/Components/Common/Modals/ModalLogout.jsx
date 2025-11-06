@@ -1,6 +1,7 @@
 import toast from "react-hot-toast";
 import closeIcon from "../../../../assets/modal/iconClose.svg";
 import { submit } from "@/lib/http";
+import { ModalOverlay } from "@/Components/Common/ModalPortal";
 
 export default function ModalLogout({ isOpen, onClose, onConfirm, logoutAction, onLogoutSuccess }) {
     if (!isOpen) return null;
@@ -66,7 +67,7 @@ export default function ModalLogout({ isOpen, onClose, onConfirm, logoutAction, 
     };
 
     return (
-        <div className="depth-modal-overlay">
+        <ModalOverlay onClose={onClose}>
             <div className="depth-modal-container max-w-md">
                 <div className="depth-modal-header">
                     <h2 className="depth-modal-title">Apakah Kamu Yakin?</h2>
@@ -100,6 +101,6 @@ export default function ModalLogout({ isOpen, onClose, onConfirm, logoutAction, 
                     </button>
                 </div>
             </div>
-        </div>
+        </ModalOverlay>
     );
 }

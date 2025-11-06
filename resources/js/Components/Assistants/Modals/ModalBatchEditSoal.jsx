@@ -6,6 +6,7 @@ import { PrismLight as SyntaxHighlighter } from 'react-syntax-highlighter';
 import c from 'react-syntax-highlighter/dist/esm/languages/prism/c';
 import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism";
 import closeIcon from "../../../../assets/modal/iconClose.svg";
+import ModalPortal from "@/Components/Common/ModalPortal";
 
 SyntaxHighlighter.registerLanguage('c', c);
 
@@ -217,11 +218,12 @@ export default function ModalBatchEditSoal({
     };
 
     return (
-        <div className="depth-modal-overlay z-50">
-            <div
-                className="depth-modal-container flex max-h-[90vh] flex-col overflow-hidden"
-                style={{ "--depth-modal-max-width": "72rem" }}
-            >
+        <ModalPortal>
+            <div className="depth-modal-overlay z-50">
+                <div
+                    className="depth-modal-container flex max-h-[90vh] flex-col overflow-hidden"
+                    style={{ "--depth-modal-max-width": "72rem" }}
+                >
                 <div className="depth-modal-header">
                     <h2 className="depth-modal-title">{title}</h2>
                     <div className="flex items-center gap-3">
@@ -289,8 +291,9 @@ export default function ModalBatchEditSoal({
                         </button>
                     </div>
                 )}
+                </div>
             </div>
-        </div>
+        </ModalPortal>
     );
 }
 

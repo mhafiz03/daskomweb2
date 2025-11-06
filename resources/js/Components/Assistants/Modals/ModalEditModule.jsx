@@ -5,6 +5,7 @@ import { send } from "@/lib/http";
 import { update as updateModul } from "@/lib/routes/modul";
 import DepthToggle from "@/Components/Common/DepthToggle";
 import { api } from "@/lib/api";
+import { ModalOverlay } from "@/Components/Common/ModalPortal";
 
 export default function ModalEditModule({ onClose, modules, selectedModuleId, onUpdate }) {
     const [values, setValues] = useState({
@@ -139,7 +140,7 @@ export default function ModalEditModule({ onClose, modules, selectedModuleId, on
         : formErrors?.general;
 
     return (
-        <div className="depth-modal-overlay z-50">
+        <ModalOverlay onClose={onClose} className="depth-modal-overlay z-50">
             <div
                 className="depth-modal-container max-h-[80vh] w-full max-w-3xl space-y-6 overflow-y-auto"
             >
@@ -246,7 +247,7 @@ export default function ModalEditModule({ onClose, modules, selectedModuleId, on
                     </div>
                 </div>
             </div>
-        </div>
+        </ModalOverlay>
     );
 }
 

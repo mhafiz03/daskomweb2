@@ -12,6 +12,7 @@ import {
     destroy as destroyJadwalJaga,
     store as storeJadwalJaga,
 } from "@/lib/routes/jadwalJaga";
+import ModalPortal from "@/Components/Common/ModalPortal";
 
 export default function ModalEditPlotting({ onClose, kelas }) {
     const [formData, setFormData] = useState({ kelas: "", hari: "", shift: "", totalGroup: "" });
@@ -203,181 +204,181 @@ export default function ModalEditPlotting({ onClose, kelas }) {
     }, [jadwalEntries]);
 
     return (
-        <div className="depth-modal-overlay z-50">
-            <div
-                className="depth-modal-container space-y-6"
-                style={{ "--depth-modal-max-width": "56rem" }}
-            >
-                <div className="depth-modal-header">
-                    <h2 className="depth-modal-title">Edit Jadwal</h2>
-                    <button onClick={onClose} type="button" className="depth-modal-close">
-                        <img className="h-6 w-6" src={closeIcon} alt="Tutup" />
-                    </button>
-                </div>
-
-                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-                    <div className="space-y-2">
-                        <label htmlFor="kelas" className="text-sm font-semibold text-depth-secondary">
-                            Kelas
-                        </label>
-                        <input
-                            id="kelas"
-                            type="text"
-                            value={formData.kelas}
-                            onChange={handleInputChange}
-                            className="w-full rounded-depth-md border border-depth bg-depth-card px-3 py-2 text-sm text-depth-primary shadow-depth-sm transition focus:border-[var(--depth-color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)] focus:ring-offset-0"
-                        />
-                    </div>
-                    <div className="space-y-2">
-                        <label htmlFor="hari" className="text-sm font-semibold text-depth-secondary">
-                            Hari
-                        </label>
-                        <select
-                            id="hari"
-                            value={formData.hari}
-                            onChange={handleInputChange}
-                            className="w-full rounded-depth-md border border-depth bg-depth-card px-3 py-2 text-sm text-depth-primary shadow-depth-sm transition focus:border-[var(--depth-color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)] focus:ring-offset-0"
-                        >
-                            <option value="">- Pilih Hari -</option>
-                            {["SENIN", "SELASA", "RABU", "KAMIS", "JUMAT", "SABTU"].map((day) => (
-                                <option key={day} value={day}>
-                                    {day}
-                                </option>
-                            ))}
-                        </select>
-                    </div>
-                    <div className="space-y-2">
-                        <label htmlFor="shift" className="text-sm font-semibold text-depth-secondary">
-                            Shift
-                        </label>
-                        <input
-                            id="shift"
-                            type="number"
-                            value={formData.shift}
-                            onChange={handleInputChange}
-                            className="w-full rounded-depth-md border border-depth bg-depth-card px-3 py-2 text-sm text-depth-primary shadow-depth-sm transition focus:border-[var(--depth-color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)] focus:ring-offset-0"
-                        />
-                    </div>
-                    <div className="space-y-2">
-                        <label htmlFor="totalGroup" className="text-sm font-semibold text-depth-secondary">
-                            Kelompok
-                        </label>
-                        <input
-                            id="totalGroup"
-                            type="number"
-                            value={formData.totalGroup}
-                            onChange={handleInputChange}
-                            className="w-full rounded-depth-md border border-depth bg-depth-card px-3 py-2 text-sm text-depth-primary shadow-depth-sm transition focus:border-[var(--depth-color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)] focus:ring-offset-0"
-                        />
-                    </div>
-                </div>
-
-                <div className="rounded-depth-lg border border-depth bg-depth-interactive/40 p-4 shadow-depth-sm">
-                    <div className="mb-4 flex flex-col gap-2 md:flex-row md:items-center">
-                        <input
-                            type="text"
-                            value={newAsistenCode}
-                            onChange={(event) => setNewAsistenCode(event.target.value.toUpperCase())}
-                            onKeyDown={(event) => {
-                                if (event.key === "Enter") {
-                                    event.preventDefault();
-                                    handleAddAsisten();
-                                }
-                            }}
-                            placeholder="Masukkan kode asisten"
-                            className="w-full rounded-depth-md border border-depth bg-depth-card px-3 py-2 text-sm text-depth-primary shadow-depth-sm transition focus:border-[var(--depth-color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)] focus:ring-offset-0 uppercase"
-                        />
-                        <button
-                            type="button"
-                            onClick={handleAddAsisten}
-                            className="w-full rounded-depth-md bg-[var(--depth-color-primary)] px-4 py-2 text-sm font-semibold text-white shadow-depth-sm transition hover:-translate-y-0.5 hover:shadow-depth-md md:w-auto"
-                        >
-                            Tambah
+        <ModalPortal>
+            <div className="depth-modal-overlay z-50">
+                <div
+                    className="depth-modal-container space-y-6"
+                    style={{ "--depth-modal-max-width": "56rem" }}
+                >
+                    <div className="depth-modal-header">
+                        <h2 className="depth-modal-title">Edit Jadwal</h2>
+                        <button onClick={onClose} type="button" className="depth-modal-close">
+                            <img className="h-6 w-6" src={closeIcon} alt="Tutup" />
                         </button>
-                        
                     </div>
 
-                    <div className="max-h-48 overflow-y-auto">
-                        {jadwalLoading ? (
-                            <p className="text-sm text-depth-secondary">Memuat daftar asisten jaga...</p>
-                        ) : jadwalEntries.length > 0 ? (
-                            <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
-                                {[leftColumnEntries, rightColumnEntries].map((columnEntries, columnIndex) => (
-                                    <ul key={columnIndex} className="space-y-2">
-                                        {columnEntries.map((entry, idx) => {
-                                            const globalIndex = columnIndex === 0 ? idx : leftColumnEntries.length + idx;
-                                            const detail =
-                                                entry?.asisten ??
-                                                asistenMap.get(Number(entry?.asisten_id)) ??
-                                                null;
-                                            const kode = detail?.kode ?? entry?.kode ?? `AST-${globalIndex + 1}`;
-                                            const jadwalId = entry?.id ?? entry?.jadwal_id ?? null;
-
-                                            return (
-                                                <li
-                                                    key={jadwalId ?? `${kode}-${columnIndex}-${idx}`}
-                                                    className="flex items-center justify-between rounded-depth-md border border-depth bg-depth-card px-3 py-2 text-sm text-depth-primary shadow-depth-sm"
-                                                >
-                                                    <div>
-                                                        <p className="font-semibold">{kode}</p>
-                                                    </div>
-                                                    <button
-                                                        type="button"
-                                                        onClick={() => handleRemoveAsisten(jadwalId)}
-                                                        className="group rounded-depth-md p-1 transition hover:bg-red-50 dark:hover:bg-red-900/20"
-                                                        disabled={!jadwalId}
-                                                    >
-                                                        <img 
-                                                            src={deleteIcon} 
-                                                            alt="Hapus" 
-                                                            className="h-4 w-4 opacity-70 transition group-hover:opacity-100" 
-                                                        />
-                                                    </button>
-                                                </li>
-                                            );
-                                        })}
-                                    </ul>
+                    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+                        <div className="space-y-2">
+                            <label htmlFor="kelas" className="text-sm font-semibold text-depth-secondary">
+                                Kelas
+                            </label>
+                            <input
+                                id="kelas"
+                                type="text"
+                                value={formData.kelas}
+                                onChange={handleInputChange}
+                                className="w-full rounded-depth-md border border-depth bg-depth-card px-3 py-2 text-sm text-depth-primary shadow-depth-sm transition focus:border-[var(--depth-color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)] focus:ring-offset-0"
+                            />
+                        </div>
+                        <div className="space-y-2">
+                            <label htmlFor="hari" className="text-sm font-semibold text-depth-secondary">
+                                Hari
+                            </label>
+                            <select
+                                id="hari"
+                                value={formData.hari}
+                                onChange={handleInputChange}
+                                className="w-full rounded-depth-md border border-depth bg-depth-card px-3 py-2 text-sm text-depth-primary shadow-depth-sm transition focus:border-[var(--depth-color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)] focus:ring-offset-0"
+                            >
+                                <option value="">- Pilih Hari -</option>
+                                {["SENIN", "SELASA", "RABU", "KAMIS", "JUMAT", "SABTU"].map((day) => (
+                                    <option key={day} value={day}>
+                                        {day}
+                                    </option>
                                 ))}
-                            </div>
-                        ) : (
-                            <p className="text-sm text-depth-secondary">Belum ada asisten jaga untuk kelas ini.</p>
-                        )}
+                            </select>
+                        </div>
+                        <div className="space-y-2">
+                            <label htmlFor="shift" className="text-sm font-semibold text-depth-secondary">
+                                Shift
+                            </label>
+                            <input
+                                id="shift"
+                                type="number"
+                                value={formData.shift}
+                                onChange={handleInputChange}
+                                className="w-full rounded-depth-md border border-depth bg-depth-card px-3 py-2 text-sm text-depth-primary shadow-depth-sm transition focus:border-[var(--depth-color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)] focus:ring-offset-0"
+                            />
+                        </div>
+                        <div className="space-y-2">
+                            <label htmlFor="totalGroup" className="text-sm font-semibold text-depth-secondary">
+                                Kelompok
+                            </label>
+                            <input
+                                id="totalGroup"
+                                type="number"
+                                value={formData.totalGroup}
+                                onChange={handleInputChange}
+                                className="w-full rounded-depth-md border border-depth bg-depth-card px-3 py-2 text-sm text-depth-primary shadow-depth-sm transition focus:border-[var(--depth-color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)] focus:ring-offset-0"
+                            />
+                        </div>
                     </div>
-                </div>
 
-                <div className="flex justify-end gap-3">
-                    <div className="flex items-center gap-2 md:ml-auto">
+                    <div className="rounded-depth-lg border border-depth bg-depth-interactive/40 p-4 shadow-depth-sm">
+                        <div className="mb-4 flex flex-col gap-2 md:flex-row md:items-center">
+                            <input
+                                type="text"
+                                value={newAsistenCode}
+                                onChange={(event) => setNewAsistenCode(event.target.value.toUpperCase())}
+                                onKeyDown={(event) => {
+                                    if (event.key === "Enter") {
+                                        event.preventDefault();
+                                        handleAddAsisten();
+                                    }
+                                }}
+                                placeholder="Masukkan kode asisten"
+                                className="w-full rounded-depth-md border border-depth bg-depth-card px-3 py-2 text-sm text-depth-primary shadow-depth-sm transition focus:border-[var(--depth-color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)] focus:ring-offset-0 uppercase"
+                            />
+                            <button
+                                type="button"
+                                onClick={handleAddAsisten}
+                                className="w-full rounded-depth-md bg-[var(--depth-color-primary)] px-4 py-2 text-sm font-semibold text-white shadow-depth-sm transition hover:-translate-y-0.5 hover:shadow-depth-md md:w-auto"
+                            >
+                                Tambah
+                            </button>
+
+                        </div>
+
+                        <div className="max-h-48 overflow-y-auto">
+                            {jadwalLoading ? (
+                                <p className="text-sm text-depth-secondary">Memuat daftar asisten jaga...</p>
+                            ) : jadwalEntries.length > 0 ? (
+                                <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
+                                    {[leftColumnEntries, rightColumnEntries].map((columnEntries, columnIndex) => (
+                                        <ul key={columnIndex} className="space-y-2">
+                                            {columnEntries.map((entry, idx) => {
+                                                const globalIndex = columnIndex === 0 ? idx : leftColumnEntries.length + idx;
+                                                const detail =
+                                                    entry?.asisten ??
+                                                    asistenMap.get(Number(entry?.asisten_id)) ??
+                                                    null;
+                                                const kode = detail?.kode ?? entry?.kode ?? `AST-${globalIndex + 1}`;
+                                                const jadwalId = entry?.id ?? entry?.jadwal_id ?? null;
+
+                                                return (
+                                                    <li
+                                                        key={jadwalId ?? `${kode}-${columnIndex}-${idx}`}
+                                                        className="flex items-center justify-between rounded-depth-md border border-depth bg-depth-card px-3 py-2 text-sm text-depth-primary shadow-depth-sm"
+                                                    >
+                                                        <div>
+                                                            <p className="font-semibold">{kode}</p>
+                                                        </div>
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => handleRemoveAsisten(jadwalId)}
+                                                            className="group rounded-depth-md p-1 transition hover:bg-red-50 dark:hover:bg-red-900/20"
+                                                            disabled={!jadwalId}
+                                                        >
+                                                            <img
+                                                                src={deleteIcon}
+                                                                alt="Hapus"
+                                                                className="h-4 w-4 opacity-70 transition group-hover:opacity-100"
+                                                            />
+                                                        </button>
+                                                    </li>
+                                                );
+                                            })}
+                                        </ul>
+                                    ))}
+                                </div>
+                            ) : (
+                                <p className="text-sm text-depth-secondary">Belum ada asisten jaga untuk kelas ini.</p>
+                            )}
+                        </div>
+                    </div>
+
+                    <div className="flex justify-end gap-3">
+                        <div className="flex items-center gap-2 md:ml-auto">
                             <span className="text-xs font-semibold text-depth-secondary">English</span>
                             <button
                                 type="button"
                                 onClick={toggleEnglish}
-                                className={`flex h-6 w-11 items-center rounded-depth-full border border-depth bg-depth-card p-1 transition ${
-                                    isEnglish ? "text-white" : "text-depth-secondary"
-                                }`}
+                                className={`flex h-6 w-11 items-center rounded-depth-full border border-depth bg-depth-card p-1 transition ${isEnglish ? "text-white" : "text-depth-secondary"
+                                    }`}
                             >
                                 <span
-                                    className={`h-4 w-4 rounded-depth-full bg-depth-interactive shadow-depth-sm transition-transform ${
-                                        isEnglish ? "translate-x-5 bg-[var(--depth-color-primary)]" : "translate-x-0"
-                                    }`}
+                                    className={`h-4 w-4 rounded-depth-full bg-depth-interactive shadow-depth-sm transition-transform ${isEnglish ? "translate-x-5 bg-[var(--depth-color-primary)]" : "translate-x-0"
+                                        }`}
                                 />
                             </button>
                         </div>
-                    <button
-                        type="button"
-                        onClick={onClose}
-                        className="rounded-depth-md border border-depth bg-depth-interactive px-5 py-2 text-sm font-semibold text-depth-primary shadow-depth-sm transition hover:-translate-y-0.5 hover:shadow-depth-md"
-                    >
-                        Batal
-                    </button>
-                    <button
-                        type="button"
-                        onClick={handleSave}
-                        className="rounded-depth-md bg-[var(--depth-color-primary)] px-5 py-2 text-sm font-semibold text-white shadow-depth-sm transition hover:-translate-y-0.5 hover:shadow-depth-md"
-                    >
-                        Simpan
-                    </button>
+                        <button
+                            type="button"
+                            onClick={onClose}
+                            className="rounded-depth-md border border-depth bg-depth-interactive px-5 py-2 text-sm font-semibold text-depth-primary shadow-depth-sm transition hover:-translate-y-0.5 hover:shadow-depth-md"
+                        >
+                            Batal
+                        </button>
+                        <button
+                            type="button"
+                            onClick={handleSave}
+                            className="rounded-depth-md bg-[var(--depth-color-primary)] px-5 py-2 text-sm font-semibold text-white shadow-depth-sm transition hover:-translate-y-0.5 hover:shadow-depth-md"
+                        >
+                            Simpan
+                        </button>
+                    </div>
                 </div>
             </div>
-        </div>
+        </ModalPortal>
     );
 }

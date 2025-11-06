@@ -5,6 +5,7 @@ import editIcon from "../../../../assets/nav/Icon-Edit.svg";
 import { useModulesQuery } from "@/hooks/useModulesQuery";
 import { send } from "@/lib/http";
 import { update as updateModul } from "@/lib/routes/modul";
+import { ModalOverlay } from "@/Components/Common/ModalPortal";
 
 export default function ModalOpenKJ({ onClose, modules }) {
     const [modul, setModul] = useState(modules || []);
@@ -86,9 +87,8 @@ export default function ModalOpenKJ({ onClose, modules }) {
     };
 
     return (
-        <>
-            <div className="depth-modal-overlay">
-                <div className="depth-modal-container max-w-4xl">
+        <ModalOverlay onClose={onClose}>
+            <div className="depth-modal-container max-w-4xl">
                     <div className="depth-modal-header">
                         <h2 className="depth-modal-title flex items-center gap-2">
                             <img className="edit-icon-filter h-6 w-6" src={editIcon} alt="praktikum" /> LOCK / UNLOCK
@@ -159,8 +159,7 @@ export default function ModalOpenKJ({ onClose, modules }) {
                             Simpan
                         </button>
                     </div>
-                </div>
             </div>
-        </>
+        </ModalOverlay>
     );
 }

@@ -9,6 +9,7 @@ import {
 } from "@/hooks/useTugasPendahuluanQuery";
 import { send } from "@/lib/http";
 import { update as updateTugasPendahuluanRoute } from "@/lib/routes/tugasPendahuluan";
+import ModalPortal from "@/Components/Common/ModalPortal";
 
 const normaliseModuleId = (module) => Number(module?.idM ?? module?.id ?? module?.modul_id ?? 0);
 
@@ -130,14 +131,15 @@ export default function ModalActiveTP({ onClose }) {
     };
 
     return (
-        <div
-            className="depth-modal-overlay z-[9999]"
-            onClick={handleOverlayClick}
-        >
+        <ModalPortal>
             <div
-                className="depth-modal-container w-full max-w-2xl"
-                onClick={(event) => event.stopPropagation()}
+                className="depth-modal-overlay z-[9999]"
+                onClick={handleOverlayClick}
             >
+                <div
+                    className="depth-modal-container w-full max-w-2xl"
+                    onClick={(event) => event.stopPropagation()}
+                >
                 <div className="depth-modal-header">
                     <h2 className="depth-modal-title">Konfigurasi Modul Tugas Pendahuluan</h2>
                     <button
@@ -236,7 +238,8 @@ export default function ModalActiveTP({ onClose }) {
                         Memuat data terbaru...
                     </div>
                 )}
+                </div>
             </div>
-        </div>
+        </ModalPortal>
     );
 }

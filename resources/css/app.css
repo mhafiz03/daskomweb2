@@ -280,7 +280,7 @@
         justify-content: center;
         position: fixed;
         inset: 0;
-        z-index: 50;
+        z-index: 9999 !important;
         padding: 1.5rem;
         background: rgba(10, 14, 25, 0.7);
         backdrop-filter: blur(8px);

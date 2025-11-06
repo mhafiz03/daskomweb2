@@ -3,6 +3,7 @@ import { usePage } from "@inertiajs/react";
 import closeIcon from "../../../../assets/modal/iconClose.svg";
 import failedIcon from "../../../../assets/modal/failedSymbol.png";
 import { submit } from "@/lib/http";
+import { ModalOverlay } from "@/Components/Common/ModalPortal";
 
 export default function ModalPassword({ isOpen, onClose, updatePasswordAction, userType = "praktikan" }) {
     const [values, setValues] = useState({
@@ -112,8 +113,7 @@ export default function ModalPassword({ isOpen, onClose, updatePasswordAction, u
 
     return (
         <form onSubmit={handleSave}>
-            {/* Main password change form */}
-            <div className="depth-modal-overlay">
+            <ModalOverlay onClose={onClose}>
                 <div className="depth-modal-container max-w-xl">
                     <div className="depth-modal-header">
                         <h2 className="depth-modal-title">Ganti Password</h2>
@@ -157,11 +157,11 @@ export default function ModalPassword({ isOpen, onClose, updatePasswordAction, u
                         {isLoading ? "Menyimpan..." : "Simpan"}
                     </button>
                 </div>
-            </div>
+            </ModalOverlay>
 
             {/* Error Modal */}
             {errorMessage && (
-                <div className="depth-modal-overlay">
+                <ModalOverlay onClose={closeErrorModal}>
                     <div className="depth-modal-container max-w-xl">
                         <div className="depth-modal-header">
                             <h2 className="depth-modal-title text-red-500">Error</h2>
@@ -189,12 +189,12 @@ export default function ModalPassword({ isOpen, onClose, updatePasswordAction, u
                             Tutup
                         </button>
                     </div>
-                </div>
+                </ModalOverlay>
             )}
 
             {/* Success Modal */}
             {isSuccess && (
-                <div className="depth-modal-overlay">
+                <ModalOverlay onClose={closeSuccessModal}>
                     <div className="depth-modal-container max-w-md">
                         <div className="flex flex-col items-center py-8">
                             <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-green-100">
@@ -208,7 +208,7 @@ export default function ModalPassword({ isOpen, onClose, updatePasswordAction, u
                             </p>
                         </div>
                     </div>
-                </div>
+                </ModalOverlay>
             )}
         </form>
     );

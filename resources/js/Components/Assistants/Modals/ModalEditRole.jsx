@@ -4,6 +4,7 @@ import closeIcon from "../../../../assets/modal/iconClose.svg";
 import { useRolesQuery } from "@/hooks/useRolesQuery";
 import { submit } from "@/lib/http";
 import { update as updateRole } from "@/lib/routes/role";
+import ModalPortal from "@/Components/Common/ModalPortal";
 
 export default function ModalEditRole({ onClose, asistenId }) {
     const [selectedRole, setSelectedRole] = useState("");
@@ -27,7 +28,7 @@ export default function ModalEditRole({ onClose, asistenId }) {
 
     const handleSave = (e) => {
         e.preventDefault();
-        
+
         if (!selectedRole) {
             setErrorMessage("Pilih role terlebih dahulu.");
             return;
@@ -49,59 +50,60 @@ export default function ModalEditRole({ onClose, asistenId }) {
     };
 
     return (
-        <div className="depth-modal-overlay">
-            <div className="depth-modal-container max-w-xl">
-                <div className="depth-modal-header">
-                    <h2 className="depth-modal-title">Update Role</h2>
-                    <button onClick={onClose} type="button" className="depth-modal-close">
-                        <img className="h-6 w-6" src={closeIcon} alt="Tutup" />
-                    </button>
-                </div>
+        <ModalPortal>
+            <div className="depth-modal-overlay">
+                <div className="depth-modal-container max-w-xl">
+                    <div className="depth-modal-header">
+                        <h2 className="depth-modal-title">Update Role</h2>
+                        <button onClick={onClose} type="button" className="depth-modal-close">
+                            <img className="h-6 w-6" src={closeIcon} alt="Tutup" />
+                        </button>
+                    </div>
 
-                <div className="grid grid-cols-1 gap-3 text-left sm:grid-cols-2">
-                    {rolesLoading && (
-                        <span className="col-span-2 text-sm text-depth-secondary">Memuat role...</span>
-                    )}
-                    {rolesError && (
-                        <span className="col-span-2 text-sm text-red-500">
-                            {rolesQueryError?.message ?? "Gagal memuat role"}
-                        </span>
-                    )}
-                    {!rolesLoading && !rolesError &&
-                        roles.map((role) => (
-                            <label
-                                key={role.id}
-                                className={`flex cursor-pointer items-center gap-3 rounded-depth-md border px-3 py-2 text-sm transition ${
-                                    selectedRole === role.id
-                                        ? "border-[var(--depth-color-primary)] bg-depth-interactive shadow-depth-md"
-                                        : "border-depth bg-depth-card shadow-depth-sm hover:border-[var(--depth-color-primary)]"
-                                }`}
-                            >
-                                <input
-                                    type="radio"
-                                    name="role_id"
-                                    value={role.id}
-                                    checked={selectedRole === role.id}
-                                    onChange={handleRoleChange}
-                                    className="h-4 w-4 rounded border-depth text-[var(--depth-color-primary)] focus:ring-[var(--depth-color-primary)]"
-                                />
-                                <span className="font-medium text-depth-primary">{role.name}</span>
-                            </label>
-                        ))}
-                </div>
+                    <div className="grid grid-cols-1 gap-3 text-left sm:grid-cols-2">
+                        {rolesLoading && (
+                            <span className="col-span-2 text-sm text-depth-secondary">Memuat role...</span>
+                        )}
+                        {rolesError && (
+                            <span className="col-span-2 text-sm text-red-500">
+                                {rolesQueryError?.message ?? "Gagal memuat role"}
+                            </span>
+                        )}
+                        {!rolesLoading && !rolesError &&
+                            roles.map((role) => (
+                                <label
+                                    key={role.id}
+                                    className={`flex cursor-pointer items-center gap-3 rounded-depth-md border px-3 py-2 text-sm transition ${selectedRole === role.id
+                                            ? "border-[var(--depth-color-primary)] bg-depth-interactive shadow-depth-md"
+                                            : "border-depth bg-depth-card shadow-depth-sm hover:border-[var(--depth-color-primary)]"
+                                        }`}
+                                >
+                                    <input
+                                        type="radio"
+                                        name="role_id"
+                                        value={role.id}
+                                        checked={selectedRole === role.id}
+                                        onChange={handleRoleChange}
+                                        className="h-4 w-4 rounded border-depth text-[var(--depth-color-primary)] focus:ring-[var(--depth-color-primary)]"
+                                    />
+                                    <span className="font-medium text-depth-primary">{role.name}</span>
+                                </label>
+                            ))}
+                    </div>
 
-                {errorMessage && <p className="mt-4 text-sm text-red-500">{errorMessage}</p>}
+                    {errorMessage && <p className="mt-4 text-sm text-red-500">{errorMessage}</p>}
 
-                <div className="mt-6 flex justify-end">
-                    <button
-                        onClick={handleSave}
-                        type="button"
-                        className="rounded-depth-md bg-[var(--depth-color-primary)] px-5 py-2 text-sm font-semibold text-white shadow-depth-sm transition hover:-translate-y-0.5 hover:shadow-depth-md"
-                    >
-                        Simpan
-                    </button>
+                    <div className="mt-6 flex justify-end">
+                        <button
+                            onClick={handleSave}
+                            type="button"
+                            className="rounded-depth-md bg-[var(--depth-color-primary)] px-5 py-2 text-sm font-semibold text-white shadow-depth-sm transition hover:-translate-y-0.5 hover:shadow-depth-md"
+                        >
+                            Simpan
+                        </button>
+                    </div>
                 </div>
             </div>
-        </div>
+        </ModalPortal>
     );
 }

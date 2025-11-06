@@ -4,6 +4,7 @@ import closeIcon from "../../../../assets/modal/iconClose.svg";
 import { submit } from "@/lib/http";
 import { store as storeModul } from "@/lib/routes/modul";
 import DepthToggle from "@/Components/Common/DepthToggle";
+import { ModalOverlay } from "@/Components/Common/ModalPortal";
 
 export default function ModalAddModule({ onClose }) {
     const [values, setValues] = useState({
@@ -77,7 +78,7 @@ export default function ModalAddModule({ onClose }) {
     ];
 
     return (
-        <div className="depth-modal-overlay z-50">
+        <ModalOverlay onClose={onClose} className="depth-modal-overlay z-50">
             <div
                 className="depth-modal-container max-h-[80vh] w-full max-w-3xl space-y-6 overflow-y-auto"
             >
@@ -156,7 +157,7 @@ export default function ModalAddModule({ onClose }) {
                     </div>
                 </form>
             </div>
-        </div>
+        </ModalOverlay>
     );
 }
 

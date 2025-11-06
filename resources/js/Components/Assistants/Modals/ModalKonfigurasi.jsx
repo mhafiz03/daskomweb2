@@ -6,6 +6,7 @@ import { useConfigurationQuery, CONFIG_QUERY_KEY } from "@/hooks/useConfiguratio
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { send } from "@/lib/http";
 import { update as updateConfigurationRoute } from "@/lib/routes/configuration";
+import { ModalOverlay } from "@/Components/Common/ModalPortal";
 
 export default function ModalKonfigurasi({ onClose }) {
     const [isTugasPendahuluanOn, setIsTugasPendahuluanOn] = useState(false);
@@ -115,10 +116,8 @@ export default function ModalKonfigurasi({ onClose }) {
     };
 
     return (
-        <>
-            {/* Modal Utama */}
-            <div className="depth-modal-overlay">
-                <div className="depth-modal-container max-w-xl">
+        <ModalOverlay onClose={onClose}>
+            <div className="depth-modal-container max-w-xl">
                     {/* Header */}
                     <div className="depth-modal-header">
                         <h2 className="depth-modal-title flex items-center gap-2">
@@ -188,9 +187,7 @@ export default function ModalKonfigurasi({ onClose }) {
                             </button>
                         </>
                     )}
-                </div>
             </div>
-
-        </>
+        </ModalOverlay>
     );
 }

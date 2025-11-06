@@ -8,6 +8,8 @@ import {
     updatePp as updateAsistenPhoto,
     destroyPp as destroyAsistenPhoto,
 } from "@/lib/routes/asisten";
+import { ModalOverlay } from "@/Components/Common/ModalPortal";
+import ModalPortal from "@/Components/Common/ModalPortal";
 
 export default function ModalEditProfile({ isOpen, onClose }) {
     // const [isSuccessModalOpen, setSuccessModalOpen] = useState(false);
@@ -38,7 +40,7 @@ export default function ModalEditProfile({ isOpen, onClose }) {
             setPhotoError(""); // Clear photo error if fixed
         }
 
-       // ✅ Ensure success modal shows when update is successful
+        // ✅ Ensure success modal shows when update is successful
         if (success && !errors?.upload) {
             setIsSuccessModalOpen(true);
         }
@@ -96,7 +98,7 @@ export default function ModalEditProfile({ isOpen, onClose }) {
         try {
             // Show preview immediately
             setAvatar(URL.createObjectURL(file));
-            
+
             // Upload to ImageKit
             const fileName = `${asisten.kode}.${file.name.split('.').pop()}`;
             const result = await upload(file, 'daskom/profil-asisten', fileName);
@@ -142,8 +144,7 @@ export default function ModalEditProfile({ isOpen, onClose }) {
 
     return (
         <>
-            {/* Modal Edit Profile */}
-            <div className="depth-modal-overlay">
+            <ModalOverlay onClose={onClose}>
                 <div className="depth-modal-container max-w-2xl">
                     {/* Close Button */}
                     <button
@@ -215,10 +216,10 @@ export default function ModalEditProfile({ isOpen, onClose }) {
                             <div className="flex flex-col items-center">
                                 <div className="mb-4 flex h-32 w-32 items-center justify-center overflow-hidden rounded-full border-2 border-depth bg-depth-background shadow-depth-md">
                                     {asisten?.foto_asistens?.foto || avatar ? (
-                                        <img 
-                                            src={asisten?.foto_asistens?.foto || avatar} 
-                                            alt="Avatar" 
-                                            className="h-full w-full object-cover" 
+                                        <img
+                                            src={asisten?.foto_asistens?.foto || avatar}
+                                            alt="Avatar"
+                                            className="h-full w-full object-cover"
                                         />
                                     ) : (
                                         <span className="text-4xl text-depth-secondary">👤</span>
@@ -227,9 +228,8 @@ export default function ModalEditProfile({ isOpen, onClose }) {
                                 <div className="flex flex-col items-center gap-2">
                                     <label
                                         htmlFor="avatarUpload"
-                                        className={`cursor-pointer rounded-depth-md bg-[var(--depth-color-primary)] px-4 py-2 text-center text-sm font-semibold text-white shadow-depth-md transition hover:-translate-y-0.5 hover:shadow-depth-lg ${
-                                            isUploading ? 'opacity-50 cursor-not-allowed' : ''
-                                        }`}
+                                        className={`cursor-pointer rounded-depth-md bg-[var(--depth-color-primary)] px-4 py-2 text-center text-sm font-semibold text-white shadow-depth-md transition hover:-translate-y-0.5 hover:shadow-depth-lg ${isUploading ? 'opacity-50 cursor-not-allowed' : ''
+                                            }`}
                                     >
                                         {isUploading ? `Uploading ${progress}%` : 'Change Avatar'}
                                     </label>
@@ -284,7 +284,7 @@ export default function ModalEditProfile({ isOpen, onClose }) {
                         </div>
                     </form>
                 </div>
-            </div>
+            </ModalOverlay>
 
             {/* Success/Error Modal */}
             {isSuccessModalOpen && (
@@ -333,8 +333,53 @@ export default function ModalEditProfile({ isOpen, onClose }) {
                 </div>
             )}
 
-
-            
+            {isSuccessModalOpen && (
+                <ModalPortal>
+                    <div className="depth-modal-overlay">
+                        <div className="depth-modal-container max-w-sm text-center">
+                            {photoError ? (
+                                <>
+                                    <div className="mb-4 flex justify-center">
+                                        <div className="flex h-16 w-16 items-center justify-center rounded-full bg-red-100">
+                                            <svg className="h-8 w-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                            </svg>
+                                        </div>
+                                    </div>
+                                    <h3 className="mb-2 text-center text-lg font-bold text-red-500">
+                                        Upload Error
+                                    </h3>
+                                    <p className="mb-4 text-center text-sm text-depth-secondary">
+                                        Photo must be less than 500kb
+                                    </p>
+                                </>
+                            ) : (
+                                <>
+                                    <div className="mb-4 flex justify-center">
+                                        <div className="flex h-16 w-16 items-center justify-center rounded-full bg-green-100">
+                                            <svg className="h-8 w-8 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                            </svg>
+                                        </div>
+                                    </div>
+                                    <h3 className="mb-2 text-center text-lg font-bold text-[var(--depth-color-primary)]">
+                                        Success!
+                                    </h3>
+                                    <p className="mb-4 text-center text-sm text-depth-secondary">
+                                        Profile Updated Successfully!
+                                    </p>
+                                </>
+                            )}
+                            <button
+                                onClick={() => setIsSuccessModalOpen(false)}
+                                className="w-full rounded-depth-md bg-[var(--depth-color-primary)] px-4 py-2 text-sm font-semibold text-white shadow-depth-sm transition hover:-translate-y-0.5 hover:shadow-depth-md"
+                            >
+                                Close
+                            </button>
+                        </div>
+                    </div>
+                </ModalPortal>
+            )}
         </>
     );
 }

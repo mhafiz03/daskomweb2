@@ -7,6 +7,7 @@ import {
     store as storeNilai,
     update as updateNilai,
 } from "@/lib/routes/nilai";
+import ModalPortal from "@/Components/Common/ModalPortal";
 
 const scoresSchema = [
     { key: "tp", label: "TP" },
@@ -503,12 +504,13 @@ export default function ModalInputNilai({
     };
 
     return (
-        <div className="depth-modal-overlay z-50" style={{ padding: 0 }}>
-            <div className="flex h-full w-full items-center justify-center px-4 py-6 sm:py-10">
-                <div
-                    className="depth-modal-container flex w-full max-w-5xl max-h-[85vh] flex-col overflow-hidden"
-                    style={{ "--depth-modal-max-width": "72rem" }}
-                >
+        <ModalPortal>
+            <div className="depth-modal-overlay z-50" style={{ padding: 0 }}>
+                <div className="flex h-full w-full items-center justify-center px-4 py-6 sm:py-10">
+                    <div
+                        className="depth-modal-container flex w-full max-w-5xl max-h-[85vh] flex-col overflow-hidden"
+                        style={{ "--depth-modal-max-width": "72rem" }}
+                    >
                     <header className="mb-6 text-center">
                         <h2 className="text-2xl font-semibold text-depth-primary">
                             {nilaiSebelumnya ? "Perbarui Nilai" : "Input Nilai"}
@@ -848,8 +850,9 @@ export default function ModalInputNilai({
                             {isSaving ? "Menyimpan..." : "Simpan Nilai"}
                         </button>
                     </footer>
+                    </div>
                 </div>
             </div>
-        </div>
+        </ModalPortal>
     );
 }
