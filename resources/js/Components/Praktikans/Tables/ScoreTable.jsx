@@ -100,7 +100,7 @@ export default function ScoreTable() {
         }
 
         return (
-            <div className="mt-6 h-[68vh] overflow-x-auto overflow-y-auto rounded-depth-md border border-depth bg-depth-card/60 scrollbar-thin scrollbar-track-depth scrollbar-thumb-depth-secondary">
+            <div className="mt-6 h-[68vh] overflow-x-auto overflow-y-auto scrollbar-thin scrollbar-track-depth scrollbar-thumb-depth-secondary">
                 <table className="min-w-[960px] w-full text-sm">
                     <thead className="bg-depth-interactive/80 text-depth-primary">
                         <tr className="text-xs font-semibold uppercase tracking-wide">
@@ -138,9 +138,23 @@ export default function ScoreTable() {
                                     <button
                                         type="button"
                                         onClick={() => onOpenAnswers(row)}
-                                        className="rounded-depth-md border border-depth bg-depth-interactive px-3 py-1.5 text-xs font-semibold text-depth-primary shadow-depth-sm transition hover:-translate-y-0.5 hover:shadow-depth-md"
+                                        className="rounded-depth-md border border-depth bg-[var(--depth-color-primary)] px-3 py-1.5 text-xs font-semibold text-white shadow-depth-sm transition hover:-translate-y-0.5 hover:shadow-depth-md"
                                     >
-                                        Lihat Jawaban
+                                        <svg
+                                                xmlns="http://www.w3.org/2000/svg"
+                                                fill="none"
+                                                viewBox="0 0 24 24"
+                                                strokeWidth="2"
+                                                stroke="currentColor"
+                                                className="h-4 w-4"
+                                            >
+                                                <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                <path
+                                                    strokeLinecap="round"
+                                                    strokeLinejoin="round"
+                                                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                                                />
+                                            </svg>
                                     </button>
                                 </td>
                             </tr>

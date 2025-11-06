@@ -11,6 +11,7 @@ import { api } from "@/lib/api";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { ModalOverlay } from "@/Components/Common/ModalPortal";
 import ModalCloseButton from "@/Components/Common/ModalCloseButton";
+import DepthToggleButton from "@/Components/Common/DepthToggleButton";
 
 
 export default function TableModule() {
@@ -93,6 +94,54 @@ export default function TableModule() {
         setOpenIndex(openIndex === index ? null : index);
     };
 
+    const toggleModuleUnlockMutation = useMutation({
+        mutationFn: async ({ module, nextIsUnlocked }) => {
+            const payload = {
+                judul: module.judul ?? "",
+                deskripsi: module.deskripsi ?? "",
+                isEnglish: Number(module.isEnglish ?? 0),
+                isUnlocked: Number(nextIsUnlocked),
+                modul_link: module.modul_link ?? "",
+                ppt_link: module.ppt_link ?? "",
+                video_link: module.video_link ?? "",
+            };
+
+            const { data } = await api.patch(`/api-v1/modul/${module.idM}`, payload);
+            return data?.data ?? null;
+        },
+        onSuccess: (updatedModule) => {
+            if (updatedModule) {
+                queryClient.setQueryData(MODULES_QUERY_KEY, (prev) => {
+                    if (!Array.isArray(prev)) {
+                        return prev;
+                    }
+
+                    return prev.map((module) =>
+                        module.idM === updatedModule.idM ? { ...module, ...updatedModule } : module,
+                    );
+                });
+            } else {
+                queryClient.invalidateQueries({ queryKey: MODULES_QUERY_KEY });
+            }
+
+            toast.success("Status modul berhasil diperbarui.");
+        },
+        onError: (err) => {
+            const responseMessage =
+                err?.response?.data?.message ?? err?.message ?? "Gagal memperbarui status modul.";
+            toast.error(responseMessage);
+        },
+    });
+
+    const handleToggleUnlocked = (module) => {
+        if (!module?.idM) {
+            return;
+        }
+
+        const nextValue = module.isUnlocked === 1 ? 0 : 1;
+        toggleModuleUnlockMutation.mutate({ module, nextIsUnlocked: nextValue });
+    };
+
     return (
         <div className="space-y-4">
             <div className="h-[81vh] overflow-y-auto rounded-depth-lg border border-depth bg-depth-card shadow-depth-lg">
@@ -133,14 +182,19 @@ export default function TableModule() {
 
                                 {openIndex === index && (
                                     <div className="space-y-6 px-6 pb-6">
-                                        <div className="flex flex-wrap items-center justify-between gap-3">
+                                        <div className="flex flex-wrap items-center justify-end gap-3">
+                                            <DepthToggleButton
+                                                label={module.isUnlocked === 1 ? "Unlocked" : "Locked"}
+                                                isOn={module.isUnlocked === 1}
+                                                onToggle={() => handleToggleUnlocked(module)}
+                                                disabled={toggleModuleUnlockMutation.isPending}
+                                            />
                                             <button
                                                 type="button"
                                                 onClick={() => handleDeleteClick(module.idM)}
                                                 className="inline-flex items-center gap-2 rounded-depth-md border border-red-500/60 bg-red-500/15 px-3 py-2 text-xs font-semibold text-red-400 shadow-depth-sm transition hover:-translate-y-0.5 hover:shadow-depth-md"
                                             >
                                                 <img className="h-4 w-4" src={trashIcon} alt="Delete" />
-                                                Hapus
                                             </button>
                                             <button
                                                 type="button"
@@ -148,7 +202,6 @@ export default function TableModule() {
                                                 className="inline-flex items-center gap-2 rounded-depth-md border border-depth bg-depth-interactive px-3 py-2 text-xs font-semibold text-depth-primary shadow-depth-sm transition hover:-translate-y-0.5 hover:shadow-depth-md"
                                             >
                                                 <img className="edit-icon-filter h-4 w-4" src={editIcon} alt="Edit" />
-                                                Edit
                                             </button>
                                         </div>
 

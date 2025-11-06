@@ -291,6 +291,14 @@ export default function ContentNilai({ asisten }) {
                                         </div>
                                         {/* Status and Review button */}
                                         <div className="flex flex-col items-stretch gap-2 md:items-end">
+                                            <button
+                                                type="button"
+                                                onClick={() => handleOpenModalInput(assignment)}
+                                                className="inline-flex h-9 w-9 items-center justify-center rounded-depth-md border border-depth bg-depth-interactive shadow-depth-sm transition hover:-translate-y-0.5 hover:shadow-depth-md"
+                                                aria-label="Tinjau nilai praktikan"
+                                            >
+                                                <img src={editIcon} alt="Edit" className="edit-icon-filter h-4 w-4" />
+                                            </button>
                                             <span
                                                 aria-label={statusAria}
                                                 className={`inline-flex items-center gap-1 rounded-depth-full px-2 py-1 text-[11px] font-semibold ${statusTone}`}
@@ -319,14 +327,6 @@ export default function ContentNilai({ asisten }) {
                                                     </svg>
                                                 )}
                                             </span>
-                                            <button
-                                                type="button"
-                                                onClick={() => handleOpenModalInput(assignment)}
-                                                className="inline-flex h-9 w-9 items-center justify-center rounded-depth-md border border-depth bg-depth-interactive shadow-depth-sm transition hover:-translate-y-0.5 hover:shadow-depth-md"
-                                                aria-label="Tinjau nilai praktikan"
-                                            >
-                                                <img src={editIcon} alt="Edit" className="edit-icon-filter h-4 w-4" />
-                                            </button>
                                         </div>
 
 

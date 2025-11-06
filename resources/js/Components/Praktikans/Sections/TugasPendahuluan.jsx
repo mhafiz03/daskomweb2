@@ -55,22 +55,18 @@ export default function TugasPendahuluan({
         );
     }
 
-    const containerClasses = "mx-auto mt-2 max-w-5xl space-y-6 rounded-depth-lg border border-depth bg-depth-card/70 p-6 shadow-depth-lg";
-    const contentClasses = "space-y-6 max-h-[75vh] overflow-y-auto bg-depth-interactive/40 p-5";
-    const answerTextareaClasses = "w-full dark:text-gray-700 rounded-depth-md border border-depth bg-depth-card/80 p-3 text-sm text-depth-primary shadow-depth-sm transition focus:border-[var(--depth-color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)]";
-
     return (
-        <div className={containerClasses}>
-            <div className={contentClasses}>
+        <div className="mx-auto mt-2 max-w-5xl space-y-6 rounded-depth-lg border border-depth bg-depth-card/70 p-6 shadow-depth-lg">
+            <div className="space-y-10 max-h-[75vh] overflow-y-auto bg-depth-interactive/40 p-5 bg-depth-card rounded-depth-lg">
                 {questions.map((question, index) => (
                     <div key={question.id ?? index} className="space-y-3">
                         <div className="flex items-start gap-3">
                             <span className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-[var(--depth-color-primary)] text-sm font-semibold text-white shadow-depth-sm">
                                 {index + 1}
                             </span>
-                            <p className="flex-1 text-base font-semibold text-depth-primary">
+                            <pre className="flex-1 text-base font-semibold text-depth-primary whitespace-pre-line break-words">
                                 {question.text}
-                            </p>
+                            </pre>
                         </div>
                         <QuestionCommentInput
                             questionId={question.id ?? question.soalId ?? question.soal_id ?? null}
@@ -80,7 +76,7 @@ export default function TugasPendahuluan({
                             className="pl-11"
                         />
                         <textarea
-                            className={answerTextareaClasses}
+                            className="min-h-[20vh] w-full dark:text-gray-700 rounded-depth-md border border-depth bg-depth-card/80 p-3 text-sm text-depth-primary shadow-depth-sm transition focus:border-[var(--depth-color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)]"
                             placeholder="Tulis jawabanmu di sini..."
                             value={answers[index] ?? ""}
                             onChange={(event) => handleInputChange(index, event.target.value)}

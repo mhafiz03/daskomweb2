@@ -506,9 +506,9 @@ export default function ModalInputNilai({
 
     return (
         <ModalOverlay onClose={onClose} className="depth-modal-overlay z-50" style={{ padding: 0 }}>
-            <div className="flex h-full w-full items-center justify-center px-4 py-6 sm:py-10">
+            <div className="flex h-full w-full items-center justify-center px-4 py-6 sm:py-10 pointer-events-none">
                 <div
-                    className="depth-modal-container flex w-full max-w-5xl max-h-[85vh] flex-col overflow-hidden"
+                    className="depth-modal-container flex w-full max-w-5xl max-h-[85vh] flex-col overflow-hidden pointer-events-auto"
                     style={{ "--depth-modal-max-width": "72rem" }}
                 >
                     <div className="relative mb-6">
@@ -695,11 +695,11 @@ export default function ModalInputNilai({
                                                                     }`}
                                                                 className="hover:rounded-depth-lg hover:border-depth hover:bg-depth-card/80 hover:shadow-depth-md hover:shadow-depth-lg transition-shadow p-4"
                                                             >
-                                                                <h4 className="text-sm font-semibold text-depth-primary">
+                                                                <pre className="text-sm font-semibold text-depth-primary whitespace-pre-line break-words">
                                                                     {index + 1}.{" "}
                                                                     {item.question ??
                                                                         "Soal tidak tersedia"}
-                                                                </h4>
+                                                                </pre>
 
                                                                 {hasOptions ? (
                                                                     <ul className="mt-4 space-y-3">
@@ -837,13 +837,6 @@ export default function ModalInputNilai({
                     </div>
 
                     <footer className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-end">
-                        <button
-                            type="button"
-                            onClick={onClose}
-                            className="rounded-depth-md border border-depth bg-depth-interactive px-5 py-2 text-sm font-semibold text-depth-primary shadow-depth-sm transition hover:-translate-y-0.5 hover:shadow-depth-md"
-                        >
-                            Batal
-                        </button>
                         <button
                             type="button"
                             onClick={handleSubmit}
