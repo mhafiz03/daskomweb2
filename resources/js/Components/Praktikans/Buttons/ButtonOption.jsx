@@ -1,7 +1,7 @@
 import { Link } from '@inertiajs/react';
 import React from 'react';
 import Modal from '../Modals/Modal';
-import AuthButton from './AuthButton';
+import ButtonAuth from './ButtonAuth';
 
 export default function ButtonOption({ openModal, order, mode, onSwitchToRegister, onSwitchToLogin }) {
     const navigateToPage = (targetPage) => {
@@ -10,7 +10,7 @@ export default function ButtonOption({ openModal, order, mode, onSwitchToRegiste
 
     return (
         <>
-            <AuthButton 
+            <ButtonAuth 
                 order={order} 
                 mode={mode} 
                 navigateToPage={navigateToPage}

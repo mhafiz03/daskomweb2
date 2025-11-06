@@ -5,9 +5,9 @@ import LandingNavbar from '@/Components/Praktikans/Layout/LandingNavbar';
 import MainLanding from '@/Components/Praktikans/Sections/MainLanding';
 import LandingSosmed from '@/Components/Praktikans/Sections/LandingSosmed';
 import LandingFooter from '@/Components/Praktikans/Layout/LandingFooter';
-import AuthModal from '@/Components/Praktikans/Modals/AuthModal';
-import AboutModal from '@/Components/Praktikans/Modals/AboutModal';
-import ContactModal from '@/Components/Praktikans/Modals/ContactModal';
+import AuthModal from '@/Components/Praktikans/Modals/ModalAuth';
+import AboutModal from '@/Components/Praktikans/Modals/ModalAbout';
+import ContactModal from '@/Components/Praktikans/Modals/ModalContact';
 
 export default function LandingPage() {
     const { ziggy, errors, error } = usePage().props;

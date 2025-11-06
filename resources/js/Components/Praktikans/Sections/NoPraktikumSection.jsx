@@ -1,11 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { api } from "@/lib/api";
 import iconModule from "../../../../assets/practicum/iconModule.svg";
-import iconCeklistboxFalse from "../../../../assets/practicum/iconCeklistboxFalse.svg";
-import iconCeklistboxTrue from "../../../../assets/practicum/iconCeklistboxTrue.svg";
-import Modal from "../Modals/Modal";
-import ModalAttempt from "../Modals/ModalAttempt";
-import ModalReview from "../Modals/ModalReview";
 
 const PHASE_LABELS = {
     preparation: "Preparation",
@@ -26,10 +21,6 @@ const STATUS_LABELS = {
 
 export default function NoPraktikumSection({
     isVisible = true,
-    onNavigate,
-    completedCategories,
-    setCompletedCategories,
-    onReviewTask,
     kelasId = null,
     onPraktikumStateChange,
     moduleMeta,
@@ -85,55 +76,6 @@ export default function NoPraktikumSection({
             minute: "2-digit",
             second: "2-digit",
         });
-    };
-
-    const categoryLabels = {
-        TesAwal: "Tes Awal",
-        Jurnal: "Jurnal",
-        Mandiri: "Mandiri",
-        TesKeterampilan: "Tes Keterampilan",
-    };
-
-    const handleOpenModalAttempt = (key) => {
-        setOpenModalAttempt(key);
-        setOpenModalReview(null);
-    };
-
-    const handleOpenModalReview = (key) => {
-        setOpenModalReview(key);
-        setOpenModalAttempt(null);
-    };
-
-    const closeModal = () => {
-        setOpenModalAttempt(null);
-        setOpenModalReview(null);
-    };
-
-    const handleAttemptComplete = (key) => {
-        if (key === "TesAwal") {
-            onNavigate("TesAwal");
-        } else if (key === "Jurnal") {
-            onNavigate("Jurnal");
-        } else if (key === "Mandiri") {
-            onNavigate("Mandiri");
-        } else if (key === "TesKeterampilan") {
-            onNavigate("TesKeterampilan");
-        }
-        closeModal();
-    };
-
-    const handleReviewNavigate = (key) => {
-        if (onReviewTask) {
-            onReviewTask(key);
-        }
-    };
-
-    const handleCategoryClick = (key) => {
-        if (!completedCategories[key]) {
-            handleOpenModalAttempt(key);
-        } else {
-            handleOpenModalReview(key);
-        }
     };
 
     useEffect(() => {

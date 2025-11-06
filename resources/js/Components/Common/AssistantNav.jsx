@@ -386,12 +386,12 @@ export default function AssisstantNav({ asisten, permission_name = [], roleName 
                         </button>
                     </div>
 
-                    <div className="flex flex-1 flex-col overflow-hidden">
+                    <div className="flex flex-1 flex-col overflow-hidden -mt-3">
                         <ul className={`flex flex-col gap-1 py-2 ${isCollapsed ? "px-1" : "px-4"}`}>
                             {availableNavItems.map((item) => renderNavLink(item))}
                         </ul>
 
-                        <ul className={`mt-auto flex flex-col gap-1 py-6 ${isCollapsed ? "px-1" : "px-4"}`}>
+                        <ul className={`mt-auto flex flex-col gap-1 py-3 ${isCollapsed ? "px-1" : "px-4"}`}>
                             {footerActions.map((action) => renderActionButton(action))}
                         </ul>
                     </div>

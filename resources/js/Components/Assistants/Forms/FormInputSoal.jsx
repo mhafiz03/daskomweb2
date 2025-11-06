@@ -1,11 +1,11 @@
-import { useState, useEffect } from 'react';
-import SoalInputPG from "../Soal/SoalInputPilihanGanda";
-import SoalInputEssay from "../Soal/SoalInputEsai";
-import ModalSaveSoal from "../Modals/ModalSaveSoal";
+import { Suspense, lazy, useEffect, useState } from 'react';
+const SoalInputPG = lazy(() => import('../Soal/SoalInputPG'));
+const SoalInputEssay = lazy(() => import('../Soal/SoalInputEssay'));
+const ModalSaveSoal = lazy(() => import('../Modals/ModalSaveSoal'));
 import { useModulesQuery } from "@/hooks/useModulesQuery";
 import toast from "react-hot-toast";
 
-export default function SoalInputForm() {
+export default function FormSoalInput() {
     const [isModalSaveOpen, setIsModalSaveOpen] = useState(false);
     const [kategoriSoal, setKategoriSoal] = useState("");
     const [selectedModul, setSelectedModul] = useState("");
@@ -98,38 +98,44 @@ export default function SoalInputForm() {
             </div>
 
             {/* Input soal berdasarkan kategori soal */}
-            {(() => {
-                if (!kategoriSoal) return null;
-                const essayTypes = ["tp", "fitb", "jurnal", "tm"];
-                const pgTypes = ["ta", "tk"];
-                if (essayTypes.includes(kategoriSoal) && selectedModul) {
-                    return (
-                        <SoalInputEssay
-                            kategoriSoal={kategoriSoal}
-                            modul={selectedModul}
-                            modules={moduls}
-                            onModalSuccess={handleSuccessNotification}
-                            onModalValidation={handleValidationError}
-                            onChangeModul={setSelectedModul}
-                        />
-                    );
-                }
-                if (pgTypes.includes(kategoriSoal) && selectedModul) {
-                    return (
-                        <SoalInputPG
-                            kategoriSoal={kategoriSoal}
-                            modul={selectedModul}
-                            onModalSuccess={handleSuccessNotification}
-                            onModalValidation={handleValidationError}
-                            modules={moduls}
-                            onChangeModul={setSelectedModul}
-                        />
-                    );
-                }
-                return null;
-            })()}
+            <Suspense fallback={<div className="text-sm text-depth-secondary">Memuat formulir soal...</div>}>
+                {(() => {
+                    if (!kategoriSoal) return null;
+                    const essayTypes = ["tp", "fitb", "jurnal", "tm"];
+                    const pgTypes = ["ta", "tk"];
+                    if (essayTypes.includes(kategoriSoal) && selectedModul) {
+                        return (
+                            <SoalInputEssay
+                                kategoriSoal={kategoriSoal}
+                                modul={selectedModul}
+                                modules={moduls}
+                                onModalSuccess={handleSuccessNotification}
+                                onModalValidation={handleValidationError}
+                                onChangeModul={setSelectedModul}
+                            />
+                        );
+                    }
+                    if (pgTypes.includes(kategoriSoal) && selectedModul) {
+                        return (
+                            <SoalInputPG
+                                kategoriSoal={kategoriSoal}
+                                modul={selectedModul}
+                                onModalSuccess={handleSuccessNotification}
+                                onModalValidation={handleValidationError}
+                                modules={moduls}
+                                onChangeModul={setSelectedModul}
+                            />
+                        );
+                    }
+                    return null;
+                })()}
+            </Suspense>
 
-            {isModalSaveOpen && <ModalSaveSoal onClose={handleCloseModalSave} />}
+            {isModalSaveOpen && (
+                <Suspense fallback={null}>
+                    <ModalSaveSoal onClose={handleCloseModalSave} />
+                </Suspense>
+            )}
         </div>
     );
 }

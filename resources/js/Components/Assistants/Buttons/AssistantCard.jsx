@@ -7,7 +7,7 @@ import iconIG from "../../../../assets/contact/iconInstagram.svg";
 import editIcon from "../../../../assets/nav/Icon-Edit.svg";
 import daskomIcon from "../../../../../resources/assets/daskom.svg";
 
-export default function CardAssistant({ asisten }) {
+export default function AssistantCard({ asisten }) {
     const [isModalOpen, setModalOpen] = useState(false);
 
     const handleOpenModal = () => setModalOpen(true);

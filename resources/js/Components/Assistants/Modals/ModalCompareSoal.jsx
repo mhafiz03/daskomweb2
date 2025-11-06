@@ -2,10 +2,13 @@ import { useEffect, useMemo, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import remarkBreaks from "remark-breaks";
-import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
-import { oneDark } from "react-syntax-highlighter/dist/esm/styles/prism";
+import { PrismLight as SyntaxHighlighter } from 'react-syntax-highlighter';
+import c from 'react-syntax-highlighter/dist/esm/languages/prism/c';
+import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism";
 import closeIcon from "../../../../assets/modal/iconClose.svg";
 import { parseEssayMarkdown, parsePgMarkdown } from "./ModalBatchEditSoal";
+
+SyntaxHighlighter.registerLanguage('c', c);
 
 const proseClassName =
     "prose max-w-none whitespace-pre-wrap break-words text-sm text-depth-primary prose-headings:text-depth-primary prose-strong:text-depth-primary prose-li:marker:text-depth-secondary";
@@ -203,7 +206,7 @@ export default function ModalCompareSoal({
                 const match = /language-(\w+)/.exec(className || "");
                 return (
                     <SyntaxHighlighter
-                        style={oneDark}
+                        style={vscDarkPlus}
                         language={match ? match[1] : "text"}
                         showLineNumbers
                         PreTag="div"

@@ -70,6 +70,9 @@ export default function TablePlottingan() {
     };
 
     const handleConfirmDelete = async () => {
+        if (!selectedKelas?.id) {
+            return;
+        }
         deleteKelasMutation.mutate(selectedKelas.id);
     };
 

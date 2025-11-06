@@ -2,9 +2,12 @@ import { useEffect, useMemo, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import remarkBreaks from "remark-breaks";
-import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
-import { oneDark } from "react-syntax-highlighter/dist/esm/styles/prism";
+import { PrismLight as SyntaxHighlighter } from 'react-syntax-highlighter';
+import c from 'react-syntax-highlighter/dist/esm/languages/prism/c';
+import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism";
 import closeIcon from "../../../../assets/modal/iconClose.svg";
+
+SyntaxHighlighter.registerLanguage('c', c);
 
 const tabs = [
     { key: "text", label: "Text" },
@@ -71,7 +74,7 @@ export default function ModalBatchEditSoal({
 
                 return (
                     <SyntaxHighlighter
-                        style={oneDark}
+                        style={vscDarkPlus}
                         language='c'
                         showLineNumbers
                         PreTag="div"

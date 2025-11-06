@@ -1,13 +1,14 @@
-import { useCallback, useMemo, useState } from "react";
+import { Suspense, lazy, useCallback, useMemo, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
-import ModalInputNilai from "../Modals/ModalInputNilai";
 import editIcon from "../../../../assets/nav/Icon-Edit.svg";
 import {
     useAssignedPraktikanQuery,
     ASSIGNED_PRAKTIKAN_QUERY_KEY,
 } from "@/hooks/useAssignedPraktikanQuery";
 import { useAssistantToolbar } from "@/Layouts/AssistantToolbarContext";
+
+const ModalInputNilai = lazy(() => import("../Modals/ModalInputNilai"));
 
 const SCORE_FIELDS = [
     { key: "tp", label: "TP" },
@@ -354,12 +355,14 @@ export default function ContentNilai({ asisten }) {
             </div>
 
             {selectedAssignment && (
-                <ModalInputNilai
-                    onClose={handleCloseModalInput}
-                    assignment={selectedAssignment}
-                    asistenId={asisten?.id}
-                    onSaved={handleSaved}
-                />
+                <Suspense fallback={null}>
+                    <ModalInputNilai
+                        onClose={handleCloseModalInput}
+                        assignment={selectedAssignment}
+                        asistenId={asisten?.id}
+                        onSaved={handleSaved}
+                    />
+                </Suspense>
             )}
         </div>
     );

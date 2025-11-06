@@ -11,7 +11,7 @@ const Separator = () => (
     </div>
 );
 
-export default function AuthButton({ order, mode, onSwitchToRegister, onSwitchToLogin }) {
+export default function ButtonAuth({ order, mode, onSwitchToRegister, onSwitchToLogin }) {
     const [isModalOpen, setIsModalOpen] = useState(false);
 
     const handleOpenModal = () => {

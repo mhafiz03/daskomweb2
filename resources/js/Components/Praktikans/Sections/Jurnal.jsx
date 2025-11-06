@@ -1,12 +1,15 @@
 import { useEffect, useMemo, useState } from "react";
 import ReactMarkdown from "react-markdown";
-import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
+import { PrismLight as SyntaxHighlighter } from 'react-syntax-highlighter';
+import c from 'react-syntax-highlighter/dist/esm/languages/prism/c';
 import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism";
 import remarkGfm from "remark-gfm";
 import remarkBreaks from "remark-breaks";
 import QuestionCommentInput from "./QuestionCommentInput";
 import { useImageKitUpload } from "@/hooks/useImageKitUpload";
 import { Image } from "@imagekit/react";
+
+SyntaxHighlighter.registerLanguage('c', c);
 
 export default function Jurnal({
     isLoading = false,

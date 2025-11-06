@@ -1,16 +1,18 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Head } from "@inertiajs/react";
 import debounce from "lodash/debounce";
 import PraktikanAuthenticated from "@/Layouts/PraktikanAuthenticatedLayout";
-import NoPraktikumSection from "@/Components/Praktikans/Sections/NoPraktikumSection";
-import TesAwal from "@/Components/Praktikans/Sections/TesAwal";
-import Jurnal from "@/Components/Praktikans/Sections/Jurnal";
-import Mandiri from "@/Components/Praktikans/Sections/Mandiri";
-import TesKeterampilan from "@/Components/Praktikans/Sections/TesKeterampilan";
 import { api } from "@/lib/api";
-import PraktikanUtilities from "@/Components/Praktikans/Layout/PraktikanUtilities";
-import FeedbackModal from "@/Components/Modals/FeedbackModal";
-import ScoreDisplayModal from "@/Components/Modals/ScoreDisplayModal";
 import { useAsistensQuery } from "@/hooks/useAsistensQuery";
+
+const NoPraktikumSection = lazy(() => import("@/Components/Praktikans/Sections/NoPraktikumSection"));
+const TesAwal = lazy(() => import("@/Components/Praktikans/Sections/TesAwal"));
+const Jurnal = lazy(() => import("@/Components/Praktikans/Sections/Jurnal"));
+const Mandiri = lazy(() => import("@/Components/Praktikans/Sections/Mandiri"));
+const TesKeterampilan = lazy(() => import("@/Components/Praktikans/Sections/TesKeterampilan"));
+const PraktikanUtilities = lazy(() => import("@/Components/Praktikans/Layout/PraktikanUtilities"));
+const FeedbackModal = lazy(() => import("@/Components/Modals/FeedbackModal"));
+const ScoreDisplayModal = lazy(() => import("@/Components/Modals/ScoreDisplayModal"));
 
 const TASK_COMPONENTS = {
     TesAwal,
@@ -897,57 +899,68 @@ export default function PraktikumPage({ auth }) {
                     </h2>
                 }
             >
+                <Head title="Praktikum Praktikan" />
                 <div className="mt-[8vh] relative items-center flex flex-col">
                     <div className="flex-1 transition-all duration-300">
-                        <NoPraktikumSection
-                            isVisible={activeComponent === "NoPraktikumSection"}
-                            onNavigate={handleNavigate}
-                            completedCategories={completedCategories}
-                            setCompletedCategories={setCompletedCategories}
-                            onReviewTask={handleReviewTask}
-                            kelasId={kelasId}
-                            onPraktikumStateChange={handlePraktikumStateChange}
-                            moduleMeta={moduleMeta}
-                        />
-                        {activeComponent !== "NoPraktikumSection" && ActiveTaskComponent && (
-                            <ActiveTaskComponent
-                                isLoading={isLoadingTask}
-                                errorMessage={taskError}
-                                setAnswers={setAnswers}
-                                answers={answers}
-                                questions={questions}
-                                setQuestionsCount={setQuestionsCount}
-                                onSubmitTask={handleTaskSubmit}
-                                tipeSoal={activeCommentType}
-                                praktikanId={praktikanId}
-                                isCommentEnabled={isTotClass && Boolean(activeCommentType)}
+                        <Suspense fallback={<div className="mt-6 text-sm text-depth-secondary">Memuat status praktikum...</div>}>
+                            <NoPraktikumSection
+                                isVisible={activeComponent === "NoPraktikumSection"}
+                                onNavigate={handleNavigate}
+                                completedCategories={completedCategories}
+                                setCompletedCategories={setCompletedCategories}
+                                onReviewTask={handleReviewTask}
+                                kelasId={kelasId}
+                                onPraktikumStateChange={handlePraktikumStateChange}
+                                moduleMeta={moduleMeta}
                             />
+                        </Suspense>
+                        {activeComponent !== "NoPraktikumSection" && ActiveTaskComponent && (
+                            <Suspense fallback={<div className="mt-6 text-sm text-depth-secondary">Memuat tugas...</div>}>
+                                <ActiveTaskComponent
+                                    isLoading={isLoadingTask}
+                                    errorMessage={taskError}
+                                    setAnswers={setAnswers}
+                                    answers={answers}
+                                    questions={questions}
+                                    setQuestionsCount={setQuestionsCount}
+                                    onSubmitTask={handleTaskSubmit}
+                                    tipeSoal={activeCommentType}
+                                    praktikanId={praktikanId}
+                                    isCommentEnabled={isTotClass && Boolean(activeCommentType)}
+                                />
+                            </Suspense>
                         )}
                     </div>
                 </div>
             </PraktikanAuthenticated>
-            <PraktikanUtilities />
+            <Suspense fallback={null}>
+                <PraktikanUtilities />
+            </Suspense>
 
             {/* Feedback Modal */}
-            <FeedbackModal
-                isOpen={isFeedbackModalOpen}
-                onClose={() => setIsFeedbackModalOpen(false)}
-                onSubmit={handleFeedbackSubmit}
-                isPending={isFeedbackPending}
-                praktikumId={feedbackReminder.modulId ?? activeModulId}
-                assistantOptions={assistantOptions}
-                defaultAssistantId={feedbackReminder.asistenId ?? moduleMeta?.pj_id ?? null}
-                modulLabel={moduleMeta?.modul?.judul ?? moduleMeta?.modul_name ?? null}
-            />
+            <Suspense fallback={null}>
+                <FeedbackModal
+                    isOpen={isFeedbackModalOpen}
+                    onClose={() => setIsFeedbackModalOpen(false)}
+                    onSubmit={handleFeedbackSubmit}
+                    isPending={isFeedbackPending}
+                    praktikumId={feedbackReminder.modulId ?? activeModulId}
+                    assistantOptions={assistantOptions}
+                    defaultAssistantId={feedbackReminder.asistenId ?? moduleMeta?.pj_id ?? null}
+                    modulLabel={moduleMeta?.modul?.judul ?? moduleMeta?.modul_name ?? null}
+                />
+            </Suspense>
 
-            <ScoreDisplayModal
-                isOpen={scoreModalState.isOpen}
-                onClose={closeScoreModal}
-                phaseType={scoreModalState.phaseType}
-                correctAnswers={scoreModalState.correctAnswers}
-                totalQuestions={scoreModalState.totalQuestions}
-                percentage={scoreModalState.percentage}
-            />
+            <Suspense fallback={null}>
+                <ScoreDisplayModal
+                    isOpen={scoreModalState.isOpen}
+                    onClose={closeScoreModal}
+                    phaseType={scoreModalState.phaseType}
+                    correctAnswers={scoreModalState.correctAnswers}
+                    totalQuestions={scoreModalState.totalQuestions}
+                    percentage={scoreModalState.percentage}
+                />
+            </Suspense>
         </>
     );
 }
