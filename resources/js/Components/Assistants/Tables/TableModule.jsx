@@ -6,10 +6,11 @@ import trashIcon from "../../../../assets/nav/Icon-Delete.svg";
 import iconPPT from "../../../../assets/practicum/iconPPT.svg";
 import iconVideo from "../../../../assets/practicum/iconVideo.svg";
 import iconModule from "../../../../assets/practicum/iconModule.svg";
-import closeIcon from "../../../../assets/modal/iconClose.svg";
 import { useModulesQuery, MODULES_QUERY_KEY } from "@/hooks/useModulesQuery";
 import { api } from "@/lib/api";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { ModalOverlay } from "@/Components/Common/ModalPortal";
+import ModalCloseButton from "@/Components/Common/ModalCloseButton";
 
 
 export default function TableModule() {
@@ -196,16 +197,16 @@ export default function TableModule() {
             )}
 
             {isDeleteModalOpen && (
-                <div className="depth-modal-overlay z-50">
-                    <div className="depth-modal-container max-w-sm text-center">
+                <ModalOverlay onClose={handleCancelDelete} className="depth-modal-overlay z-50">
+                    <div className="depth-modal-container max-w-sm text-center space-y-4">
                         <div className="depth-modal-header justify-center">
                             <h2 className="depth-modal-title">Konfirmasi Hapus</h2>
-                            <button onClick={handleCancelDelete} type="button" className="depth-modal-close">
-                                <img className="h-6 w-6" src={closeIcon} alt="Tutup" />
-                            </button>
+                            <ModalCloseButton onClick={handleCancelDelete} ariaLabel="Tutup konfirmasi hapus modul" />
                         </div>
-                        <p className="text-sm text-depth-secondary">Apakah Anda yakin ingin menghapus modul ini?</p>
-                        <div className="mt-6 flex justify-center gap-3">
+                        <p className="text-sm text-depth-secondary">
+                            Apakah Anda yakin ingin menghapus modul ini?
+                        </p>
+                        <div className="flex justify-center gap-3">
                             <button
                                 type="button"
                                 onClick={handleCancelDelete}
@@ -222,7 +223,7 @@ export default function TableModule() {
                             </button>
                         </div>
                     </div>
-                </div>
+                </ModalOverlay>
             )}
         </div>
     );

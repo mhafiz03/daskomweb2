@@ -1,9 +1,10 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { usePage } from "@inertiajs/react";
-import closeIcon from "../../../../assets/modal/iconClose.svg";
 import failedIcon from "../../../../assets/modal/failedSymbol.png";
 import { submit } from "@/lib/http";
 import { updatePassword as updateAssistantPassword } from "@/lib/routes/asisten";
+import { ModalOverlay } from "@/Components/Common/ModalPortal";
+import ModalCloseButton from "@/Components/Common/ModalCloseButton";
 
 export default function ModalPasswordAssistant({ onClose }) {
     const [values, setValues] = useState({
@@ -90,77 +91,60 @@ export default function ModalPasswordAssistant({ onClose }) {
     };
 
     return (
-        <form onSubmit={handleSave}>
-            {/* Modal utama untuk ganti password */}
-            <div className="depth-modal-overlay">
-                <div className="depth-modal-container max-w-xl">
+        <>
+            <ModalOverlay onClose={onClose} className="depth-modal-overlay z-50">
+                <form onSubmit={handleSave} className="depth-modal-container max-w-xl space-y-4">
                     <div className="depth-modal-header">
                         <h2 className="depth-modal-title">Ganti Password</h2>
-                        <button
-                            type="button"
-                            onClick={onClose}
-                            className="depth-modal-close"
-                        >
-                            <img className="h-6 w-6" src={closeIcon} alt="closeIcon" />
-                        </button>
+                        <ModalCloseButton onClick={onClose} ariaLabel="Tutup ganti password" />
                     </div>
 
-                    {/* Form untuk mengganti password */}
-                    <div className="mb-4">
-                        <input
-                            id="current_password"
-                            type="password"
-                            placeholder="Password Saat Ini"
-                            value={values.current_password}
-                            onChange={handleChange}
-                            className="w-full rounded-depth-md border border-depth bg-depth-card px-3 py-2 text-sm text-depth-primary shadow-depth-sm transition focus:border-[var(--depth-color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)] focus:ring-offset-0"
-                        />
-                    </div>
+                    <div className="space-y-4">
+                        <div>
+                            <input
+                                id="current_password"
+                                type="password"
+                                placeholder="Password Saat Ini"
+                                value={values.current_password}
+                                onChange={handleChange}
+                                className="w-full rounded-depth-md border border-depth bg-depth-card px-3 py-2 text-sm text-depth-primary shadow-depth-sm transition focus:border-[var(--depth-color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)] focus:ring-offset-0"
+                            />
+                        </div>
 
-                    <div className="mb-4">
-                        <input
-                            id="password"
-                            type="password"
-                            placeholder="Password Baru"
-                            value={values.password}
-                            onChange={handleChange}
-                            className="w-full rounded-depth-md border border-depth bg-depth-card px-3 py-2 text-sm text-depth-primary shadow-depth-sm transition focus:border-[var(--depth-color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)] focus:ring-offset-0"
-                        />
-                        <p className="text-xs text-depth-secondary mt-1">Password minimal 8 karakter</p>
+                        <div>
+                            <input
+                                id="password"
+                                type="password"
+                                placeholder="Password Baru"
+                                value={values.password}
+                                onChange={handleChange}
+                                className="w-full rounded-depth-md border border-depth bg-depth-card px-3 py-2 text-sm text-depth-primary shadow-depth-sm transition focus:border-[var(--depth-color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)] focus:ring-offset-0"
+                            />
+                            <p className="mt-1 text-xs text-depth-secondary">Password minimal 8 karakter</p>
+                        </div>
                     </div>
 
                     <button
                         type="submit"
                         disabled={isLoading}
-                        className="w-full rounded-depth-md bg-[var(--depth-color-primary)] px-5 py-2 text-sm font-semibold text-white shadow-depth-sm transition hover:-translate-y-0.5 hover:shadow-depth-md disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="w-full rounded-depth-md bg-[var(--depth-color-primary)] px-5 py-2 text-sm font-semibold text-white shadow-depth-sm transition hover:-translate-y-0.5 hover:shadow-depth-md disabled:cursor-not-allowed disabled:opacity-50"
                     >
                         {isLoading ? "Menyimpan..." : "Simpan"}
                     </button>
-                </div>
-            </div>
+                </form>
+            </ModalOverlay>
 
             {errorMessage && (
-                <div className="depth-modal-overlay">
+                <ModalOverlay onClose={closeErrorModal} className="depth-modal-overlay z-[60]">
                     <div className="depth-modal-container max-w-xl">
                         <div className="depth-modal-header">
                             <h2 className="depth-modal-title">Error</h2>
-                            <button
-                                type="button"
-                                onClick={closeErrorModal}
-                                className="depth-modal-close"
-                            >
-                                <img className="h-6 w-6" src={closeIcon} alt="closeIcon" />
-                            </button>
+                            <ModalCloseButton onClick={closeErrorModal} ariaLabel="Tutup pesan error" />
                         </div>
 
-                        {/* Ikon error */}
                         <div className="flex flex-col items-center">
-                            <img className="w-28 mb-4" src={failedIcon} alt="failedIcon" />
-
-                            {/* Pesan error */}
-                            <p className="text-center mb-6 text-lg font-semibold text-depth-primary">{errorMessage}</p>
-
-                            {/* Tombol OK */}
+                            <img className="mb-4 w-28" src={failedIcon} alt="failedIcon" />
+                            <p className="mb-6 text-center text-lg font-semibold text-depth-primary">{errorMessage}</p>
                             <button
                                 type="button"
                                 onClick={closeErrorModal}
@@ -170,30 +154,22 @@ export default function ModalPasswordAssistant({ onClose }) {
                             </button>
                         </div>
                     </div>
-                </div>
+                </ModalOverlay>
             )}
 
             {isSuccess && (
-                <div className="depth-modal-overlay">
-                    <div className="depth-modal-container max-w-xl">
-                        <div className="depth-modal-header">
+                <ModalOverlay onClose={closeSuccessModal} className="depth-modal-overlay z-[60]">
+                    <div className="depth-modal-container max-w-xl space-y-4 text-center">
+                        <div className="depth-modal-header justify-center">
                             <h2 className="depth-modal-title">Sukses</h2>
-                            <button
-                                type="button"
-                                onClick={closeSuccessModal}
-                                className="depth-modal-close"
-                            >
-                                <img className="h-6 w-6" src={closeIcon} alt="closeIcon" />
-                            </button>
+                            <ModalCloseButton onClick={closeSuccessModal} ariaLabel="Tutup pesan sukses" />
                         </div>
-
-                        {/* Pesan sukses */}
-                        <p className="text-center text-lg font-semibold text-depth-primary">
+                        <p className="text-lg font-semibold text-depth-primary">
                             Password Anda telah berhasil diganti.
                         </p>
                     </div>
-                </div>
+                </ModalOverlay>
             )}
-        </form>
+        </>
     );
 }

@@ -1,13 +1,17 @@
+import { ModalOverlay } from "@/Components/Common/ModalPortal";
+import ModalCloseButton from "@/Components/Common/ModalCloseButton";
+
 export default function ModalDeletePlottingan({ onClose, message, isError, onConfirm }) {
     return (
-        <div className="depth-modal-overlay z-50">
-            <div className="depth-modal-container max-w-sm text-center">
+        <ModalOverlay onClose={onClose} className="depth-modal-overlay z-[60]">
+            <div className="depth-modal-container max-w-sm space-y-4 text-center">
                 <div className="depth-modal-header justify-center">
                     <h3 className={`depth-modal-title text-center ${isError ? "text-red-500" : ""}`}>
                         {message || "Apakah Anda yakin ingin menghapus data ini?"}
                     </h3>
+                    <ModalCloseButton onClick={onClose} ariaLabel="Tutup konfirmasi hapus plottingan" />
                 </div>
-                <div className="mt-4 flex justify-center gap-3">
+                <div className="flex justify-center gap-3">
                     <button
                         type="button"
                         onClick={onClose}
@@ -24,6 +28,6 @@ export default function ModalDeletePlottingan({ onClose, message, isError, onCon
                     </button>
                 </div>
             </div>
-        </div>
+        </ModalOverlay>
     );
 }

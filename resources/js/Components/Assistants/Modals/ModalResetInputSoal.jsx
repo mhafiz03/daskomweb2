@@ -1,5 +1,6 @@
 import toast from "react-hot-toast";
-import closeIcon from "../../../../assets/modal/iconClose.svg"
+import { ModalOverlay } from "@/Components/Common/ModalPortal";
+import ModalCloseButton from "@/Components/Common/ModalCloseButton";
 
 export default function ButtonResetInputSoal({ onClose }) {
     const handleSave = () => {
@@ -8,49 +9,34 @@ export default function ButtonResetInputSoal({ onClose }) {
     };
 
     return (
-        <>
-            {/* Modal Konfirmasi Reset */}
-            <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-                <div className="bg-white rounded-lg p-6 w-[400px] shadow-xl relative animate-fade-in">
-                    {/* Header */}
-                    <div className="flex justify-between items-center mb-4">
-                        <h2 className="text-xl font-bold text-red-600">
-                            Konfirmasi Reset
-                        </h2>
-                        {/* Tombol X untuk tutup */}
-                        <button
-                            onClick={onClose}
-                            className="absolute top-2 right-2 flex justify-center items-center"
-                        >
-                            <img className="w-9" src={closeIcon} alt="closeIcon" />
-                        </button>
-                    </div>
+        <ModalOverlay onClose={onClose} className="depth-modal-overlay z-[70]">
+            <div className="depth-modal-container max-w-md space-y-4 text-center">
+                <div className="depth-modal-header justify-center">
+                    <h2 className="depth-modal-title text-red-500">Konfirmasi Reset</h2>
+                    <ModalCloseButton onClick={onClose} ariaLabel="Tutup konfirmasi reset soal" />
+                </div>
 
-                    {/* Deskripsi Reset Modal */}
-                    <div className="text-center mb-6">
-                        <p className="text-black">
-                            Semua data soal praktikum akan dihapus dan dikembalikan ke kondisi awal.
-                            Apakah Anda yakin ingin mereset data?
-                        </p>
-                    </div>
+                <p className="text-sm text-depth-secondary">
+                    Semua data soal praktikum akan dihapus dan dikembalikan ke kondisi awal. Apakah Anda yakin ingin mereset data?
+                </p>
 
-                    {/* Tombol Aksi */}
-                    <div className="flex justify-center gap-4">
-                        <button
-                            onClick={onClose}
-                            className="px-6 py-2 bg-gray-300 text-darkBrown font-semibold rounded-md shadow hover:bg-gray-400 transition duration-300"
-                        >
-                            Batal
-                        </button>
-                        <button
-                            onClick={handleSave}
-                            className="px-6 py-2 bg-red-600 text-white font-semibold rounded-md shadow hover:bg-red-700 transition duration-300"
-                        >
-                            Reset Data
-                        </button>
-                    </div>
+                <div className="flex justify-center gap-3">
+                    <button
+                        onClick={onClose}
+                        type="button"
+                        className="rounded-depth-md border border-depth bg-depth-interactive px-5 py-2 text-sm font-semibold text-depth-primary shadow-depth-sm transition hover:-translate-y-0.5 hover:shadow-depth-md"
+                    >
+                        Batal
+                    </button>
+                    <button
+                        onClick={handleSave}
+                        type="button"
+                        className="rounded-depth-md border border-red-500/60 bg-red-500/15 px-5 py-2 text-sm font-semibold text-red-400 shadow-depth-sm transition hover:-translate-y-0.5 hover:shadow-depth-md"
+                    >
+                        Reset Data
+                    </button>
                 </div>
             </div>
-        </>
+        </ModalOverlay>
     );
 }

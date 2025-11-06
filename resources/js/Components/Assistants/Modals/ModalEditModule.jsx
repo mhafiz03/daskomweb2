@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import closeIcon from "../../../../assets/modal/iconClose.svg";
 import { send } from "@/lib/http";
 import { update as updateModul } from "@/lib/routes/modul";
 import DepthToggleButton from "@/Components/Common/DepthToggleButton";
 import { api } from "@/lib/api";
 import { ModalOverlay } from "@/Components/Common/ModalPortal";
+import ModalCloseButton from "@/Components/Common/ModalCloseButton";
 
 export default function ModalEditModule({ onClose, modules, selectedModuleId, onUpdate }) {
     const [values, setValues] = useState({
@@ -146,9 +146,7 @@ export default function ModalEditModule({ onClose, modules, selectedModuleId, on
             >
                 <div className="depth-modal-header">
                     <h2 className="depth-modal-title">Edit Modul</h2>
-                    <button onClick={onClose} type="button" className="depth-modal-close">
-                        <img className="h-6 w-6" src={closeIcon} alt="Tutup" />
-                    </button>
+                    <ModalCloseButton onClick={onClose} ariaLabel="Tutup edit modul" />
                 </div>
 
                 {generalErrorMessage && (

@@ -86,15 +86,13 @@ export default function ModalEditSoalEssay({ onClose, soalItem, onSave }) {
                     onChange={(e) => setSoal(e.target.value)}
                 />
 
-                <div className="mt-4 flex items-center justify-between rounded-depth-md border border-depth bg-depth-card p-4 shadow-depth-sm">
-                    <div>
-                        <p className="text-sm font-semibold text-depth-primary">Enable File Upload</p>
-                        <p className="mt-1 text-xs text-depth-secondary">Allow praktikans to upload images for this question</p>
+                <div className="mt-6 flex flex-row gap-3 md:items-center justify-end">
+                    <div className="flex items-center justify-between gap-3">
+                        <div>
+                            <p className="text-sm font-semibold text-depth-primary">Enable File Upload</p>
+                        </div>
+                        <DepthToggleButton isOn={enableFileUpload} onToggle={() => setEnableFileUpload(!enableFileUpload)} />
                     </div>
-                    <DepthToggleButton isOn={enableFileUpload} onToggle={() => setEnableFileUpload(!enableFileUpload)} />
-                </div>
-
-                <div className="mt-6 flex flex-col gap-3 md:flex-row md:items-center justify-end">
                     <button
                         onClick={handleSave}
                         type="button"

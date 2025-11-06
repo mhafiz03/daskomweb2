@@ -75,60 +75,62 @@ export default function TableManagePraktikan({
 
     return (
         <div className="space-y-3">
-            <div className="overflow-hidden rounded-depth-lg border border-depth bg-depth-card shadow-depth-lg">
-                <table className="w-full min-w-[960px] table-auto divide-y divide-[color:var(--depth-border)] text-sm text-depth-primary">
-                    <thead className="bg-depth-interactive/70 text-xs font-semibold uppercase tracking-wide text-depth-secondary">
-                        <tr>
-                            <th className="px-4 py-3 text-left">NIM</th>
-                            <th className="px-4 py-3 text-left">Nama</th>
-                            <th className="px-4 py-3 text-left">Kelas</th>
+            <div className="rounded-depth-lg border border-depth bg-depth-card shadow-depth-lg">
+                <div className="max-h-[56vh] overflow-x-auto overflow-y-auto">
+                    <table className="w-full min-w-[960px] table-auto divide-y divide-[color:var(--depth-border)] text-sm text-depth-primary">
+                        <thead className="bg-depth-interactive/70 text-xs font-semibold uppercase tracking-wide text-depth-secondary">
+                            <tr>
+                                <th className="px-4 py-3 text-left">NIM</th>
+                                <th className="px-4 py-3 text-left">Nama</th>
+                                <th className="px-4 py-3 text-left">Kelas</th>
                             <th className="px-4 py-3 text-left">Email</th>
                             <th className="px-4 py-3 text-left">No. Telepon</th>
                             <th className="px-4 py-3 text-left">Alamat</th>
                             <th className="px-4 py-3 text-center">Aksi</th>
                         </tr>
                     </thead>
-                    <tbody className="divide-y divide-[color:var(--depth-border)] bg-depth-card">
-                        {items.map((praktikan) => (
-                            <tr key={praktikan.id} className="transition hover:bg-depth-interactive/40">
-                                <td className="px-4 py-3 font-medium text-depth-primary">{praktikan.nim}</td>
-                                <td className="px-4 py-3">
-                                    <div className="font-semibold text-depth-primary">{praktikan.nama}</div>
-                                </td>
-                                <td className="px-4 py-3 text-depth-secondary">{formatKelas(praktikan.kelas)}</td>
-                                <td className="px-4 py-3">
-                                    <a href={`mailto:${praktikan.email}`} className="text-[var(--depth-color-primary)] underline-offset-2 hover:underline">
-                                        {praktikan.email}
-                                    </a>
-                                </td>
-                                <td className="px-4 py-3 text-depth-secondary">{praktikan.nomor_telepon ?? "-"}</td>
-                                <td className="px-4 py-3">
-                                    <span className="block max-h-12 overflow-hidden text-xs leading-relaxed text-depth-secondary">
-                                        {praktikan.alamat ?? "-"}
-                                    </span>
-                                </td>
-                                <td className="px-4 py-3">
-                                    <div className="flex items-center justify-center gap-2">
-                                        <button
-                                            type="button"
-                                            onClick={() => onEdit?.(praktikan)}
-                                            className="inline-flex items-center gap-1 rounded-depth-md border border-depth bg-depth-interactive px-3 py-1 text-xs font-semibold text-depth-primary shadow-depth-sm transition hover:-translate-y-0.5 hover:shadow-depth-md"
-                                        >
-                                            <img src={editIcon} alt="" className="h-5 w-5" />
-                                        </button>
-                                        <button
-                                            type="button"
-                                            onClick={() => onDelete?.(praktikan)}
-                                            className="inline-flex items-center gap-1 rounded-depth-md border border-red-500/60 bg-red-500/15 px-3 py-1 text-xs font-semibold text-red-400 shadow-depth-sm transition hover:-translate-y-0.5 hover:shadow-depth-md"
-                                        >
-                                            <img src={deleteIcon} alt="" className="h-5 w-5" />
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
+                        <tbody className="divide-y divide-[color:var(--depth-border)] bg-depth-card">
+                            {items.map((praktikan) => (
+                                <tr key={praktikan.id} className="transition hover:bg-depth-interactive/40">
+                                    <td className="px-4 py-3 font-medium text-depth-primary">{praktikan.nim}</td>
+                                    <td className="px-4 py-3">
+                                        <div className="font-semibold text-depth-primary">{praktikan.nama}</div>
+                                    </td>
+                                    <td className="px-4 py-3 text-depth-secondary">{formatKelas(praktikan.kelas)}</td>
+                                    <td className="px-4 py-3">
+                                        <a href={`mailto:${praktikan.email}`} className="text-[var(--depth-color-primary)] underline-offset-2 hover:underline">
+                                            {praktikan.email}
+                                        </a>
+                                    </td>
+                                    <td className="px-4 py-3 text-depth-secondary">{praktikan.nomor_telepon ?? "-"}</td>
+                                    <td className="px-4 py-3">
+                                        <span className="block max-h-12 overflow-hidden text-xs leading-relaxed text-depth-secondary">
+                                            {praktikan.alamat ?? "-"}
+                                        </span>
+                                    </td>
+                                    <td className="px-4 py-3">
+                                        <div className="flex items-center justify-center gap-3">
+                                            <button
+                                                type="button"
+                                                onClick={() => onEdit?.(praktikan)}
+                                                className="flex h-9 w-9 items-center justify-center rounded-depth-md border border-depth bg-depth-interactive shadow-depth-sm transition duration-150 hover:-translate-y-0.5 hover:border-blue-400 hover:shadow-depth-md"
+                                            >
+                                                <img src={editIcon} alt="" className="edit-icon-filter h-4 w-4"/>
+                                            </button>
+                                            <button
+                                                type="button"
+                                                onClick={() => onDelete?.(praktikan)}
+                                                className="flex h-9 w-9 items-center justify-center rounded-depth-md border border-red-500/60 bg-red-500/15 text-red-400 shadow-depth-sm transition duration-150 hover:-translate-y-0.5 hover:border-red-400 hover:shadow-depth-md"
+                                            >
+                                                <img src={deleteIcon} alt="" className="edit-icon-filter h-4 w-4"/>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
             </div>
 
             <div className="flex flex-col gap-3 rounded-depth-md border border-depth bg-depth-card p-4 text-sm text-depth-secondary shadow-depth-md md:flex-row md:items-center md:justify-between">

@@ -1,7 +1,8 @@
 import toast from "react-hot-toast";
-import closeIcon from "../../../../assets/modal/iconClose.svg";
 import { submit } from "@/lib/http";
 import { destroy as logoutAsisten } from "@/lib/routes/auth/loginAsisten";
+import { ModalOverlay } from "@/Components/Common/ModalPortal";
+import ModalCloseButton from "@/Components/Common/ModalCloseButton";
 
 export default function ModalLogout({ onClose, onConfirm }) {
     const handleConfirm = () => {
@@ -22,24 +23,17 @@ export default function ModalLogout({ onClose, onConfirm }) {
     };
 
     return (
-        <div className="depth-modal-overlay">
+        <ModalOverlay onClose={onClose} className="depth-modal-overlay z-[60]">
             <div className="depth-modal-container max-w-md">
                 <div className="depth-modal-header">
                     <h2 className="depth-modal-title">Apakah Kamu Yakin?</h2>
-                    <button
-                        onClick={onClose}
-                        type="button"
-                        className="depth-modal-close"
-                    >
-                        <img className="h-6 w-6" src={closeIcon} alt="Close Icon" />
-                    </button>
+                    <ModalCloseButton onClick={onClose} ariaLabel="Tutup konfirmasi logout" />
                 </div>
 
-                <p className="text-center text-depth-secondary mb-6">
+                <p className="mb-6 text-center text-depth-secondary">
                     Anda akan keluar dari sistem. Pastikan semua perubahan telah disimpan.
                 </p>
 
-                {/* Yes and No Buttons */}
                 <div className="flex justify-center gap-3">
                     <button
                         onClick={onClose}
@@ -57,6 +51,6 @@ export default function ModalLogout({ onClose, onConfirm }) {
                     </button>
                 </div>
             </div>
-        </div>
+        </ModalOverlay>
     );
 }

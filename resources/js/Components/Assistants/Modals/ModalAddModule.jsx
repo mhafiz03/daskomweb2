@@ -1,10 +1,10 @@
 import { useState } from "react";
 import toast from "react-hot-toast";
-import closeIcon from "../../../../assets/modal/iconClose.svg";
 import { submit } from "@/lib/http";
 import { store as storeModul } from "@/lib/routes/modul";
 import DepthToggleButton from "@/Components/Common/DepthToggleButton";
 import { ModalOverlay } from "@/Components/Common/ModalPortal";
+import ModalCloseButton from "@/Components/Common/ModalCloseButton";
 
 export default function ModalAddModule({ onClose }) {
     const [values, setValues] = useState({
@@ -84,9 +84,7 @@ export default function ModalAddModule({ onClose }) {
             >
                 <div className="depth-modal-header">
                     <h2 className="depth-modal-title">Tambah Modul</h2>
-                    <button onClick={onClose} type="button" className="depth-modal-close">
-                        <img className="h-6 w-6" src={closeIcon} alt="Tutup" />
-                    </button>
+                    <ModalCloseButton onClick={onClose} ariaLabel="Tutup tambah modul" />
                 </div>
 
         <form onSubmit={handleSave} className="space-y-6">

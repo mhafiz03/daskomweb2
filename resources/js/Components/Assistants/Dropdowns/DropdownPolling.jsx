@@ -1,6 +1,9 @@
 import { useEffect, useMemo, useState, useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
+import toast from "react-hot-toast";
 import { api } from "@/lib/api";
+import { ModalOverlay } from "@/Components/Common/ModalPortal";
+import ModalCloseButton from "@/Components/Common/ModalCloseButton";
 
 const noop = () => {};
 
@@ -12,6 +15,8 @@ export default function DropdownPolling({
     onLoadingChange = noop,
 }) {
     const [selectedCategory, setSelectedCategory] = useState(value ?? "");
+    const [deleteCandidate, setDeleteCandidate] = useState(null);
+    const [isDeleting, setIsDeleting] = useState(false);
     const onSelectPollingRef = useRef(onSelectPolling);
     const onCategoriesLoadedRef = useRef(onCategoriesLoaded);
     const onLoadingChangeRef = useRef(onLoadingChange);
@@ -94,21 +99,108 @@ export default function DropdownPolling({
         }
     };
 
+    const selectedCategoryData = useMemo(
+        () => categories.find((category) => String(category.id) === String(selectedCategory)) ?? null,
+        [categories, selectedCategory],
+    );
+
+    const handleOpenDeleteModal = () => {
+        if (!selectedCategoryData) {
+            toast.error("Pilih jenis polling terlebih dahulu.");
+            return;
+        }
+
+        setDeleteCandidate(selectedCategoryData);
+    };
+
+    const handleConfirmDelete = async () => {
+        if (!deleteCandidate || isDeleting) {
+            return;
+        }
+
+        try {
+            setIsDeleting(true);
+            await api.delete(`/api-v1/jenis-polling/${deleteCandidate.id}`);
+            toast.success("Jenis polling berhasil dihapus.");
+            setDeleteCandidate(null);
+            setSelectedCategory("");
+            onChange("");
+            onSelectPollingRef.current([]);
+            await categoriesQuery.refetch();
+        } catch (error) {
+            const message = error?.response?.data?.message ?? "Gagal menghapus jenis polling.";
+            toast.error(message);
+        } finally {
+            setIsDeleting(false);
+        }
+    };
+
+    const handleCancelDelete = () => {
+        if (!isDeleting) {
+            setDeleteCandidate(null);
+        }
+    };
+
     return (
-        <div className="relative">
-            <select
-                value={selectedCategory}
-                onChange={handleCategoryChange}
-                className="border-2 border-darkBrown rounded-md shadow-md py-1 px-4 text-darkBrown font-semibold appearance-none"
-            >
-                <option value="">Pilih Jenis Polling</option>
-                {categories.map((category) => (
-                    <option key={category.id} value={category.id}>
-                        {category.judul}
-                    </option>
-                ))}
-            </select>
-            {isBusy && <span className="ml-2">Loading...</span>}
-        </div>
+        <>
+            <div className="flex items-center gap-3">
+                <div className="relative flex-1">
+                    <select
+                        value={selectedCategory}
+                        onChange={handleCategoryChange}
+                        className="w-full appearance-none rounded-depth-md border border-depth bg-depth-card px-4 py-2 text-sm font-semibold text-depth-primary shadow-depth-sm transition focus:border-[var(--depth-color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)] focus:ring-offset-0"
+                    >
+                        <option value="">Pilih Jenis Polling</option>
+                        {categories.map((category) => (
+                            <option key={category.id} value={category.id}>
+                                {category.judul}
+                            </option>
+                        ))}
+                    </select>
+                    {isBusy && <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-depth-secondary">Memuat…</span>}
+                </div>
+                <button
+                    type="button"
+                    onClick={handleOpenDeleteModal}
+                    disabled={!selectedCategory || isBusy}
+                    className="inline-flex items-center gap-2 rounded-depth-md border border-red-500/60 bg-red-500/15 px-4 py-2 text-xs font-semibold text-red-400 shadow-depth-sm transition hover:-translate-y-0.5 hover:shadow-depth-md disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                    Hapus
+                </button>
+            </div>
+
+            {deleteCandidate && (
+                <ModalOverlay onClose={handleCancelDelete} className="depth-modal-overlay z-[70]">
+                    <div className="depth-modal-container max-w-sm space-y-4 text-center">
+                        <div className="depth-modal-header justify-center">
+                            <h3 className="depth-modal-title text-center">Hapus Jenis Polling</h3>
+                            <ModalCloseButton onClick={handleCancelDelete} ariaLabel="Tutup konfirmasi hapus jenis polling" />
+                        </div>
+                        <p className="text-sm text-depth-secondary">
+                            Apakah Anda yakin ingin menghapus jenis polling{" "}
+                            <span className="font-semibold text-depth-primary">{deleteCandidate.judul}</span>?
+                        </p>
+                        <div className="flex justify-center gap-3">
+                            <button
+                                type="button"
+                                onClick={handleCancelDelete}
+                                disabled={isDeleting}
+                                className="rounded-depth-md border border-depth bg-depth-interactive px-5 py-2 text-sm font-semibold text-depth-primary shadow-depth-sm transition hover:-translate-y-0.5 hover:shadow-depth-md disabled:cursor-not-allowed disabled:opacity-60"
+                            >
+                                Batal
+                            </button>
+                            <button
+                                type="button"
+                                onClick={handleConfirmDelete}
+                                disabled={isDeleting}
+                                className="rounded-depth-md border border-red-500/60 bg-red-500/15 px-5 py-2 text-sm font-semibold text-red-400 shadow-depth-sm transition hover:-translate-y-0.5 hover:shadow-depth-md disabled:cursor-not-allowed disabled:opacity-60"
+                            >
+                                {isDeleting ? "Menghapus..." : "Hapus"}
+                            </button>
+                        </div>
+                    </div>
+                </ModalOverlay>
+            )}
+        </>
     );
 }

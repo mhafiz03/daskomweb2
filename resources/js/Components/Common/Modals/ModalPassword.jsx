@@ -4,6 +4,7 @@ import closeIcon from "../../../../assets/modal/iconClose.svg";
 import failedIcon from "../../../../assets/modal/failedSymbol.png";
 import { submit } from "@/lib/http";
 import { ModalOverlay } from "@/Components/Common/ModalPortal";
+import ModalCloseButton from "../ModalCloseButton";
 
 export default function ModalPassword({ isOpen, onClose, updatePasswordAction, userType = "praktikan" }) {
     const [values, setValues] = useState({
@@ -112,21 +113,15 @@ export default function ModalPassword({ isOpen, onClose, updatePasswordAction, u
     if (!isOpen) return null;
 
     return (
-        <form onSubmit={handleSave}>
-            <ModalOverlay onClose={onClose}>
-                <div className="depth-modal-container max-w-xl">
+        <>
+            <ModalOverlay onClose={onClose} className="depth-modal-overlay z-50">
+                <form onSubmit={handleSave} className="depth-modal-container max-w-xl space-y-4">
                     <div className="depth-modal-header">
                         <h2 className="depth-modal-title">Ganti Password</h2>
-                        <button
-                            type="button"
-                            onClick={onClose}
-                            className="depth-modal-close"
-                        >
-                            <img className="h-6 w-6" src={closeIcon} alt="closeIcon" />
-                        </button>
+                        <ModalCloseButton onClick={onClose} ariaLabel="Tutup ganti password" />
                     </div>
 
-                    <div className="mb-4">
+                    <div>
                         <input
                             id="current_password"
                             type="password"
@@ -137,7 +132,7 @@ export default function ModalPassword({ isOpen, onClose, updatePasswordAction, u
                         />
                     </div>
 
-                    <div className="mb-4">
+                    <div>
                         <input
                             id="password"
                             type="password"
@@ -146,7 +141,7 @@ export default function ModalPassword({ isOpen, onClose, updatePasswordAction, u
                             onChange={handleChange}
                             className="w-full rounded-depth-md border border-depth bg-depth-card px-3 py-2 text-sm text-depth-primary shadow-depth-sm transition focus:border-[var(--depth-color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)] focus:ring-offset-0"
                         />
-                        <p className="mt-1 text-xs text-depth-secondary">Password minimal 8 karakter</p>
+                        <p className="mt-4 mb-6 text-xs text-depth-secondary">Password minimal 8 karakter</p>
                     </div>
 
                     <button
@@ -156,24 +151,17 @@ export default function ModalPassword({ isOpen, onClose, updatePasswordAction, u
                     >
                         {isLoading ? "Menyimpan..." : "Simpan"}
                     </button>
-                </div>
+                </form>
             </ModalOverlay>
 
-            {/* Error Modal */}
             {errorMessage && (
-                <ModalOverlay onClose={closeErrorModal}>
-                    <div className="depth-modal-container max-w-xl">
+                <ModalOverlay onClose={closeErrorModal} className="depth-modal-overlay z-[60]">
+                    <div className="depth-modal-container max-w-xl space-y-4">
                         <div className="depth-modal-header">
                             <h2 className="depth-modal-title text-red-500">Error</h2>
-                            <button
-                                type="button"
-                                onClick={closeErrorModal}
-                                className="depth-modal-close"
-                            >
-                                <img className="h-6 w-6" src={closeIcon} alt="closeIcon" />
-                            </button>
+                            <ModalCloseButton onClick={closeErrorModal} ariaLabel="Tutup pesan error" />
                         </div>
-                        
+
                         <div className="flex flex-col items-center">
                             <img className="mb-4 h-16 w-16" src={failedIcon} alt="failedIcon" />
                             <p className="whitespace-pre-wrap text-center text-sm text-depth-secondary">
@@ -184,7 +172,7 @@ export default function ModalPassword({ isOpen, onClose, updatePasswordAction, u
                         <button
                             type="button"
                             onClick={closeErrorModal}
-                            className="mt-6 w-full rounded-depth-md bg-[var(--depth-color-primary)] px-5 py-2 text-sm font-semibold text-white shadow-depth-sm transition hover:-translate-y-0.5 hover:shadow-depth-md"
+                            className="w-full rounded-depth-md bg-[var(--depth-color-primary)] px-5 py-2 text-sm font-semibold text-white shadow-depth-sm transition hover:-translate-y-0.5 hover:shadow-depth-md"
                         >
                             Tutup
                         </button>
@@ -192,24 +180,24 @@ export default function ModalPassword({ isOpen, onClose, updatePasswordAction, u
                 </ModalOverlay>
             )}
 
-            {/* Success Modal */}
             {isSuccess && (
-                <ModalOverlay onClose={closeSuccessModal}>
-                    <div className="depth-modal-container max-w-md">
-                        <div className="flex flex-col items-center py-8">
-                            <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-green-100">
+                <ModalOverlay onClose={closeSuccessModal} className="depth-modal-overlay z-[60]">
+                    <div className="depth-modal-container max-w-md space-y-4 text-center">
+                        <div className="depth-modal-header justify-center">
+                            <h2 className="depth-modal-title">Berhasil!</h2>
+                            <ModalCloseButton onClick={closeSuccessModal} ariaLabel="Tutup pesan sukses" />
+                        </div>
+                        <div className="flex justify-center">
+                            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-green-100">
                                 <svg className="h-8 w-8 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                                 </svg>
                             </div>
-                            <h3 className="mb-2 text-lg font-bold text-depth-primary">Berhasil!</h3>
-                            <p className="text-center text-sm text-depth-secondary">
-                                Password berhasil diubah
-                            </p>
                         </div>
+                        <p className="text-sm text-depth-secondary">Password berhasil diubah</p>
                     </div>
                 </ModalOverlay>
             )}
-        </form>
+        </>
     );
 }

@@ -1,11 +1,11 @@
 import { useState, useEffect } from "react";
 import toast from "react-hot-toast";
-import closeIcon from "../../../../assets/modal/iconClose.svg";
 import editIcon from "../../../../assets/nav/Icon-Edit.svg";
 import { useModulesQuery } from "@/hooks/useModulesQuery";
 import { send } from "@/lib/http";
 import { update as updateModul } from "@/lib/routes/modul";
 import { ModalOverlay } from "@/Components/Common/ModalPortal";
+import ModalCloseButton from "@/Components/Common/ModalCloseButton";
 
 export default function ModalOpenKJ({ onClose, modules }) {
     const [modul, setModul] = useState(modules || []);
@@ -93,13 +93,7 @@ export default function ModalOpenKJ({ onClose, modules }) {
                         <h2 className="depth-modal-title flex items-center gap-2">
                             <img className="edit-icon-filter h-6 w-6" src={editIcon} alt="praktikum" /> LOCK / UNLOCK
                         </h2>
-                        <button
-                            onClick={onClose}
-                            type="button"
-                            className="depth-modal-close"
-                        >
-                            <img className="h-6 w-6" src={closeIcon} alt="closeIcon" />
-                        </button>
+                        <ModalCloseButton onClick={onClose} ariaLabel="Tutup konfigurasi modul" />
                     </div>
 
                     <div className="max-h-[450px] overflow-y-auto rounded-depth-md border border-depth bg-depth-card shadow-depth-sm">

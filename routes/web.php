@@ -288,6 +288,9 @@ Route::prefix('api-v1')->middleware('audit.assistant')->group(function () {
     // Jenis Polling
     Route::get('/jenis-polling', [JenisPollingController::class, 'index'])->name('get.jenis.poling'); // ->middleware(['auth:asisten,praktikan', 'can:see-polling']);
     Route::post('/jenis-polling', [JenisPollingController::class, 'store'])->name('store.jenis.poling')->middleware(['auth:asisten']);
+    Route::delete('/jenis-polling/{jenisPolling}', [JenisPollingController::class, 'destroy'])
+        ->name('destroy.jenis.poling')
+        ->middleware(['auth:asisten']);
 
     // Polling View Count
     Route::get('/polling/{id}', [PollingsController::class, 'show'])->name('show.polling'); // ->middleware(['auth:asisten,praktikan', 'can:see-polling']);

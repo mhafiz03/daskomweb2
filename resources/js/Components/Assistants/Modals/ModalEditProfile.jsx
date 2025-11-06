@@ -1,6 +1,5 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { usePage } from "@inertiajs/react";
-import closeIcon from "../../../../assets/modal/iconClose.svg";
 import { submit } from "@/lib/http";
 import { useImageKitUpload } from "@/hooks/useImageKitUpload";
 import {
@@ -9,7 +8,7 @@ import {
     destroyPp as destroyAsistenPhoto,
 } from "@/lib/routes/asisten";
 import { ModalOverlay } from "@/Components/Common/ModalPortal";
-import ModalPortal from "@/Components/Common/ModalPortal";
+import ModalCloseButton from "@/Components/Common/ModalCloseButton";
 
 export default function ModalEditProfile({ isOpen, onClose }) {
     // const [isSuccessModalOpen, setSuccessModalOpen] = useState(false);
@@ -144,18 +143,11 @@ export default function ModalEditProfile({ isOpen, onClose }) {
 
     return (
         <>
-            <ModalOverlay onClose={onClose}>
+            <ModalOverlay onClose={onClose} className="depth-modal-overlay z-50">
                 <div className="depth-modal-container max-w-2xl">
                     <div className="flex flex-row justify-between items-center">
                         <h2 className="depth-modal-title mb-6">Edit Profile</h2>
-                        {/* Close Button */}
-                        <button
-                            onClick={onClose}
-                            type="button"
-                            className="depth-modal-close"
-                        >
-                            <img className="h-6 w-6" src={closeIcon} alt="closeIcon" />
-                        </button>
+                        <ModalCloseButton onClick={onClose} ariaLabel="Tutup edit profil" />
                     </div>
                     <form onSubmit={handleSave} encType="multipart/form-data">
                         <div className="flex gap-6 p-4">
@@ -285,100 +277,64 @@ export default function ModalEditProfile({ isOpen, onClose }) {
                     </form>
                 </div>
             </ModalOverlay>
-
-            {/* Success/Error Modal */}
             {isSuccessModalOpen && (
-                <div className="depth-modal-overlay">
-                    <div className="depth-modal-container max-w-md">
-                        {photoError ? (
-                            <>
-                                <div className="mb-4 flex justify-center">
-                                    <div className="flex h-16 w-16 items-center justify-center rounded-full bg-red-100">
-                                        <svg className="h-8 w-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                                        </svg>
-                                    </div>
-                                </div>
-                                <h3 className="mb-2 text-center text-lg font-bold text-red-500">
-                                    Upload Error
-                                </h3>
-                                <p className="mb-4 text-center text-sm text-depth-secondary">
-                                    Photo must be less than 500kb
-                                </p>
-                            </>
-                        ) : (
-                            <>
-                                <div className="mb-4 flex justify-center">
-                                    <div className="flex h-16 w-16 items-center justify-center rounded-full bg-green-100">
-                                        <svg className="h-8 w-8 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                                        </svg>
-                                    </div>
-                                </div>
-                                <h3 className="mb-2 text-center text-lg font-bold text-[var(--depth-color-primary)]">
-                                    Success!
-                                </h3>
-                                <p className="mb-4 text-center text-sm text-depth-secondary">
-                                    Profile Updated Successfully!
-                                </p>
-                            </>
-                        )}
+                <ModalOverlay
+                    onClose={() => setIsSuccessModalOpen(false)}
+                    className="depth-modal-overlay z-[60]"
+                >
+                    <div className="depth-modal-container max-w-sm space-y-4 text-center">
+                        <div className="depth-modal-header justify-center">
+                            <h3
+                                className={`depth-modal-title text-center ${photoError ? "text-red-500" : "text-[var(--depth-color-primary)]"}`}
+                            >
+                                {photoError ? "Upload Error" : "Success!"}
+                            </h3>
+                            <ModalCloseButton
+                                onClick={() => setIsSuccessModalOpen(false)}
+                                ariaLabel="Tutup notifikasi edit profil"
+                            />
+                        </div>
+
+                        <div className="flex justify-center">
+                            <div
+                                className={`flex h-16 w-16 items-center justify-center rounded-full ${
+                                    photoError ? "bg-red-100" : "bg-green-100"
+                                }`}
+                            >
+                                {photoError ? (
+                                    <svg
+                                        className="h-8 w-8 text-red-500"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24"
+                                    >
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                ) : (
+                                    <svg
+                                        className="h-8 w-8 text-green-500"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24"
+                                    >
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                    </svg>
+                                )}
+                            </div>
+                        </div>
+
+                        <p className="text-sm text-depth-secondary">
+                            {photoError ? "Photo must be less than 500kb" : "Profile Updated Successfully!"}
+                        </p>
+
                         <button
                             onClick={() => setIsSuccessModalOpen(false)}
                             className="w-full rounded-depth-md bg-[var(--depth-color-primary)] px-4 py-2 text-sm font-semibold text-white shadow-depth-sm transition hover:-translate-y-0.5 hover:shadow-depth-md"
                         >
-                            Close
+                            Tutup
                         </button>
                     </div>
-                </div>
-            )}
-
-            {isSuccessModalOpen && (
-                <ModalPortal>
-                    <div className="depth-modal-overlay">
-                        <div className="depth-modal-container max-w-sm text-center">
-                            {photoError ? (
-                                <>
-                                    <div className="mb-4 flex justify-center">
-                                        <div className="flex h-16 w-16 items-center justify-center rounded-full bg-red-100">
-                                            <svg className="h-8 w-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                                            </svg>
-                                        </div>
-                                    </div>
-                                    <h3 className="mb-2 text-center text-lg font-bold text-red-500">
-                                        Upload Error
-                                    </h3>
-                                    <p className="mb-4 text-center text-sm text-depth-secondary">
-                                        Photo must be less than 500kb
-                                    </p>
-                                </>
-                            ) : (
-                                <>
-                                    <div className="mb-4 flex justify-center">
-                                        <div className="flex h-16 w-16 items-center justify-center rounded-full bg-green-100">
-                                            <svg className="h-8 w-8 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                                            </svg>
-                                        </div>
-                                    </div>
-                                    <h3 className="mb-2 text-center text-lg font-bold text-[var(--depth-color-primary)]">
-                                        Success!
-                                    </h3>
-                                    <p className="mb-4 text-center text-sm text-depth-secondary">
-                                        Profile Updated Successfully!
-                                    </p>
-                                </>
-                            )}
-                            <button
-                                onClick={() => setIsSuccessModalOpen(false)}
-                                className="w-full rounded-depth-md bg-[var(--depth-color-primary)] px-4 py-2 text-sm font-semibold text-white shadow-depth-sm transition hover:-translate-y-0.5 hover:shadow-depth-md"
-                            >
-                                Close
-                            </button>
-                        </div>
-                    </div>
-                </ModalPortal>
+                </ModalOverlay>
             )}
         </>
     );

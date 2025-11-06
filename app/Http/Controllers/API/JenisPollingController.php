@@ -61,4 +61,32 @@ class JenisPollingController extends Controller
             ], 500);
         }
     }
+
+    /**
+     * Delete an existing polling category.
+     */
+    public function destroy(JenisPolling $jenisPolling): JsonResponse
+    {
+        try {
+            if ($jenisPolling->pollings()->exists()) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Jenis polling tidak dapat dihapus karena masih memiliki data polling.',
+                ], 422);
+            }
+
+            $jenisPolling->delete();
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Jenis polling berhasil dihapus.',
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Gagal menghapus jenis polling.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
 }

@@ -8,8 +8,8 @@ import {
     update as updatePraktikan,
 } from "@/lib/routes/praktikan";
 import { MANAGE_PRAKTIKAN_QUERY_KEY } from "@/hooks/useManagePraktikanQuery";
-import closeIcon from "../../../../assets/modal/iconClose.svg";
-import ModalPortal from "@/Components/Common/ModalPortal";
+import ModalCloseButton from "@/Components/Common/ModalCloseButton";
+import { ModalOverlay } from "@/Components/Common/ModalPortal";
 
 const DEFAULT_FORM = {
     nama: "",
@@ -136,25 +136,24 @@ export default function ModalUpsertPraktikan({
         return <p className="mt-1 text-xs text-red-400">{message}</p>;
     };
 
+    const handleRequestClose = () => {
+        if (!mutation.isPending) {
+            onClose?.();
+        }
+    };
+
     return (
-        <ModalPortal>
-            <div className="depth-modal-overlay z-[9999]" onClick={(event) => event.target === event.currentTarget && !mutation.isPending && onClose?.()}>
-                <div
-                    className="depth-modal-container w-full max-w-2xl"
-                    onClick={(event) => event.stopPropagation()}
-                >
+        <ModalOverlay onClose={handleRequestClose} className="depth-modal-overlay z-[60]">
+            <div className="depth-modal-container w-full max-w-2xl">
                 <div className="depth-modal-header">
                     <h2 className="depth-modal-title">
                         {isEdit ? "Edit Praktikan" : "Tambah Praktikan"}
                     </h2>
-                    <button
-                        type="button"
-                        className="depth-modal-close"
-                        onClick={onClose}
-                        disabled={mutation.isPending}
-                    >
-                        <img src={closeIcon} alt="Tutup" className="h-6 w-6" />
-                    </button>
+                    <ModalCloseButton
+                        onClick={handleRequestClose}
+                        ariaLabel="Tutup formulir praktikan"
+                        className={mutation.isPending ? "pointer-events-none opacity-60" : ""}
+                    />
                 </div>
 
                 <form onSubmit={handleSubmit} className="mt-4 space-y-4">
@@ -286,7 +285,7 @@ export default function ModalUpsertPraktikan({
                     <div className="flex justify-end gap-3 pt-2">
                         <button
                             type="button"
-                            onClick={onClose}
+                            onClick={handleRequestClose}
                             disabled={mutation.isPending}
                             className="rounded-depth-md border border-depth bg-depth-interactive px-5 py-2 text-sm font-semibold text-depth-primary shadow-depth-sm transition hover:-translate-y-0.5 hover:shadow-depth-md disabled:cursor-not-allowed disabled:opacity-60"
                         >
@@ -301,8 +300,7 @@ export default function ModalUpsertPraktikan({
                         </button>
                     </div>
                 </form>
-                </div>
             </div>
-        </ModalPortal>
+        </ModalOverlay>
     );
 }

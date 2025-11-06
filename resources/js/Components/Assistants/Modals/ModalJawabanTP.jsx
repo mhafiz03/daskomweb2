@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
-import closeIcon from "../../../../assets/modal/iconClose.svg";
 import { api } from "@/lib/api";
-import ModalPortal from "@/Components/Common/ModalPortal";
+import { ModalOverlay } from "@/Components/Common/ModalPortal";
+import ModalCloseButton from "@/Components/Common/ModalCloseButton";
 
 const fetchJawabanTp = async ({ nim, modulId }) => {
     if (!nim || !modulId) {
@@ -34,27 +34,19 @@ export default function ModalJawabanTP({ onClose, nim, modulId, assignment }) {
     const jawabanList = data?.jawabanData ?? [];
 
     return (
-        <ModalPortal>
-            <div className="depth-modal-overlay z-50">
-                <div className="depth-modal-container max-w-6xl" style={{ "--depth-modal-max-width": "56rem" }}>
+        <ModalOverlay onClose={onClose} className="depth-modal-overlay z-[60]">
+            <div className="depth-modal-container max-w-6xl" style={{ "--depth-modal-max-width": "56rem" }}>
                 <div className="depth-modal-header">
-                    <div className="text-center flex-1">
+                    <div className="flex-1 text-center">
                         <h3 className="depth-modal-title">Jawaban Tugas Pendahuluan</h3>
-                        <p className="text-sm text-depth-secondary mt-1">
+                        <p className="mt-1 text-sm text-depth-secondary">
                             {praktikan?.nim ?? "-"} · {praktikan?.nama ?? "Praktikan"}
                         </p>
-                        <p className="text-xs uppercase tracking-wide text-depth-secondary mt-0.5">
+                        <p className="mt-0.5 text-xs uppercase tracking-wide text-depth-secondary">
                             {modul?.judul ?? "Modul tidak ditemukan"}
                         </p>
                     </div>
-                    <button
-                        type="button"
-                        onClick={onClose}
-                        className="depth-modal-close"
-                        aria-label="Tutup"
-                    >
-                        <img className="h-6 w-6" src={closeIcon} alt="Tutup" />
-                    </button>
+                    <ModalCloseButton onClick={onClose} ariaLabel="Tutup jawaban TP" />
                 </div>
 
                 <div className="max-h-[32rem] overflow-y-auto pr-1">
@@ -82,7 +74,7 @@ export default function ModalJawabanTP({ onClose, nim, modulId, assignment }) {
                                     key={`${item.soal_id}-${index}`}
                                     className="rounded-depth-lg border border-depth bg-depth-card p-5 shadow-depth-md transition-shadow hover:shadow-depth-lg"
                                 >
-                                    <h4 className="font-semibold text-depth-primary text-md mb-3">
+                                    <h4 className="mb-3 text-md font-semibold text-depth-primary">
                                         {index + 1}. {item.soal_text ?? "Soal tidak tersedia"}
                                     </h4>
                                     <div className="rounded-depth-md border border-depth bg-depth-interactive/40 p-4 text-depth-primary shadow-depth-sm">
@@ -91,7 +83,7 @@ export default function ModalJawabanTP({ onClose, nim, modulId, assignment }) {
                                                 {item.jawaban}
                                             </pre>
                                         ) : (
-                                            <span className="text-depth-secondary italic">Belum ada jawaban</span>
+                                            <span className="italic text-depth-secondary">Belum ada jawaban</span>
                                         )}
                                     </div>
                                 </article>
@@ -110,6 +102,6 @@ export default function ModalJawabanTP({ onClose, nim, modulId, assignment }) {
                     </button>
                 </div>
             </div>
-        </ModalPortal>
+        </ModalOverlay>
     );
 }

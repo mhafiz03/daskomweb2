@@ -2,6 +2,8 @@ import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 import { api } from "@/lib/api";
+import { ModalOverlay } from "@/Components/Common/ModalPortal";
+import ModalCloseButton from "@/Components/Common/ModalCloseButton";
 
 const COMMENT_TYPE_MAP = {
     tm: "mandiri",
@@ -100,7 +102,7 @@ export default function SoalCommentsButton({ kategoriSoal, modulId, soalId, vari
                     <button
                         type="button"
                         onClick={() => refetch()}
-                        className="mt-3 inline-flex items-center justify-center rounded-depth-full border border-rose-300/60 bg-transparent px-4 py-1.5 text-xs font-semibold uppercase tracking-wide text-rose-100 transition hover:border-rose-200"
+                        className="mt-3 inline-flex items-center justify-center rounded-depth-full border border-rose-300/60 bg-transparent px-4 py-1.5 text-xs font-semibold uppercase tracking-wide text-rose-100 transition hover:border-rose-200 hover:-translate-y-0.5"
                     >
                         Muat ulang
                     </button>
@@ -181,8 +183,8 @@ export default function SoalCommentsButton({ kategoriSoal, modulId, soalId, vari
             </button>
 
             {isOpen && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4 py-6">
-                    <div className="relative w-full max-w-2xl rounded-depth-lg border border-depth bg-depth-card p-6 shadow-depth-lg">
+                <ModalOverlay onClose={handleClose} className="depth-modal-overlay z-50 px-4 py-6">
+                    <div className="w-full max-w-2xl rounded-depth-lg border border-depth bg-depth-card p-6 shadow-depth-lg">
                         <div className="flex items-start justify-between gap-3">
                             <div>
                                 <p className="text-xs font-semibold uppercase tracking-wide text-depth-secondary">
@@ -195,33 +197,14 @@ export default function SoalCommentsButton({ kategoriSoal, modulId, soalId, vari
                                     Total komentar: {commentCount}
                                 </p>
                             </div>
-                            <button
-                                type="button"
-                                onClick={handleClose}
-                                className="rounded-depth-full border border-depth bg-depth-interactive p-2 text-depth-primary shadow-depth-sm transition hover:border-[var(--depth-color-primary)] hover:text-[var(--depth-color-primary)]"
-                                aria-label="Tutup komentar"
-                            >
-                                <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    viewBox="0 0 24 24"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    strokeWidth="1.5"
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    className="h-4 w-4"
-                                >
-                                    <line x1="18" y1="6" x2="6" y2="18" />
-                                    <line x1="6" y1="6" x2="18" y2="18" />
-                                </svg>
-                            </button>
+                            <ModalCloseButton onClick={handleClose} ariaLabel="Tutup komentar soal" />
                         </div>
 
                         <div className="mt-4 max-h-80 overflow-y-auto">
                             {renderContent()}
                         </div>
                     </div>
-                </div>
+                </ModalOverlay>
             )}
         </>
     );

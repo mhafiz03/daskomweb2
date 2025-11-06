@@ -19,6 +19,11 @@ export default function ContentModule() {
                     label: "+ Modul",
                     onClick: handleOpenModal,
                 },
+                {
+                    id: "reset-modul",
+                    label: "Reset",
+                    variant: "danger"
+                }
             ],
         }),
         [handleOpenModal],

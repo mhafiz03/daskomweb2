@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { useAssistantToolbar } from "@/Layouts/AssistantToolbarContext";
-import FormSoalInput from "../Forms/FormInputSoal";
+import FormSoalInput from "../Forms/FormSoalInput";
 import ButtonResetInputSoal from "../Modals/ModalResetInputSoal";
 
 export default function ContentSoal() {

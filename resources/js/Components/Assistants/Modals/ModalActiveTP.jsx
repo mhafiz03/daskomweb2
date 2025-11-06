@@ -124,33 +124,12 @@ export default function ModalActiveTP({ onClose }) {
         tugasPendahuluanQuery.isLoading ||
         updateMutation.isPending;
 
-    const handleOverlayClick = (event) => {
-        if (event.target === event.currentTarget) {
-            onClose?.();
-        }
-    };
-
     return (
-        <ModalPortal>
-            <div
-                className="depth-modal-overlay z-[9999]"
-                onClick={handleOverlayClick}
-            >
-                <div
-                    className="depth-modal-container w-full max-w-2xl"
-                    onClick={(event) => event.stopPropagation()}
-                >
+        <ModalOverlay onClose={onClose} className="depth-modal-overlay z-[60]">
+            <div className="depth-modal-container w-full max-w-2xl">
                 <div className="depth-modal-header">
                     <h2 className="depth-modal-title">Konfigurasi Modul Tugas Pendahuluan</h2>
-                    <button
-                        type="button"
-                        className="depth-modal-close"
-                        onClick={onClose}
-                    >
-                        <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                    </button>
+                    <ModalCloseButton onClick={onClose} ariaLabel="Tutup konfigurasi TP" />
                 </div>
 
                 <p className="text-sm text-depth-secondary dark:text-depth-secondary/80">
@@ -238,8 +217,7 @@ export default function ModalActiveTP({ onClose }) {
                         Memuat data terbaru...
                     </div>
                 )}
-                </div>
             </div>
-        </ModalPortal>
+        </ModalOverlay>
     );
 }

@@ -11,6 +11,8 @@ import ModalBatchEditSoal from "../Modals/ModalBatchEditSoal";
 import ModalCompareSoal from "../Modals/ModalCompareSoal";
 import SoalCommentsButton from "./SoalCommentsButton";
 import { useSoalComparison } from "@/hooks/useSoalComparison";
+import { ModalOverlay } from "@/Components/Common/ModalPortal";
+import ModalCloseButton from "@/Components/Common/ModalCloseButton";
 
 export default function SoalInputEssay({ kategoriSoal, modul, modules = [], onModalSuccess, onModalValidation, onChangeModul }) {
     const [addSoal, setAddSoal] = useState({ soal: "" });
@@ -22,6 +24,7 @@ export default function SoalInputEssay({ kategoriSoal, modul, modules = [], onMo
         regularModuleId: "",
         englishModuleId: "",
     });
+    const [deleteCandidate, setDeleteCandidate] = useState(null);
 
     const getModuleId = (moduleItem) => {
         const possibleId = moduleItem?.idM ?? moduleItem?.id ?? moduleItem?.value ?? moduleItem?.uuid ?? moduleItem?.ID;
@@ -104,9 +107,12 @@ export default function SoalInputEssay({ kategoriSoal, modul, modules = [], onMo
         },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: soalQueryKey(kategoriSoal, modul) });
+            setDeleteCandidate(null);
+            toast.success("Soal berhasil dihapus!");
         },
         onError: (err) => {
             console.error("Error deleting soal:", err);
+            toast.error(err?.response?.data?.message ?? "Gagal menghapus soal.");
         },
     });
 
@@ -186,9 +192,22 @@ export default function SoalInputEssay({ kategoriSoal, modul, modules = [], onMo
         setAddSoal({ soal: "" });
     };
 
-    const handleOpenModalDelete = (soalId) => {
-        deleteSoalMutation.mutate(soalId);
-        toast.success("Soal berhasil dihapus!");
+    const handleOpenModalDelete = (soalItem) => {
+        setDeleteCandidate(soalItem);
+    };
+
+    const handleCancelDelete = () => {
+        if (!deleteSoalMutation.isPending) {
+            setDeleteCandidate(null);
+        }
+    };
+
+    const handleConfirmDelete = () => {
+        if (!deleteCandidate?.id || deleteSoalMutation.isPending) {
+            return;
+        }
+
+        deleteSoalMutation.mutate(deleteCandidate.id);
     };
 
     const handleOpenModalEdit = (soalItem) => {
@@ -436,7 +455,7 @@ export default function SoalInputEssay({ kategoriSoal, modul, modules = [], onMo
                                 </div>
                                 <div className="absolute right-4 top-4 flex gap-2">
                                     <button
-                                        onClick={() => handleOpenModalDelete(soalItem.id)}
+                                        onClick={() => handleOpenModalDelete(soalItem)}
                                         className="flex h-9 w-9 items-center justify-center rounded-depth-md border border-depth bg-depth-interactive text-red-500 shadow-depth-sm transition duration-150 hover:border-red-400 hover:shadow-depth-md"
                                         type="button"
                                     >
@@ -498,6 +517,41 @@ export default function SoalInputEssay({ kategoriSoal, modul, modules = [], onMo
                     onClose={() => setIsBatchModalOpen(false)}
                     onSubmit={handleBatchSubmit}
                 />
+            )}
+            {deleteCandidate && (
+                <ModalOverlay onClose={handleCancelDelete} className="depth-modal-overlay z-[70]">
+                    <div className="depth-modal-container max-w-sm space-y-4 text-center">
+                        <div className="depth-modal-header justify-center">
+                            <h3 className="depth-modal-title text-center">Hapus Soal</h3>
+                            <ModalCloseButton onClick={handleCancelDelete} ariaLabel="Tutup konfirmasi hapus soal" />
+                        </div>
+                        <p className="text-sm text-depth-secondary">
+                            Apakah Anda yakin ingin menghapus soal{" "}
+                            <span className="font-semibold text-depth-primary">
+                                {deleteCandidate?.soal?.slice(0, 40) ?? "ini"}
+                            </span>
+                            ?
+                        </p>
+                        <div className="flex justify-center gap-3">
+                            <button
+                                type="button"
+                                onClick={handleCancelDelete}
+                                disabled={deleteSoalMutation.isPending}
+                                className="rounded-depth-md border border-depth bg-depth-interactive px-5 py-2 text-sm font-semibold text-depth-primary shadow-depth-sm transition hover:-translate-y-0.5 hover:shadow-depth-md disabled:cursor-not-allowed disabled:opacity-60"
+                            >
+                                Batal
+                            </button>
+                            <button
+                                type="button"
+                                onClick={handleConfirmDelete}
+                                disabled={deleteSoalMutation.isPending}
+                                className="rounded-depth-md border border-red-500/60 bg-red-500/15 px-5 py-2 text-sm font-semibold text-red-400 shadow-depth-sm transition hover:-translate-y-0.5 hover:shadow-depth-md disabled:cursor-not-allowed disabled:opacity-60"
+                            >
+                                {deleteSoalMutation.isPending ? "Menghapus..." : "Hapus"}
+                            </button>
+                        </div>
+                    </div>
+                </ModalOverlay>
             )}
         </div>
     );

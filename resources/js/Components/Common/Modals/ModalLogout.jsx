@@ -1,7 +1,7 @@
 import toast from "react-hot-toast";
-import closeIcon from "../../../../assets/modal/iconClose.svg";
 import { submit } from "@/lib/http";
 import { ModalOverlay } from "@/Components/Common/ModalPortal";
+import ModalCloseButton from "@/Components/Common/ModalCloseButton";
 
 export default function ModalLogout({ isOpen, onClose, onConfirm, logoutAction, onLogoutSuccess }) {
     if (!isOpen) return null;
@@ -71,13 +71,7 @@ export default function ModalLogout({ isOpen, onClose, onConfirm, logoutAction, 
             <div className="depth-modal-container max-w-md">
                 <div className="depth-modal-header">
                     <h2 className="depth-modal-title">Apakah Kamu Yakin?</h2>
-                    <button
-                        onClick={onClose}
-                        type="button"
-                        className="depth-modal-close"
-                    >
-                        <img className="h-6 w-6" src={closeIcon} alt="Close Icon" />
-                    </button>
+                    <ModalCloseButton onClick={onClose} ariaLabel="Tutup konfirmasi logout" />
                 </div>
 
                 <p className="mb-6 text-center text-depth-secondary">

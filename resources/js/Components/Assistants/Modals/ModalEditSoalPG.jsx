@@ -159,35 +159,43 @@ export default function ModalEditSoalPG({ soalItem, onClose, onConfirm }) {
                     </div>
 
                     <div className="space-y-3">
-                        {options.map((option, index) => (
-                            <div key={`option-${index}`} className="rounded-depth-md border border-depth bg-depth-card p-4 shadow-depth-sm">
-                                <div className="flex items-start justify-between gap-3">
-                                    <div className="flex-1 space-y-2">
-                                        <label className="text-sm font-semibold text-depth-secondary" htmlFor={`option-${index}`}>
-                                            Opsi {String.fromCharCode(65 + index)}
-                                        </label>
-                                        <textarea
-                                            id={`option-${index}`}
-                                            className="w-full rounded-depth-md border border-depth bg-depth-interactive/60 p-3 text-sm text-depth-primary shadow-depth-sm transition focus:border-[var(--depth-color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)] focus:ring-offset-0"
-                                            rows="2"
-                                            value={option.text}
-                                            onChange={(event) => handleOptionChange(index, event.target.value)}
+                        {options.map((option, index) => {
+                            const optionLabel = String.fromCharCode(65 + index);
+                            const isSelected = correctIndex === index;
+
+                            return (
+                                <div key={`option-${index}`} className="rounded-depth-md border border-depth bg-depth-card p-4 shadow-depth-sm">
+                                    <label className="flex items-start gap-3">
+                                        <input
+                                            type="radio"
+                                            name="correct_option"
+                                            value={index}
+                                            checked={isSelected}
+                                            onChange={() => setCorrectIndex(index)}
+                                            className="mt-2 h-4 w-4 border-depth text-[var(--depth-color-primary)] focus:ring-[var(--depth-color-primary)]"
+                                            aria-label={`Tandai opsi ${optionLabel} sebagai jawaban benar`}
                                         />
-                                    </div>
-                                    <button
-                                        type="button"
-                                        onClick={() => setCorrectIndex(index)}
-                                        className={`mt-6 inline-flex h-10 w-10 items-center justify-center rounded-depth-full border text-sm font-semibold transition ${correctIndex === index
-                                            ? "border-[var(--depth-color-primary)] bg-[var(--depth-color-primary)] text-white"
-                                            : "border-depth bg-depth-card text-depth-secondary hover:-translate-y-0.5 hover:shadow-depth-md"
-                                            }`}
-                                        aria-label={`Tandai opsi ${String.fromCharCode(65 + index)} sebagai jawaban benar`}
-                                    >
-                                        {String.fromCharCode(65 + index)}
-                                    </button>
+                                        <div className="flex-1 space-y-2">
+                                            <span className="text-sm font-semibold text-depth-secondary">
+                                                Opsi {optionLabel}
+                                                {isSelected && (
+                                                    <span className="ml-2 inline-flex items-center rounded-depth-full bg-[var(--depth-color-primary)]/10 px-2 py-0.5 text-[0.65rem] font-semibold text-[var(--depth-color-primary)]">
+                                                        Jawaban Benar
+                                                    </span>
+                                                )}
+                                            </span>
+                                            <textarea
+                                                id={`option-${index}`}
+                                                className="w-full rounded-depth-md border border-depth bg-depth-interactive p-3 text-sm text-depth-primary shadow-depth-sm transition focus:border-[var(--depth-color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)] focus:ring-offset-0 dark:bg-depth-card/80 dark:text-white"
+                                                rows="2"
+                                                value={option.text}
+                                                onChange={(event) => handleOptionChange(index, event.target.value)}
+                                            />
+                                        </div>
+                                    </label>
                                 </div>
-                            </div>
-                        ))}
+                            );
+                        })}
                     </div>
                 </div>
 

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import toast from "react-hot-toast";
-import closeIcon from "../../../../assets/modal/iconClose.svg";
+import { ModalOverlay } from "@/Components/Common/ModalPortal";
+import ModalCloseButton from "@/Components/Common/ModalCloseButton";
 
 export default function ModalLaporanPraktikum({ onClose }) {
     const [judul, setJudul] = useState("");
@@ -28,71 +29,56 @@ export default function ModalLaporanPraktikum({ onClose }) {
             setKodeAsistenError("Kode asisten tidak valid. Pastikan formatnya benar, misalnya: ALL-DEY-FYN.");
         }
     };
-
-
     return (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-            {/* Modal Utama */}
-            <div className="bg-white rounded-lg p-6 w-[800px] shadow-lg relative">
-                {/* Header */}
-                <div className="flex justify-between items-center border-b border-deepForestGreen mb-6">
-                    <h2 className="text-2xl font-bold text-darkGreen">Laporan Praktikum</h2>
-                    {/* Tombol X untuk tutup */}
-                    <button
-                        onClick={onClose}
-                        className="absolute top-2 right-2 flex justify-center items-center"
-                    >
-                        <img className="w-9" src={closeIcon} alt="closeIcon" />
-                    </button>
+        <ModalOverlay onClose={onClose} className="depth-modal-overlay z-[60] px-4 py-6">
+            <div className="depth-modal-container w-full max-w-3xl space-y-6">
+                <div className="depth-modal-header">
+                    <h2 className="depth-modal-title">Laporan Praktikum</h2>
+                    <ModalCloseButton onClick={onClose} ariaLabel="Tutup laporan praktikum" />
                 </div>
 
-                {/* Container */}
-                <div>
-                    {/* Input Kode Asisten */}
-                    <div className="mb-4">
-                        <label htmlFor="kodeAsisten" className="block text-lg font-semibold text-darkGreen mb-2">
+                <div className="space-y-4">
+                    <div>
+                        <label htmlFor="kodeAsisten" className="block text-sm font-semibold text-depth-secondary">
                             Asisten Yang Mengajar
                         </label>
                         <input
                             id="kodeAsisten"
                             value={kodeAsisten}
                             onChange={handleKodeAsistenChange}
-                            className="w-full p-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-deepForestGreen"
+                            className="mt-1 w-full rounded-depth-md border border-depth bg-depth-card px-3 py-2 text-sm text-depth-primary shadow-depth-sm transition focus:border-[var(--depth-color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)] focus:ring-offset-0"
                             placeholder="ex: ALL-DHY-FYN-DEY-JIN"
                         />
-                        {/* peringatan aja */}
                         {kodeAsistenError && (
-                            <p className="text-red-500 text-sm mt-2">{kodeAsistenError}</p>
+                            <p className="mt-2 text-sm text-red-500">{kodeAsistenError}</p>
                         )}
                     </div>
 
-                    {/* Input Deskripsi */}
-                    <div className="mb-4">
-                        <label htmlFor="deskripsi" className="block text-lg font-semibold text-darkGreen mb-2">
+                    <div>
+                        <label htmlFor="deskripsi" className="block text-sm font-semibold text-depth-secondary">
                             Deskripsi
                         </label>
                         <textarea
                             id="deskripsi"
                             value={deskripsi}
                             onChange={(e) => setDeskripsi(e.target.value)}
-                            className="w-full p-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-deepForestGreen"
-                            rows="7"
+                            className="mt-1 w-full rounded-depth-md border border-depth bg-depth-card px-3 py-2 text-sm text-depth-primary shadow-depth-sm transition focus:border-[var(--depth-color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)] focus:ring-offset-0"
+                            rows={6}
                             placeholder="Masukkan deskripsi laporan"
                         />
                     </div>
                 </div>
 
-                {/* Tombol Simpan */}
-                <div className="mt-4 text-right">
+                <div className="flex justify-end">
                     <button
                         onClick={handleSave}
-                        className="px-6 py-2 bg-deepForestGreen text-white font-semibold rounded-md shadow hover:bg-darkGreen transition duration-300"
+                        type="button"
+                        className="rounded-depth-md bg-[var(--depth-color-primary)] px-5 py-2 text-sm font-semibold text-white shadow-depth-sm transition hover:-translate-y-0.5 hover:shadow-depth-md"
                     >
                         Simpan
                     </button>
                 </div>
             </div>
-
-        </div>
+        </ModalOverlay>
     );
 }

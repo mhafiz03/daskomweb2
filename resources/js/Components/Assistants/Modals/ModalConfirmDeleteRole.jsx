@@ -1,16 +1,20 @@
+import { ModalOverlay } from "@/Components/Common/ModalPortal";
+import ModalCloseButton from "@/Components/Common/ModalCloseButton";
+
 export default function ModalConfirmDeleteRole({ onClose, onConfirm }) {
     return (
-        <div className="depth-modal-overlay">
-            <div className="depth-modal-container max-w-md text-center">
+        <ModalOverlay onClose={onClose} className="depth-modal-overlay z-[60]">
+            <div className="depth-modal-container max-w-md space-y-4 text-center">
                 <div className="depth-modal-header justify-center">
                     <h3 className="depth-modal-title text-center">Yakin Ingin Menghapus Data Asisten?</h3>
+                    <ModalCloseButton onClick={onClose} ariaLabel="Tutup konfirmasi hapus asisten" />
                 </div>
 
                 <p className="text-sm text-depth-secondary">
                     Tindakan ini tidak dapat dibatalkan. Pastikan kamu sudah memilih asisten yang benar.
                 </p>
 
-                <div className="mt-6 flex justify-center gap-3">
+                <div className="flex justify-center gap-3">
                     <button
                         onClick={onConfirm}
                         type="button"
@@ -27,6 +31,6 @@ export default function ModalConfirmDeleteRole({ onClose, onConfirm }) {
                     </button>
                 </div>
             </div>
-        </div>
+        </ModalOverlay>
     );
 }

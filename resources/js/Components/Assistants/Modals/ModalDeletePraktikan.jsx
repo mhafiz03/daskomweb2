@@ -1,10 +1,18 @@
+import { ModalOverlay } from "@/Components/Common/ModalPortal";
+import ModalCloseButton from "@/Components/Common/ModalCloseButton";
+
 export default function ModalDeletePraktikan({ praktikan, onClose, onConfirm, isProcessing = false }) {
     const name = praktikan?.nama ?? "praktikan ini";
     return (
-        <div className="depth-modal-overlay">
-            <div className="depth-modal-container max-w-md text-center">
+        <ModalOverlay onClose={isProcessing ? undefined : onClose} className="depth-modal-overlay z-[60]">
+            <div className="depth-modal-container max-w-md space-y-4 text-center">
                 <div className="depth-modal-header justify-center">
                     <h3 className="depth-modal-title text-center">Hapus Praktikan</h3>
+                    <ModalCloseButton
+                        onClick={onClose}
+                        ariaLabel="Tutup konfirmasi hapus praktikan"
+                        className={isProcessing ? "pointer-events-none opacity-60" : ""}
+                    />
                 </div>
 
                 <p className="text-sm text-depth-secondary">
@@ -12,7 +20,7 @@ export default function ModalDeletePraktikan({ praktikan, onClose, onConfirm, is
                     tidak dapat dibatalkan dan akan menghapus akses praktikan tersebut ke sistem.
                 </p>
 
-                <div className="mt-6 flex justify-center gap-3">
+                <div className="mt-2 flex justify-center gap-3">
                     <button
                         type="button"
                         onClick={onConfirm}
@@ -31,6 +39,6 @@ export default function ModalDeletePraktikan({ praktikan, onClose, onConfirm, is
                     </button>
                 </div>
             </div>
-        </div>
+        </ModalOverlay>
     );
 }
