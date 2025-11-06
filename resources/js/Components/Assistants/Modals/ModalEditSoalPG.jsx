@@ -1,7 +1,8 @@
 import { useMemo, useState, useEffect } from "react";
 import toast from "react-hot-toast";
-import closeIcon from "../../../../assets/modal/iconClose.svg";
 import { useModulesQuery } from "@/hooks/useModulesQuery";
+import { ModalOverlay } from "@/Components/Common/ModalPortal";
+import ModalCloseButton from "@/Components/Common/ModalCloseButton";
 
 const determineIsCorrect = (soalItem, option, optionIndex) => {
     if (typeof option?.is_correct === "boolean") {
@@ -112,19 +113,19 @@ export default function ModalEditSoalPG({ soalItem, onClose, onConfirm }) {
     };
 
     return (
-        <div className="depth-modal-overlay">
+        <ModalOverlay onClose={onClose}>
             <div className="depth-modal-container max-w-3xl overflow-y-auto">
                 <div className="depth-modal-header">
                     <h2 className="depth-modal-title">Edit Soal</h2>
                     <div className="flex items-center gap-3">
                         <p>
-                            Move into:
+                            Pindahkan ke:
                         </p>
                         <select
                             id="modul_id"
                             className="w-full rounded-depth-md border border-depth bg-depth-card p-2 text-sm text-depth-primary shadow-depth-sm transition focus:border-[var(--depth-color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)] focus:ring-offset-0 md:w-60"
                             value={selectedModul}
-                            onChange={(e) => setSelectedModul(e.target.value)}
+                            onChange={(event) => setSelectedModul(event.target.value)}
                         >
                             <option value="">- Pilih Modul -</option>
                             {modulesLoading && <option disabled>Memuat modul...</option>}
@@ -141,63 +142,66 @@ export default function ModalEditSoalPG({ soalItem, onClose, onConfirm }) {
                                 ))}
                         </select>
                     </div>
-                    <button onClick={onClose} type="button" className="depth-modal-close">
-                        <img className="h-6 w-6" src={closeIcon} alt="Tutup" />
-                    </button>
+                    <ModalCloseButton onClick={onClose} ariaLabel="Tutup edit soal" />
                 </div>
 
-                <div className="space-y-2">
-                    <label className="text-sm font-medium text-depth-secondary" htmlFor="pertanyaan">
-                        Pertanyaan
-                    </label>
-                    <textarea
-                        id="pertanyaan"
-                        value={pertanyaan}
-                        rows={6}
-                        onChange={(e) => setPertanyaan(e.target.value)}
-                        placeholder="Masukkan soal..."
-                        className="w-full rounded-depth-lg border border-depth bg-depth-card p-3 text-sm text-depth-primary shadow-depth-sm transition focus:border-[var(--depth-color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)] focus:ring-offset-0"
-                    />
-                </div>
+                <div className="space-y-4">
+                    <div className="space-y-2">
+                        <label className="text-sm font-semibold text-depth-secondary" htmlFor="pertanyaan">
+                            Pertanyaan
+                        </label>
+                        <textarea
+                            id="pertanyaan"
+                            className="h-40 w-full rounded-depth-lg border border-depth bg-depth-card p-4 text-sm text-depth-primary shadow-depth-sm transition focus:border-[var(--depth-color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)] focus:ring-offset-0"
+                            value={pertanyaan}
+                            onChange={(event) => setPertanyaan(event.target.value)}
+                        />
+                    </div>
 
-                <div className="mt-6 space-y-3">
-                    <label className="text-sm font-medium text-depth-secondary">
-                        Pilihan Jawaban
-                    </label>
                     <div className="space-y-3">
                         {options.map((option, index) => (
-                            <div
-                                key={index}
-                                className="flex items-center gap-3 rounded-depth-md border border-depth bg-depth-card p-3 shadow-depth-sm"
-                            >
-                                <input
-                                    type="radio"
-                                    name="correctOption"
-                                    checked={correctIndex === index}
-                                    onChange={() => setCorrectIndex(index)}
-                                    className="h-4 w-4 rounded border-depth text-[var(--depth-color-primary)] focus:ring-[var(--depth-color-primary)]"
-                                />
-                                <input
-                                    value={option.text}
-                                    onChange={(e) => handleOptionChange(index, e.target.value)}
-                                    placeholder={`Pilihan ${String.fromCharCode(65 + index)}`}
-                                    className="flex-1 rounded-depth-md border border-transparent bg-depth-interactive p-3 text-sm text-depth-primary shadow-depth-inset transition focus:border-[var(--depth-color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)] focus:ring-offset-0"
-                                />
+                            <div key={`option-${index}`} className="rounded-depth-md border border-depth bg-depth-card p-4 shadow-depth-sm">
+                                <div className="flex items-start justify-between gap-3">
+                                    <div className="flex-1 space-y-2">
+                                        <label className="text-sm font-semibold text-depth-secondary" htmlFor={`option-${index}`}>
+                                            Opsi {String.fromCharCode(65 + index)}
+                                        </label>
+                                        <textarea
+                                            id={`option-${index}`}
+                                            className="w-full rounded-depth-md border border-depth bg-depth-interactive/60 p-3 text-sm text-depth-primary shadow-depth-sm transition focus:border-[var(--depth-color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)] focus:ring-offset-0"
+                                            rows="2"
+                                            value={option.text}
+                                            onChange={(event) => handleOptionChange(index, event.target.value)}
+                                        />
+                                    </div>
+                                    <button
+                                        type="button"
+                                        onClick={() => setCorrectIndex(index)}
+                                        className={`mt-6 inline-flex h-10 w-10 items-center justify-center rounded-depth-full border text-sm font-semibold transition ${correctIndex === index
+                                            ? "border-[var(--depth-color-primary)] bg-[var(--depth-color-primary)] text-white"
+                                            : "border-depth bg-depth-card text-depth-secondary hover:-translate-y-0.5 hover:shadow-depth-md"
+                                            }`}
+                                        aria-label={`Tandai opsi ${String.fromCharCode(65 + index)} sebagai jawaban benar`}
+                                    >
+                                        {String.fromCharCode(65 + index)}
+                                    </button>
+                                </div>
                             </div>
                         ))}
                     </div>
                 </div>
 
-                <div className="mt-6 flex flex-col gap-3 md:flex-row md:items-center justify-end">
+                <div className="mt-6 flex justify-end gap-3">
                     <button
-                        onClick={handleConfirm}
                         type="button"
+                        onClick={handleConfirm}
                         className="rounded-depth-md bg-[var(--depth-color-primary)] px-6 py-2 text-sm font-semibold text-white shadow-depth-sm transition hover:-translate-y-0.5 hover:shadow-depth-md"
                     >
                         Simpan
                     </button>
                 </div>
             </div>
-        </div>
+        </ModalOverlay>
     );
+
 }

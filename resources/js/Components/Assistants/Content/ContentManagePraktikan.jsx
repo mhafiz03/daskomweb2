@@ -85,12 +85,12 @@ export default function ContentManagePraktikan() {
                         label: "+ Praktikan",
                         onClick: () => setModalState({ mode: "create", praktikan: null }),
                     },
-                    {
-                        id: "reset-filter",
-                        label: "Reset",
-                        onClick: resetToolbar,
-                        variant: "danger",
-                    },
+                    // {
+                    //     id: "reset-filter",
+                    //     label: "Reset",
+                    //     onClick: resetToolbar,
+                    //     variant: "danger",
+                    // },
                 ],
                 right: (
                     <div className="flex flex-col gap-3 md:flex-row md:items-center">

@@ -146,17 +146,17 @@ export default function ModalEditProfile({ isOpen, onClose }) {
         <>
             <ModalOverlay onClose={onClose}>
                 <div className="depth-modal-container max-w-2xl">
-                    {/* Close Button */}
-                    <button
-                        onClick={onClose}
-                        type="button"
-                        className="depth-modal-close"
-                    >
-                        <img className="h-6 w-6" src={closeIcon} alt="closeIcon" />
-                    </button>
-
-                    <h2 className="depth-modal-title mb-6">Edit Profile</h2>
-
+                    <div className="flex flex-row justify-between items-center">
+                        <h2 className="depth-modal-title mb-6">Edit Profile</h2>
+                        {/* Close Button */}
+                        <button
+                            onClick={onClose}
+                            type="button"
+                            className="depth-modal-close"
+                        >
+                            <img className="h-6 w-6" src={closeIcon} alt="closeIcon" />
+                        </button>
+                    </div>
                     <form onSubmit={handleSave} encType="multipart/form-data">
                         <div className="flex gap-6 p-4">
                             <div className="flex-1">

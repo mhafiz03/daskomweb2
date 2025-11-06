@@ -3,6 +3,8 @@ import { useAssistantToolbar } from "@/Layouts/AssistantToolbarContext";
 import { useKelasQuery } from "@/hooks/useKelasQuery";
 import { usePraktikanLeaderboardQuery } from "@/hooks/usePraktikanLeaderboardQuery";
 import { usePraktikanLeaderboardDetailQuery } from "@/hooks/usePraktikanLeaderboardDetailQuery";
+import { ModalOverlay } from "@/Components/Common/ModalPortal";
+import ModalCloseButton from "@/Components/Common/ModalCloseButton";
 
 const LIMIT_OPTIONS = [
     { value: 10, label: "Top 10" },
@@ -432,20 +434,13 @@ export default function ContentRanking() {
             </div>
 
             {detailState.isOpen ? (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm px-4 py-6">
+                <ModalOverlay onClose={handleCloseDetail} className="depth-modal-overlay z-50 bg-black/50 backdrop-blur-sm px-4 py-6">
                     <div
                         role="dialog"
                         aria-modal="true"
                         className="relative w-full max-w-5xl rounded-depth-lg border border-depth bg-depth-card p-6 text-depth-primary shadow-depth-lg"
                     >
-                        <button
-                            type="button"
-                            onClick={handleCloseDetail}
-                            className="absolute right-4 top-4 inline-flex h-9 w-9 items-center justify-center rounded-depth-full border border-depth text-lg font-semibold text-depth-secondary transition hover:text-depth-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--depth-color-primary)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--depth-color-card)]"
-                            aria-label="Tutup detail nilai"
-                        >
-                            ×
-                        </button>
+                        <ModalCloseButton onClick={handleCloseDetail} ariaLabel="Tutup detail nilai" className="absolute right-4 top-4" />
 
                         <div className="space-y-5">
                             <header className="space-y-2">
@@ -548,7 +543,7 @@ export default function ContentRanking() {
                             )}
                         </div>
                     </div>
-                </div>
+                </ModalOverlay>
             ) : null}
         </section>
     );

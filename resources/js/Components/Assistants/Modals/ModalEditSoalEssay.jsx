@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import closeIcon from "../../../../assets/modal/iconClose.svg";
 import { useModulesQuery } from "@/hooks/useModulesQuery";
 import DepthToggleButton from "@/Components/Common/DepthToggleButton";
+import { ModalOverlay } from "@/Components/Common/ModalPortal";
+import ModalCloseButton from "@/Components/Common/ModalCloseButton";
 
 export default function ModalEditSoalEssay({ onClose, soalItem, onSave }) {
     const [soal, setSoal] = useState(soalItem.soal || "");
@@ -47,7 +48,7 @@ export default function ModalEditSoalEssay({ onClose, soalItem, onSave }) {
     };
 
     return (
-        <div className="depth-modal-overlay">
+        <ModalOverlay onClose={onClose}>
             <div className="depth-modal-container max-w-3xl">
                 <div className="depth-modal-header">
                     <h2 className="depth-modal-title">Edit Soal</h2>
@@ -74,10 +75,7 @@ export default function ModalEditSoalEssay({ onClose, soalItem, onSave }) {
                                 ))}
                         </select>
                     </div>
-
-                    <button onClick={onClose} type="button" className="depth-modal-close">
-                        <img className="h-6 w-6" src={closeIcon} alt="Tutup" />
-                    </button>
+                    <ModalCloseButton onClick={onClose} ariaLabel="Tutup edit soal" />
                 </div>
 
                 <textarea
@@ -88,16 +86,12 @@ export default function ModalEditSoalEssay({ onClose, soalItem, onSave }) {
                     onChange={(e) => setSoal(e.target.value)}
                 />
 
-                {/* File Upload Toggle */}
-                <div className="mt-4 flex items-center justify-between p-4 rounded-depth-md border border-depth bg-depth-card shadow-depth-sm">
+                <div className="mt-4 flex items-center justify-between rounded-depth-md border border-depth bg-depth-card p-4 shadow-depth-sm">
                     <div>
                         <p className="text-sm font-semibold text-depth-primary">Enable File Upload</p>
-                        <p className="text-xs text-depth-secondary mt-1">Allow praktikans to upload images for this question</p>
+                        <p className="mt-1 text-xs text-depth-secondary">Allow praktikans to upload images for this question</p>
                     </div>
-                    <DepthToggleButton 
-                        isOn={enableFileUpload} 
-                        onToggle={() => setEnableFileUpload(!enableFileUpload)} 
-                    />
+                    <DepthToggleButton isOn={enableFileUpload} onToggle={() => setEnableFileUpload(!enableFileUpload)} />
                 </div>
 
                 <div className="mt-6 flex flex-col gap-3 md:flex-row md:items-center justify-end">
@@ -111,6 +105,7 @@ export default function ModalEditSoalEssay({ onClose, soalItem, onSave }) {
                     </button>
                 </div>
             </div>
-        </div>
+        </ModalOverlay>
     );
+
 }

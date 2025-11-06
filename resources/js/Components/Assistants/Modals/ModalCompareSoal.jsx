@@ -5,8 +5,9 @@ import remarkBreaks from "remark-breaks";
 import { PrismLight as SyntaxHighlighter } from 'react-syntax-highlighter';
 import c from 'react-syntax-highlighter/dist/esm/languages/prism/c';
 import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism";
-import closeIcon from "../../../../assets/modal/iconClose.svg";
 import { parseEssayMarkdown, parsePgMarkdown } from "./ModalBatchEditSoal";
+import { ModalOverlay } from "@/Components/Common/ModalPortal";
+import ModalCloseButton from "@/Components/Common/ModalCloseButton";
 
 SyntaxHighlighter.registerLanguage('c', c);
 
@@ -312,7 +313,7 @@ export default function ModalCompareSoal({
     );
 
     return (
-        <div className="depth-modal-overlay z-50">
+        <ModalOverlay onClose={onClose} className="depth-modal-overlay z-50">
             <div
                 className="depth-modal-container flex h-[80vh] max-h-[90vh] flex-col overflow-hidden"
                 style={{ "--depth-modal-max-width": "78rem" }}
@@ -338,9 +339,7 @@ export default function ModalCompareSoal({
                             );
                         })}
                     </div>
-                    <button type="button" onClick={onClose} className="depth-modal-close">
-                        <img className="h-7 w-7" src={closeIcon} alt="Tutup" />
-                    </button>
+                    <ModalCloseButton onClick={onClose} ariaLabel="Tutup perbandingan soal" />
                 </div>
 
                 <div className="flex-1 overflow-y-auto px-6 py-4">
@@ -372,6 +371,6 @@ export default function ModalCompareSoal({
                     )}
                 </div>
             </div>
-        </div>
+        </ModalOverlay>
     );
 }

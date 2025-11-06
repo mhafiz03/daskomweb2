@@ -1,4 +1,5 @@
-import closeIcon from "../../../../assets/modal/iconClose.svg";
+import { ModalOverlay } from "@/Components/Common/ModalPortal";
+import ModalCloseButton from "@/Components/Common/ModalCloseButton";
 
 const formatDateTime = (value) => {
     if (!value) {
@@ -38,7 +39,7 @@ export default function ModalLaporan({ report, onClose }) {
         : "-";
 
     return (
-        <div className="depth-modal-overlay z-50">
+        <ModalOverlay onClose={onClose} className="depth-modal-overlay z-50">
             <div
                 className="depth-modal-container max-h-[85vh] w-full max-w-3xl space-y-6 overflow-y-auto"
             >
@@ -52,9 +53,7 @@ export default function ModalLaporan({ report, onClose }) {
                         </p>
                         <p className="text-xs text-depth-secondary">PJ Laporan: {pjName}</p>
                     </div>
-                    <button onClick={onClose} type="button" className="depth-modal-close">
-                        <img className="h-6 w-6" src={closeIcon} alt="Tutup modal" />
-                    </button>
+                    <ModalCloseButton onClick={onClose} ariaLabel="Tutup laporan" />
                 </div>
 
                 <div className="space-y-4">
@@ -64,6 +63,6 @@ export default function ModalLaporan({ report, onClose }) {
                     </div>
                 </div>
             </div>
-        </div>
+        </ModalOverlay>
     );
 }

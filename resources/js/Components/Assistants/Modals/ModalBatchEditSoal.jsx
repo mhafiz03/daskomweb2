@@ -5,8 +5,8 @@ import remarkBreaks from "remark-breaks";
 import { PrismLight as SyntaxHighlighter } from 'react-syntax-highlighter';
 import c from 'react-syntax-highlighter/dist/esm/languages/prism/c';
 import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism";
-import closeIcon from "../../../../assets/modal/iconClose.svg";
-import ModalPortal from "@/Components/Common/ModalPortal";
+import { ModalOverlay } from "@/Components/Common/ModalPortal";
+import ModalCloseButton from "@/Components/Common/ModalCloseButton";
 
 SyntaxHighlighter.registerLanguage('c', c);
 
@@ -218,12 +218,11 @@ export default function ModalBatchEditSoal({
     };
 
     return (
-        <ModalPortal>
-            <div className="depth-modal-overlay z-50">
-                <div
-                    className="depth-modal-container flex max-h-[90vh] flex-col overflow-hidden"
-                    style={{ "--depth-modal-max-width": "72rem" }}
-                >
+        <ModalOverlay onClose={onClose} className="depth-modal-overlay z-50">
+            <div
+                className="depth-modal-container flex max-h-[90vh] flex-col overflow-hidden"
+                style={{ "--depth-modal-max-width": "72rem" }}
+            >
                 <div className="depth-modal-header">
                     <h2 className="depth-modal-title">{title}</h2>
                     <div className="flex items-center gap-3">
@@ -242,9 +241,7 @@ export default function ModalBatchEditSoal({
                             </select>
                         )}
                     </div>
-                    <button onClick={onClose} type="button" className="depth-modal-close">
-                        <img className="h-7 w-7" src={closeIcon} alt="Tutup" />
-                    </button>
+                    <ModalCloseButton onClick={onClose} ariaLabel="Tutup editor batch" />
                 </div>
 
                 <div className="flex gap-2 border-[color:var(--depth-border)] px-6 py-3 -mt-3">
@@ -291,9 +288,8 @@ export default function ModalBatchEditSoal({
                         </button>
                     </div>
                 )}
-                </div>
             </div>
-        </ModalPortal>
+        </ModalOverlay>
     );
 }
 

@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
-import closeIcon from "../../../../assets/modal/iconClose.svg";
 import { useSoalAnalytics } from "@/hooks/useSoalAnalytics";
+import { ModalOverlay } from "@/Components/Common/ModalPortal";
+import ModalCloseButton from "@/Components/Common/ModalCloseButton";
 
 const normalizeModuleOption = (module) => {
     if (!module) {
@@ -122,7 +123,7 @@ export default function ModalAnalyzeSoalPG({
     };
 
     return (
-        <div className="depth-modal-overlay z-50">
+        <ModalOverlay onClose={onClose} className="depth-modal-overlay z-50">
             <div
                 className="depth-modal-container flex max-h-[90vh] flex-col overflow-hidden"
                 style={{ "--depth-modal-max-width": "64rem" }}
@@ -146,9 +147,7 @@ export default function ModalAnalyzeSoalPG({
                             ))}
                         </select>
                     </div>
-                    <button type="button" onClick={onClose} className="depth-modal-close">
-                        <img className="h-7 w-7" src={closeIcon} alt="Tutup" />
-                    </button>
+                    <ModalCloseButton onClick={onClose} ariaLabel="Tutup analisis soal" />
                 </div>
 
                 <div className="flex-1 overflow-y-auto px-6 py-4">
@@ -276,6 +275,6 @@ export default function ModalAnalyzeSoalPG({
                     )}
                 </div>
             </div>
-        </div>
+        </ModalOverlay>
     );
 }

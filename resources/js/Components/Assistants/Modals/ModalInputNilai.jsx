@@ -7,7 +7,8 @@ import {
     store as storeNilai,
     update as updateNilai,
 } from "@/lib/routes/nilai";
-import ModalPortal from "@/Components/Common/ModalPortal";
+import { ModalOverlay } from "@/Components/Common/ModalPortal";
+import ModalCloseButton from "@/Components/Common/ModalCloseButton";
 
 const scoresSchema = [
     { key: "tp", label: "TP" },
@@ -504,14 +505,15 @@ export default function ModalInputNilai({
     };
 
     return (
-        <ModalPortal>
-            <div className="depth-modal-overlay z-50" style={{ padding: 0 }}>
-                <div className="flex h-full w-full items-center justify-center px-4 py-6 sm:py-10">
-                    <div
-                        className="depth-modal-container flex w-full max-w-5xl max-h-[85vh] flex-col overflow-hidden"
-                        style={{ "--depth-modal-max-width": "72rem" }}
-                    >
-                    <header className="mb-6 text-center">
+        <ModalOverlay onClose={onClose} className="depth-modal-overlay z-50" style={{ padding: 0 }}>
+            <div className="flex h-full w-full items-center justify-center px-4 py-6 sm:py-10">
+                <div
+                    className="depth-modal-container flex w-full max-w-5xl max-h-[85vh] flex-col overflow-hidden"
+                    style={{ "--depth-modal-max-width": "72rem" }}
+                >
+                    <div className="relative mb-6">
+                        <ModalCloseButton onClick={onClose} ariaLabel="Tutup input nilai" className="absolute right-0 -top-2" />
+                        <header className="text-center">
                         <h2 className="text-2xl font-semibold text-depth-primary">
                             {nilaiSebelumnya ? "Perbarui Nilai" : "Input Nilai"}
                         </h2>
@@ -520,7 +522,8 @@ export default function ModalInputNilai({
                             {praktikan?.nim ?? "-"}) ·{" "}
                             {modul?.judul ?? "Modul tidak dikenal"}
                         </p>
-                    </header>
+                        </header>
+                    </div>
 
                     <div className="min-h-0 flex-1 pr-1 sm:pr-2">
                         <div className="space-y-6 pb-1">
@@ -850,9 +853,8 @@ export default function ModalInputNilai({
                             {isSaving ? "Menyimpan..." : "Simpan Nilai"}
                         </button>
                     </footer>
-                    </div>
                 </div>
             </div>
-        </ModalPortal>
+        </ModalOverlay>
     );
 }

@@ -1,10 +1,10 @@
 import { useState } from "react";
 import toast from "react-hot-toast";
-import closeIcon from "../../../../assets/modal/iconClose.svg";
 import { useRolesQuery } from "@/hooks/useRolesQuery";
 import { submit } from "@/lib/http";
 import { update as updateRole } from "@/lib/routes/role";
-import ModalPortal from "@/Components/Common/ModalPortal";
+import { ModalOverlay } from "@/Components/Common/ModalPortal";
+import ModalCloseButton from "@/Components/Common/ModalCloseButton";
 
 export default function ModalEditRole({ onClose, asistenId }) {
     const [selectedRole, setSelectedRole] = useState("");
@@ -49,17 +49,14 @@ export default function ModalEditRole({ onClose, asistenId }) {
     };
 
     return (
-        <ModalPortal>
-            <div className="depth-modal-overlay">
-                <div className="depth-modal-container max-w-xl">
-                    <div className="depth-modal-header">
-                        <h2 className="depth-modal-title">Update Role</h2>
-                        <button onClick={onClose} type="button" className="depth-modal-close">
-                            <img className="h-6 w-6" src={closeIcon} alt="Tutup" />
-                        </button>
-                    </div>
+        <ModalOverlay onClose={onClose}>
+            <div className="depth-modal-container max-w-xl">
+                <div className="depth-modal-header">
+                    <h2 className="depth-modal-title">Update Role</h2>
+                    <ModalCloseButton onClick={onClose} ariaLabel="Tutup pengaturan role" />
+                </div>
 
-                    <div className="grid grid-cols-1 gap-3 text-left sm:grid-cols-2">
+                <div className="grid grid-cols-1 gap-3 text-left sm:grid-cols-2">
                         {rolesLoading && (
                             <span className="col-span-2 text-sm text-depth-secondary">Memuat role...</span>
                         )}
@@ -90,19 +87,18 @@ export default function ModalEditRole({ onClose, asistenId }) {
                             ))}
                     </div>
 
-                    {errorMessage && <p className="mt-4 text-sm text-red-500">{errorMessage}</p>}
+                {errorMessage && <p className="mt-4 text-sm text-red-500">{errorMessage}</p>}
 
-                    <div className="mt-6 flex justify-end">
-                        <button
-                            onClick={handleSave}
-                            type="button"
-                            className="rounded-depth-md bg-[var(--depth-color-primary)] px-5 py-2 text-sm font-semibold text-white shadow-depth-sm transition hover:-translate-y-0.5 hover:shadow-depth-md"
-                        >
-                            Simpan
-                        </button>
-                    </div>
+                <div className="mt-6 flex justify-end">
+                    <button
+                        onClick={handleSave}
+                        type="button"
+                        className="rounded-depth-md bg-[var(--depth-color-primary)] px-5 py-2 text-sm font-semibold text-white shadow-depth-sm transition hover:-translate-y-0.5 hover:shadow-depth-md"
+                    >
+                        Simpan
+                    </button>
                 </div>
             </div>
-        </ModalPortal>
+        </ModalOverlay>
     );
 }

@@ -1,9 +1,9 @@
 import { useState } from "react";
 import toast from "react-hot-toast";
-import closeIcon from "../../../../assets/modal/iconClose.svg";
 import { submit } from "@/lib/http";
 import { store as storeRole } from "@/lib/routes/role";
-import ModalPortal from "@/Components/Common/ModalPortal";
+import { ModalOverlay } from "@/Components/Common/ModalPortal";
+import ModalCloseButton from "@/Components/Common/ModalCloseButton";
 
 export default function ButtonAddRole({ onClose, defaultChecked = ['asisten'] }) {
     const [roleName, setRoleName] = useState("");
@@ -57,14 +57,11 @@ export default function ButtonAddRole({ onClose, defaultChecked = ['asisten'] })
     };
 
     return (
-        <ModalPortal>
-            <div className="depth-modal-overlay">
-                <div className="depth-modal-container max-w-3xl">
+        <ModalOverlay onClose={onClose}>
+            <div className="depth-modal-container max-w-3xl">
                 <div className="depth-modal-header">
                     <h2 className="depth-modal-title">Tambah Role</h2>
-                    <button onClick={onClose} className="depth-modal-close" type="button">
-                        <img className="h-6 w-6" src={closeIcon} alt="Tutup" />
-                    </button>
+                    <ModalCloseButton onClick={onClose} ariaLabel="Tutup tambah role" />
                 </div>
 
                 <div className="mb-4 space-y-2">
@@ -105,7 +102,7 @@ export default function ButtonAddRole({ onClose, defaultChecked = ['asisten'] })
                     <p className="mt-2 text-sm text-red-500">{errorMessage}</p>
                 )}
 
-                    <div className="mt-6 flex justify-end gap-3">
+                <div className="mt-6 flex justify-end gap-3">
                     <button
                         onClick={onClose}
                         type="button"
@@ -119,10 +116,9 @@ export default function ButtonAddRole({ onClose, defaultChecked = ['asisten'] })
                         className="rounded-depth-md bg-[var(--depth-color-primary)] px-5 py-2 text-sm font-semibold text-white shadow-depth-sm transition hover:-translate-y-0.5 hover:shadow-depth-md"
                     >
                         Simpan
-                        </button>
-                    </div>
+                    </button>
                 </div>
             </div>
-        </ModalPortal>
+        </ModalOverlay>
     );
 }
