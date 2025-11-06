@@ -3,7 +3,7 @@ import toast from "react-hot-toast";
 import closeIcon from "../../../../assets/modal/iconClose.svg";
 import { submit } from "@/lib/http";
 import { store as storeModul } from "@/lib/routes/modul";
-import DepthToggle from "@/Components/Common/DepthToggle";
+import DepthToggleButton from "@/Components/Common/DepthToggleButton";
 import { ModalOverlay } from "@/Components/Common/ModalPortal";
 
 export default function ModalAddModule({ onClose }) {
@@ -135,8 +135,8 @@ export default function ModalAddModule({ onClose }) {
 
                     <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                         <div className="flex gap-4">
-                            <DepthToggle label="English" isOn={isEnglishOn} onToggle={handleToggleEnglish} />
-                            <DepthToggle label="Unlocked" isOn={isUnlockedOn} onToggle={handleToggleUnlocked} />
+                            <DepthToggleButton label="English" isOn={isEnglishOn} onToggle={handleToggleEnglish} />
+                            <DepthToggleButton label="Unlocked" isOn={isUnlockedOn} onToggle={handleToggleUnlocked} />
                         </div>
 
                         <div className="flex justify-end gap-3">

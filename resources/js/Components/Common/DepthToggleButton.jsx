@@ -1,4 +1,4 @@
-export default function DepthToggle({ label, isOn, onToggle, className = "", disabled = false }) {
+export default function DepthToggleButton({ label, isOn, onToggle, className = "", disabled = false }) {
     return (
         <div className={`flex items-center gap-2 ${className}`}>
             {label && (

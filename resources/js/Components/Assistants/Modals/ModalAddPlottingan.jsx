@@ -247,29 +247,15 @@ export default function ModalAddPlottingan({ onClose, fetchKelas }) {
                                     }
                                 }}
                                 placeholder="Masukkan kode asisten"
-                                className="w-full rounded-depth-md border border-depth bg-depth-card px-3 py-2 text-sm text-depth-primary shadow-depth-sm transition focus:border-[var(--depth-color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)] focus:ring-offset-0 uppercase md:w-1/2"
+                                className="w-full rounded-depth-md border border-depth bg-depth-card px-3 py-2 text-sm text-depth-primary shadow-depth-sm transition focus:border-[var(--depth-color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)] focus:ring-offset-0 uppercase"
                             />
                             <button
                                 type="button"
                                 onClick={handleAddPendingAsisten}
-                                className="rounded-depth-md bg-[var(--depth-color-primary)] px-4 py-2 text-sm font-semibold text-white shadow-depth-sm transition hover:-translate-y-0.5 hover:shadow-depth-md"
+                                className="w-full rounded-depth-md bg-[var(--depth-color-primary)] px-4 py-2 text-sm font-semibold text-white shadow-depth-sm transition hover:-translate-y-0.5 hover:shadow-depth-md md:w-auto"
                             >
                                 Tambah
                             </button>
-                            <div className="flex items-center gap-2 md:ml-auto">
-                                <span className="text-xs font-semibold text-depth-secondary">English</span>
-                                <button
-                                    type="button"
-                                    onClick={toggleSwitch}
-                                    className={`flex h-6 w-11 items-center rounded-depth-full border border-depth bg-depth-card p-1 transition ${isSwitchOn === 1 ? "text-white" : "text-depth-secondary"
-                                        }`}
-                                >
-                                    <span
-                                        className={`h-4 w-4 rounded-depth-full bg-depth-interactive shadow-depth-sm transition-transform ${isSwitchOn === 1 ? "translate-x-5 bg-[var(--depth-color-primary)]" : "translate-x-0"
-                                            }`}
-                                    />
-                                </button>
-                            </div>
                         </div>
                         <p className="text-xs text-depth-secondary">
                             Gunakan kode asisten (contoh: AST-01). Asisten akan ditambahkan setelah jadwal tersimpan.
@@ -304,6 +290,20 @@ export default function ModalAddPlottingan({ onClose, fetchKelas }) {
                     </div>
 
                     <div className="flex justify-end gap-3">
+                        <div className="flex items-center gap-2 md:ml-auto">
+                                <span className="text-xs font-semibold text-depth-secondary">English</span>
+                                <button
+                                    type="button"
+                                    onClick={toggleSwitch}
+                                    className={`flex h-6 w-11 items-center rounded-depth-full border border-depth bg-depth-card p-1 transition ${isSwitchOn === 1 ? "text-white" : "text-depth-secondary"
+                                        }`}
+                                >
+                                    <span
+                                        className={`h-4 w-4 rounded-depth-full bg-depth-interactive shadow-depth-sm transition-transform ${isSwitchOn === 1 ? "translate-x-5 bg-[var(--depth-color-primary)]" : "translate-x-0"
+                                            }`}
+                                    />
+                                </button>
+                            </div>
                         <button
                             type="button"
                             onClick={onClose}

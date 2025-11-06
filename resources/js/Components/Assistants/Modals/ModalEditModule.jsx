@@ -3,7 +3,7 @@ import toast from "react-hot-toast";
 import closeIcon from "../../../../assets/modal/iconClose.svg";
 import { send } from "@/lib/http";
 import { update as updateModul } from "@/lib/routes/modul";
-import DepthToggle from "@/Components/Common/DepthToggle";
+import DepthToggleButton from "@/Components/Common/DepthToggleButton";
 import { api } from "@/lib/api";
 import { ModalOverlay } from "@/Components/Common/ModalPortal";
 
@@ -201,7 +201,7 @@ export default function ModalEditModule({ onClose, modules, selectedModuleId, on
 
                     <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                         <div className="flex gap-4">
-                            <DepthToggle
+                            <DepthToggleButton
                                 label="English"
                                 isOn={isEnglishOn}
                                 onToggle={() =>
@@ -213,7 +213,7 @@ export default function ModalEditModule({ onClose, modules, selectedModuleId, on
                                 }
                                 disabled={isDetailLoading || isSubmitting}
                             />
-                            <DepthToggle
+                            <DepthToggleButton
                                 label="Unlocked"
                                 isOn={isUnlockedOn}
                                 onToggle={() =>

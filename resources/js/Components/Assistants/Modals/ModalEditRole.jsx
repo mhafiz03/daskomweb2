@@ -8,7 +8,6 @@ import ModalPortal from "@/Components/Common/ModalPortal";
 
 export default function ModalEditRole({ onClose, asistenId }) {
     const [selectedRole, setSelectedRole] = useState("");
-    const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
     const [errorMessage, setErrorMessage] = useState("");
 
     const {

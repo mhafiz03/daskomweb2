@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import closeIcon from "../../../../assets/modal/iconClose.svg";
 import { useModulesQuery } from "@/hooks/useModulesQuery";
-import DepthToggle from "@/Components/Common/DepthToggle";
+import DepthToggleButton from "@/Components/Common/DepthToggleButton";
 
 export default function ModalEditSoalEssay({ onClose, soalItem, onSave }) {
     const [soal, setSoal] = useState(soalItem.soal || "");
@@ -94,7 +94,7 @@ export default function ModalEditSoalEssay({ onClose, soalItem, onSave }) {
                         <p className="text-sm font-semibold text-depth-primary">Enable File Upload</p>
                         <p className="text-xs text-depth-secondary mt-1">Allow praktikans to upload images for this question</p>
                     </div>
-                    <DepthToggle 
+                    <DepthToggleButton 
                         isOn={enableFileUpload} 
                         onToggle={() => setEnableFileUpload(!enableFileUpload)} 
                     />
