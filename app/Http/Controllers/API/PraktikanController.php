@@ -29,6 +29,7 @@ class PraktikanController extends Controller
         $perPage = max(5, min($perPage, 50));
         $search = trim((string) $request->input('search', ''));
         $kelasId = $request->input('kelas_id');
+        $dk = $request->input('dk');
 
         $praktikans = Praktikan::query()
             ->with('kelas')
@@ -40,6 +41,7 @@ class PraktikanController extends Controller
                 });
             })
             ->when($kelasId, static fn ($query) => $query->where('kelas_id', $kelasId))
+            ->when($dk, static fn ($query) => $query->where('dk', $dk))
             ->orderBy('nama')
             ->paginate($perPage)
             ->appends($request->query());
@@ -50,6 +52,7 @@ class PraktikanController extends Controller
                 'filters' => [
                     'search' => $search !== '' ? $search : null,
                     'kelas_id' => $kelasId ? (int) $kelasId : null,
+                    'dk' => $dk ?: null,
                 ],
             ])
             ->response();
@@ -70,6 +73,7 @@ class PraktikanController extends Controller
                 'nomor_telepon' => $validated['nomor_telepon'],
                 'alamat' => $validated['alamat'],
                 'kelas_id' => $validated['kelas_id'],
+                'dk' => $validated['dk'],
                 'password' => Hash::make($validated['password']),
             ]);
 
@@ -120,6 +124,7 @@ class PraktikanController extends Controller
                 'nomor_telepon' => $validated['nomor_telepon'],
                 'alamat' => $validated['alamat'],
                 'kelas_id' => $validated['kelas_id'],
+                'dk' => $validated['dk'],
             ];
 
             if (! empty($validated['password'])) {
@@ -331,6 +336,7 @@ class PraktikanController extends Controller
                             'hari' => $kelas->hari,
                             'shift' => $kelas->shift,
                         ] : null,
+                        'dk' => $praktikan?->dk,
                     ],
                     'nilai' => $nilai ? [
                         'id' => $nilai->id,

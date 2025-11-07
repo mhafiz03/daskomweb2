@@ -13,7 +13,7 @@ class PraktikumProgressController extends Controller
 
     public function show(Praktikum $praktikum): JsonResponse
     {
-        $praktikum->loadMissing(['kelas.praktikans:id,nim,nama,kelas_id', 'modul:id']);
+        $praktikum->loadMissing(['kelas.praktikans:id,nim,nama,kelas_id,dk', 'modul:id']);
 
         $payload = $this->progressService->buildForPraktikum($praktikum);
 

@@ -11,6 +11,8 @@ import { index as praktikanIndex } from "@/lib/routes/praktikan";
 import { ModalOverlay } from "@/Components/Common/ModalPortal";
 import ModalCloseButton from "@/Components/Common/ModalCloseButton";
 
+const DK_OPTIONS = ["DK1", "DK2"];
+
 export default function TablePlottingan() {
     const [isModalOpenDelete, setIsModalOpenDelete] = useState(false);
     const [isModalOpenEdit, setIsModalOpenEdit] = useState(false);
@@ -48,6 +50,42 @@ export default function TablePlottingan() {
     } = useKelasQuery();
 
     const kelas = useMemo(() => sortKelas(kelasData), [kelasData]);
+
+    const groupedPraktikanByDk = useMemo(() => {
+        const baseGroups = DK_OPTIONS.reduce(
+            (acc, dk) => ({
+                ...acc,
+                [dk]: [],
+            }),
+            {},
+        );
+        const otherGroup = [];
+
+        praktikanList.forEach((praktikan) => {
+            const dkValue = (praktikan?.dk ?? DK_OPTIONS[0]).toUpperCase();
+            if (baseGroups[dkValue]) {
+                baseGroups[dkValue].push(praktikan);
+            } else {
+                otherGroup.push(praktikan);
+            }
+        });
+
+        const groups = DK_OPTIONS.map((dk) => ({
+            key: dk,
+            label: dk,
+            items: baseGroups[dk],
+        }));
+
+        if (otherGroup.length > 0) {
+            groups.push({
+                key: "Lainnya",
+                label: "Lainnya",
+                items: otherGroup,
+            });
+        }
+
+        return groups;
+    }, [praktikanList]);
 
     const deleteKelasMutation = useMutation({
         mutationFn: async (kelasId) => {
@@ -257,31 +295,47 @@ export default function TablePlottingan() {
                                     Belum ada praktikan yang terdaftar di kelas ini.
                                 </div>
                             ) : (
-                                <table className="min-w-full table-auto text-sm text-depth-primary">
-                                    <thead className="bg-depth-interactive/60 text-xs font-semibold uppercase tracking-wide text-depth-secondary">
-                                        <tr>
-                                            <th className="px-4 py-3 text-left">Nama</th>
-                                            <th className="px-4 py-3 text-left">NIM</th>
-                                            <th className="px-4 py-3 text-left">Email</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody className="divide-y divide-[color:var(--depth-border)]">
-                                        {praktikanList.map((praktikan) => (
-                                            <tr key={praktikan.id}>
-                                                <td className="px-4 py-3 font-semibold text-depth-primary">{praktikan.nama}</td>
-                                                <td className="px-4 py-3 text-depth-secondary">{praktikan.nim}</td>
-                                                <td className="px-4 py-3">
-                                                    <a
-                                                        href={`mailto:${praktikan.email}`}
-                                                        className="text-[var(--depth-color-primary)] underline-offset-2 hover:underline"
-                                                    >
-                                                        {praktikan.email}
-                                                    </a>
-                                                </td>
-                                            </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
+                                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                                    {groupedPraktikanByDk.map((group) => (
+                                        <div key={group.key} className="rounded-depth-md border border-depth bg-depth-card shadow-depth-sm">
+                                            <div className="flex items-center justify-between border-b border-depth px-4 py-3 text-sm font-semibold text-depth-primary">
+                                                <span>{group.label}</span>
+                                                <span className="text-xs text-depth-secondary">{group.items.length} praktikan</span>
+                                            </div>
+                                            {group.items.length === 0 ? (
+                                                <p className="px-4 py-6 text-center text-xs text-depth-secondary">
+                                                    Belum ada praktikan untuk {group.label}.
+                                                </p>
+                                            ) : (
+                                                <table className="min-w-full table-auto text-sm text-depth-primary">
+                                                    <thead className="bg-depth-interactive/40 text-xs font-semibold uppercase tracking-wide text-depth-secondary">
+                                                        <tr>
+                                                            <th className="px-4 py-2 text-left">Nama</th>
+                                                            <th className="px-4 py-2 text-left">NIM</th>
+                                                            <th className="px-4 py-2 text-left">Email</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody className="divide-y divide-[color:var(--depth-border)]">
+                                                        {group.items.map((praktikan) => (
+                                                            <tr key={praktikan.id}>
+                                                                <td className="px-4 py-2 font-semibold text-depth-primary">{praktikan.nama}</td>
+                                                                <td className="px-4 py-2 text-depth-secondary">{praktikan.nim}</td>
+                                                                <td className="px-4 py-2">
+                                                                    <a
+                                                                        href={`mailto:${praktikan.email}`}
+                                                                        className="text-[var(--depth-color-primary)] underline-offset-2 hover:underline"
+                                                                    >
+                                                                        {praktikan.email}
+                                                                    </a>
+                                                                </td>
+                                                            </tr>
+                                                        ))}
+                                                    </tbody>
+                                                </table>
+                                            )}
+                                        </div>
+                                    ))}
+                                </div>
                             )}
                         </div>
                     </div>

@@ -28,6 +28,7 @@ class StorePraktikanRequest extends FormRequest
             'nomor_telepon' => ['required', 'string', 'max:15'],
             'alamat' => ['required', 'string'],
             'kelas_id' => ['required', 'integer', 'exists:kelas,id'],
+            'dk' => ['required', 'string', 'in:DK1,DK2'],
             'password' => ['required', 'string', 'min:8'],
         ];
     }

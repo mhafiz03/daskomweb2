@@ -2,29 +2,26 @@
 
 namespace App\Http\Controllers\Auth;
 
-use Inertia\Inertia;
-use Inertia\Response;
-use App\Models\Asisten;
-use App\Models\Praktikan;
-use Illuminate\Http\Request;
-use Spatie\Permission\Models\Role;
 use App\Http\Controllers\Controller;
 use App\Models\Kelas;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
+use App\Models\Praktikan;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Facades\Redirect;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
+use Inertia\Inertia;
+use Inertia\Response;
+use Spatie\Permission\Models\Role;
 
 class RegisteredPraktikanController extends Controller
 {
     /**
      * Display the registration view.
      */
-
-     public function getKelas()
-     {
+    public function getKelas()
+    {
         try {
             $kelas = Kelas::all();
+
             return response()->json([
                 'status' => 'success',
                 'message' => 'Kelas retrieved successfully.',
@@ -37,11 +34,11 @@ class RegisteredPraktikanController extends Controller
                 'error' => $e->getMessage(),
             ], 500);
         }
-     }
+    }
 
     public function create(): Response
     {
-        return Inertia::render('Auth/Register');//ini pake path yg bener
+        return Inertia::render('Auth/Register'); // ini pake path yg bener
     }
 
     /**
@@ -59,6 +56,7 @@ class RegisteredPraktikanController extends Controller
                 'nomor_telepon' => 'required|string|max:15',
                 'email' => 'required|string|email',
                 'kelas_id' => 'required|integer|exists:kelas,id',
+                'dk' => 'required|string|in:DK1,DK2',
                 'alamat' => 'required|string',
                 'password' => 'required|string',
             ]);
@@ -68,6 +66,7 @@ class RegisteredPraktikanController extends Controller
                 'nama' => $validatedData['nama'],
                 'nim' => $validatedData['nim'],
                 'kelas_id' => $validatedData['kelas_id'],
+                'dk' => $validatedData['dk'],
                 'alamat' => $validatedData['alamat'],
                 'email' => $validatedData['email'],
                 'nomor_telepon' => $validatedData['nomor_telepon'],
@@ -114,7 +113,7 @@ class RegisteredPraktikanController extends Controller
                 $user = Praktikan::where('email', $request->email)->first();
             }
 
-            if (!$user) {
+            if (! $user) {
                 return back()->withErrors([
                     'error' => 'User tidak ditemukan. Silakan periksa kembali data yang dimasukkan.',
                 ]);
@@ -127,7 +126,7 @@ class RegisteredPraktikanController extends Controller
             return back()->with('success', 'Password berhasil diubah.');
         } catch (\Exception $e) {
             return back()->withErrors([
-                'error' => 'Terjadi kesalahan: ' . $e->getMessage(),
+                'error' => 'Terjadi kesalahan: '.$e->getMessage(),
             ]);
         }
     }

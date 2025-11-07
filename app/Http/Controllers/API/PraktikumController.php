@@ -34,7 +34,11 @@ class PraktikumController extends Controller
                 ->when($request->filled('modul_id'), function ($query) use ($request) {
                     $query->where('modul_id', $request->input('modul_id'));
                 })
+                ->when($request->filled('dk'), function ($query) use ($request) {
+                    $query->where('dk', $request->input('dk'));
+                })
                 ->orderBy('kelas_id')
+                ->orderBy('dk')
                 ->orderBy('modul_id')
                 ->get();
 
@@ -57,6 +61,10 @@ class PraktikumController extends Controller
                 ->when($request->filled('modul_id'), function ($query) use ($request) {
                     $query->where('modul_id', $request->input('modul_id'));
                 })
+                ->when($request->filled('dk'), function ($query) use ($request) {
+                    $query->where('dk', $request->input('dk'));
+                })
+                ->orderBy('dk')
                 ->orderBy('modul_id')
                 ->get();
 
@@ -76,14 +84,17 @@ class PraktikumController extends Controller
         $validated = $request->validate([
             'kelas_id' => 'required|exists:kelas,id',
             'modul_id' => 'required|exists:moduls,id',
+            'dk' => 'required|string|in:DK1,DK2',
         ]);
 
         $praktikum = Praktikum::firstOrCreate(
             [
                 'kelas_id' => $validated['kelas_id'],
                 'modul_id' => $validated['modul_id'],
+                'dk' => $validated['dk'],
             ],
             [
+                'dk' => $validated['dk'],
                 'status' => 'idle',
                 'current_phase' => self::PHASE_SEQUENCE[0],
                 'isActive' => false,
@@ -187,6 +198,7 @@ class PraktikumController extends Controller
     {
         // Check if there's already a running praktikum for the same kelas
         $runningPraktikum = Praktikum::where('kelas_id', $praktikum->kelas_id)
+            ->where('dk', $praktikum->dk)
             ->where('id', '!=', $praktikum->id)
             ->whereIn('status', ['running', 'paused'])
             ->first();
@@ -337,6 +349,7 @@ class PraktikumController extends Controller
             }
 
             $kelasId = $user->kelas_id;
+            $dk = $user->dk ?? 'DK1';
 
             if (! $kelasId) {
                 return response()->json([
@@ -347,12 +360,14 @@ class PraktikumController extends Controller
 
             $activePraktikum = Praktikum::with(['modul', 'kelas', 'pj'])
                 ->where('kelas_id', $kelasId)
+                ->where('dk', $dk)
                 ->where('isActive', true)
                 ->whereIn('status', ['running', 'paused'])
                 ->first();
 
             $latestCompletedPraktikum = Praktikum::query()
                 ->where('kelas_id', $kelasId)
+                ->where('dk', $dk)
                 ->where('status', 'completed')
                 ->orderByDesc('ended_at')
                 ->orderByDesc('updated_at')

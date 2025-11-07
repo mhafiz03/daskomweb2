@@ -27,6 +27,8 @@ const STATUS_LABELS = {
     idle: "Not Yet Started",
 };
 
+const DK_OPTIONS = ["DK1", "DK2"];
+
 const formatDuration = (totalSeconds = 0) => {
     const seconds = Math.max(0, Math.floor(totalSeconds));
     const hours = Math.floor(seconds / 3600);
@@ -82,6 +84,7 @@ const PRAKTIKUM_PROGRESS_QUERY_KEY = "praktikum-progress";
 export default function ContentPraktikum() {
     const [selectedModul, setSelectedModul] = useState("");
     const [selectedKelas, setSelectedKelas] = useState("");
+    const [selectedDk, setSelectedDk] = useState(DK_OPTIONS[0]);
     const [session, setSession] = useState(null);
     const [displaySeconds, setDisplaySeconds] = useState(0);
     const [reportText, setReportText] = useState("");
@@ -138,13 +141,17 @@ export default function ContentPraktikum() {
     });
 
     const selectedPraktikum = useMemo(() => {
-        if (!selectedModul) {
+        if (!selectedModul || !selectedDk) {
             return null;
         }
 
         const modulId = Number(selectedModul);
-        return praktikumByClass.find((item) => Number(item?.modul_id) === modulId) ?? null;
-    }, [praktikumByClass, selectedModul]);
+        return (
+            praktikumByClass.find(
+                (item) => Number(item?.modul_id) === modulId && (item?.dk ?? DK_OPTIONS[0]) === selectedDk,
+            ) ?? null
+        );
+    }, [praktikumByClass, selectedModul, selectedDk]);
 
     const asistenMap = useMemo(() => {
         const map = new Map();
@@ -238,7 +245,7 @@ export default function ContentPraktikum() {
 
     const selectedPraktikumId = selectedPraktikum?.id ?? session?.id ?? null;
     const effectiveSession = session ?? selectedPraktikum ?? null;
-    const hasSelection = Boolean(selectedKelas) && Boolean(selectedModul);
+    const hasSelection = Boolean(selectedKelas) && Boolean(selectedModul) && Boolean(selectedDk);
 
     const {
         data: fetchedProgress,
@@ -497,9 +504,14 @@ export default function ContentPraktikum() {
                 throw new Error("Pilih kelas dan modul sebelum memulai praktikum.");
             }
 
+            if (!selectedDk) {
+                throw new Error("Pilih DK sebelum memulai praktikum.");
+            }
+
             const { data } = await api.post("/api-v1/praktikum", {
                 kelas_id: Number(selectedKelas),
                 modul_id: Number(selectedModul),
+                dk: selectedDk,
             });
 
             return data?.data ?? data?.praktikum ?? data;
@@ -624,6 +636,11 @@ export default function ContentPraktikum() {
                 return;
             }
 
+            if (!selectedDk) {
+                toast.error("Pilih DK terlebih dahulu.");
+                return;
+            }
+
             const payload = { action, ...options };
             if (action === "start" && !payload.phase) {
                 payload.phase = PHASE_SEQUENCE[0]?.key ?? "ta";
@@ -669,6 +686,7 @@ export default function ContentPraktikum() {
             effectiveSession,
             createPraktikumMutation,
             praktikumMutation,
+            selectedDk,
         ]
     );
 
@@ -690,9 +708,10 @@ export default function ContentPraktikum() {
 
         setSelectedKelas(String(praktikum.kelas_id));
         setSelectedModul(String(praktikum.modul_id));
+        setSelectedDk(praktikum.dk ?? DK_OPTIONS[0]);
 
         // Scroll to top to see the selected praktikum
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        window.scrollTo({ top: 0, behavior: "smooth" });
     }, []);
 
     const isRunning = effectiveSession?.status === "running";
@@ -731,10 +750,8 @@ export default function ContentPraktikum() {
         return index;
     }, [effectiveSession]);
 
-    const startDisabled =
-        !hasSelection ||
-        praktikumMutation.isPending ||
-        createPraktikumMutation.isPending;
+    const baseStartDisabled =
+        !hasSelection || praktikumMutation.isPending || createPraktikumMutation.isPending;
     const pauseDisabled =
         !hasSession || !isRunning || praktikumMutation.isPending;
     const resumeDisabled =
@@ -747,8 +764,14 @@ export default function ContentPraktikum() {
         currentPhaseIndex >= PHASE_SEQUENCE.length - 1; // Disable at last phase
     const exitDisabled =
         !hasSession ||
-        !(isRunning || isPaused) ||
+        !(isRunning || isPaused) || 
         praktikumMutation.isPending;
+
+    const restartLocked = isCompleted && reportSubmitted;
+    const startDisabled = baseStartDisabled || restartLocked;
+    const restartLockedMessage = restartLocked
+        ? "Praktikum tidak dapat dimulai ulang setelah laporan dikirim."
+        : null;
 
     const reportSubmitDisabled =
         reportText.trim().length < 3 ||
@@ -772,6 +795,10 @@ export default function ContentPraktikum() {
     );
 
     useAssistantToolbar(toolbarConfig);
+
+    useEffect(() => {
+        setSelectedDk(DK_OPTIONS[0]);
+    }, [selectedKelas]);
     return (
         <section className="space-y-6 text-depth-primary">
             <div className="rounded-depth-lg border border-depth bg-depth-card shadow-depth-lg">
@@ -837,6 +864,26 @@ export default function ContentPraktikum() {
                                     ))}
                             </select>
                         </div>
+                        <div className="w-full max-w-xs space-y-2">
+                            <label
+                                htmlFor="dk"
+                                className="block text-xs font-semibold uppercase tracking-wide text-depth-secondary"
+                            >
+                                DK
+                            </label>
+                            <select
+                                className="w-full rounded-depth-md border border-depth bg-depth-card p-3 text-sm text-depth-primary shadow-depth-sm transition focus:border-[var(--depth-color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)] focus:ring-offset-0"
+                                id="dk"
+                                value={selectedDk}
+                                onChange={(event) => setSelectedDk(event.target.value)}
+                            >
+                                {DK_OPTIONS.map((option) => (
+                                    <option key={option} value={option}>
+                                        {option}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
                     </div>
 
                     {/* Running Praktikum Section */}
@@ -856,17 +903,25 @@ export default function ContentPraktikum() {
                                     const statusLabel = STATUS_LABELS[p.status] ?? p.status;
                                     const phaseLabel =
                                         PHASE_SEQUENCE.find((phase) => phase.key === p.current_phase)?.label ?? p.current_phase;
+                                    const dkLabel = p.dk ?? DK_OPTIONS[0];
+                                    const isSelectedRunning =
+                                        String(p.kelas_id) === String(selectedKelas) &&
+                                        String(p.modul_id) === String(selectedModul) &&
+                                        dkLabel === selectedDk;
 
                                     return (
                                         <div
                                             key={p.id}
-                                            className="flex items-center justify-between rounded-depth-md border border-amber-200 bg-white/90 px-3 py-2 text-sm shadow-depth-sm transition-colors hover:bg-amber-100/80 dark:border-amber-200/40 dark:bg-[#3a280c] dark:hover:bg-[#4a3310]"
+                                            className={`flex items-center justify-between rounded-depth-md border bg-white/90 px-3 py-2 text-sm shadow-depth-sm transition-colors hover:bg-amber-100/80 dark:bg-[#3a280c] dark:hover:bg-[#4a3310] ${isSelectedRunning ? "border-[var(--depth-color-primary)] dark:border-[var(--depth-color-primary)]" : "border-amber-200 dark:border-amber-200/40"}`}
                                         >
                                             <div className="flex-1">
                                                 <div className="flex items-center gap-2">
                                                     <span className="font-semibold text-depth-primary dark:text-amber-100">{kelasName}</span>
                                                     <span className="text-amber-400">•</span>
                                                     <span className="text-depth-secondary dark:text-amber-200">{modulName}</span>
+                                                    <span className="rounded-depth-full border border-amber-200/80 bg-white px-2 py-0.5 text-[0.7rem] font-semibold uppercase tracking-wide text-depth-secondary dark:border-amber-200/30 dark:bg-[#2f240c] dark:text-amber-200">
+                                                        {dkLabel}
+                                                    </span>
                                                 </div>
                                                 <div className="mt-1 flex items-center gap-3 text-xs text-depth-secondary dark:text-amber-200/80">
                                                     <span className="flex items-center gap-1">
@@ -1004,6 +1059,7 @@ export default function ContentPraktikum() {
                                             <span>Mulai: {startedAtDisplay ?? "-"}</span>
                                             <span>Selesai: {endedAtDisplay ?? "-"}</span>
                                             <span>PJ: {reportOwnerDisplay}</span>
+                                            <span>DK: {effectiveSession?.dk ?? selectedDk ?? "-"}</span>
                                         </div>
                                         <hr className="my-3 border-[color:var(--depth-border)]" />
                                         <div className="whitespace-pre-wrap text-base leading-relaxed text-depth-primary">
@@ -1164,6 +1220,11 @@ export default function ContentPraktikum() {
                                         </svg>
                                     </button>
                                 </div>
+                                {restartLockedMessage && (
+                                    <p className="mt-3 text-center text-xs font-semibold text-amber-500">
+                                        {restartLockedMessage}
+                                    </p>
+                                )}
                             </div>
                         )}
 

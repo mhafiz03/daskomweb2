@@ -11,6 +11,8 @@ import { MANAGE_PRAKTIKAN_QUERY_KEY } from "@/hooks/useManagePraktikanQuery";
 import ModalCloseButton from "@/Components/Common/ModalCloseButton";
 import { ModalOverlay } from "@/Components/Common/ModalPortal";
 
+const DK_OPTIONS = ["DK1", "DK2"];
+
 const DEFAULT_FORM = {
     nama: "",
     nim: "",
@@ -19,6 +21,7 @@ const DEFAULT_FORM = {
     alamat: "",
     kelas_id: "",
     password: "",
+    dk: DK_OPTIONS[0],
 };
 
 const normaliseClassOptions = (classes) =>
@@ -49,6 +52,7 @@ export default function ModalUpsertPraktikan({
                 alamat: praktikan?.alamat ?? "",
                 kelas_id: praktikan?.kelas_id ? String(praktikan.kelas_id) : "",
                 password: "",
+                dk: praktikan?.dk ?? DK_OPTIONS[0],
             });
         } else {
             setForm(DEFAULT_FORM);
@@ -108,12 +112,21 @@ export default function ModalUpsertPraktikan({
             nomor_telepon: form.nomor_telepon.trim(),
             alamat: form.alamat.trim(),
             kelas_id: form.kelas_id ? Number(form.kelas_id) : null,
+            dk: form.dk || DK_OPTIONS[0],
         };
 
         if (!payload.kelas_id) {
             setErrors((prev) => ({
                 ...prev,
                 kelas_id: "Kelas wajib dipilih.",
+            }));
+            return;
+        }
+
+        if (!payload.dk) {
+            setErrors((prev) => ({
+                ...prev,
+                dk: "DK wajib dipilih.",
             }));
             return;
         }
@@ -241,7 +254,7 @@ export default function ModalUpsertPraktikan({
                         {renderError("alamat")}
                     </div>
 
-                    <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                    <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
                         <div>
                             <label htmlFor="kelas_id" className="text-sm font-medium text-depth-secondary">
                                 Kelas
@@ -262,6 +275,27 @@ export default function ModalUpsertPraktikan({
                                 ))}
                             </select>
                             {renderError("kelas_id")}
+                        </div>
+
+                        <div>
+                            <label htmlFor="dk" className="text-sm font-medium text-depth-secondary">
+                                DK
+                            </label>
+                            <select
+                                id="dk"
+                                name="dk"
+                                value={form.dk}
+                                onChange={handleChange}
+                                className="mt-1 w-full rounded-depth-md border border-depth bg-depth-card px-3 py-2 text-sm text-depth-primary shadow-depth-sm transition focus:border-[var(--depth-color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)] focus:ring-offset-0"
+                                disabled={mutation.isPending}
+                            >
+                                {DK_OPTIONS.map((option) => (
+                                    <option key={option} value={option}>
+                                        {option}
+                                    </option>
+                                ))}
+                            </select>
+                            {renderError("dk")}
                         </div>
 
                         <div>

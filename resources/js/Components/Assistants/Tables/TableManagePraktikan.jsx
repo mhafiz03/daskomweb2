@@ -77,22 +77,24 @@ export default function TableManagePraktikan({
         <div className="space-y-3">
             <div className="rounded-depth-lg border border-depth bg-depth-card shadow-depth-lg">
                 <div className="max-h-[56vh] overflow-x-auto overflow-y-auto">
-                    <table className="w-full min-w-[960px] table-auto divide-y divide-[color:var(--depth-border)] text-sm text-depth-primary">
+                    <table className="w-full min-w-[1040px] table-auto divide-y divide-[color:var(--depth-border)] text-sm text-depth-primary">
                         <thead className="bg-depth-interactive/70 text-xs font-semibold uppercase tracking-wide text-depth-secondary">
                             <tr>
                                 <th className="px-4 py-3 text-left">NIM</th>
                                 <th className="px-4 py-3 text-left">Nama</th>
                                 <th className="px-4 py-3 text-left">Kelas</th>
-                            <th className="px-4 py-3 text-left">Email</th>
-                            <th className="px-4 py-3 text-left">No. Telepon</th>
-                            <th className="px-4 py-3 text-left">Alamat</th>
-                            <th className="px-4 py-3 text-center">Aksi</th>
-                        </tr>
-                    </thead>
+                                <th className="px-4 py-3 text-left">DK</th>
+                                <th className="px-4 py-3 text-left">Email</th>
+                                <th className="px-4 py-3 text-left">No. Telepon</th>
+                                <th className="px-4 py-3 text-left">Alamat</th>
+                                <th className="px-4 py-3 text-center">Aksi</th>
+                            </tr>
+                        </thead>
                         <tbody className="divide-y divide-[color:var(--depth-border)] bg-depth-card">
                             {items.map((praktikan) => (
                                 <tr key={praktikan.id} className="transition hover:bg-depth-interactive/40">
                                     <td className="px-4 py-3 font-medium text-depth-primary">{praktikan.nim}</td>
+                                    <td className="px-4 py-3 text-depth-secondary font-semibold">{praktikan.dk ?? "-"}</td>
                                     <td className="px-4 py-3">
                                         <div className="font-semibold text-depth-primary">{praktikan.nama}</div>
                                     </td>

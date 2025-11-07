@@ -28,6 +28,7 @@ use Spatie\Permission\Traits\HasRoles;
  * @property string $alamat
  * @property string $nomor_telepon
  * @property string $email
+ * @property string $dk
  * @property string|null $remember_token
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
@@ -69,6 +70,7 @@ class Praktikan extends Authenticatable
         'password',
         'api_token',
         'kelas_id',
+        'dk',
         'alamat',
         'nomor_telepon',
         'email',

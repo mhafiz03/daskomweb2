@@ -419,7 +419,7 @@ class AutosaveSnapshotController extends Controller
         }
 
         $praktikans = Praktikan::query()
-            ->select(['id', 'kelas_id'])
+            ->select(['id', 'kelas_id', 'dk'])
             ->whereIn('id', $praktikanIds)
             ->get()
             ->keyBy('id');
@@ -439,11 +439,12 @@ class AutosaveSnapshotController extends Controller
                 continue;
             }
 
-            $key = $praktikan->kelas_id.':'.$modulId;
+            $key = $praktikan->kelas_id.':'.$praktikan->dk.':'.$modulId;
 
             if (! isset($targets[$key])) {
                 $targets[$key] = [
                     'kelas_id' => (int) $praktikan->kelas_id,
+                    'dk' => $praktikan->dk,
                     'modul_id' => $modulId,
                 ];
             }
@@ -452,7 +453,8 @@ class AutosaveSnapshotController extends Controller
         foreach ($targets as $target) {
             $progress = $this->progressService->buildForIdentifiers(
                 $target['kelas_id'],
-                $target['modul_id']
+                $target['modul_id'],
+                $target['dk'] ?? null
             );
 
             if (! $progress || empty($progress['praktikumId'])) {

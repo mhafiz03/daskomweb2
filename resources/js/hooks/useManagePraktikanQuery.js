@@ -10,6 +10,7 @@ const fetchManagePraktikan = async (params = {}) => {
         perPage = 10,
         search = "",
         kelasId = null,
+        dk = null,
     } = params;
 
     const query = {
@@ -23,6 +24,10 @@ const fetchManagePraktikan = async (params = {}) => {
 
     if (kelasId) {
         query.kelas_id = kelasId;
+    }
+
+    if (dk) {
+        query.dk = dk;
     }
 
     const { data } = await api.get(

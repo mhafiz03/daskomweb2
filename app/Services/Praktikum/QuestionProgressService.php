@@ -39,7 +39,7 @@ class QuestionProgressService
     public function buildForPraktikum(Praktikum $praktikum): array
     {
         $praktikum->loadMissing([
-            'kelas.praktikans:id,nim,nama,kelas_id',
+            'kelas.praktikans:id,nim,nama,kelas_id,dk',
             'modul:id',
         ]);
 
@@ -50,6 +50,8 @@ class QuestionProgressService
 
         $participants = $kelas->praktikans ?? collect();
         $participantCollection = $participants instanceof Collection ? $participants : collect($participants);
+        $participantCollection = $participantCollection
+            ->filter(static fn (Praktikan $praktikan) => $praktikan->dk === $praktikum->dk);
 
         $activePhase = $praktikum->current_phase ?? 'preparation';
 
@@ -94,19 +96,21 @@ class QuestionProgressService
      *     generatedAt:string
      * }|null
      */
-    public function buildForIdentifiers(int $kelasId, int $modulId): ?array
+    public function buildForIdentifiers(int $kelasId, int $modulId, ?string $dk = null): ?array
     {
-        $praktikum = Praktikum::with(['kelas.praktikans:id,nim,nama,kelas_id', 'modul:id'])
+        $praktikum = Praktikum::with(['kelas.praktikans:id,nim,nama,kelas_id,dk', 'modul:id'])
             ->where('kelas_id', $kelasId)
             ->where('modul_id', $modulId)
+            ->when($dk !== null, static fn ($query) => $query->where('dk', $dk))
             ->whereIn('status', ['running', 'paused'])
             ->latest('updated_at')
             ->first();
 
         if (! $praktikum) {
-            $praktikum = Praktikum::with(['kelas.praktikans:id,nim,nama,kelas_id', 'modul:id'])
+            $praktikum = Praktikum::with(['kelas.praktikans:id,nim,nama,kelas_id,dk', 'modul:id'])
                 ->where('kelas_id', $kelasId)
                 ->where('modul_id', $modulId)
+                ->when($dk !== null, static fn ($query) => $query->where('dk', $dk))
                 ->latest('updated_at')
                 ->first();
         }

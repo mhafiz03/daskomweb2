@@ -8,6 +8,7 @@ import { useKelasQuery } from '@/hooks/useKelasQuery';
 import { submit } from '@/lib/http';
 import { store as registerPraktikan } from '@/lib/routes/auth/registeredPraktikan';
 
+const DK_OPTIONS = ["DK1", "DK2"];
 
 export default function RegistFormPraktikan({ mode, onSwitchToLogin }) {
 
@@ -19,6 +20,7 @@ export default function RegistFormPraktikan({ mode, onSwitchToLogin }) {
         alamat: '',
         nomor_telepon: '',
         password: '',
+        dk: DK_OPTIONS[0],
     });
     const [passwordVisible, setPasswordVisible] = useState(false);
     const [localErrors, setLocalErrors] = useState({});
@@ -58,6 +60,7 @@ export default function RegistFormPraktikan({ mode, onSwitchToLogin }) {
         if (!values.nomor_telepon.trim()) newErrors.nomor_telepon = 'No. Telepon is required.';
         if (!values.password.trim()) newErrors.password = 'Password is required.';
         else if (values.password.length < 8) newErrors.password = 'Password must be at least 8 characters.';
+        if (!values.dk.trim()) newErrors.dk = 'DK is required.';
 
         setLocalErrors(newErrors);
 
@@ -148,6 +151,21 @@ export default function RegistFormPraktikan({ mode, onSwitchToLogin }) {
                         ))}
                 </select>
                 {localErrors.kelas_id && <p className="text-red-400 text-sm -mt-2">{localErrors.kelas_id}</p>}
+                <div className="flex flex-col">
+                    <select
+                        className="bg-depth-card py-2 px-4 rounded-depth-md border border-depth text-depth-primary focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)] focus:border-transparent transition-all shadow-depth-sm"
+                        id="dk"
+                        value={values.dk}
+                        onChange={handleChange}
+                    >
+                        {DK_OPTIONS.map((option) => (
+                            <option key={option} value={option}>
+                                {option}
+                            </option>
+                        ))}
+                    </select>
+                    {localErrors.dk && <p className="text-red-400 text-sm mt-1">{localErrors.dk}</p>}
+                </div>
                 <input
                     className="bg-depth-card py-2 px-4 rounded-depth-md border border-depth placeholder-depth-secondary focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)] focus:border-transparent transition-all shadow-depth-sm"
                     type="text"
@@ -188,4 +206,3 @@ export default function RegistFormPraktikan({ mode, onSwitchToLogin }) {
         </div>
     );
 }
-

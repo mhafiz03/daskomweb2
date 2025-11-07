@@ -2,14 +2,13 @@
 
 namespace App\Http\Controllers\API;
 
+use App\Http\Controllers\Controller;
 use App\Models\Kelas;
 use App\Models\Modul;
 use App\Models\Praktikum;
-use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 
 class KelasController extends Controller
 {
@@ -17,6 +16,7 @@ class KelasController extends Controller
     {
         try {
             $kelas = Kelas::all();
+
             return response()->json([
                 'status' => 'success',
                 'message' => 'Kelas retrieved successfully.',
@@ -32,7 +32,7 @@ class KelasController extends Controller
         $request->validate([
             'kelas' => 'required|string|unique:kelas,kelas',
             'shift' => 'required|integer',
-            'hari'  => 'required|string',
+            'hari' => 'required|string',
             'totalGroup' => 'required|integer',
             'isEnglish' => 'required|boolean',
         ]);
@@ -63,14 +63,18 @@ class KelasController extends Controller
                 'updated_at' => now(),
             ]);
             foreach ($moduls as $modul) {
-                $praktikum = Praktikum::create([
-                    'kelas_id' => $kelas->id,
-                    'modul_id' => $modul->id,
-                    'isActive' => 0,
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ]);
+                foreach (['DK1', 'DK2'] as $dk) {
+                    Praktikum::create([
+                        'kelas_id' => $kelas->id,
+                        'modul_id' => $modul->id,
+                        'dk' => $dk,
+                        'isActive' => 0,
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ]);
+                }
             }
+
             return response()->json([
                 'status' => 'success',
                 'message' => 'Kelas berhasil ditambahkan.',
@@ -205,6 +209,7 @@ class KelasController extends Controller
                 $praktikums->delete();
                 $kelas->delete();
             });
+
             return response()->json([
                 'status' => 'success',
                 'message' => 'Kelas berhasil dihapus.',
@@ -225,6 +230,7 @@ class KelasController extends Controller
             DB::table('praktikans')->truncate();
             DB::table('kelas')->truncate();
             DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+
             return response()->json([
                 'status' => 'success',
                 'message' => 'Kelas dan data terkait berhasil direset.',

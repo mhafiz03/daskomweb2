@@ -22,6 +22,7 @@ class PraktikanResource extends JsonResource
             'nomor_telepon' => $this->nomor_telepon,
             'alamat' => $this->alamat,
             'kelas_id' => $this->kelas_id,
+            'dk' => $this->dk,
             'kelas' => $this->whenLoaded('kelas', function () {
                 $kelas = $this->kelas;
 

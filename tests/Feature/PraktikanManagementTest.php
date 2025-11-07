@@ -94,6 +94,7 @@ class PraktikanManagementTest extends TestCase
                     'nomor_telepon',
                     'alamat',
                     'kelas_id',
+                    'dk',
                 ],
             ],
             'links',
@@ -122,6 +123,7 @@ class PraktikanManagementTest extends TestCase
             'nomor_telepon' => '081234567890',
             'alamat' => 'Jl. Sukamaju',
             'kelas_id' => $kelas->id,
+            'dk' => 'DK1',
             'password' => 'praktikan123',
         ];
 
@@ -133,6 +135,7 @@ class PraktikanManagementTest extends TestCase
             'nim' => '11012230003',
             'email' => 'citra@example.com',
             'kelas_id' => $kelas->id,
+            'dk' => 'DK1',
         ]);
 
         $praktikan = Praktikan::where('nim', '11012230003')->firstOrFail();
@@ -159,6 +162,7 @@ class PraktikanManagementTest extends TestCase
             'nomor_telepon' => '081111111111',
             'alamat' => 'Alamat Baru',
             'kelas_id' => $kelas->id,
+            'dk' => 'DK1',
         ]);
 
         $response->assertOk();
@@ -188,6 +192,7 @@ class PraktikanManagementTest extends TestCase
             'nomor_telepon' => $praktikan->nomor_telepon,
             'alamat' => $praktikan->alamat,
             'kelas_id' => $kelas->id,
+            'dk' => 'DK1',
             'password' => 'new-secret',
         ]);
 

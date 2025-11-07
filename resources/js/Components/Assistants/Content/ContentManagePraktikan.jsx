@@ -12,10 +12,13 @@ import { send } from "@/lib/http";
 import { destroy as destroyPraktikan } from "@/lib/routes/praktikan";
 import ContentSetPraktikan from "./ContentSetPraktikan";
 
+const DK_OPTIONS = ["DK1", "DK2"];
+
 export default function ContentManagePraktikan() {
     const queryClient = useQueryClient();
     const [searchTerm, setSearchTerm] = useState("");
     const [kelasFilter, setKelasFilter] = useState("");
+    const [dkFilter, setDkFilter] = useState("");
     const [page, setPage] = useState(1);
     const [perPage] = useState(10);
     const [modalState, setModalState] = useState({ mode: null, praktikan: null });
@@ -30,8 +33,9 @@ export default function ContentManagePraktikan() {
             perPage,
             search: searchTerm.trim(),
             kelasId: kelasFilter || null,
+            dk: dkFilter || null,
         }),
-        [page, perPage, searchTerm, kelasFilter],
+        [page, perPage, searchTerm, kelasFilter, dkFilter],
     );
 
     const {
@@ -73,6 +77,7 @@ export default function ContentManagePraktikan() {
         setSearchTerm("");
         setKelasFilter("");
         setPage(1);
+        setDkFilter("");
     }, []);
 
     useAssistantToolbar(
@@ -109,26 +114,43 @@ export default function ContentManagePraktikan() {
                                 🔍
                             </span>
                         </div>
-                        <select
-                            value={kelasFilter}
-                            onChange={(event) => {
-                                setKelasFilter(event.target.value);
-                                setPage(1);
-                            }}
-                            disabled={kelasQuery.isLoading}
-                            className="rounded-depth-full border border-depth bg-depth-interactive px-4 py-2 text-sm text-depth-primary shadow-depth-inset transition focus:border-[var(--depth-color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)] focus:ring-offset-0"
-                        >
-                            <option value="">Semua Kelas</option>
-                            {kelasOptions.map((kelas) => (
-                                <option key={kelas.id} value={kelas.id}>
-                                    {kelas.label}
-                                </option>
-                            ))}
-                        </select>
+                        <div className="flex gap-3">
+                            <select
+                                value={kelasFilter}
+                                onChange={(event) => {
+                                    setKelasFilter(event.target.value);
+                                    setPage(1);
+                                }}
+                                disabled={kelasQuery.isLoading}
+                                className="rounded-depth-full border border-depth bg-depth-interactive px-4 py-2 text-sm text-depth-primary shadow-depth-inset transition focus:border-[var(--depth-color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)] focus:ring-offset-0"
+                            >
+                                <option value="">Semua Kelas</option>
+                                {kelasOptions.map((kelas) => (
+                                    <option key={kelas.id} value={kelas.id}>
+                                        {kelas.label}
+                                    </option>
+                                ))}
+                            </select>
+                            <select
+                                value={dkFilter}
+                                onChange={(event) => {
+                                    setDkFilter(event.target.value);
+                                    setPage(1);
+                                }}
+                                className="rounded-depth-full border border-depth bg-depth-interactive px-4 py-2 text-sm text-depth-primary shadow-depth-inset transition focus:border-[var(--depth-color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)] focus:ring-offset-0"
+                            >
+                                <option value="">Semua DK</option>
+                                {DK_OPTIONS.map((option) => (
+                                    <option key={option} value={option}>
+                                        {option}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
                     </div>
                 ),
             }),
-            [resetToolbar, searchTerm, kelasFilter, kelasOptions],
+            [resetToolbar, searchTerm, kelasFilter, kelasOptions, dkFilter],
         ),
     );
 

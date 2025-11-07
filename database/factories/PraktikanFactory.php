@@ -22,6 +22,7 @@ class PraktikanFactory extends Factory
             'nim' => $this->faker->numerify('##########'), // Generates a 10-digit number
             'password' => bcrypt('password'), // Default password for testing
             'kelas_id' => Kelas::factory(),
+            'dk' => $this->faker->randomElement(['DK1', 'DK2']),
             'alamat' => $this->faker->address,
             'nomor_telepon' => $this->faker->phoneNumber,
             'email' => $this->faker->unique()->safeEmail,
