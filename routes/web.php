@@ -36,126 +36,121 @@ use App\Http\Controllers\Auth\RegisteredPraktikanController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
+Route::inertia('/', 'LandingPage')
+    ->name('landing')
+    ->middleware('check.auth');
 
-Route::get('/', function () {
-    return Inertia::render('LandingPage');
-})->name('landing')->middleware('check.auth');
+Route::inertia('/login', 'LoginPage')
+    ->name('login')
+    ->middleware('check.auth');
 
-Route::get('/login', function () {
-    return Inertia::render('LoginPage');
-})->name('login')->middleware('check.auth');
+Route::inertia('/register', 'RegistPage')
+    ->name('register')
+    ->middleware('check.auth');
 
-Route::get('/register', function () {
-    return Inertia::render('RegistPage');
-})->name('register')->middleware('check.auth');
+Route::inertia('/contact', 'Praktikan/ContactPage')
+    ->name('contact')
+    ->middleware('check.auth');
 
-Route::get('/contact', function () {
-    return Inertia::render('Praktikan/ContactPage');
-})->name('contact')->middleware('check.auth');
-
-Route::get('/about', function () {
-    return Inertia::render('Praktikan/AboutPage');
-})->name('about')->middleware('check.auth');
+Route::inertia('/about', 'Praktikan/AboutPage')
+    ->name('about')
+    ->middleware('check.auth');
 
 // Authenticated pages
 
-Route::get(
-    '/assistant',
-    function () {
-        return Inertia::render('Assistants/ProfileAssistant', [
-            'foto' => auth('asisten')->user()?->foto_asistens?->foto ?? 'https://via.placeholder.com/150', // Use default image if null
-        ]);
-    }
-)->name('assistant')->middleware(['auth:asisten', 'permission:manage-profile|lms-configuration']);
+Route::get('/assistant', function () {
+    return Inertia::render('Assistants/ProfileAssistant', [
+        'foto' => auth('asisten')->user()?->foto_asistens?->foto ?? 'https://via.placeholder.com/150',
+    ]);
+})->name('assistant')->middleware(['auth:asisten', 'permission:manage-profile|lms-configuration']);
 
-Route::get('/polling', function () {
-    return Inertia::render('Assistants/PollingAssistant');
-})->name('polling')->middleware(['auth:asisten', 'can:see-polling']);
+Route::inertia('/polling', 'Assistants/PollingAssistant')
+    ->name('polling')
+    ->middleware(['auth:asisten', 'can:see-polling']);
 
-Route::get('/leaderboard-ranking', function () {
-    return Inertia::render('Assistants/LeaderboardRanking');
-})->name('leaderboard-ranking')->middleware(['auth:asisten', 'can:ranking-praktikan']);
+Route::inertia('/leaderboard-ranking', 'Assistants/LeaderboardRanking')
+    ->name('leaderboard-ranking')
+    ->middleware(['auth:asisten', 'can:ranking-praktikan']);
 
-Route::get('/lihat-tp', function () {
-    return Inertia::render('Assistants/LihatTP');
-})->name('lihat-tp')->middleware(['auth:asisten', 'can:check-tugas-pendahuluan']);
+Route::inertia('/lihat-tp', 'Assistants/LihatTP')
+    ->name('lihat-tp')
+    ->middleware(['auth:asisten', 'can:check-tugas-pendahuluan']);
 
-Route::get('/jawaban-tp', function () {
-    return Inertia::render('Assistants/ResultLihatTP');
-})->name('jawaban-tp')->middleware(['auth:asisten', 'can:check-tugas-pendahuluan']);
+Route::inertia('/jawaban-tp', 'Assistants/ResultLihatTP')
+    ->name('jawaban-tp')
+    ->middleware(['auth:asisten', 'can:check-tugas-pendahuluan']);
 
-Route::get('/list-laporan', function () {
-    return Inertia::render('Assistants/ResultLaporan');
-})->name('list-laporan')->middleware(['auth:asisten', 'can:laporan-praktikum']);
+Route::inertia('/list-laporan', 'Assistants/ResultLaporan')
+    ->name('list-laporan')
+    ->middleware(['auth:asisten', 'can:laporan-praktikum']);
 
-Route::get('/pelanggaran', function () {
-    return Inertia::render('Assistants/PelanggaranAssistant');
-})->name('pelanggaran')->middleware(['auth:asisten', 'can:see-pelanggaran']);
+Route::inertia('/pelanggaran', 'Assistants/PelanggaranAssistant')
+    ->name('pelanggaran')
+    ->middleware(['auth:asisten', 'can:see-pelanggaran']);
 
-Route::get('/history', function () {
-    return Inertia::render('Assistants/HistoryPraktikum');
-})->name('history')->middleware(['auth:asisten', 'can:see-history']);
+Route::inertia('/history', 'Assistants/HistoryPraktikum')
+    ->name('history')
+    ->middleware(['auth:asisten', 'can:see-history']);
 
-Route::get('/plottingan', function () {
-    return Inertia::render('Assistants/PlottingAssistant');
-})->name('plottingan')->middleware(['auth:asisten', 'permission:see-plot|manage-plot']);
+Route::inertia('/plottingan', 'Assistants/PlottingAssistant')
+    ->name('plottingan')
+    ->middleware(['auth:asisten', 'permission:see-plot|manage-plot']);
 
-Route::get('/manage-role', function () {
-    return Inertia::render('Assistants/ManageRole');
-})->name('manage-role')->middleware(['auth:asisten', 'can:manage-role']);
+Route::inertia('/manage-role', 'Assistants/ManageRole')
+    ->name('manage-role')
+    ->middleware(['auth:asisten', 'can:manage-role']);
 
 Route::get('/audit-logs', AuditLogController::class)
     ->name('audit-logs')
     ->middleware(['auth:asisten', 'permission:manage-role']);
 
-Route::get('/nilai-praktikan', function () {
-    return Inertia::render('Assistants/NilaiPraktikan');
-})->name('nilai-praktikan')->middleware(['auth:asisten', 'can:nilai-praktikan']);
+Route::inertia('/nilai-praktikan', 'Assistants/NilaiPraktikan')
+    ->name('nilai-praktikan')
+    ->middleware(['auth:asisten', 'can:nilai-praktikan']);
 
-Route::get('/manage-praktikan', function () {
-    return Inertia::render('Assistants/ManagePraktikan');
-})->name('manage-praktikan')->middleware(['auth:asisten', 'can:set-praktikan']); // 'permission:praktikan-regist|manage-role'
+Route::inertia('/manage-praktikan', 'Assistants/ManagePraktikan')
+    ->name('manage-praktikan')
+    ->middleware(['auth:asisten', 'can:set-praktikan']);
 
-Route::get('/start-praktikum', function () {
-    return Inertia::render('Assistants/StartPraktikum');
-})->name('start-praktikum')->middleware(['auth:asisten', 'permission:manage-praktikum|see-praktikum']);
+Route::inertia('/start-praktikum', 'Assistants/StartPraktikum')
+    ->name('start-praktikum')
+    ->middleware(['auth:asisten', 'permission:manage-praktikum|see-praktikum']);
 
-Route::get('/modul', function () {
-    return Inertia::render('Assistants/ModulePraktikum');
-})->name('modul')->middleware(['auth:asisten', 'can:manage-modul']); // sesuaikan kalo emng asisten biasa bisa lihat
+Route::inertia('/modul', 'Assistants/ModulePraktikum')
+    ->name('modul')
+    ->middleware(['auth:asisten', 'can:manage-modul']);
 
-Route::get('/soal', function () {
-    return Inertia::render('Assistants/SoalPraktikum');
-})->name('soal')->middleware(['auth:asisten', 'permission:see-soal|manage-soal']);
+Route::inertia('/soal', 'Assistants/SoalPraktikum')
+    ->name('soal')
+    ->middleware(['auth:asisten', 'permission:see-soal|manage-soal']);
 
 // route for praktikan
-Route::get('/praktikan', function () {
-    return Inertia::render('Praktikan/ProfilePraktikan');
-})->name('praktikan')->middleware(['auth:praktikan', 'can:lihat-profile']);
+Route::inertia('/praktikan', 'Praktikan/ProfilePraktikan')
+    ->name('praktikan')
+    ->middleware(['auth:praktikan', 'can:lihat-profile']);
 
-Route::get('/praktikum', function () {
-    return Inertia::render('Praktikan/PraktikumPage');
-})->name('praktikum')->middleware(['auth:praktikan', 'can:lihat-modul']);
+Route::inertia('/praktikum', 'Praktikan/PraktikumPage')
+    ->name('praktikum')
+    ->middleware(['auth:praktikan', 'can:lihat-modul']);
 
-Route::get('/praktikan-modul', function () {
-    return Inertia::render('Praktikan/ModulesPage');
-})->name('praktikan-modul')->middleware(['auth:praktikan', 'can:lihat-modul']);
+Route::inertia('/praktikan-modul', 'Praktikan/ModulesPage')
+    ->name('praktikan-modul')
+    ->middleware(['auth:praktikan', 'can:lihat-modul']);
 
-Route::get('/tugas-pendahuluan', function () {
-    return Inertia::render('Praktikan/TugasPendahuluanPage');
-})->name('tugas-pendahuluan')->middleware(['auth:praktikan', 'can:lihat-modul']);
+Route::inertia('/tugas-pendahuluan', 'Praktikan/TugasPendahuluanPage')
+    ->name('tugas-pendahuluan')
+    ->middleware(['auth:praktikan', 'can:lihat-modul']);
 
-Route::get('/score-praktikan', function () {
-    return Inertia::render('Praktikan/ScorePraktikan');
-})->name('score-praktikan')->middleware(['auth:praktikan', 'can:lihat-nilai']);
+Route::inertia('/score-praktikan', 'Praktikan/ScorePraktikan')
+    ->name('score-praktikan')
+    ->middleware(['auth:praktikan', 'can:lihat-nilai']);
 
-Route::get('/contact-assistant', function () {
-    return Inertia::render('Praktikan/ContactAssistant');
-})->name('contact-assistant')->middleware(['auth:praktikan', 'can:lihat-asisten']);
+Route::inertia('/contact-assistant', 'Praktikan/ContactAssistant')
+    ->name('contact-assistant')
+    ->middleware(['auth:praktikan', 'can:lihat-asisten']);
 
-Route::get('/polling-assistant', function () {
-    return Inertia::render('Praktikan/PollingPage');
-})->name('polling-assistant');
+Route::inertia('/polling-assistant', 'Praktikan/PollingPage')
+    ->name('polling-assistant');
 
 // ///////////////////////////////////// Data Routes ///////////////////////////////////////
 Route::prefix('api-v1')->middleware('audit.assistant')->group(function () {

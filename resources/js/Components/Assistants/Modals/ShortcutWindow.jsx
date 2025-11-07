@@ -15,7 +15,15 @@ const HARI_OPTIONS = [
     { label: "JUMAT", value: "5" },
 ];
 
-export default function ShortcutWindow({ open, onClose }) {
+export default function ShortcutWindow({
+    open,
+    onClose,
+    selectedAssignments = [],
+    onRemoveAssignment,
+    onClearAssignments,
+    scoreFields = [],
+    formatScoreValue,
+}) {
     const [loginPayload, setLoginPayload] = useState({
         user_nim: "101022300004",
         kode: "110",
@@ -194,6 +202,50 @@ export default function ShortcutWindow({ open, onClose }) {
                     </button>
                 </form>
             </div>
+
+            {selectedAssignments.length > 0 && (
+                <div className="border-b border-depth/60 bg-depth-card/40 px-4 py-3">
+                    <div className="max-h-56 space-y-3 overflow-y-auto pr-1 justify-end flex flex-col items-end">
+                        {onClearAssignments && (
+                            <button
+                                type="button"
+                                onClick={onClearAssignments}
+                                className="text-[11px] font-semibold text-[var(--depth-color-primary)] transition hover:underline"
+                            >
+                                Bersihkan pilihan
+                            </button>
+                        )}
+                        {selectedAssignments.map((assignment) => (
+                            <div
+                                key={`shortcut-${assignment.id}`}
+                                className="rounded-depth-lg bg-depth-background/70 px-2"
+                            >
+                          
+                                <div className="-mt-2 grid grid-cols-3 gap-1 sm:grid-cols-5 xl:grid-cols-9">
+                                    <p className="truncate text-sm font-semibold text-depth-primary">
+                                        {assignment?.praktikan?.nama ?? "Tidak diketahui"}
+                                    </p>
+                                    {scoreFields.map((field) => (
+                                        <div
+                                            key={`shortcut-${assignment.id}-${field.key}`}
+                                            className="flex flex-col items-center justify-around rounded-depth-sm border border-depth bg-depth-interactive/60 px-2 py-0.5 text-center"
+                                        >
+                                            <span className="text-[8px] font-semibold uppercase tracking-wide text-depth-secondary">
+                                                {field.label}
+                                            </span>
+                                            <span className="text-sm font-semibold text-depth-primary">
+                                                {typeof formatScoreValue === "function"
+                                                    ? formatScoreValue(assignment?.nilai ?? null, field.key)
+                                                    : "-"}
+                                            </span>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            )}
 
             <iframe
                 ref={iframeRef}

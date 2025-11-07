@@ -101,7 +101,8 @@ const getScoreValue = (nilai, key) => {
 
 export default function ContentNilai({ asisten }) {
     const [search, setSearch] = useState("");
-    const [selectedAssignment, setSelectedAssignment] = useState(null);
+    const [modalAssignment, setModalAssignment] = useState(null);
+    const [selectedAssignmentIds, setSelectedAssignmentIds] = useState([]);
     const [isWorkspaceOpen, setIsWorkspaceOpen] = useState(false);
     const queryClient = useQueryClient();
 
@@ -139,18 +140,46 @@ export default function ContentNilai({ asisten }) {
         });
     }, [assignments, search]);
 
+    const selectedSummaryAssignments = useMemo(() => {
+        if (selectedAssignmentIds.length === 0) {
+            return [];
+        }
+
+        const lookup = new Set(selectedAssignmentIds);
+
+        return assignments.filter((assignment) => lookup.has(assignment.id));
+    }, [assignments, selectedAssignmentIds]);
+
     const handleOpenModalInput = (assignment) => {
-        setSelectedAssignment(assignment);
+        setModalAssignment(assignment);
     };
 
     const handleCloseModalInput = () => {
-        setSelectedAssignment(null);
+        setModalAssignment(null);
     };
 
     const handleSaved = () => {
         queryClient.invalidateQueries({ queryKey: ASSIGNED_PRAKTIKAN_QUERY_KEY });
         handleCloseModalInput();
     };
+
+    const handleToggleAssignmentSelection = useCallback((assignmentId) => {
+        setSelectedAssignmentIds((previous) => {
+            if (previous.includes(assignmentId)) {
+                return previous.filter((id) => id !== assignmentId);
+            }
+
+            return [...previous, assignmentId];
+        });
+    }, []);
+
+    const handleClearSelection = useCallback((assignmentId) => {
+        setSelectedAssignmentIds((previous) => previous.filter((id) => id !== assignmentId));
+    }, []);
+
+    const handleClearAllSelections = useCallback(() => {
+        setSelectedAssignmentIds([]);
+    }, []);
 
     const handleWorkspaceToggle = useCallback(() => {
         setIsWorkspaceOpen((previous) => !previous);
@@ -267,116 +296,130 @@ export default function ContentNilai({ asisten }) {
                             const formattedPraktikumRating = normalizeRating(assignment?.rating_praktikum);
                             const formattedAsistenRating = normalizeRating(assignment?.rating_asisten);
                             const isMarked = Boolean(assignment?.nilai);
-                            const statusLabel = isMarked ? "Done" : "Unmarked";
                             const statusTone = isMarked
                                 ? "border border-emerald-400/50 bg-emerald-400/15 text-emerald-200"
                                 : "border border-amber-400/50 bg-amber-400/15 text-amber-300";
                             const statusAria = isMarked ? "marked" : "unmarked";
+                            const praktikanName = assignment?.praktikan?.nama ?? "Tidak diketahui";
+                            const praktikanClass = assignment?.praktikan?.kelas?.nama ?? "-";
+                            const praktikanNim = assignment?.praktikan?.nim ?? "-";
 
                             return (
                                 <article
                                     key={assignment.id}
-                                    className="space-y-3 bg-depth-card px-4 py-3 text-sm text-depth-primary transition hover:bg-depth-interactive even:bg-depth-background hover:even:bg-depth-interactive"
+                                    className="bg-depth-card px-4 py-3 text-sm text-depth-primary transition hover:bg-depth-interactive even:bg-depth-background hover:even:bg-depth-interactive"
                                 >
-                                    <div className="grid grid-cols-1 gap-3 md:grid-cols-[1fr_1.6fr] lg:grid-cols-[1fr_1.6fr_2.6fr_auto] lg:gap-x-4">
-                                        {/* Jadwal */}
-                                        <div className="space-y-1 text-left">
-                                            <div className="font-semibold text-depth-primary">{tanggal}</div>
-                                            <div className="text-xs text-depth-secondary">{waktu}</div>
-                                        </div>
-                                        {/* Praktikan NIM, nama, and kelas */}
-                                        <div className="space-y-1 text-left">
-                                            <div className="text-sm font-semibold text-depth-primary">
-                                                {assignment?.praktikan?.nim ?? "-"}
+                                    <div className="flex flex-col gap-4">
+                                        <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+                                            <div className="flex flex-1 flex-col gap-4 md:flex-row md:items-start md:gap-6">
+                                                <div className="flex items-start gap-3">
+                                                    <div className="pt-1">
+                                                        <input
+                                                            type="checkbox"
+                                                            className="h-4 w-4 rounded border-depth bg-depth-card text-[var(--depth-color-primary)] focus:ring-[var(--depth-color-primary)]"
+                                                            checked={selectedAssignmentIds.includes(assignment.id)}
+                                                            onChange={() => handleToggleAssignmentSelection(assignment.id)}
+                                                            aria-label={`Pilih ${assignment?.praktikan?.nama ?? "praktikan"}`}
+                                                        />
+                                                    </div>
+                                                    <div>
+                                                        <p className="text-sm font-semibold text-depth-primary">{tanggal}</p>
+                                                        <p className="text-xs text-depth-secondary">{waktu}</p>
+                                                    </div>
+                                                </div>
+                                                <div className="min-w-[12rem]">
+                                                    <p className="text-base font-semibold text-depth-primary">{praktikanNim}</p>
+                                                    <p className="text-xs text-depth-secondary">
+                                                        {praktikanName} / {praktikanClass}
+                                                    </p>
+                                                </div>
                                             </div>
-                                            <div className="text-xs text-depth-secondary">
-                                                {`${assignment?.praktikan?.nama ?? "Tidak diketahui"} / ${assignment?.praktikan?.kelas?.nama ?? "-"
-                                                    }`}
+
+                                            {/* Ratings and Feedback column */}
+                                            <div className="flex flex-1 flex-col gap-2">
+                                                <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-depth-secondary">
+                                                    {formattedPraktikumRating === null && formattedAsistenRating === null ? (
+                                                        <span className="italic text-depth-secondary/80">Belum ada rating</span>
+                                                    ) : (
+                                                        <>
+                                                            <span className="font-semibold text-depth-primary">
+                                                                Praktikum:
+                                                                <span className="ml-1 font-normal">{formattedPraktikumRating ?? "-"}</span>
+                                                            </span>
+                                                            <span className="font-semibold text-depth-primary">
+                                                                Asisten:
+                                                                <span className="ml-1 font-normal">{formattedAsistenRating ?? "-"}</span>
+                                                            </span>
+                                                        </>
+                                                    )}
+                                                </div>
+                                                <p
+                                                    className="overflow-hidden whitespace-pre-line break-words text-xs text-depth-secondary"
+                                                    title={feedbackText}
+                                                    aria-label={feedbackText}
+                                                >
+                                                    {feedbackText}
+                                                </p>
                                             </div>
-                                        </div>
-                                        {/* Rating and Feedback */}
-                                        <div className="space-y-2 text-left md:col-span-2 lg:col-span-1">
-                                            <div className="flex flex-wrap items-center gap-3 text-xs text-depth-secondary">
-                                                {formattedPraktikumRating === null && formattedAsistenRating === null ? (
-                                                    <span className="italic text-depth-secondary/80">Belum ada rating</span>
-                                                ) : (
-                                                    <>
-                                                        <span className="font-semibold text-depth-primary">
-                                                            Praktikum:
-                                                            <span className="ml-1 font-normal">{formattedPraktikumRating ?? "-"}</span>
-                                                        </span>
-                                                        <span className="font-semibold text-depth-primary">
-                                                            Asisten:
-                                                            <span className="ml-1 font-normal">{formattedAsistenRating ?? "-"}</span>
-                                                        </span>
-                                                    </>
-                                                )}
-                                            </div>
-                                            <p
-                                                className="w-[30rem] overflow-hidden whitespace-pre-line break-words text-xs text-depth-secondary"
-                                                title={feedbackText}
-                                                aria-label={feedbackText}
-                                            >
-                                                {feedbackText}
-                                            </p>
-                                        </div>
-                                        {/* Status and Review button */}
-                                        <div className="flex flex-col items-stretch gap-2 md:items-end">
-                                            <button
-                                                type="button"
-                                                onClick={() => handleOpenModalInput(assignment)}
-                                                className="inline-flex h-9 w-9 items-center justify-center rounded-depth-md border border-depth bg-depth-interactive shadow-depth-sm transition hover:-translate-y-0.5 hover:shadow-depth-md"
-                                                aria-label="Tinjau nilai praktikan"
-                                            >
-                                                <img src={editIcon} alt="Edit" className="edit-icon-filter h-4 w-4" />
-                                            </button>
-                                            <span
-                                                aria-label={statusAria}
-                                                className={`inline-flex items-center gap-1 rounded-depth-full px-2 py-1 text-[11px] font-semibold ${statusTone}`}
-                                            >
-                                                {isMarked ? (
-                                                    <svg
-                                                        aria-hidden="true"
-                                                        className="h-5 w-5"
-                                                        fill="none"
-                                                        stroke="currentColor"
-                                                        strokeWidth={2}
-                                                        viewBox="0 0 24 24"
-                                                    >
-                                                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                                                    </svg>
-                                                ) : (
-                                                    <svg
-                                                        aria-hidden="true"
-                                                        className="h-5 w-5"
-                                                        fill="none"
-                                                        stroke="currentColor"
-                                                        strokeWidth={2}
-                                                        viewBox="0 0 24 24"
-                                                    >
-                                                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v4m0 4h.01M12 5.5a6.5 6.5 0 100 13 6.5 6.5 0 000-13z" />
-                                                    </svg>
-                                                )}
-                                            </span>
-                                        </div>
 
-
-                                    </div>
-
-                                    <div className="grid grid-cols-2 gap-1 text-[11px] text-depth-secondary sm:grid-cols-4 lg:grid-cols-8">
-                                        {SCORE_FIELDS.map((field) => (
-                                            <div
-                                                key={`${assignment.id}-${field.key}`}
-                                                className="flex flex-col items-center justify-around rounded-depth-sm border border-depth bg-depth-interactive/60 px-2 py-0.5 text-center"
-                                            >
-                                                <span className="text-[8px] font-semibold uppercase tracking-wide">
-                                                    {field.label}
-                                                </span>
-                                                <span className="text-sm font-semibold text-depth-primary">
-                                                    {getScoreValue(nilai, field.key)}
+                                            {/* Action buttons column */}
+                                            <div className="flex items-start gap-2">
+                                                <button
+                                                    type="button"
+                                                    onClick={() => handleOpenModalInput(assignment)}
+                                                    className="inline-flex h-9 w-9 items-center justify-center rounded-depth-md border border-depth bg-depth-interactive shadow-depth-sm transition hover:-translate-y-0.5 hover:shadow-depth-md"
+                                                    aria-label="Tinjau nilai praktikan"
+                                                >
+                                                    <img src={editIcon} alt="Edit" className="edit-icon-filter h-4 w-4" />
+                                                </button>
+                                                <span
+                                                    aria-label={statusAria}
+                                                    className={`inline-flex items-center gap-1 rounded-depth-full px-2 py-1 text-[11px] font-semibold ${statusTone}`}
+                                                >
+                                                    {isMarked ? (
+                                                        <svg
+                                                            aria-hidden="true"
+                                                            className="h-5 w-5"
+                                                            fill="none"
+                                                            stroke="currentColor"
+                                                            strokeWidth={2}
+                                                            viewBox="0 0 24 24"
+                                                        >
+                                                            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                                                        </svg>
+                                                    ) : (
+                                                        <svg
+                                                            aria-hidden="true"
+                                                            className="h-5 w-5"
+                                                            fill="none"
+                                                            stroke="currentColor"
+                                                            strokeWidth={2}
+                                                            viewBox="0 0 24 24"
+                                                        >
+                                                            <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v4m0 4h.01M12 5.5a6.5 6.5 0 100 13 6.5 6.5 0 000-13z" />
+                                                        </svg>
+                                                    )}
                                                 </span>
                                             </div>
-                                        ))}
+                                        </div>
+
+                                        <div className="rounded-depth-lg p-3">
+                                            <div className="grid grid-cols-2 gap-1 text-[11px] text-depth-secondary sm:grid-cols-4 md:grid-cols-8">
+                                                {SCORE_FIELDS.map((field) => (
+                                                    <div
+                                                        key={`${assignment.id}-${field.key}`}
+                                                        className="flex flex-col items-center justify-around rounded-depth-sm border border-depth bg-depth-interactive/60 px-2 py-0.5 text-center"
+                                                    >
+                                                        <span className="text-[8px] font-semibold uppercase tracking-wide text-depth-secondary">
+                                                            {field.label}
+                                                        </span>
+                                                        <span className="text-sm font-semibold text-depth-primary">
+                                                            {getScoreValue(nilai, field.key)}
+                                                        </span>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
                                     </div>
                                 </article>
                             );
@@ -385,13 +428,21 @@ export default function ContentNilai({ asisten }) {
                 )}
             </div>
 
-            <ShortcutWindow open={isWorkspaceOpen} onClose={handleWorkspaceClose} />
+            <ShortcutWindow
+                open={isWorkspaceOpen}
+                onClose={handleWorkspaceClose}
+                selectedAssignments={selectedSummaryAssignments}
+                onRemoveAssignment={handleClearSelection}
+                onClearAssignments={handleClearAllSelections}
+                scoreFields={SCORE_FIELDS}
+                formatScoreValue={getScoreValue}
+            />
 
-            {selectedAssignment && (
+            {modalAssignment && (
                 <Suspense fallback={null}>
                     <ModalInputNilai
                         onClose={handleCloseModalInput}
-                        assignment={selectedAssignment}
+                        assignment={modalAssignment}
                         asistenId={asisten?.id}
                         onSaved={handleSaved}
                     />
