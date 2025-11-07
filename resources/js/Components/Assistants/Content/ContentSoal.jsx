@@ -2,18 +2,30 @@ import { useMemo, useState } from "react";
 import { useAssistantToolbar } from "@/Layouts/AssistantToolbarContext";
 import FormSoalInput from "../Forms/FormSoalInput";
 import ButtonResetInputSoal from "../Modals/ModalResetInputSoal";
+import ModalGoogleTools from "../Modals/ModalGoogleTools";
 
 export default function ContentSoal() {
     const [showModalReset, setShowModalReset] = useState(false);
+    const [showGoogleTools, setShowGoogleTools] = useState(false);
 
     const handleOpenModalReset = () => setShowModalReset(true);
     const handleCloseModalReset = () => setShowModalReset(false);
+    const handleCloseGoogleTools = () => setShowGoogleTools(false);
 
     const toolbarConfig = useMemo(
         () => ({
             title: "Manage Soal",
+            actions: [
+                {
+                    id: "google-tools",
+                    label: "Integrasi Google",
+                    icon: "🔗",
+                    variant: "primary",
+                    onClick: () => setShowGoogleTools(true),
+                },
+            ],
         }),
-        [],
+        [setShowGoogleTools],
     );
 
     useAssistantToolbar(toolbarConfig);
@@ -31,6 +43,7 @@ export default function ContentSoal() {
 
             {/* Modal Reset input soal */}
             {/* {showModalReset && <ButtonResetInputSoal onClose={handleCloseModalReset} />} */}
+            {showGoogleTools ? <ModalGoogleTools onClose={handleCloseGoogleTools} /> : null}
         </section>
     );
 }
