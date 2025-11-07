@@ -7,6 +7,7 @@ import {
     ASSIGNED_PRAKTIKAN_QUERY_KEY,
 } from "@/hooks/useAssignedPraktikanQuery";
 import { useAssistantToolbar } from "@/Layouts/AssistantToolbarContext";
+import ShortcutWindow from "@/Components/Assistants/Modals/ShortcutWindow";
 
 const ModalInputNilai = lazy(() => import("../Modals/ModalInputNilai"));
 
@@ -101,6 +102,7 @@ const getScoreValue = (nilai, key) => {
 export default function ContentNilai({ asisten }) {
     const [search, setSearch] = useState("");
     const [selectedAssignment, setSelectedAssignment] = useState(null);
+    const [isWorkspaceOpen, setIsWorkspaceOpen] = useState(false);
     const queryClient = useQueryClient();
 
     const {
@@ -150,27 +152,56 @@ export default function ContentNilai({ asisten }) {
         handleCloseModalInput();
     };
 
+    const handleWorkspaceToggle = useCallback(() => {
+        setIsWorkspaceOpen((previous) => !previous);
+    }, []);
+
+    const handleWorkspaceClose = useCallback(() => {
+        setIsWorkspaceOpen(false);
+    }, []);
+
     const handleSearchChange = useCallback((event) => setSearch(event.target.value), []);
 
     const toolbarConfig = useMemo(
         () => ({
             title: "Input Nilai",
             right: (
-                <div className="relative min-w-[18rem] max-w-full">
-                    <input
-                        type="search"
-                        value={search}
-                        onChange={handleSearchChange}
-                        placeholder="Cari nama, NIM, modul..."
-                        className="w-full rounded-depth-full border border-depth bg-depth-interactive py-2.5 pl-4 pr-11 text-sm text-depth-primary shadow-depth-inset transition focus:border-[var(--depth-color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)] focus:ring-offset-0 placeholder:text-depth-secondary"
-                    />
-                    <span className="pointer-events-none absolute inset-y-0 right-4 flex items-center text-depth-secondary">
-                        🔍
-                    </span>
+                <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center sm:justify-end">
+                    <button
+                        type="button"
+                        onClick={handleWorkspaceToggle}
+                        aria-pressed={isWorkspaceOpen}
+                        className="flex items-center justify-center gap-2 rounded-depth-full border border-depth bg-depth-card px-4 py-2 text-sm font-semibold text-depth-primary shadow-depth-sm transition hover:-translate-y-0.5 hover:border-[var(--depth-color-primary)] hover:text-[var(--depth-color-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--depth-color-primary)]"
+                    >
+                        <svg
+                            aria-hidden="true"
+                            viewBox="0 0 24 24"
+                            className="h-4 w-4"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="1.5"
+                        >
+                            <rect x="4" y="6" width="16" height="12" rx="2" />
+                            <path d="M4 9h16" />
+                        </svg>
+                        Shortcut
+                    </button>
+                    <div className="relative min-w-[18rem] max-w-full sm:min-w-[16rem]">
+                        <input
+                            type="search"
+                            value={search}
+                            onChange={handleSearchChange}
+                            placeholder="Cari nama, NIM, modul..."
+                            className="w-full rounded-depth-full border border-depth bg-depth-interactive py-2.5 pl-4 pr-11 text-sm text-depth-primary shadow-depth-inset transition focus:border-[var(--depth-color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)] focus:ring-offset-0 placeholder:text-depth-secondary"
+                        />
+                        <span className="pointer-events-none absolute inset-y-0 right-4 flex items-center text-depth-secondary">
+                            🔍
+                        </span>
+                    </div>
                 </div>
             ),
         }),
-        [handleSearchChange, search],
+        [handleSearchChange, handleWorkspaceToggle, isWorkspaceOpen, search],
     );
 
     useAssistantToolbar(toolbarConfig);
@@ -353,6 +384,8 @@ export default function ContentNilai({ asisten }) {
                     </div>
                 )}
             </div>
+
+            <ShortcutWindow open={isWorkspaceOpen} onClose={handleWorkspaceClose} />
 
             {selectedAssignment && (
                 <Suspense fallback={null}>
