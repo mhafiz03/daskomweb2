@@ -63,7 +63,7 @@ export default function ShortcutWindow({
             initialSize={{ width: 1020, height: 540 }}
             contentClassName="flex h-full flex-col overflow-hidden"
         >
-            <div className="flex flex-wrap items-center justify-between gap-4 border-b border-depth bg-depth-background/60 px-4 py-3">
+            <div className="flex flex-wrap items-baseline justify-between gap-4 border-b border-depth bg-depth-background/60 px-4 py-3">
                 <form
                     ref={kelompokFormRef}
                     action={INPUT_URL}
@@ -71,7 +71,7 @@ export default function ShortcutWindow({
                     target={IFRAME_NAME}
                     className="flex flex-wrap items-end gap-3"
                 >
-                    <div className="flex flex-col text-xs font-semibold text-depth-primary">
+                    <div className="flex flex-col gap-1 text-xs font-semibold text-depth-primary">
                         <label htmlFor="shortcut-hari" className="select-none">Hari</label>
                         <select
                             id="shortcut-hari"
@@ -87,7 +87,7 @@ export default function ShortcutWindow({
                             ))}
                         </select>
                     </div>
-                    <div className="flex flex-col text-xs font-semibold text-depth-primary">
+                    <div className="flex flex-col gap-1 text-xs font-semibold text-depth-primary">
                         <label htmlFor="shortcut-shift" className="select-none">Shift</label>
                         <select
                             id="shortcut-shift"
@@ -115,11 +115,28 @@ export default function ShortcutWindow({
                                 }
                             }
                         }}
-                        className="rounded-depth-full border border-depth bg-depth-card px-4 py-2 text-xs font-semibold uppercase tracking-wide text-depth-primary shadow-depth-sm transition hover:-translate-y-0.5 hover:border-[var(--depth-color-primary)] hover:text-[var(--depth-color-primary)]"
+                        className="rounded-depth-md bg-[var(--depth-color-primary)] px-3 py-2 text-sm font-semibold text-white shadow-depth-sm transition hover:-translate-y-0.5 hover:shadow-depth-md"
                     >
-                        🔍
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            strokeWidth={2}
+                            stroke="currentColor"
+                            className="h-4 w-4"
+                        >
+                            <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"
+                            />
+                        </svg>
                     </button>
-                    <div className="flex flex-col text-xs font-semibold text-depth-primary">
+                    <span
+                        aria-hidden="true"
+                        className="mx-1 inline-block h-12 w-px bg-[color:var(--depth-border)]"
+                    />
+                    <div className="flex flex-col gap-1 text-xs font-semibold text-depth-primary">
                         <label htmlFor="shortcut-kelompok" className="select-none">Kelompok</label>
                         <input
                             id="shortcut-kelompok"
@@ -131,7 +148,7 @@ export default function ShortcutWindow({
                         />
                     </div>
                     <input type="hidden" name="aksi" defaultValue="1" />
-                    <div className="flex gap-2">
+                    <div className="flex gap-2 items-center">
                         <button
                             type="submit"
                             onClick={() => {
@@ -142,9 +159,22 @@ export default function ShortcutWindow({
                                     }
                                 }
                             }}
-                            className="rounded-depth-full border border-[var(--depth-color-primary)] bg-[var(--depth-color-primary)]/10 px-4 py-2 text-sm font-semibold text-[var(--depth-color-primary)] shadow-depth-sm transition hover:-translate-y-0.5 hover:bg-[var(--depth-color-primary)]/20"
+                            className="rounded-depth-md bg-[var(--depth-color-primary)] px-3 py-2 text-sm font-semibold text-white shadow-depth-sm transition hover:-translate-y-0.5 hover:shadow-depth-md"
                         >
-                            Ambil Kelompok
+                            <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            strokeWidth={2}
+                            stroke="currentColor"
+                            className="h-4 w-4"
+                        >
+                            <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"
+                            />
+                        </svg>
                         </button>
                     </div>
                 </form>
@@ -156,7 +186,7 @@ export default function ShortcutWindow({
                     target={IFRAME_NAME}
                     className="flex flex-wrap items-end gap-3"
                 >
-                    <div className="flex flex-col text-xs font-semibold text-depth-primary">
+                    <div className="flex flex-col gap-1 text-xs font-semibold text-depth-primary">
                         <label htmlFor="shortcut-nim" className="select-none">NIM Asisten</label>
                         <input
                             id="shortcut-nim"
@@ -167,7 +197,7 @@ export default function ShortcutWindow({
                             className="w-32 rounded-depth-md border text-center border-depth bg-depth-card px-3 py-2 text-sm text-depth-primary shadow-depth-inset focus:border-[var(--depth-color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)] focus:ring-offset-0"
                         />
                     </div>
-                    <div className="flex flex-col text-xs font-semibold text-depth-primary">
+                    <div className="flex flex-col gap-1 text-xs font-semibold text-depth-primary">
                         <label htmlFor="shortcut-kode" className="select-none">Kode</label>
                         <input
                             id="shortcut-kode"
@@ -183,10 +213,14 @@ export default function ShortcutWindow({
                     <input type="hidden" name="submit" value="" />
                     <button
                         type="submit"
-                        className="rounded-depth-full border border-depth bg-[var(--depth-color-primary)] px-4 py-2 text-sm font-semibold text-white shadow-depth-sm transition hover:-translate-y-0.5 hover:shadow-depth-md"
+                        className="rounded-depth-md border border-depth bg-[var(--depth-color-primary)] px-4 py-2 text-sm font-semibold text-white shadow-depth-sm transition hover:-translate-y-0.5 hover:shadow-depth-md"
                     >
                         Login
                     </button>
+                    <span
+                        aria-hidden="true"
+                        className="mx-1 inline-block h-12 w-px bg-[color:var(--depth-border)]"
+                    />
                     <button
                         type="button"
                         onClick={() => {
@@ -196,7 +230,7 @@ export default function ShortcutWindow({
                                 window.open(LOGOUT_URL, "_blank");
                             }
                         }}
-                        className="rounded-depth-full border border-depth bg-depth-card px-4 py-2 text-sm font-semibold text-depth-primary shadow-depth-sm transition hover:-translate-y-0.5 hover:border-red-400 hover:text-red-400"
+                        className="rounded-depth-md border border-depth bg-depth-card px-4 py-2 text-sm font-semibold text-depth-primary shadow-depth-sm transition hover:-translate-y-0.5 hover:border-red-400 hover:text-red-400"
                     >
                         Logout
                     </button>
@@ -205,23 +239,22 @@ export default function ShortcutWindow({
 
             {selectedAssignments.length > 0 && (
                 <div className="border-b border-depth/60 bg-depth-card/40 px-4 py-3">
-                    <div className="max-h-56 space-y-3 overflow-y-auto pr-1 justify-end flex flex-col items-end">
-                        {onClearAssignments && (
-                            <button
-                                type="button"
-                                onClick={onClearAssignments}
-                                className="text-[11px] font-semibold text-[var(--depth-color-primary)] transition hover:underline"
-                            >
-                                Bersihkan pilihan
-                            </button>
-                        )}
+                    <div className="h-24 overflow-y-auto pr-1 justify-end flex flex-col gap-2">
+
+                        <div className="grid grid-cols-9 gap-2 px-3 py-2 text-[0.65rem] font-bold uppercase tracking-[0.15em] text-depth-secondary">
+                            <span className="col-span-1">Nama</span>
+                            {scoreFields.map((field) => (
+                                <span key={`header-${field.key}`} className="text-center">
+                                    {field.label}
+                                </span>
+                            ))}
+                        </div>
                         {selectedAssignments.map((assignment) => (
                             <div
                                 key={`shortcut-${assignment.id}`}
                                 className="rounded-depth-lg bg-depth-background/70 px-2"
                             >
-                          
-                                <div className="-mt-2 grid grid-cols-3 gap-1 sm:grid-cols-5 xl:grid-cols-9">
+                                <div className="-mt-2 grid grid-cols-3 gap-1 sm:grid-cols-5 xl:grid-cols-9 items-center">
                                     <p className="truncate text-sm font-semibold text-depth-primary">
                                         {assignment?.praktikan?.nama ?? "Tidak diketahui"}
                                     </p>
@@ -230,9 +263,6 @@ export default function ShortcutWindow({
                                             key={`shortcut-${assignment.id}-${field.key}`}
                                             className="flex flex-col items-center justify-around rounded-depth-sm border border-depth bg-depth-interactive/60 px-2 py-0.5 text-center"
                                         >
-                                            <span className="text-[8px] font-semibold uppercase tracking-wide text-depth-secondary">
-                                                {field.label}
-                                            </span>
                                             <span className="text-sm font-semibold text-depth-primary">
                                                 {typeof formatScoreValue === "function"
                                                     ? formatScoreValue(assignment?.nilai ?? null, field.key)
