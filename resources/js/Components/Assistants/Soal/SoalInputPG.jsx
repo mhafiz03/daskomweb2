@@ -583,7 +583,7 @@ export default function SoalInputPG({ kategoriSoal, modul, modules = [], onModal
                         type="button"
                         disabled={!String(modul)}
                     >
-                        Analyze TA/TK
+                        Analyze
                     </button>
                 )}
                 <button
