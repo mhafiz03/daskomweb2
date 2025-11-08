@@ -23,6 +23,6 @@ return new class extends Migration
     {
         Schema::table('nilais', function (Blueprint $table) {
             $table->dropColumn(['rating']);
-        });;
+        });
     }
 };

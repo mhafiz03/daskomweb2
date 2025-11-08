@@ -287,14 +287,14 @@ Route::prefix('api-v1')->middleware('audit.assistant')->group(function () {
     Route::put('/config', [ConfigurationController::class, 'update'])->name('update.config')->middleware(['auth:asisten', 'permission:lms-configuration|tp-configuration|praktikan-regist']);
 
     // Jenis Polling
-    Route::get('/jenis-polling', [JenisPollingController::class, 'index'])->name('get.jenis.poling'); // ->middleware(['auth:asisten,praktikan', 'can:see-polling']);
+    Route::get('/jenis-polling', [JenisPollingController::class, 'index'])->name('get.jenis.poling')->middleware(['auth:asisten,praktikan']);
     Route::post('/jenis-polling', [JenisPollingController::class, 'store'])->name('store.jenis.poling')->middleware(['auth:asisten']);
     Route::delete('/jenis-polling/{jenisPolling}', [JenisPollingController::class, 'destroy'])
         ->name('destroy.jenis.poling')
         ->middleware(['auth:asisten']);
 
     // Polling View Count
-    Route::get('/polling/{id}', [PollingsController::class, 'show'])->name('show.polling'); // ->middleware(['auth:asisten,praktikan', 'can:see-polling']);
+    Route::get('/polling/{id}', [PollingsController::class, 'show'])->name('show.polling')->middleware(['auth:asisten,praktikan']);
 
     // Soal TP
     Route::get('/soal-tp/{idModul}', [SoalTPController::class, 'show'])->name('show.soaltp')->middleware(['auth:asisten,praktikan', 'permission:see-soal|lihat-modul']);
