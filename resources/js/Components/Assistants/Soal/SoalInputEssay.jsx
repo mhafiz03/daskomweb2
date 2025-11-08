@@ -13,9 +13,11 @@ import SoalCommentsButton from "./SoalCommentsButton";
 import { useSoalComparison } from "@/hooks/useSoalComparison";
 import { ModalOverlay } from "@/Components/Common/ModalPortal";
 import ModalCloseButton from "@/Components/Common/ModalCloseButton";
+import DepthToggleButton from "@/Components/Common/DepthToggleButton";
 
 export default function SoalInputEssay({ kategoriSoal, modul, modules = [], onModalSuccess, onModalValidation, onChangeModul }) {
     const [addSoal, setAddSoal] = useState({ soal: "" });
+    const [enableFileUploadNew, setEnableFileUploadNew] = useState(false);
     const [isModalOpenEdit, setIsModalOpenEdit] = useState(false);
     const [editingSoal, setEditingSoal] = useState(null);
     const [isBatchModalOpen, setIsBatchModalOpen] = useState(false);
@@ -49,6 +51,10 @@ export default function SoalInputEssay({ kategoriSoal, modul, modules = [], onMo
     const soalQueryError = soalQuery.error;
 
     const controller = getSoalController(kategoriSoal);
+    const supportsFileUpload = useMemo(
+        () => ["jurnal", "fitb"].includes(kategoriSoal),
+        [kategoriSoal]
+    );
 
     const postSoalMutation = useMutation({
         mutationFn: async (payload) => {
@@ -188,8 +194,12 @@ export default function SoalInputEssay({ kategoriSoal, modul, modules = [], onMo
             return;
         }
 
-        postSoalMutation.mutate({ soal: addSoal.soal.trim() });
+        postSoalMutation.mutate({
+            soal: addSoal.soal.trim(),
+            enable_file_upload: supportsFileUpload ? enableFileUploadNew : false,
+        });
         setAddSoal({ soal: "" });
+        setEnableFileUploadNew(false);
     };
 
     const handleOpenModalDelete = (soalItem) => {
@@ -242,13 +252,19 @@ export default function SoalInputEssay({ kategoriSoal, modul, modules = [], onMo
             return;
         }
 
+        const payload = {
+            modul_id: nextModulId,
+            soal: updatedSoal.soal,
+            oldSoal: editingSoal?.soal ?? updatedSoal.soal,
+        };
+
+        if (supportsFileUpload) {
+            payload.enable_file_upload = Boolean(updatedSoal.enable_file_upload);
+        }
+
         putSoalMutation.mutate({
             soalId: updatedSoal.id,
-            payload: {
-                modul_id: nextModulId,
-                soal: updatedSoal.soal,
-                oldSoal: editingSoal?.soal ?? updatedSoal.soal,
-            },
+            payload,
             previousModulKey,
             nextModulKey,
         });
@@ -395,6 +411,15 @@ export default function SoalInputEssay({ kategoriSoal, modul, modules = [], onMo
                     value={addSoal.soal}
                     onChange={(e) => setAddSoal({ soal: e.target.value })}
                 />
+                {supportsFileUpload && (
+                    <div className="flex items-center justify-between rounded-depth-md border border-depth bg-depth-interactive/40 px-4 py-3 text-sm font-semibold text-depth-primary">
+                        <span>Izinkan unggah file untuk soal ini</span>
+                        <DepthToggleButton
+                            isOn={enableFileUploadNew}
+                            onToggle={() => setEnableFileUploadNew((prev) => !prev)}
+                        />
+                    </div>
+                )}
             </div>
 
             <div className="flex flex-wrap justify-end gap-3">
@@ -447,7 +472,12 @@ export default function SoalInputEssay({ kategoriSoal, modul, modules = [], onMo
                             >
                                 <div className="flex-1 space-y-2">
                                     <div className="text-sm font-semibold text-depth-secondary">
-                                        Soal {index + 1}
+                                        <span>Soal {index + 1}</span>
+                                        {soalItem.enable_file_upload && (
+                                            <span className="ml-2 rounded-depth-full border border-emerald-500/40 bg-emerald-500/15 px-2 py-0.5 text-xs font-semibold text-emerald-600">
+                                                File Upload
+                                            </span>
+                                        )}
                                     </div>
                                     <pre className="whitespace-pre-wrap break-words rounded-depth-md bg-depth-interactive p-3 text-sm text-depth-primary shadow-depth-inset">
                                         {soalItem.soal}
@@ -505,6 +535,7 @@ export default function SoalInputEssay({ kategoriSoal, modul, modules = [], onMo
                     soalItem={editingSoal}
                     onClose={handleCloseModalEdit}
                     onSave={handleConfirmEdit}
+                    supportsFileUpload={supportsFileUpload}
                 />
             )}
             {isBatchModalOpen && (

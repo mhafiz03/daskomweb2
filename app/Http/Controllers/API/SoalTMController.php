@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Praktikan;
 use App\Models\SoalMandiri;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 
 class SoalTMController extends Controller
 {
@@ -47,17 +48,50 @@ class SoalTMController extends Controller
         }
     }
 
-    public function show($id)
+    public function show(Request $request, int $id)
     {
         try {
             $user = auth('praktikan')->user();
             $query = SoalMandiri::where('modul_id', $id);
 
+            $questionIds = collect(Arr::wrap($request->query('question_ids')))
+                ->flatMap(fn ($value) => is_array($value) ? $value : explode(',', (string) $value))
+                ->map(fn ($value) => (int) $value)
+                ->filter(fn ($value) => $value > 0)
+                ->values();
+
             if ($user) {
-                $limit = $this->isTotPraktikan($user) ? 3 : 1;
-                $all_jurnal = $query->inRandomOrder()->take($limit)->get();
+                if ($questionIds->isNotEmpty()) {
+                    $soals = (clone $query)
+                        ->whereIn('id', $questionIds)
+                        ->get()
+                        ->keyBy('id');
+
+                    $ordered = $questionIds
+                        ->map(fn ($value) => $soals->get($value))
+                        ->filter();
+
+                    $missingCount = max(0, $questionIds->count() - $ordered->count());
+
+                    if ($missingCount > 0) {
+                        $fallback = (clone $query)
+                            ->whereNotIn('id', $questionIds)
+                            ->inRandomOrder()
+                            ->take($missingCount)
+                            ->get();
+
+                        $ordered = $ordered->merge($fallback);
+                    }
+
+                    $all_jurnal = $ordered;
+                } else {
+                    $limit = $this->isTotPraktikan($user) ? 3 : 1;
+                    $all_jurnal = (clone $query)->inRandomOrder()->take($limit)->get();
+                }
             } else {
-                $all_jurnal = $query->get();
+                $all_jurnal = $questionIds->isNotEmpty()
+                    ? (clone $query)->whereIn('id', $questionIds)->get()
+                    : $query->get();
             }
             // Cek apakah soal ditemukan
             if ($all_jurnal->isEmpty()) {

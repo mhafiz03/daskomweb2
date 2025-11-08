@@ -75,7 +75,7 @@ export default function CardPraktikan({praktikan}) {
                                 : {praktikan.nim}
                             </li>
                             <li className="my-1 max-w-[230px] truncate">
-                                : {praktikan.kelas_id}
+                                : {praktikan?.kelas?.kelas ?? praktikan?.kelas_id ?? "-"}
                             </li>
                             <li className="my-1 max-w-[230px] truncate">
                                 : {praktikan.nomor_telepon}

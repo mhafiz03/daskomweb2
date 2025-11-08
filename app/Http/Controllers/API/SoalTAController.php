@@ -9,6 +9,7 @@ use App\Models\SoalOpsi;
 use App\Models\SoalTa;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
@@ -49,7 +50,7 @@ class SoalTAController extends Controller
         }
     }
 
-    public function show(int $modulId): JsonResponse
+    public function show(Request $request, int $modulId): JsonResponse
     {
         $modul = Modul::find($modulId);
         if (! $modul) {
@@ -61,13 +62,48 @@ class SoalTAController extends Controller
         $user = auth('praktikan')->user();
         $soalQuery = SoalTa::with('options')->where('modul_id', $modulId);
 
+        $questionIds = collect(Arr::wrap($request->query('question_ids')))
+            ->flatMap(fn ($value) => is_array($value) ? $value : explode(',', (string) $value))
+            ->map(fn ($value) => (int) $value)
+            ->filter(fn ($value) => $value > 0)
+            ->values();
+
         if ($user) {
-            $limit = $this->isTotPraktikan($user) ? 15 : 10;
-            $soals = $soalQuery->inRandomOrder()->take($limit)->get();
+            if ($questionIds->isNotEmpty()) {
+                $soals = (clone $soalQuery)
+                    ->whereIn('id', $questionIds)
+                    ->get()
+                    ->keyBy('id');
+
+                $ordered = $questionIds
+                    ->map(fn ($id) => $soals->get($id))
+                    ->filter();
+
+                $missingCount = max(0, $questionIds->count() - $ordered->count());
+
+                if ($missingCount > 0) {
+                    $fallback = (clone $soalQuery)
+                        ->whereNotIn('id', $questionIds)
+                        ->inRandomOrder()
+                        ->take($missingCount)
+                        ->get();
+
+                    $ordered = $ordered->merge($fallback);
+                }
+
+                $soals = $ordered;
+            } else {
+                $limit = $this->isTotPraktikan($user) ? 15 : 10;
+                $soals = (clone $soalQuery)->inRandomOrder()->take($limit)->get();
+            }
 
             $data = $soals->map(fn (SoalTa $soal) => $this->formatPraktikanSoal($soal));
         } else {
-            $data = $soalQuery->get()->map(fn (SoalTa $soal) => $this->formatAssistantSoal($soal));
+            $soals = $questionIds->isNotEmpty()
+                ? (clone $soalQuery)->whereIn('id', $questionIds)->get()
+                : $soalQuery->get();
+
+            $data = $soals->map(fn (SoalTa $soal) => $this->formatAssistantSoal($soal));
         }
 
         return response()->json([

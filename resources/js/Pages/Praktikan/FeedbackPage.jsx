@@ -208,6 +208,14 @@ export default function FeedbackPage({ auth, modulId: initialModulId = null, ass
                                         setIsDropdownOpen(true);
                                     }}
                                     onFocus={() => setIsDropdownOpen(true)}
+                                    onKeyDown={(event) => {
+                                        if (event.key === 'Enter') {
+                                            event.preventDefault();
+                                            if (filteredAssistants.length > 0) {
+                                                handleAssistantSelect(filteredAssistants[0].id);
+                                            }
+                                        }
+                                    }}
                                     placeholder="Cari asisten berdasarkan kode atau nama"
                                     className="w-full rounded-depth-lg border border-depth bg-depth-card px-4 py-3 text-sm text-depth-primary shadow-depth-inset transition focus:border-[var(--depth-color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)] focus:ring-offset-0"
                                 />

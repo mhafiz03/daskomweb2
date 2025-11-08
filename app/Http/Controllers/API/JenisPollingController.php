@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
+use App\Models\Configuration;
 use App\Models\JenisPolling;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -12,14 +13,28 @@ class JenisPollingController extends Controller
     /**
      * Get all polling categories
      */
-    public function index()
+    public function index(Request $request)
     {
         try {
             $categories = JenisPolling::select('id', 'judul')->get();
+            $config = Configuration::select('polling_activation')->first();
+            $pollingActive = $config ? (bool) $config->polling_activation : true;
+
+            $isPraktikanRequest = (bool) $request->user('praktikan');
+
+            if ($isPraktikanRequest && ! $pollingActive) {
+                return response()->json([
+                    'status' => 'success',
+                    'categories' => [],
+                    'polling_active' => false,
+                    'message' => 'Polling sedang tidak aktif.',
+                ], 200);
+            }
 
             return response()->json([
                 'status' => 'success',
                 'categories' => $categories,
+                'polling_active' => $pollingActive,
                 'message' => 'Polling categories retrieved successfully.',
             ], 200);
         } catch (\Exception $e) {

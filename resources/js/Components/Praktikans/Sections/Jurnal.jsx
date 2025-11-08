@@ -49,6 +49,13 @@ export default function Jurnal({
         setAnswers(updated);
     };
 
+    const triggerFileInput = (index) => {
+        const input = document.getElementById(`file-upload-${index}`);
+        if (input) {
+            input.click();
+        }
+    };
+
     const handleFileUpload = async (index, file) => {
         if (!file) {
             return;
@@ -224,6 +231,10 @@ export default function Jurnal({
                                 return null;
                             }
 
+                            const isFileUploadEnabled = question.enable_file_upload || false;
+                            const currentAnswer = answers[index];
+                            const isFileAnswer = typeof currentAnswer === 'object' && currentAnswer?.type === 'file';
+
                             return (
                                 <div 
                                     key={question.id ?? `fitb-${index}`} 
@@ -280,12 +291,128 @@ export default function Jurnal({
                                         />
                                     </div>
                                     <div className="pl-11 pr-11">
-                                        <textarea
-                                            className="w-full bg-depth-card min-h-[80px] p-3 border border-depth rounded-depth-md text-depth-primary placeholder-depth-secondary shadow-depth-sm focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)] focus:border-transparent transition-all resize-y"
-                                            placeholder="Masukkan jawaban di sini..."
-                                            value={answers[index] ?? ""}
-                                            onChange={(event) => handleInputChange(index, event.target.value)}
-                                        />
+                                        {isFileUploadEnabled ? (
+                                            <div className="space-y-3">
+                                                {!isFileAnswer && !previews[index] ? (
+                                                    <div>
+                                                        <label
+                                                            htmlFor={`file-upload-${index}`}
+                                                            className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-depth rounded-depth-md cursor-pointer bg-depth-card hover:bg-depth-hover transition-all"
+                                                        >
+                                                            <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                                                                <svg
+                                                                    className="w-10 h-10 mb-3 text-depth-secondary"
+                                                                    fill="none"
+                                                                    stroke="currentColor"
+                                                                    viewBox="0 0 24 24"
+                                                                >
+                                                                    <path
+                                                                        strokeLinecap="round"
+                                                                        strokeLinejoin="round"
+                                                                        strokeWidth={2}
+                                                                        d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+                                                                    />
+                                                                </svg>
+                                                                <p className="mb-2 text-sm text-depth-secondary">
+                                                                    <span className="font-semibold">Click to upload</span> or drag and drop
+                                                                </p>
+                                                                <p className="text-xs text-depth-secondary">
+                                                                    PNG, JPG, GIF up to 10MB
+                                                                </p>
+                                                            </div>
+                                                        </label>
+                                                        <div className="mt-3 text-right">
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => triggerFileInput(index)}
+                                                                className="inline-flex items-center rounded-depth-md bg-[var(--depth-color-primary)] px-4 py-1.5 text-xs font-semibold text-white shadow-depth-sm transition hover:-translate-y-0.5 hover:shadow-depth-md"
+                                                            >
+                                                                Pilih File
+                                                            </button>
+                                                        </div>
+                                                        <input
+                                                            id={`file-upload-${index}`}
+                                                            type="file"
+                                                            className="hidden"
+                                                            accept="image/*"
+                                                            onChange={(e) => {
+                                                                const file = e.target.files[0];
+                                                                if (file) {
+                                                                    handleFileUpload(index, file);
+                                                                }
+                                                            }}
+                                                            disabled={uploadingIndexes[index]}
+                                                        />
+                                                    </div>
+                                                ) : (
+                                                    <div className="relative rounded-depth-md border border-depth bg-depth-card p-3">
+                                                        {uploadingIndexes[index] ? (
+                                                            <div className="flex flex-col items-center justify-center py-8">
+                                                                <div className="w-16 h-16 border-4 border-[var(--depth-color-primary)] border-t-transparent rounded-full animate-spin mb-3"></div>
+                                                                <p className="text-sm text-depth-secondary">
+                                                                    Uploading... {uploadProgress[index]}%
+                                                                </p>
+                                                            </div>
+                                                        ) : (
+                                                            <>
+                                                                {isFileAnswer && currentAnswer.url ? (
+                                                                    <Image
+                                                                        src={currentAnswer.url}
+                                                                        alt="Uploaded answer"
+                                                                        transformation={[{ width: "800", quality: "80" }]}
+                                                                        className="w-full h-auto rounded-depth-md shadow-depth-sm"
+                                                                        loading="lazy"
+                                                                    />
+                                                                ) : previews[index] ? (
+                                                                    <img
+                                                                        src={previews[index]}
+                                                                        alt="Preview"
+                                                                        className="w-full h-auto rounded-depth-md shadow-depth-sm"
+                                                                    />
+                                                                ) : null}
+
+                                                                <button
+                                                                    type="button"
+                                                                    onClick={() => handleDeleteFile(index)}
+                                                                    className="absolute top-5 right-5 p-2 rounded-depth-full bg-red-500 text-white hover:bg-red-600 shadow-depth-md transition-all"
+                                                                    title="Delete image"
+                                                                >
+                                                                    <svg
+                                                                        className="w-5 h-5"
+                                                                        fill="none"
+                                                                        stroke="currentColor"
+                                                                        viewBox="0 0 24 24"
+                                                                    >
+                                                                        <path
+                                                                            strokeLinecap="round"
+                                                                            strokeLinejoin="round"
+                                                                            strokeWidth={2}
+                                                                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                                                                        />
+                                                                    </svg>
+                                                                </button>
+                                                                <div className="mt-3 text-right">
+                                                                    <button
+                                                                        type="button"
+                                                                        onClick={() => triggerFileInput(index)}
+                                                                        className="inline-flex items-center rounded-depth-md bg-[var(--depth-color-primary)] px-4 py-1.5 text-xs font-semibold text-white shadow-depth-sm transition hover:-translate-y-0.5 hover:shadow-depth-md"
+                                                                    >
+                                                                        Ganti File
+                                                                    </button>
+                                                                </div>
+                                                            </>
+                                                        )}
+                                                    </div>
+                                                )}
+                                            </div>
+                                        ) : (
+                                            <textarea
+                                                className="w-full bg-depth-card min-h-[80px] p-3 border border-depth rounded-depth-md text-depth-primary placeholder-depth-secondary shadow-depth-sm focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)] focus:border-transparent transition-all resize-y"
+                                                placeholder="Masukkan jawaban di sini..."
+                                                value={answers[index] ?? ""}
+                                                onChange={(event) => handleInputChange(index, event.target.value)}
+                                            />
+                                        )}
                                     </div>
                                 </div>
                             );
@@ -364,6 +491,15 @@ export default function Jurnal({
                                                                 </p>
                                                             </div>
                                                         </label>
+                                                        <div className="mt-3 text-right">
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => triggerFileInput(index)}
+                                                                className="inline-flex items-center rounded-depth-md bg-[var(--depth-color-primary)] px-4 py-1.5 text-xs font-semibold text-white shadow-depth-sm transition hover:-translate-y-0.5 hover:shadow-depth-md"
+                                                            >
+                                                                Pilih File
+                                                            </button>
+                                                        </div>
                                                         <input
                                                             id={`file-upload-${index}`}
                                                             type="file"
@@ -427,6 +563,15 @@ export default function Jurnal({
                                                                         />
                                                                     </svg>
                                                                 </button>
+                                                                <div className="mt-3 text-right">
+                                                                    <button
+                                                                        type="button"
+                                                                        onClick={() => triggerFileInput(index)}
+                                                                        className="inline-flex items-center rounded-depth-md bg-[var(--depth-color-primary)] px-4 py-1.5 text-xs font-semibold text-white shadow-depth-sm transition hover:-translate-y-0.5 hover:shadow-depth-md"
+                                                                    >
+                                                                        Ganti File
+                                                                    </button>
+                                                                </div>
                                                             </>
                                                         )}
                                                     </div>

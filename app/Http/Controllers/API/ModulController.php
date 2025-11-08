@@ -28,6 +28,12 @@ class ModulController extends BaseController
                     'resources.ppt_link',
                     'resources.video_link'
                 )
+                ->selectRaw('(SELECT COUNT(*) FROM soal_tps WHERE soal_tps.modul_id = moduls.id) AS soal_tp_count')
+                ->selectRaw('(SELECT COUNT(*) FROM soal_tas WHERE soal_tas.modul_id = moduls.id) AS soal_ta_count')
+                ->selectRaw('(SELECT COUNT(*) FROM soal_fitbs WHERE soal_fitbs.modul_id = moduls.id) AS soal_fitb_count')
+                ->selectRaw('(SELECT COUNT(*) FROM soal_jurnals WHERE soal_jurnals.modul_id = moduls.id) AS soal_jurnal_count')
+                ->selectRaw('(SELECT COUNT(*) FROM soal_mandiris WHERE soal_mandiris.modul_id = moduls.id) AS soal_tm_count')
+                ->selectRaw('(SELECT COUNT(*) FROM soal_tks WHERE soal_tks.modul_id = moduls.id) AS soal_tk_count')
                 ->get()
                 ->map(function ($modul) {
                     $modul->unlock_config = $this->decodeUnlockConfig($modul->unlock_config);

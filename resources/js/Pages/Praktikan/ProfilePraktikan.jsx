@@ -1,6 +1,6 @@
 import { Head } from "@inertiajs/react";
 import PraktikanAuthenticated from "@/Layouts/PraktikanAuthenticatedLayout";
-import PraktikanCard from "@/Components/Praktikans/Sections/PraktikanCard";
+import PraktikanCard from "@/Components/Praktikans/Sections/CardPraktikan";
 import { usePage } from "@inertiajs/react";
 import PraktikanUtilities from "@/Components/Praktikans/Layout/PraktikanUtilities";
 

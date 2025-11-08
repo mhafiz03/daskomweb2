@@ -68,6 +68,8 @@ const AUTOSAVE_TYPE_MAP = {
     TesKeterampilan: "tk",
 };
 
+const STICKY_TASKS = new Set(["TesAwal", "Mandiri", "TesKeterampilan"]);
+
 const extractQuestions = (response) => {
     const payload = response?.data ?? response;
     if (Array.isArray(payload)) {
@@ -92,6 +94,7 @@ const normalizeEssayQuestions = (items, questionType = "essay") => {
             id: item.id,
             text: item.soal ?? item.pertanyaan ?? "",
             questionType,
+            enable_file_upload: Boolean(item.enable_file_upload),
         }));
 };
 
@@ -108,6 +111,44 @@ const normalizeMultipleChoiceQuestions = (items, questionType = "multiple-choice
             questionType,
         }))
         .filter((item) => Array.isArray(item.options) && item.options.length > 0);
+};
+
+const reorderQuestionsByIds = (questions, questionIds) => {
+    if (!Array.isArray(questionIds) || questionIds.length === 0) {
+        return questions;
+    }
+
+    const questionMap = new Map();
+    questions.forEach((question) => {
+        if (question?.id !== undefined && question?.id !== null) {
+            questionMap.set(String(question.id), question);
+        }
+    });
+
+    const ordered = [];
+    const usedKeys = new Set();
+
+    questionIds.forEach((id) => {
+        const key = String(id);
+        if (questionMap.has(key) && !usedKeys.has(key)) {
+            ordered.push(questionMap.get(key));
+            usedKeys.add(key);
+        }
+    });
+
+    questions.forEach((question) => {
+        const key = question?.id;
+        if (key === undefined || key === null) {
+            return;
+        }
+        const normalizedKey = String(key);
+        if (!usedKeys.has(normalizedKey)) {
+            ordered.push(question);
+            usedKeys.add(normalizedKey);
+        }
+    });
+
+    return ordered;
 };
 
 const PHASE_TO_COMPONENT = {
@@ -299,6 +340,70 @@ export default function PraktikumPage({ auth }) {
         }
     }, [completedCategories, localStorageKey]);
 
+    const fetchStoredQuestionIds = useCallback(
+        async (autosaveType, modulId) => {
+            if (!praktikanId || !autosaveType || !modulId) {
+                return {
+                    questionIds: [],
+                    hasStoredQuestions: false,
+                };
+            }
+
+            try {
+                const { data } = await api.get("/api-v1/praktikan/autosave/questions", {
+                    params: {
+                        praktikan_id: praktikanId,
+                        modul_id: modulId,
+                        tipe_soal: autosaveType,
+                    },
+                });
+
+                const ids = Array.isArray(data?.question_ids)
+                    ? data.question_ids
+                        .map((value) => Number(value))
+                        .filter((value) => Number.isInteger(value) && value > 0)
+                    : [];
+
+                return {
+                    questionIds: ids,
+                    hasStoredQuestions: Boolean(data?.has_stored_questions),
+                };
+            } catch (error) {
+                console.warn(`[Autosave] Failed to fetch stored question ids for ${autosaveType}`, error);
+                return {
+                    questionIds: [],
+                    hasStoredQuestions: false,
+                };
+            }
+        },
+        [praktikanId]
+    );
+
+    const persistQuestionIdsSnapshot = useCallback(
+        async (autosaveType, modulId, questionIds) => {
+            if (!praktikanId || !autosaveType || !modulId) {
+                return;
+            }
+
+            if (!Array.isArray(questionIds) || questionIds.length === 0) {
+                return;
+            }
+
+            try {
+                await api.post("/api-v1/praktikan/autosave/questions", {
+                    praktikan_id: praktikanId,
+                    modul_id: modulId,
+                    tipe_soal: autosaveType,
+                    question_ids: questionIds,
+                });
+            } catch (error) {
+                console.warn(`[Autosave] Failed to persist question ids for ${autosaveType}`, error);
+            }
+        },
+        [praktikanId]
+    );
+
+
     const fetchTaskData = useCallback(
         async (taskKey, modulId) => {
             const config = TASK_CONFIG[taskKey];
@@ -316,7 +421,25 @@ export default function PraktikumPage({ auth }) {
             setSubmissionError(null);
 
             try {
-                const questionResponse = await api.get(config.questionEndpoint(modulId));
+                const autosaveType = AUTOSAVE_TYPE_MAP[taskKey];
+                const shouldPersistQuestions = autosaveType && STICKY_TASKS.has(taskKey);
+                let storedQuestionIds = [];
+                let hasStoredQuestionSet = false;
+
+                if (shouldPersistQuestions) {
+                    const stored = await fetchStoredQuestionIds(autosaveType, modulId);
+                    storedQuestionIds = stored.questionIds ?? [];
+                    hasStoredQuestionSet = Boolean(stored.hasStoredQuestions);
+                }
+
+                const questionConfig = storedQuestionIds.length > 0
+                    ? { params: { question_ids: storedQuestionIds } }
+                    : undefined;
+
+                const questionResponse = await api.get(
+                    config.questionEndpoint(modulId),
+                    questionConfig
+                );
 
                 const rawQuestions = extractQuestions(questionResponse);
 
@@ -338,6 +461,25 @@ export default function PraktikumPage({ auth }) {
                             : normalizeEssayQuestions(rawQuestions);
                 }
 
+                if (shouldPersistQuestions) {
+                    const normalizedIds = normalizedQuestions
+                        .map((question) => question?.id)
+                        .filter((id) => id !== undefined && id !== null);
+
+                    if (!hasStoredQuestionSet && normalizedIds.length > 0) {
+                        await persistQuestionIdsSnapshot(autosaveType, modulId, normalizedIds);
+                        storedQuestionIds = normalizedIds;
+                        hasStoredQuestionSet = true;
+                    }
+
+                    if (storedQuestionIds.length > 0) {
+                        normalizedQuestions = reorderQuestionsByIds(
+                            normalizedQuestions,
+                            storedQuestionIds
+                        );
+                    }
+                }
+
                 const defaultAnswers = normalizedQuestions.map((question) =>
                     question.questionType === "multiple-choice" ? null : ""
                 );
@@ -345,7 +487,6 @@ export default function PraktikumPage({ auth }) {
                 setQuestions(normalizedQuestions);
                 setQuestionsCount(normalizedQuestions.length);
 
-                const autosaveType = AUTOSAVE_TYPE_MAP[taskKey];
                 let answersToUse = defaultAnswers;
 
                 if (autosaveType && praktikanId) {
@@ -408,7 +549,7 @@ export default function PraktikumPage({ auth }) {
                 setIsLoadingTask(false);
             }
         },
-        [clearTaskProgress, praktikanId]
+        [clearTaskProgress, fetchStoredQuestionIds, persistQuestionIdsSnapshot, praktikanId]
     );
 
     useEffect(() => {
@@ -904,7 +1045,7 @@ export default function PraktikumPage({ auth }) {
                             />
                         </Suspense>
                         {activeComponent !== "NoPraktikumSection" && ActiveTaskComponent && (
-                            <Suspense fallback={<div className="mt-6 text-sm text-depth-secondary">Memuat tugas...</div>}>
+                            <Suspense fallback={<div className="mt-6 text-sm text-depth-secondary">Memuat soal...</div>}>
                                 <ActiveTaskComponent
                                     isLoading={isLoadingTask}
                                     errorMessage={taskError}
@@ -933,6 +1074,7 @@ export default function PraktikumPage({ auth }) {
                     correctAnswers={scoreModalState.correctAnswers}
                     totalQuestions={scoreModalState.totalQuestions}
                     percentage={scoreModalState.percentage}
+                    isTotClass={isTotClass}
                 />
             </Suspense>
         </>

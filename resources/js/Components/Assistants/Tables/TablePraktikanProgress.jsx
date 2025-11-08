@@ -91,7 +91,6 @@ export default function TablePraktikanProgress({
     const [isExpanded, setIsExpanded] = useState(true);
     const activePhase = progress?.activePhase ?? null;
     const phaseMap = progress?.phaseMap ?? {};
-    const phaseMeta = activePhase ? phaseMap[activePhase] ?? null : null;
     const rows = Array.isArray(progress?.participants) ? progress.participants : [];
     const onlineSet = useMemo(() => {
         if (!onlinePraktikan) {
@@ -105,7 +104,6 @@ export default function TablePraktikanProgress({
         return new Set(Array.isArray(onlinePraktikan) ? onlinePraktikan : []);
     }, [onlinePraktikan]);
 
-    const lastGenerated = formatTimestamp(progress?.generatedAt ?? null);
     const toggleExpanded = () => setIsExpanded((prev) => !prev);
 
     return (
@@ -205,7 +203,7 @@ export default function TablePraktikanProgress({
                                                 {row?.nama ?? "Tidak diketahui"}
                                             </span>
                                         </div>
-                                        <div className="-mt-4 grid justify-items-end text-xs text-depth-secondary">
+                                        <div className="-mt-4 translate-y-3.5 grid justify-items-end text-[0.6rem] text-depth-secondary">
                                             <span className="whitespace-nowrap truncate" title={lastUpdated ?? "Belum ada pembaruan"}>
                                                 {lastUpdated}
                                             </span>

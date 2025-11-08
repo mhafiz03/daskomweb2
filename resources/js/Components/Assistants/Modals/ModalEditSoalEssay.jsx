@@ -5,12 +5,12 @@ import DepthToggleButton from "@/Components/Common/DepthToggleButton";
 import { ModalOverlay } from "@/Components/Common/ModalPortal";
 import ModalCloseButton from "@/Components/Common/ModalCloseButton";
 
-export default function ModalEditSoalEssay({ onClose, soalItem, onSave }) {
+export default function ModalEditSoalEssay({ onClose, soalItem, onSave, supportsFileUpload = false }) {
     const [soal, setSoal] = useState(soalItem.soal || "");
     const [selectedModul, setSelectedModul] = useState(
         soalItem.modul_id ? String(soalItem.modul_id) : ""
     );
-    const [enableFileUpload, setEnableFileUpload] = useState(soalItem.enable_file_upload || false);
+    const [enableFileUpload, setEnableFileUpload] = useState(Boolean(soalItem.enable_file_upload));
     const {
         data: moduls = [],
         isLoading: modulesLoading,
@@ -21,7 +21,7 @@ export default function ModalEditSoalEssay({ onClose, soalItem, onSave }) {
     useEffect(() => {
         setSoal(soalItem.soal || "");
         setSelectedModul(soalItem.modul_id ? String(soalItem.modul_id) : "");
-        setEnableFileUpload(soalItem.enable_file_upload || false);
+        setEnableFileUpload(Boolean(soalItem.enable_file_upload));
     }, [soalItem]);
 
     const handleSave = () => {
@@ -39,7 +39,7 @@ export default function ModalEditSoalEssay({ onClose, soalItem, onSave }) {
             ...soalItem,
             soal,
             modul_id: Number(selectedModul),
-            enable_file_upload: enableFileUpload,
+            enable_file_upload: supportsFileUpload ? enableFileUpload : false,
             oldSoal: soalItem.soal,
         });
 
@@ -87,12 +87,14 @@ export default function ModalEditSoalEssay({ onClose, soalItem, onSave }) {
                 />
 
                 <div className="mt-6 flex flex-row gap-3 md:items-center justify-end">
-                    <div className="flex items-center justify-between gap-3">
-                        <div>
-                            <p className="text-sm font-semibold text-depth-primary">Enable File Upload</p>
+                    {supportsFileUpload && (
+                        <div className="flex items-center justify-between gap-3">
+                            <div>
+                                <p className="text-sm font-semibold text-depth-primary">Enable File Upload</p>
+                            </div>
+                            <DepthToggleButton isOn={enableFileUpload} onToggle={() => setEnableFileUpload(!enableFileUpload)} />
                         </div>
-                        <DepthToggleButton isOn={enableFileUpload} onToggle={() => setEnableFileUpload(!enableFileUpload)} />
-                    </div>
+                    )}
                     <button
                         onClick={handleSave}
                         type="button"

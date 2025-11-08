@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
 import { api } from "@/lib/api";
 import { ModalOverlay } from "@/Components/Common/ModalPortal";
@@ -10,6 +10,13 @@ export default function ModalAddJenisPolling({ onClose, onSuccess, existingCateg
     const [judul, setJudul] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [errorMessage, setErrorMessage] = useState("");
+    const inputRef = useRef(null);
+
+    useEffect(() => {
+        if (inputRef.current) {
+            inputRef.current.focus();
+        }
+    }, []);
 
     const handleSubmit = async (event) => {
         event.preventDefault();
@@ -72,6 +79,7 @@ export default function ModalAddJenisPolling({ onClose, onSuccess, existingCateg
                         <input
                             id="jenisPollingName"
                             type="text"
+                            ref={inputRef}
                             value={judul}
                             onChange={(event) => setJudul(event.target.value)}
                             className="w-full rounded-depth-md border border-depth bg-depth-card px-3 py-2 text-sm text-depth-primary shadow-depth-sm transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--depth-color-primary)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--depth-color-card)]"

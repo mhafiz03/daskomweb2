@@ -5,13 +5,16 @@ export default function ScoreDisplayModal({
     correctAnswers = 0,
     totalQuestions = 0,
     percentage,
+    isTotClass = false,
 }) {
     if (!isOpen) {
         return null;
     }
 
     const safeTotal = Math.max(0, Number(totalQuestions) || 0);
-    const safeCorrect = Math.max(0, Math.min(Number(correctAnswers) || 0, safeTotal));
+    const displayTotal = isTotClass ? safeTotal : 10;
+    const safeCorrect = Math.max(0, Number(correctAnswers) || 0);
+    const displayCorrect = Math.min(safeCorrect, displayTotal);
     const scorePercentage = Number.isFinite(percentage)
         ? Math.max(0, Math.min(Math.round(percentage), 100))
         : safeTotal > 0
@@ -79,11 +82,14 @@ export default function ScoreDisplayModal({
                             </div>
                             <div className="flex flex-col items-center justify-center gap-3 rounded-2xl bg-depth-card/80 p-4 shadow-inner">
                                 <div className="text-xs font-semibold uppercase tracking-wide text-depth-secondary">Jawaban Benar</div>
-                                <div className="text-4xl font-bold text-depth-primary">{safeCorrect}/{safeTotal}</div>
+                                <div className="text-4xl font-bold text-depth-primary">{displayCorrect}/{displayTotal}</div>
                                 <div className="h-2 w-full overflow-hidden rounded-full bg-white/40">
                                     <div
                                         className="h-full rounded-full transition-all duration-500"
-                                        style={{ width: `${scorePercentage}%`, background: bgGradient }}
+                                        style={{
+                                            width: `${(displayTotal > 0 ? (displayCorrect / displayTotal) * 100 : 0)}%`,
+                                            background: bgGradient,
+                                        }}
                                     />
                                 </div>
                             </div>

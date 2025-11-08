@@ -6,19 +6,24 @@ export const ASISTENS_QUERY_KEY = ["asistens"];
 const fetchAsistens = async () => {
     const { data } = await api.get("/api-v1/asisten");
 
-    if (Array.isArray(data?.asisten)) {
-        return data.asisten;
-    }
+    const assistants = Array.isArray(data?.asisten)
+        ? data.asisten
+        : (Array.isArray(data?.data) ? data.data : []);
 
-    if (Array.isArray(data?.data)) {
-        return data.data;
+    const filtered = assistants.filter((assistant) => {
+        const code = (assistant?.kode ?? "").trim().toUpperCase();
+        return code !== "BOT";
+    });
+
+    if (Array.isArray(data?.asisten) || Array.isArray(data?.data)) {
+        return filtered;
     }
 
     if (data?.success === false) {
         throw new Error(data?.message ?? "Gagal memuat daftar asisten");
     }
 
-    return [];
+    return filtered;
 };
 
 export const useAsistensQuery = (options = {}) =>

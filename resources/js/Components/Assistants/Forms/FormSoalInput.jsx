@@ -1,4 +1,4 @@
-import { Suspense, lazy, useEffect, useState } from 'react';
+import { Suspense, lazy, useEffect, useMemo, useState } from 'react';
 const SoalInputPG = lazy(() => import('../Soal/SoalInputPG'));
 const SoalInputEssay = lazy(() => import('../Soal/SoalInputEssay'));
 const ModalSaveSoal = lazy(() => import('../Modals/ModalSaveSoal'));
@@ -15,9 +15,6 @@ export default function FormSoalInput() {
         isError: modulesError,
         error: modulesQueryError,
     } = useModulesQuery();
-
-    useEffect(() => {
-    }, [selectedModul]);
 
     const handleModulChange = (e) => {
         const value = e.target.value;
@@ -39,6 +36,31 @@ export default function FormSoalInput() {
     const handleSuccessNotification = () => {
         toast.success("Soal berhasil ditambahkan!!");
     };
+
+    const selectedModuleData = useMemo(() => {
+        if (!selectedModul) {
+            return null;
+        }
+
+        return (
+            moduls.find((module) => String(module.idM) === String(selectedModul)) ?? null
+        );
+    }, [moduls, selectedModul]);
+
+    const soalCountMeta = useMemo(() => {
+        if (!selectedModuleData) {
+            return null;
+        }
+
+        return {
+            tp: selectedModuleData.soal_tp_count ?? 0,
+            ta: selectedModuleData.soal_ta_count ?? 0,
+            fitb: selectedModuleData.soal_fitb_count ?? 0,
+            jurnal: selectedModuleData.soal_jurnal_count ?? 0,
+            tm: selectedModuleData.soal_tm_count ?? 0,
+            tk: selectedModuleData.soal_tk_count ?? 0,
+        };
+    }, [selectedModuleData]);
 
     return (
         <div className="space-y-6 text-depth-primary">
@@ -88,17 +110,43 @@ export default function FormSoalInput() {
                         )}
                         {!modulesLoading && !modulesError && moduls.length > 0
                             ? moduls.map((k) => (
-                                  <option key={k.idM} value={k.idM}>
-                                      {k.judul}
-                                  </option>
-                              ))
+                                <option key={k.idM} value={k.idM}>
+                                    {k.judul}
+                                </option>
+                            ))
                             : null}
                     </select>
                 </div>
             </div>
 
+            {selectedModuleData && soalCountMeta && (
+                <div className="mt-2 grid gap-3 sm:grid-cols-3 md:grid-cols-6">
+                    {[
+                        { key: 'tp', label: 'TP' },
+                        { key: 'ta', label: 'TA' },
+                        { key: 'fitb', label: 'FITB' },
+                        { key: 'jurnal', label: 'Jurnal' },
+                        { key: 'tm', label: 'Mandiri' },
+                        { key: 'tk', label: 'TK' },
+                    ].map((item) => (
+                        <div
+                            key={item.key}
+                            className="rounded-depth-md border border-depth bg-depth-interactive/40 px-3 py-2 text-center"
+                        >
+                            <div className="text-[0.65rem] font-semibold uppercase tracking-wide text-depth-secondary">
+                                {item.label}
+                            </div>
+                            <div className="text-lg font-bold text-depth-primary">
+                                {soalCountMeta[item.key] ?? 0}
+                            </div>
+                        </div>
+                    ))}
+                </div>
+
+            )}
+
             {/* Input soal berdasarkan kategori soal */}
-            <Suspense fallback={<div className="text-sm text-depth-secondary">Memuat formulir soal...</div>}>
+            <Suspense fallback={<div className="text-sm text-depth-secondary">Memuat soal...</div>}>
                 {(() => {
                     if (!kategoriSoal) return null;
                     const essayTypes = ["tp", "fitb", "jurnal", "tm"];
