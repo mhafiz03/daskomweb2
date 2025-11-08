@@ -2,35 +2,33 @@
 
 namespace App\Http\Controllers\API;
 
+use App\Http\Controllers\Controller;
 use App\Models\Asisten;
 use App\PermissionGroupEnum;
 use Illuminate\Http\Request;
-use Spatie\Permission\Models\Role;
-use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
-use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
 
 class RoleController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-
     public function index()
     {
         if (Auth::guard('asisten')->check()) {
             $roles = Role::where('name', '!=', 'praktikan')
-            ->get()
-            ->makeHidden(['guard_name']);
-        }else{
+                ->get()
+                ->makeHidden(['guard_name']);
+        } else {
             $roles = Role::where('name', '!=', 'praktikan') // Exclude the 'praktikan' role
-            ->whereNotIn('name', ['SOFTWARE', 'ADMIN', 'KORDAS', 'WAKORDAS', 'KOORPRAK', 'HARDWARE', 'DDC']) // Exclude specific roles
-            ->get()
-            ->makeHidden(['guard_name']);
+                ->whereNotIn('name', ['SOFTWARE', 'ADMIN', 'KORDAS', 'WAKORDAS', 'KOORPRAK', 'HARDWARE', 'DDC']) // Exclude specific roles
+                ->get()
+                ->makeHidden(['guard_name']);
         }
 
         return response()->json([
-            'roles' => $roles
+            'roles' => $roles,
         ]);
     }
 
@@ -47,7 +45,7 @@ class RoleController extends Controller
         $ATC_PACKAGE = array_merge(
             PermissionGroupEnum::ATC
         );
- 
+
         $RDC_PACKAGE = array_merge(
             PermissionGroupEnum::RDC
         );
@@ -68,7 +66,7 @@ class RoleController extends Controller
 
             $permissions = [];
             foreach ($data as $paket) {
-                if (!in_array($paket, ['super', 'aslab', 'atc', 'rdc', 'asisten'])) {
+                if (! in_array($paket, ['super', 'aslab', 'atc', 'rdc', 'asisten'])) {
                     return redirect(route('manage-role'))->with('error', 'Invalid package.');
                 }
 
@@ -91,14 +89,14 @@ class RoleController extends Controller
                     default:
                         $permissions = [];
                         break;
-                }                
+                }
             }
 
             $role = Role::create([
                 'name' => $request->name,
                 'guard_name' => 'asisten',
                 'created_at' => now(),
-                'updated_at' => now()
+                'updated_at' => now(),
             ]);
             $role->syncPermissions($permissions);
 
@@ -119,7 +117,7 @@ class RoleController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, $idAsisten) //update role asisten
+    public function update(Request $request, $idAsisten) // update role asisten
     {
         try {
             $request->validate([

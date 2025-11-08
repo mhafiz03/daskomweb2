@@ -10,6 +10,7 @@ class SoalOpsi extends Model
     use HasFactory;
 
     public const TYPE_TA = 'TA';
+
     public const TYPE_TK = 'TK';
 
     protected $table = 'soal_opsis';

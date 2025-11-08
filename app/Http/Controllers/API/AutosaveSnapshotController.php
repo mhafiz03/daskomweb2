@@ -97,7 +97,7 @@ class AutosaveSnapshotController extends Controller
         $praktikan = $request->user('praktikan');
 
         if (! $praktikan instanceof Praktikan) {
-            throw new AuthorizationException();
+            throw new AuthorizationException;
         }
 
         return $praktikan;

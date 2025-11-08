@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('praktikums', function (Blueprint $table) {
-            if (!Schema::hasColumn('praktikums', 'ended_at')) {
+            if (! Schema::hasColumn('praktikums', 'ended_at')) {
                 $table->timestamp('ended_at')->nullable()->after('started_at');
             }
         });
@@ -25,7 +25,7 @@ return new class extends Migration
                 Schema::hasColumn('praktikums', 'phase_started_at') ? 'phase_started_at' : null,
             ]);
 
-            if (!empty($columnsToDrop)) {
+            if (! empty($columnsToDrop)) {
                 $table->dropColumn($columnsToDrop);
             }
         });
@@ -37,19 +37,19 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('praktikums', function (Blueprint $table) {
-            if (!Schema::hasColumn('praktikums', 'start_time')) {
+            if (! Schema::hasColumn('praktikums', 'start_time')) {
                 $table->time('start_time')->nullable()->after('kelas_id');
             }
 
-            if (!Schema::hasColumn('praktikums', 'end_time')) {
+            if (! Schema::hasColumn('praktikums', 'end_time')) {
                 $table->time('end_time')->nullable()->after('start_time');
             }
 
-            if (!Schema::hasColumn('praktikums', 'phase_elapsed_seconds')) {
+            if (! Schema::hasColumn('praktikums', 'phase_elapsed_seconds')) {
                 $table->unsignedInteger('phase_elapsed_seconds')->default(0)->after('current_phase');
             }
 
-            if (!Schema::hasColumn('praktikums', 'phase_started_at')) {
+            if (! Schema::hasColumn('praktikums', 'phase_started_at')) {
                 $table->timestamp('phase_started_at')->nullable()->after('phase_elapsed_seconds');
             }
 

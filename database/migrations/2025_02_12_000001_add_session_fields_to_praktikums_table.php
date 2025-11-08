@@ -12,11 +12,11 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('praktikums', function (Blueprint $table) {
-            if (!Schema::hasColumn('praktikums', 'status')) {
+            if (! Schema::hasColumn('praktikums', 'status')) {
                 $table->string('status')->default('idle')->after('isActive');
             }
 
-            if (!Schema::hasColumn('praktikums', 'current_phase')) {
+            if (! Schema::hasColumn('praktikums', 'current_phase')) {
                 $table->string('current_phase')->nullable()->after('status');
             }
         });
@@ -33,7 +33,7 @@ return new class extends Migration
                 Schema::hasColumn('praktikums', 'current_phase') ? 'current_phase' : null,
             ]);
 
-            if (!empty($columnsToDrop)) {
+            if (! empty($columnsToDrop)) {
                 $table->dropColumn($columnsToDrop);
             }
         });

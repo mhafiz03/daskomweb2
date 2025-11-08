@@ -13,7 +13,7 @@ return [
     |
     */
 
-    'paths' => ['api-v1/*', 'sanctum/csrf-cookie', 'asisten/*', 'praktikan/*', 'login/asisten','login/praktikan'], // Apply CORS to specific routes like API and CSRF
+    'paths' => ['api-v1/*', 'sanctum/csrf-cookie', 'asisten/*', 'praktikan/*', 'login/asisten', 'login/praktikan'], // Apply CORS to specific routes like API and CSRF
 
     'allowed_methods' => ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'], // Allow all HTTP methods (GET, POST, PUT, DELETE, etc.)
 

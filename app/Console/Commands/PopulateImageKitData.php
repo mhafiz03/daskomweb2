@@ -86,7 +86,7 @@ class PopulateImageKitData extends Command
 
         // Create a lookup map for faster searching
         $targetFilesMap = [];
-        if (!empty($allTargetFiles->result)) {
+        if (! empty($allTargetFiles->result)) {
             foreach ($allTargetFiles->result as $file) {
                 $targetFilesMap[$file->name] = $file;
             }
@@ -99,7 +99,7 @@ class PopulateImageKitData extends Command
         ]);
 
         $rootFilesMap = [];
-        if (!empty($allRootFiles->result)) {
+        if (! empty($allRootFiles->result)) {
             foreach ($allRootFiles->result as $file) {
                 $rootFilesMap[$file->name] = $file;
             }
@@ -118,7 +118,7 @@ class PopulateImageKitData extends Command
                 if (isset($targetFilesMap[$fileName])) {
                     $file = $targetFilesMap[$fileName];
 
-                    if (!$isDryRun) {
+                    if (! $isDryRun) {
                         $asisten->foto_asistens()->updateOrCreate(
                             ['kode' => $asisten->kode],
                             [
@@ -130,6 +130,7 @@ class PopulateImageKitData extends Command
 
                     $updated++;
                     $progressBar->advance();
+
                     continue;
                 }
 
@@ -137,7 +138,7 @@ class PopulateImageKitData extends Command
                 if (isset($rootFilesMap[$fileName])) {
                     $file = $rootFilesMap[$fileName];
 
-                    if (!$isDryRun) {
+                    if (! $isDryRun) {
                         $moveResponse = $this->imageKitService->moveFile(
                             $file->filePath,
                             $targetFolder
@@ -151,7 +152,7 @@ class PopulateImageKitData extends Command
                                 'searchQuery' => "filePath=\"{$targetPath}\"",
                             ]);
 
-                            if (!empty($movedFiles->result)) {
+                            if (! empty($movedFiles->result)) {
                                 $movedFile = $movedFiles->result[0];
 
                                 $asisten->foto_asistens()->updateOrCreate(
@@ -176,6 +177,7 @@ class PopulateImageKitData extends Command
                     }
 
                     $progressBar->advance();
+
                     continue;
                 }
 
@@ -198,9 +200,10 @@ class PopulateImageKitData extends Command
         $this->info('Processing Praktikan profile pictures...');
 
         $praktikans = Praktikan::whereNull('profile_picture_file_id')->get();
-        
+
         if ($praktikans->isEmpty()) {
             $this->info('All praktikans already have profile pictures');
+
             return;
         }
 
@@ -217,7 +220,7 @@ class PopulateImageKitData extends Command
 
         // Create a lookup map for faster searching
         $filesMap = [];
-        if (!empty($allFiles->result)) {
+        if (! empty($allFiles->result)) {
             foreach ($allFiles->result as $file) {
                 $filesMap[$file->name] = $file;
             }
@@ -235,7 +238,7 @@ class PopulateImageKitData extends Command
                 if (isset($filesMap[$fileName])) {
                     $file = $filesMap[$fileName];
 
-                    if (!$isDryRun) {
+                    if (! $isDryRun) {
                         $praktikan->update([
                             'profile_picture_url' => $file->url,
                             'profile_picture_file_id' => $file->fileId,

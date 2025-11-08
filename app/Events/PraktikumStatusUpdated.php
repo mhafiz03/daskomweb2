@@ -21,8 +21,8 @@ class PraktikumStatusUpdated implements ShouldBroadcast
     public function broadcastOn(): array
     {
         return [
-            new Channel('praktikum.' . $this->praktikum->id),
-            new Channel('praktikum.class.' . $this->praktikum->kelas_id),
+            new Channel('praktikum.'.$this->praktikum->id),
+            new Channel('praktikum.class.'.$this->praktikum->kelas_id),
         ];
     }
 

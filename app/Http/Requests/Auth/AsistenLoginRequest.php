@@ -2,11 +2,11 @@
 
 namespace App\Http\Requests\Auth;
 
-use Illuminate\Support\Str;
 use Illuminate\Auth\Events\Lockout;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
 class AsistenLoginRequest extends FormRequest
@@ -55,7 +55,6 @@ class AsistenLoginRequest extends FormRequest
      *
      * @throws \Illuminate\Validation\ValidationException
      */
-
     public function ensureIsNotRateLimited(): void
     {
         if (! RateLimiter::tooManyAttempts($this->throttleKey(), 5)) {
@@ -79,6 +78,6 @@ class AsistenLoginRequest extends FormRequest
      */
     public function throttleKey(): string
     {
-        return Str::transliterate(Str::lower($this->string('kode')) . '|' . $this->ip());
+        return Str::transliterate(Str::lower($this->string('kode')).'|'.$this->ip());
     }
 }

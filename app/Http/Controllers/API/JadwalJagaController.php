@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers\API;
 
-use App\Models\Kelas;
-use App\Models\JadwalJaga;
-use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Models\JadwalJaga;
+use App\Models\Kelas;
+use Illuminate\Http\Request;
 
 class JadwalJagaController extends Controller
 {
@@ -24,7 +24,7 @@ class JadwalJagaController extends Controller
             // Jika ada parameter sort=true, lakukan sorting
             if ($request->has('sort') && $request->sort == 'true') {
                 $query->orderByRaw(
-                    "FIELD(hari, ?, ?, ?, ?, ?, ?), shift",
+                    'FIELD(hari, ?, ?, ?, ?, ?, ?), shift',
                     $dayOrder
                 );
             }
@@ -67,7 +67,6 @@ class JadwalJagaController extends Controller
     //         ], 500);
     //     }
     // }
-
 
     // public function store(Request $request)
     // {
@@ -180,6 +179,7 @@ class JadwalJagaController extends Controller
         try {
             $jadwal = JadwalJaga::findOrFail($id);
             $jadwal->delete();
+
             return response()->json([
                 'message' => 'Berhasil dihapus',
             ], 200);

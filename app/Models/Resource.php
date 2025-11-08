@@ -19,28 +19,25 @@ use Illuminate\Database\Eloquent\Model;
  * @property string $video_link
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
- *
  * @property Modul $modul
- *
- * @package App\Models
  */
 class Resource extends Model
 {
-	protected $table = 'resources';
+    protected $table = 'resources';
 
-	protected $casts = [
-		'modul_id' => 'int'
-	];
+    protected $casts = [
+        'modul_id' => 'int',
+    ];
 
-	protected $fillable = [
-		'modul_id',
-		'modul_link',
-		'ppt_link',
-		'video_link',
-	];
+    protected $fillable = [
+        'modul_id',
+        'modul_link',
+        'ppt_link',
+        'video_link',
+    ];
 
-	public function modul()
-	{
-		return $this->belongsTo(Modul::class);
-	}
+    public function modul()
+    {
+        return $this->belongsTo(Modul::class);
+    }
 }

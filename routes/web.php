@@ -34,7 +34,6 @@ use App\Http\Controllers\API\TugasPendahuluanController;
 use App\Http\Controllers\AuditLogController;
 use App\Http\Controllers\Auth\RegisteredAsistenController;
 use App\Http\Controllers\Auth\RegisteredPraktikanController;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;

@@ -22,7 +22,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('soal_jurnals', function (Blueprint $table) {
-             $table->dropColumn(['enable_file_upload']);
+            $table->dropColumn(['enable_file_upload']);
         });
     }
 };

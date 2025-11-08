@@ -4,19 +4,20 @@ namespace App\Adapter;
 
 use ImageKit\ImageKit;
 use League\Flysystem\Config;
+use League\Flysystem\DirectoryAttributes;
 use League\Flysystem\FileAttributes;
-use League\Flysystem\UnableToReadFile;
 use League\Flysystem\FilesystemAdapter;
 use League\Flysystem\StorageAttributes;
-use League\Flysystem\DirectoryAttributes;
-use League\Flysystem\UnableToSetVisibility;
-use League\Flysystem\UnableToCreateDirectory;
-use League\MimeTypeDetection\FinfoMimeTypeDetector;
 use League\Flysystem\UnableToCheckDirectoryExistence;
+use League\Flysystem\UnableToCreateDirectory;
+use League\Flysystem\UnableToReadFile;
+use League\Flysystem\UnableToSetVisibility;
+use League\MimeTypeDetection\FinfoMimeTypeDetector;
 
 class ImageKitAdapter implements FilesystemAdapter
 {
     protected ImageKit $client;
+
     protected $options;
 
     public function __construct(ImageKit $client, $options = [])
@@ -36,11 +37,12 @@ class ImageKitAdapter implements FilesystemAdapter
 
         $file = $this->client->listFiles([
             'name' => $location['file'],
-            'path' => $location['directory']
+            'path' => $location['directory'],
         ]);
 
-        if (empty($file->result))
+        if (empty($file->result)) {
             return false;
+        }
 
         return true;
     }
@@ -50,15 +52,17 @@ class ImageKitAdapter implements FilesystemAdapter
         $location = $this->getFileFolderNames($path);
 
         $directory = $this->client->listFiles([
-            'name'          => $location['file'],
-            'includeFolder' => true
+            'name' => $location['file'],
+            'includeFolder' => true,
         ]);
 
-        if (empty($directory->result))
+        if (empty($directory->result)) {
             return false;
+        }
 
-        if ($directory->result[0]->type != 'folder')
+        if ($directory->result[0]->type != 'folder') {
             throw new UnableToCheckDirectoryExistence;
+        }
 
         return true;
     }
@@ -80,8 +84,9 @@ class ImageKitAdapter implements FilesystemAdapter
 
     public function readStream($path)
     {
-        if (!strlen($path))
+        if (! strlen($path)) {
             throw new UnableToReadFile('Path should not be empty.');
+        }
 
         $file = $this->searchFile($path);
 
@@ -97,16 +102,18 @@ class ImageKitAdapter implements FilesystemAdapter
     {
         $delete = $this->client->deleteFolder($path);
 
-        if ($delete->err != null)
+        if ($delete->err != null) {
             throw new UnableToReadFile('Directory not found.');
+        }
     }
 
     public function createDirectory(string $path, Config $config): void
     {
         $create = $this->client->createFolder($path);
 
-        if (!empty($create->err))
+        if (! empty($create->err)) {
             throw new UnableToCreateDirectory;
+        }
     }
 
     public function setVisibility(string $path, string $visibility): void
@@ -121,7 +128,7 @@ class ImageKitAdapter implements FilesystemAdapter
 
     public function mimeType(string $path): FileAttributes
     {
-        return new FileAttributes($path, null, null, null, (new FinfoMimeTypeDetector())->detectMimeTypeFromPath($path));
+        return new FileAttributes($path, null, null, null, (new FinfoMimeTypeDetector)->detectMimeTypeFromPath($path));
     }
 
     public function lastModified(string $path): FileAttributes
@@ -147,8 +154,8 @@ class ImageKitAdapter implements FilesystemAdapter
     {
 
         $list = $this->client->listFiles([
-            'path'          => $path,
-            'includeFolder' => $deep
+            'path' => $path,
+            'includeFolder' => $deep,
         ]);
 
         foreach ($list->success as $item) {
@@ -187,13 +194,14 @@ class ImageKitAdapter implements FilesystemAdapter
 
         // Get file from old path
         $file = $this->client->listFiles([
-            'name'          => $location['file'] ?? '',
-            'path'          => $location['directory'],
-            'includeFolder' => true
+            'name' => $location['file'] ?? '',
+            'path' => $location['directory'],
+            'includeFolder' => true,
         ]);
 
-        if (empty($file->result))
+        if (empty($file->result)) {
             throw new UnableToReadFile('File or directory not found.');
+        }
 
         return $file->result[0];
     }
@@ -201,8 +209,9 @@ class ImageKitAdapter implements FilesystemAdapter
     public function getFileFolderNames(string $path)
     {
 
-        if (!$path)
+        if (! $path) {
             return false;
+        }
 
         $folder = '/';
         $fileName = $path;
@@ -211,12 +220,12 @@ class ImageKitAdapter implements FilesystemAdapter
         $folders = explode('/', $path);
         if (count($folders) > 1) {
             $fileName = end($folders);
-            $folder = str_replace('/' . end($folders), '', $path);
+            $folder = str_replace('/'.end($folders), '', $path);
         }
 
         return [
-            'file'  => $fileName,
-            'directory' => $folder
+            'file' => $fileName,
+            'directory' => $folder,
         ];
     }
 
@@ -225,19 +234,21 @@ class ImageKitAdapter implements FilesystemAdapter
 
         $location = $this->getFileFolderNames($path);
 
-        if ($location === false)
+        if ($location === false) {
             return false;
+        }
 
         // If not resource or URL - base64 encode
-        if (!is_resource($contents) && !filter_var($contents, FILTER_VALIDATE_URL))
-            $contents = "data:image/png;base64," . base64_encode(file_get_contents($contents));
+        if (! is_resource($contents) && ! filter_var($contents, FILTER_VALIDATE_URL)) {
+            $contents = 'data:image/png;base64,'.base64_encode(file_get_contents($contents));
+        }
         // $contents = base64_encode($contents);
 
         $upload = $this->client->upload([
-            'file'              => $contents,
-            'fileName'          => $location['file'],
+            'file' => $contents,
+            'fileName' => $location['file'],
             'useUniqueFileName' => false,
-            'folder'            => $location['directory']
+            'folder' => $location['directory'],
         ]);
 
         return $upload;
@@ -251,7 +262,7 @@ class ImageKitAdapter implements FilesystemAdapter
                 $item->folderPath,
                 null,
                 strtotime($item->updatedAt),
-                ['id'   => $item->folderId]
+                ['id' => $item->folderId]
             ),
 
             'file' => new FileAttributes(
@@ -260,7 +271,7 @@ class ImageKitAdapter implements FilesystemAdapter
                 null,
                 strtotime($item->updatedAt),
                 $item->mime ?? null,
-                ['id'   => $item->fileId]
+                ['id' => $item->fileId]
             )
         };
     }

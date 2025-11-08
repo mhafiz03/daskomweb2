@@ -50,7 +50,7 @@ class ImageKitAuthController extends Controller
             $file = $request->file('file');
             $fileName = $request->input('fileName', $file->getClientOriginalName());
             $folder = $request->input('folder', '/');
-            
+
             // Convert useUniqueFileName to boolean (handles '1', '0', 'true', 'false', true, false, null)
             $useUniqueFileName = filter_var(
                 $request->input('useUniqueFileName', true),

@@ -2,14 +2,12 @@
 
 namespace App\Http\Controllers\API;
 
+use App\Http\Controllers\Controller;
 use App\Models\Asisten;
 use App\Models\Polling;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
-use Inertia\Inertia;
 
 class PollingsController extends Controller
 {
@@ -20,8 +18,6 @@ class PollingsController extends Controller
     {
         //
     }
-
-    
 
     /**
      * Store a newly created resource in storage.
@@ -38,16 +34,16 @@ class PollingsController extends Controller
             return response()->json([
                 'status' => 'error',
                 'message' => 'Validation failed',
-                'errors' => $validator->errors()
+                'errors' => $validator->errors(),
             ], 422);
         }
 
         try {
             DB::beginTransaction();
-            
+
             foreach ($request->all() as $submission) {
                 $asisten = Asisten::where('kode', $submission['kode'])->first();
-                if (!$asisten) {
+                if (! $asisten) {
                     throw new \Exception("Asisten with code {$submission['kode']} not found.");
                 }
 
@@ -70,15 +66,16 @@ class PollingsController extends Controller
                     ]);
                 }
             }
-            
+
             DB::commit();
-            
+
             return response()->json([
                 'status' => 'success',
-                'message' => 'All pollings submitted successfully'
+                'message' => 'All pollings submitted successfully',
             ], 200);
         } catch (\Exception $e) {
             DB::rollBack();
+
             return response()->json([
                 'status' => 'error',
                 'message' => 'An error occurred while processing the request.',
@@ -86,9 +83,6 @@ class PollingsController extends Controller
             ], 500);
         }
     }
-
-
-
 
     public function show(string $id)
     {
@@ -104,7 +98,7 @@ class PollingsController extends Controller
             return response()->json([
                 'status' => 'success',
                 'polling' => $asisten,
-                'message' => 'Poll count by assistant code retrieved successfully.'
+                'message' => 'Poll count by assistant code retrieved successfully.',
             ], 200);
         } catch (\Exception $e) {
             return response()->json([
@@ -118,7 +112,7 @@ class PollingsController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request) //praktikan
+    public function update(Request $request) // praktikan
     {
         //
     }

@@ -61,7 +61,7 @@ return [
             'secret' => env('IMAGEKIT_PRIVATE_KEY'),
             'endpoint_url' => env('IMAGEKIT_ENDPOINT_URL'),
             'throw' => false,
-        ]
+        ],
 
     ],
 

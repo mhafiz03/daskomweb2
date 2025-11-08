@@ -2,16 +2,15 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Http\Controllers\Controller;
+use App\Models\Asisten;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
 use Inertia\Response;
-use App\Models\Asisten;
-use Illuminate\Http\Request;
 use Spatie\Permission\Models\Role;
-use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Facades\Redirect;
 
 class RegisteredAsistenController extends Controller
 {
@@ -20,7 +19,7 @@ class RegisteredAsistenController extends Controller
      */
     public function create(): Response
     {
-        return Inertia::render('Auth/Register');//ini pake path yg bener
+        return Inertia::render('Auth/Register'); // ini pake path yg bener
     }
 
     /**
@@ -65,7 +64,8 @@ class RegisteredAsistenController extends Controller
         } catch (\Illuminate\Validation\ValidationException $e) {
             return redirect()->back()->withErrors($e->validator)->withInput();
         } catch (\Exception $e) {
-            Log::error('Error creating asisten: ' . $e->getMessage());
+            Log::error('Error creating asisten: '.$e->getMessage());
+
             return redirect()->back()->with('error', 'An unexpected error occurred. Please try again.');
         }
     }
