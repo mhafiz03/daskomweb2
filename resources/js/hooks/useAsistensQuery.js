@@ -10,20 +10,15 @@ const fetchAsistens = async () => {
         ? data.asisten
         : (Array.isArray(data?.data) ? data.data : []);
 
-    const filtered = assistants.filter((assistant) => {
-        const code = (assistant?.kode ?? "").trim().toUpperCase();
-        return code !== "BOT";
-    });
-
     if (Array.isArray(data?.asisten) || Array.isArray(data?.data)) {
-        return filtered;
+        return assistants;
     }
 
     if (data?.success === false) {
         throw new Error(data?.message ?? "Gagal memuat daftar asisten");
     }
 
-    return filtered;
+    return assistants;
 };
 
 export const useAsistensQuery = (options = {}) =>

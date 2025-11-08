@@ -47,6 +47,85 @@ const clampRating = (value) => {
     return Number(clamped.toFixed(1));
 };
 
+const isLikelyImageUrl = (url) => {
+    if (typeof url !== "string" || url.trim() === "") {
+        return false;
+    }
+
+    try {
+        const normalized = url.split("?")[0] ?? url;
+
+        return /\.(jpe?g|png|gif|bmp|webp|svg)$/i.test(normalized);
+    } catch (error) {
+        return false;
+    }
+};
+
+const normalizeAnswerWithAttachment = (entry) => {
+    const rawAnswer = typeof entry?.jawaban === "string" ? entry.jawaban : "";
+    const normalizedAnswer = rawAnswer === "-" ? "" : rawAnswer;
+    const directAttachmentUrl =
+        typeof entry?.attachment_url === "string" && entry.attachment_url.trim() !== ""
+            ? entry.attachment_url.trim()
+            : null;
+    const directAttachmentFileId =
+        typeof entry?.attachment_file_id === "string" && entry.attachment_file_id.trim() !== ""
+            ? entry.attachment_file_id.trim()
+            : null;
+
+    if (directAttachmentUrl) {
+        return {
+            answerText: normalizedAnswer,
+            attachmentUrl: directAttachmentUrl,
+            attachmentFileId: directAttachmentFileId,
+        };
+    }
+
+    if (normalizedAnswer.trim().startsWith("{") || normalizedAnswer.trim().startsWith("[")) {
+        try {
+            const parsed = JSON.parse(normalizedAnswer);
+
+            if (parsed && typeof parsed === "object") {
+                const candidateUrl =
+                    typeof parsed.url === "string"
+                        ? parsed.url
+                        : typeof parsed.attachment_url === "string"
+                            ? parsed.attachment_url
+                            : typeof parsed.fileUrl === "string"
+                                ? parsed.fileUrl
+                                : typeof parsed.file_url === "string"
+                                    ? parsed.file_url
+                                    : null;
+
+                if (candidateUrl) {
+                    return {
+                        answerText:
+                            typeof parsed.answer === "string"
+                                ? parsed.answer
+                                : typeof parsed.caption === "string"
+                                    ? parsed.caption
+                                    : "",
+                        attachmentUrl: candidateUrl,
+                        attachmentFileId:
+                            parsed.fileId ??
+                            parsed.file_id ??
+                            parsed.attachment_file_id ??
+                            null,
+                    };
+                }
+            }
+        } catch (error) {
+            // Treat as plain text if parsing fails.
+        }
+    }
+
+    return {
+        answerText: normalizedAnswer,
+        attachmentUrl: null,
+        attachmentFileId: null,
+    };
+};
+
 const QUESTION_TABS = [
     { key: "tp", label: "Tugas Pendahuluan", needsNim: true },
     { key: "ta", label: "Tes Awal" },
@@ -283,18 +362,24 @@ export default function ModalInputNilai({
                             : [];
 
                         return {
-                            questions: entries.map((item, index) => ({
-                                soalId: item.soal_id ?? index,
-                                question:
-                                    item.soal_text ?? "Soal tidak tersedia",
-                                answer:
-                                    typeof item.jawaban === "string"
-                                        ? item.jawaban
-                                        : "-",
-                                options: [],
-                                selectedOptionId: null,
-                                correctOptionId: null,
-                            })),
+                            questions: entries.map((item, index) => {
+                                const parsed =
+                                    normalizeAnswerWithAttachment(item);
+
+                                return {
+                                    soalId: item.soal_id ?? index,
+                                    question:
+                                        item.soal_text ??
+                                        "Soal tidak tersedia",
+                                    answer: parsed.answerText,
+                                    attachmentUrl: parsed.attachmentUrl,
+                                    attachmentFileId:
+                                        parsed.attachmentFileId,
+                                    options: [],
+                                    selectedOptionId: null,
+                                    correctOptionId: null,
+                                };
+                            }),
                             notice: data?.message,
                         };
                     }
@@ -685,6 +770,18 @@ export default function ModalInputNilai({
                                                             "" &&
                                                             trimmedAnswer !==
                                                             "-";
+                                                        const attachmentUrl =
+                                                            typeof item.attachmentUrl ===
+                                                                "string" &&
+                                                                item.attachmentUrl.trim() !== ""
+                                                                ? item.attachmentUrl
+                                                                : null;
+                                                        const hasAttachment = Boolean(
+                                                            attachmentUrl
+                                                        );
+                                                        const showEmptyState =
+                                                            !hasEssayAnswer &&
+                                                            !hasAttachment;
 
                                                         return (
                                                             <article
@@ -810,17 +907,69 @@ export default function ModalInputNilai({
                                                                     </ul>
                                                                 ) : (
                                                                     <div className="mt-4 max-h-72 overflow-auto rounded-depth-md border border-depth bg-depth-interactive/40 p-4 text-sm text-depth-primary shadow-depth-sm">
-                                                                        {hasEssayAnswer ? (
-                                                                            <pre className="min-w-full whitespace-pre-wrap break-words font-sans leading-relaxed">
-                                                                                {
-                                                                                    answerValue
-                                                                                }
-                                                                            </pre>
-                                                                        ) : (
+                                                                        {(hasAttachment || hasEssayAnswer) && (
+                                                                            <div className="space-y-4">
+                                                                                {hasAttachment && (
+                                                                                    <div>
+                                                                                        <p className="text-xs font-semibold uppercase tracking-wide text-depth-secondary">
+                                                                                            Lampiran Jawaban
+                                                                                        </p>
+                                                                                        <div className="mt-2 rounded-depth-md border border-dashed border-depth bg-depth-card/60 p-3">
+                                                                                            {isLikelyImageUrl(
+                                                                                                attachmentUrl
+                                                                                            ) ? (
+                                                                                                <img
+                                                                                                    src={
+                                                                                                        attachmentUrl
+                                                                                                    }
+                                                                                                    alt="Lampiran jawaban praktikan"
+                                                                                                    className="h-auto w-full rounded-depth-md object-contain"
+                                                                                                    loading="lazy"
+                                                                                                />
+                                                                                            ) : (
+                                                                                                <div className="flex items-center justify-between gap-3 text-sm">
+                                                                                                    <span className="text-depth-primary">
+                                                                                                        File lampiran tersedia.
+                                                                                                    </span>
+                                                                                                    <a
+                                                                                                        href={
+                                                                                                            attachmentUrl
+                                                                                                        }
+                                                                                                        target="_blank"
+                                                                                                        rel="noopener noreferrer"
+                                                                                                        className="inline-flex items-center gap-2 rounded-depth-full bg-[var(--depth-color-primary)] px-3 py-1.5 text-xs font-semibold text-white shadow-depth-sm transition hover:-translate-y-0.5 hover:shadow-depth-md"
+                                                                                                    >
+                                                                                                        Buka File
+                                                                                                    </a>
+                                                                                                </div>
+                                                                                            )}
+                                                                                            <div className="mt-2 text-right">
+                                                                                                <a
+                                                                                                    href={
+                                                                                                        attachmentUrl
+                                                                                                    }
+                                                                                                    target="_blank"
+                                                                                                    rel="noopener noreferrer"
+                                                                                                    className="text-xs font-semibold text-[var(--depth-color-primary)] underline-offset-2 hover:underline"
+                                                                                                >
+                                                                                                    Lihat di tab baru
+                                                                                                </a>
+                                                                                            </div>
+                                                                                        </div>
+                                                                                    </div>
+                                                                                )}
+                                                                                {hasEssayAnswer && (
+                                                                                    <pre className="min-w-full whitespace-pre-wrap break-words font-sans leading-relaxed">
+                                                                                        {
+                                                                                            answerValue
+                                                                                        }
+                                                                                    </pre>
+                                                                                )}
+                                                                            </div>
+                                                                        )}
+                                                                        {showEmptyState && (
                                                                             <span className="text-depth-secondary italic">
-                                                                                Belum
-                                                                                ada
-                                                                                jawaban
+                                                                                Belum ada jawaban
                                                                             </span>
                                                                         )}
                                                                     </div>

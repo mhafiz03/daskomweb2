@@ -916,7 +916,7 @@ export default function ContentPraktikum() {
                                     ))}
                             </select>
                         </div>
-                        <div className="w-full max-w-xs space-y-2">
+                        <div className="w-20 max-w-xs space-y-2">
                             <label
                                 htmlFor="dk"
                                 className="block text-xs font-semibold uppercase tracking-wide text-depth-secondary"
@@ -924,7 +924,7 @@ export default function ContentPraktikum() {
                                 DK
                             </label>
                             <select
-                                className="w-full rounded-depth-md border border-depth bg-depth-card p-3 text-sm text-depth-primary shadow-depth-sm transition focus:border-[var(--depth-color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)] focus:ring-offset-0"
+                                className="w-20 rounded-depth-md border border-depth bg-depth-card p-3 text-sm text-depth-primary shadow-depth-sm transition focus:border-[var(--depth-color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)] focus:ring-offset-0"
                                 id="dk"
                                 value={selectedDk}
                                 onChange={(event) => setSelectedDk(event.target.value)}

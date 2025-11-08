@@ -136,15 +136,6 @@ Route::inertia('/praktikum', 'Praktikan/PraktikumPage')
     ->name('praktikum')
     ->middleware(['auth:praktikan', 'can:lihat-modul']);
 
-Route::get('/praktikum/feedback', function (Request $request) {
-    return Inertia::render('Praktikan/FeedbackPage', [
-        'modulId' => $request->query('modul_id'),
-        'assistantId' => $request->query('asisten_id'),
-    ]);
-})
-    ->name('praktikum.feedback')
-    ->middleware(['auth:praktikan', 'can:lihat-modul']);
-
 Route::inertia('/praktikan-modul', 'Praktikan/ModulesPage')
     ->name('praktikan-modul')
     ->middleware(['auth:praktikan', 'can:lihat-modul']);

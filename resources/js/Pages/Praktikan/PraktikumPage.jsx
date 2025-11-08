@@ -1,9 +1,10 @@
 import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Head, router } from "@inertiajs/react";
+import { Head } from "@inertiajs/react";
 import debounce from "lodash/debounce";
 import PraktikanAuthenticated from "@/Layouts/PraktikanAuthenticatedLayout";
 import { api } from "@/lib/api";
 import toast from "react-hot-toast";
+import { useModulesQuery } from "@/hooks/useModulesQuery";
 
 const NoPraktikumSection = lazy(() => import("@/Components/Praktikans/Sections/NoPraktikumSection"));
 const TesAwal = lazy(() => import("@/Components/Praktikans/Sections/TesAwal"));
@@ -12,6 +13,7 @@ const Mandiri = lazy(() => import("@/Components/Praktikans/Sections/Mandiri"));
 const TesKeterampilan = lazy(() => import("@/Components/Praktikans/Sections/TesKeterampilan"));
 const PraktikanUtilities = lazy(() => import("@/Components/Praktikans/Layout/PraktikanUtilities"));
 const ScoreDisplayModal = lazy(() => import("@/Components/Modals/ScoreDisplayModal"));
+const FeedbackPhase = lazy(() => import("@/Components/Praktikans/Sections/FeedbackPhase"));
 
 const TASK_COMPONENTS = {
     TesAwal,
@@ -21,7 +23,7 @@ const TASK_COMPONENTS = {
 };
 
 const TASK_NAMES = Object.keys(TASK_COMPONENTS);
-const ALLOWED_COMPONENTS = new Set(["NoPraktikumSection", ...TASK_NAMES]);
+const ALLOWED_COMPONENTS = new Set(["NoPraktikumSection", ...TASK_NAMES, "FeedbackPhase"]);
 
 const INITIAL_COMPLETED_STATE = TASK_NAMES.reduce((accumulator, key) => {
     accumulator[key] = false;
@@ -151,12 +153,123 @@ const reorderQuestionsByIds = (questions, questionIds) => {
     return ordered;
 };
 
+const isLikelyJsonObjectString = (value) => {
+    if (typeof value !== "string") {
+        return false;
+    }
+
+    const trimmed = value.trim();
+    if (trimmed === "") {
+        return false;
+    }
+
+    return (
+        (trimmed.startsWith("{") && trimmed.endsWith("}")) ||
+        (trimmed.startsWith("[") && trimmed.endsWith("]"))
+    );
+};
+
+const serializeAnswerForAutosave = (question, answerValue) => {
+    if (!question) {
+        return null;
+    }
+
+    if (question.questionType === "multiple-choice") {
+        if (answerValue === null || answerValue === undefined) {
+            return null;
+        }
+
+        return answerValue;
+    }
+
+    if (answerValue === null || answerValue === undefined) {
+        return null;
+    }
+
+    if (typeof answerValue === "object") {
+        try {
+            return JSON.stringify(answerValue);
+        } catch (error) {
+            console.warn("[Autosave] Failed to serialize answer", error);
+            return null;
+        }
+    }
+
+    if (typeof answerValue === "string") {
+        return answerValue.trim() === "" ? null : answerValue;
+    }
+
+    const normalized = String(answerValue ?? "");
+    return normalized.trim() === "" ? null : normalized;
+};
+
+const hydrateAutosaveAnswer = (question, storedAnswer) => {
+    if (!question) {
+        return storedAnswer ?? "";
+    }
+
+    if (question.questionType === "multiple-choice") {
+        return storedAnswer;
+    }
+
+    if (storedAnswer === null || storedAnswer === undefined) {
+        return "";
+    }
+
+    if (typeof storedAnswer === "object") {
+        return storedAnswer;
+    }
+
+    if (typeof storedAnswer !== "string") {
+        return String(storedAnswer ?? "");
+    }
+
+    const trimmed = storedAnswer.trim();
+    if (trimmed === "") {
+        return "";
+    }
+
+    if (isLikelyJsonObjectString(trimmed)) {
+        try {
+            const parsed = JSON.parse(trimmed);
+            if (parsed && typeof parsed === "object") {
+                return parsed;
+            }
+        } catch (error) {
+            console.warn("[Autosave] Failed to parse stored answer", error);
+        }
+    }
+
+    return storedAnswer;
+};
+
+const serialiseAnswerForSubmission = (answerValue) => {
+    if (answerValue === null || answerValue === undefined) {
+        return "";
+    }
+
+    if (typeof answerValue === "object") {
+        try {
+            return JSON.stringify(answerValue);
+        } catch (error) {
+            console.warn("[Submission] Failed to stringify answer", error);
+            return "";
+        }
+    }
+
+    if (typeof answerValue === "string") {
+        return answerValue;
+    }
+
+    return String(answerValue ?? "");
+};
+
 const PHASE_TO_COMPONENT = {
     ta: "TesAwal",
     fitb_jurnal: "Jurnal",
     mandiri: "Mandiri",
     tk: "TesKeterampilan",
-    feedback: "Feedback",
+    feedback: "FeedbackPhase",
 };
 
 export default function PraktikumPage({ auth }) {
@@ -177,6 +290,10 @@ export default function PraktikumPage({ auth }) {
         modulId: null,
         asistenId: null,
     });
+    const [feedbackContext, setFeedbackContext] = useState({
+        modulId: null,
+        assistantId: null,
+    });
     const [scoreModalState, setScoreModalState] = useState({
         isOpen: false,
         phaseType: null,
@@ -196,6 +313,50 @@ export default function PraktikumPage({ auth }) {
         null;
     const kelasName = praktikanData?.kelas?.kelas ?? "";
     const isTotClass = kelasName.trim().toUpperCase().startsWith("TOT");
+    const { data: moduleOptions = [] } = useModulesQuery();
+
+    const resolveModuleTitle = useCallback(
+        (identifier) => {
+            if (!identifier) {
+                return null;
+            }
+
+            const identifierString = String(identifier);
+            const match =
+                moduleOptions.find(
+                    (module) => String(module?.id ?? module?.idM ?? module?.modul_id) === identifierString
+                ) ?? null;
+
+            if (!match) {
+                return null;
+            }
+
+            if (typeof match === "string") {
+                return match;
+            }
+
+            if (match?.judul) {
+                return match.judul;
+            }
+
+            if (match?.name) {
+                return match.name;
+            }
+
+            if (match?.modul) {
+                if (typeof match.modul === "string") {
+                    return match.modul;
+                }
+
+                if (match.modul?.judul) {
+                    return match.modul.judul;
+                }
+            }
+
+            return null;
+        },
+        [moduleOptions]
+    );
 
     const clearTaskProgress = useCallback(() => {
         setQuestions([]);
@@ -237,14 +398,8 @@ export default function PraktikumPage({ auth }) {
     }, [clearTaskProgress]);
 
     const scoreFetchLocksRef = useRef(new Set());
-    const hasNavigatedToFeedbackRef = useRef(false);
-
-    const closeScoreModal = useCallback(() => {
-        setScoreModalState((previous) => ({
-            ...previous,
-            isOpen: false,
-        }));
-    }, []);
+    const scoreAckRequiredRef = useRef(false);
+    const pendingFeedbackNavigationRef = useRef(null);
 
     const fetchPhaseScore = useCallback(
         async (phase) => {
@@ -258,6 +413,7 @@ export default function PraktikumPage({ auth }) {
             }
 
             scoreFetchLocksRef.current.add(cacheKey);
+            scoreAckRequiredRef.current = true;
 
             try {
                 const endpoint =
@@ -294,6 +450,7 @@ export default function PraktikumPage({ auth }) {
             } catch (error) {
                 console.error(`Failed to fetch ${phase.toUpperCase()} score`, error);
                 scoreFetchLocksRef.current.delete(cacheKey);
+                scoreAckRequiredRef.current = false;
             }
         },
         [praktikanId, activeModulId]
@@ -513,21 +670,15 @@ export default function PraktikumPage({ auth }) {
                                     return question.questionType === "multiple-choice" ? null : "";
                                 }
 
-                                const storedAnswer = snapshot.jawaban[questionId];
+                                const storedAnswer =
+                                    snapshot.jawaban[questionId] ??
+                                    snapshot.jawaban[String(questionId)] ??
+                                    snapshot.jawaban[Number(questionId)];
                                 if (storedAnswer === undefined || storedAnswer === null) {
                                     return question.questionType === "multiple-choice" ? null : "";
                                 }
 
-                                if (question.questionType === "multiple-choice") {
-                                    return storedAnswer;
-                                }
-
-                                const textAnswer =
-                                    typeof storedAnswer === "string"
-                                        ? storedAnswer
-                                        : String(storedAnswer ?? "");
-
-                                return textAnswer;
+                                return hydrateAutosaveAnswer(question, storedAnswer);
                             });
                         }
                     } catch (error) {
@@ -581,22 +732,19 @@ export default function PraktikumPage({ auth }) {
             }
 
             const answerValue = answers[index];
-            if (question.questionType === "multiple-choice") {
-                if (answerValue === null || answerValue === undefined) {
-                    return;
-                }
-
-                jawabanEntries[questionId] = answerValue;
-
+            const serializedAnswer = serializeAnswerForAutosave(question, answerValue);
+            if (serializedAnswer === null || serializedAnswer === undefined) {
                 return;
             }
 
-            const textAnswer = typeof answerValue === "string" ? answerValue : String(answerValue ?? "");
-            if (textAnswer.trim() === "") {
+            if (
+                typeof serializedAnswer === "string" &&
+                serializedAnswer.trim() === ""
+            ) {
                 return;
             }
 
-            jawabanEntries[questionId] = textAnswer;
+            jawabanEntries[questionId] = serializedAnswer;
         });
 
         if (Object.keys(jawabanEntries).length === 0) {
@@ -738,7 +886,7 @@ export default function PraktikumPage({ auth }) {
                             praktikan_id: praktikanId,
                             modul_id: activeModulId,
                             soal_id: entry.question.id,
-                            jawaban: typeof entry.answer === "string" ? entry.answer : "",
+                            jawaban: serialiseAnswerForSubmission(entry.answer),
                         }));
 
                     const jurnalPayload = normalizedAnswers
@@ -747,7 +895,7 @@ export default function PraktikumPage({ auth }) {
                             praktikan_id: praktikanId,
                             modul_id: activeModulId,
                             soal_id: entry.question.id,
-                            jawaban: typeof entry.answer === "string" ? entry.answer : "",
+                            jawaban: serialiseAnswerForSubmission(entry.answer),
                         }));
 
                     if (fitbPayload.length) {
@@ -775,7 +923,7 @@ export default function PraktikumPage({ auth }) {
                         praktikan_id: praktikanId,
                         modul_id: activeModulId,
                         soal_id: entry.question.id,
-                        jawaban: typeof entry.answer === "string" ? entry.answer : "",
+                        jawaban: serialiseAnswerForSubmission(entry.answer),
                     }));
 
                     await api.post(config.submitEndpoint, payload);
@@ -854,64 +1002,205 @@ export default function PraktikumPage({ auth }) {
         }
     }, [moduleMeta?.current_phase, activeModulId]);
 
-    useEffect(() => {
-        if (moduleMeta?.current_phase !== "feedback") {
-            hasNavigatedToFeedbackRef.current = false;
-        }
-    }, [moduleMeta?.current_phase]);
-
     const ActiveTaskComponent = TASK_COMPONENTS[activeComponent] ?? null;
     const activeTaskConfig = TASK_CONFIG[activeComponent] ?? null;
     const activeCommentType = activeTaskConfig?.commentType ?? null;
     const reminderModuleLabel = useMemo(() => {
-        if (moduleMeta?.modul?.judul) {
-            return moduleMeta.modul.judul;
+        const moduleEntry = moduleMeta?.modul ?? null;
+
+        if (moduleEntry) {
+            if (typeof moduleEntry === "string") {
+                return moduleEntry;
+            }
+
+            if (moduleEntry?.judul) {
+                return moduleEntry.judul;
+            }
         }
 
         if (moduleMeta?.modul_name) {
             return moduleMeta.modul_name;
         }
 
+        if (moduleMeta?.modul_id) {
+            const resolved = resolveModuleTitle(moduleMeta.modul_id);
+            if (resolved) {
+                return resolved;
+            }
+        }
+
         if (feedbackReminder.modulId) {
+            const resolved = resolveModuleTitle(feedbackReminder.modulId);
+            if (resolved) {
+                return resolved;
+            }
+
             return `Modul #${feedbackReminder.modulId}`;
         }
 
         return null;
-    }, [feedbackReminder.modulId, moduleMeta?.modul?.judul, moduleMeta?.modul_name]);
-    const showFeedbackReminderBanner = feedbackReminder.isPending;
+    }, [feedbackReminder.modulId, moduleMeta?.modul, moduleMeta?.modul_id, moduleMeta?.modul_name, resolveModuleTitle]);
+    const feedbackModuleLabel = useMemo(() => {
+        if (!feedbackContext.modulId) {
+            return null;
+        }
 
-    const navigateToFeedback = useCallback(
+        const activeModuleId = moduleMeta?.modul_id ? String(moduleMeta.modul_id) : null;
+        if (activeModuleId && activeModuleId === String(feedbackContext.modulId)) {
+            if (moduleMeta?.modul?.judul) {
+                return moduleMeta.modul.judul;
+            }
+
+            if (moduleMeta?.modul_name) {
+                return moduleMeta.modul_name;
+            }
+        }
+
+        const resolved = resolveModuleTitle(feedbackContext.modulId);
+        if (resolved) {
+            return resolved;
+        }
+
+        return null;
+    }, [feedbackContext.modulId, moduleMeta?.modul, moduleMeta?.modul_id, moduleMeta?.modul_name, resolveModuleTitle]);
+    const showFeedbackReminderBanner =
+        feedbackReminder.isPending &&
+        moduleMeta?.status !== "running" &&
+        activeComponent !== "FeedbackPhase";
+    const isFeedbackPhaseActive = activeComponent === "FeedbackPhase";
+
+    const buildFeedbackContext = useCallback(
         (options = {}) => {
-            const primaryModulId = options.modulId ?? feedbackReminder.modulId ?? activeModulId;
+            const {
+                modulId = null,
+                assistantId = null,
+                fallbackModulToReminder = true,
+                fallbackAssistantToReminder = true,
+                fallbackToModuleAssistant = true,
+            } = options;
+
+            let primaryModulId = modulId ?? activeModulId ?? null;
+            if (primaryModulId === null && fallbackModulToReminder) {
+                primaryModulId = feedbackReminder.modulId ?? null;
+            }
 
             if (!primaryModulId) {
+                return null;
+            }
+
+            let resolvedAssistantId = assistantId ?? null;
+            if (resolvedAssistantId === null && fallbackAssistantToReminder) {
+                resolvedAssistantId = feedbackReminder.asistenId ?? null;
+            }
+            if (resolvedAssistantId === null && fallbackToModuleAssistant) {
+                resolvedAssistantId = moduleMeta?.pj_id ?? null;
+            }
+
+            return {
+                modulId: primaryModulId,
+                assistantId: resolvedAssistantId,
+            };
+        },
+        [activeModulId, feedbackReminder.asistenId, feedbackReminder.modulId, moduleMeta?.pj_id]
+    );
+
+    const openFeedbackPhase = useCallback((context) => {
+        if (!context?.modulId) {
+            toast.error("Modul feedback tidak ditemukan.");
+            return;
+        }
+
+        setFeedbackContext({
+            modulId: context.modulId,
+            assistantId: context.assistantId ?? null,
+        });
+        setActiveComponent("FeedbackPhase");
+    }, []);
+
+    const scheduleFeedbackPhase = useCallback(
+        (context) => {
+            if (!context?.modulId) {
                 toast.error("Modul feedback tidak ditemukan.");
                 return;
             }
 
-            const query = { modul_id: primaryModulId };
-            const assistantCandidate = options.asistenId ?? feedbackReminder.asistenId ?? moduleMeta?.pj_id ?? null;
-
-            if (assistantCandidate) {
-                query.asisten_id = assistantCandidate;
+            if (scoreAckRequiredRef.current || scoreModalState.isOpen) {
+                pendingFeedbackNavigationRef.current = context;
+                return;
             }
 
-            hasNavigatedToFeedbackRef.current = true;
-            router.visit(route("praktikum.feedback", query));
+            pendingFeedbackNavigationRef.current = null;
+            openFeedbackPhase(context);
         },
-        [activeModulId, feedbackReminder.asistenId, feedbackReminder.modulId, moduleMeta?.pj_id],
+        [openFeedbackPhase, scoreModalState.isOpen]
     );
+
+    const navigateToFeedback = useCallback(
+        (options = {}) => {
+            const context = buildFeedbackContext(options);
+            if (!context) {
+                toast.error("Modul feedback tidak ditemukan.");
+                return;
+            }
+
+            scheduleFeedbackPhase(context);
+        },
+        [buildFeedbackContext, scheduleFeedbackPhase]
+    );
+
+    const handleFeedbackSubmitted = useCallback(() => {
+        setFeedbackReminder({
+            isPending: false,
+            modulId: null,
+            asistenId: null,
+        });
+        setFeedbackContext({
+            modulId: null,
+            assistantId: null,
+        });
+        setActiveComponent("NoPraktikumSection");
+    }, []);
+
+    const handleFeedbackClose = useCallback(() => {
+        setFeedbackContext({
+            modulId: null,
+            assistantId: null,
+        });
+        setActiveComponent("NoPraktikumSection");
+    }, []);
+
+    const closeScoreModal = useCallback(() => {
+        setScoreModalState((previous) => ({
+            ...previous,
+            isOpen: false,
+        }));
+        scoreAckRequiredRef.current = false;
+
+        if (pendingFeedbackNavigationRef.current) {
+            const context = pendingFeedbackNavigationRef.current;
+            pendingFeedbackNavigationRef.current = null;
+            openFeedbackPhase(context);
+        }
+    }, [openFeedbackPhase]);
 
     const handlePhaseChange = useCallback(
         (currentPhase) => {
             if (currentPhase === "feedback") {
-                if (!hasNavigatedToFeedbackRef.current) {
-                    navigateToFeedback({
+                const context =
+                    buildFeedbackContext({
                         modulId: moduleMeta?.modul_id ?? activeModulId ?? feedbackReminder.modulId ?? null,
-                        asistenId: moduleMeta?.pj_id ?? feedbackReminder.asistenId ?? null,
-                    });
+                        assistantId: feedbackReminder.asistenId ?? moduleMeta?.pj_id ?? null,
+                        fallbackModulToReminder: true,
+                        fallbackAssistantToReminder: true,
+                        fallbackToModuleAssistant: true,
+                    }) ?? null;
+
+                if (!context) {
+                    toast.error("Modul feedback tidak ditemukan.");
+                    return;
                 }
-                setActiveComponent("NoPraktikumSection");
+
+                scheduleFeedbackPhase(context);
 
                 return;
             }
@@ -925,7 +1214,14 @@ export default function PraktikumPage({ auth }) {
                 handleNavigate(targetComponent);
             }
         },
-        [activeModulId, feedbackReminder.asistenId, feedbackReminder.modulId, handleNavigate, moduleMeta?.modul_id, moduleMeta?.pj_id, navigateToFeedback]
+        [
+            activeModulId,
+            buildFeedbackContext,
+            handleNavigate,
+            moduleMeta?.modul_id,
+            moduleMeta?.pj_id,
+            scheduleFeedbackPhase,
+        ]
     );
 
     // Combined phase change handler with auto-submit
@@ -1044,20 +1340,31 @@ export default function PraktikumPage({ auth }) {
                                 moduleMeta={moduleMeta}
                             />
                         </Suspense>
-                        {activeComponent !== "NoPraktikumSection" && ActiveTaskComponent && (
-                            <Suspense fallback={<div className="mt-6 text-sm text-depth-secondary">Memuat soal...</div>}>
-                                <ActiveTaskComponent
-                                    isLoading={isLoadingTask}
-                                    errorMessage={taskError}
-                                    setAnswers={setAnswers}
-                                    answers={answers}
-                                    questions={questions}
-                                    setQuestionsCount={setQuestionsCount}
-                                    onSubmitTask={handleTaskSubmit}
-                                    tipeSoal={activeCommentType}
-                                    praktikanId={praktikanId}
-                                    isCommentEnabled={isTotClass && Boolean(activeCommentType)}
-                                />
+                        {activeComponent !== "NoPraktikumSection" && (
+                            <Suspense fallback={<div className="mt-6 text-sm text-depth-secondary">Memuat konten...</div>}>
+                                {ActiveTaskComponent ? (
+                                    <ActiveTaskComponent
+                                        isLoading={isLoadingTask}
+                                        errorMessage={taskError}
+                                        setAnswers={setAnswers}
+                                        answers={answers}
+                                        questions={questions}
+                                        setQuestionsCount={setQuestionsCount}
+                                        onSubmitTask={handleTaskSubmit}
+                                        tipeSoal={activeCommentType}
+                                        praktikanId={praktikanId}
+                                        isCommentEnabled={isTotClass && Boolean(activeCommentType)}
+                                    />
+                                ) : isFeedbackPhaseActive ? (
+                                    <FeedbackPhase
+                                        praktikan={praktikanData}
+                                        modulId={feedbackContext.modulId ?? activeModulId}
+                                        assistantId={feedbackContext.assistantId}
+                                        moduleLabel={feedbackModuleLabel ?? reminderModuleLabel}
+                                        onClose={handleFeedbackClose}
+                                        onSubmitted={handleFeedbackSubmitted}
+                                    />
+                                ) : null}
                             </Suspense>
                         )}
                     </div>
