@@ -4,7 +4,6 @@ const GSI_SRC = "https://accounts.google.com/gsi/client";
 const GAPI_SRC = "https://apis.google.com/js/api.js";
 const DEFAULT_SCOPES = [
     "https://www.googleapis.com/auth/drive.readonly",
-    "https://www.googleapis.com/auth/drive.file",
     "https://www.googleapis.com/auth/forms.body",
 ];
 

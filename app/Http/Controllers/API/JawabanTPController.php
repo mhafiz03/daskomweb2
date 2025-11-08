@@ -131,6 +131,15 @@ class JawabanTPController extends Controller
                 ], 401);
             }
 
+            $modul = Modul::findOrFail($idModul);
+
+            if (! $modul->isQuestionTypeUnlocked('tp')) {
+                return response()->json([
+                    'status' => 'success',
+                    'message' => 'Jawaban masih terkunci.',
+                ], 403);
+            }
+
             $jawaban = JawabanTps::where('praktikan_id', $praktikan->id)
                 ->where('modul_id', $idModul)
                 ->get();

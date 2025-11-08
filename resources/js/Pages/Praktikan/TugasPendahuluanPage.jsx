@@ -46,14 +46,17 @@ export default function TugasPendahuluanPage() {
     });
 
     const modules = modulesQuery.data ?? [];
-    const tugasPendahuluan = tugasQuery.data ?? [];
+    const tugasPendahuluanPayload = tugasQuery.data ?? { items: [], meta: {} };
+    const tugasPendahuluan = tugasPendahuluanPayload.items ?? [];
+    const tugasMeta = tugasPendahuluanPayload.meta ?? {};
+    const isTpGloballyActive = tugasMeta.tp_active === undefined ? true : Boolean(tugasMeta.tp_active);
 
     const moduleMap = useMemo(
         () => new Map(modules.map((module) => [normaliseModuleId(module), module])),
         [modules]
     );
 
-    const activeModuleEntry = useMemo(() => {
+    const fallbackActiveModuleEntry = useMemo(() => {
         if (!Array.isArray(tugasPendahuluan) || tugasPendahuluan.length === 0) {
             return null;
         }
@@ -70,7 +73,11 @@ export default function TugasPendahuluanPage() {
         );
     }, [tugasPendahuluan, moduleMap, isEnglishClass]);
 
-    const defaultModuleId = activeModuleEntry ? Number(activeModuleEntry.modul_id) : null;
+    const metaActiveModuleId = isEnglishClass
+        ? Number(tugasMeta.active_english_modul_id ?? 0)
+        : Number(tugasMeta.active_regular_modul_id ?? 0);
+
+    const defaultModuleId = metaActiveModuleId || (fallbackActiveModuleEntry ? Number(fallbackActiveModuleEntry.modul_id) : null);
     const activeModule = defaultModuleId ? moduleMap.get(defaultModuleId) ?? null : null;
 
     const [selectedModul, setSelectedModul] = useState(defaultModuleId ? String(defaultModuleId) : "");
@@ -177,6 +184,23 @@ export default function TugasPendahuluanPage() {
 
     const handleQuestionsCount = useCallback(() => { }, []);
 
+    const renderPlaceholder = (message) => (
+        <div className="min-h-[70vh] mx-auto mt-2">
+            <div className="mt-[25vh] flex-col gap-2 items-center justify-center p-8 text-center text-sm font-semibold text-depth-secondary">
+                <svg className="mx-auto mb-4 h-24 w-24 text-gray-300" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="50" cy="50" r="40" stroke="currentColor" strokeWidth="2" strokeDasharray="4 4" />
+                    <circle cx="50" cy="50" r="30" stroke="currentColor" strokeWidth="2" strokeDasharray="3 3" />
+                    <circle cx="50" cy="50" r="20" stroke="currentColor" strokeWidth="2" strokeDasharray="2 2" />
+                    <path d="M30 50 Q35 40, 40 50 T50 50" stroke="currentColor" strokeWidth="1.5" fill="none" />
+                    <path d="M50 30 Q60 35, 50 40 T50 50" stroke="currentColor" strokeWidth="1.5" fill="none" />
+                    <path d="M70 50 Q65 60, 60 50 T50 50" stroke="currentColor" strokeWidth="1.5" fill="none" />
+                    <path d="M50 70 Q40 65, 50 60 T50 50" stroke="currentColor" strokeWidth="1.5" fill="none" />
+                </svg>
+                {message}
+            </div>
+        </div>
+    );
+
     return (
         <>
             <PraktikanAuthenticated
@@ -193,20 +217,26 @@ export default function TugasPendahuluanPage() {
                 <div className="mt-1 flex flex-col gap-6">
                     <PraktikanPageHeader title="Tugas Pendahuluan" />
 
-                    <TugasPendahuluan
-                        isLoading={questionsQuery.isLoading}
-                        errorMessage={questionsQuery.isError ? (questionsQuery.error?.message ?? "Gagal memuat soal.") : null}
-                        questions={questions}
-                        answers={answers}
-                        setAnswers={setAnswers}
-                        setQuestionsCount={handleQuestionsCount}
-                        onSubmitTask={handleSubmitTask}
-                        tipeSoal="tp"
-                        praktikanId={praktikanId}
-                        isCommentEnabled={isTotClass}
-                        showSubmitButton={Boolean(selectedModul)}
-                        submitLabel={submitMutation.isPending ? "Menyimpan..." : "Simpan Jawaban"}
-                    />
+                    {tugasQuery.isLoading
+                        ? renderPlaceholder("Memuat konfigurasi tugas pendahuluan...")
+                        : !isTpGloballyActive
+                            ? renderPlaceholder("Tidak Ada Tugas Pendahuluan Saat Ini")
+                            : (
+                        <TugasPendahuluan
+                            isLoading={questionsQuery.isLoading}
+                            errorMessage={questionsQuery.isError ? (questionsQuery.error?.message ?? "Gagal memuat soal.") : null}
+                            questions={questions}
+                            answers={answers}
+                            setAnswers={setAnswers}
+                            setQuestionsCount={handleQuestionsCount}
+                            onSubmitTask={handleSubmitTask}
+                            tipeSoal="tp"
+                            praktikanId={praktikanId}
+                            isCommentEnabled={isTotClass}
+                            showSubmitButton={Boolean(selectedModul)}
+                            submitLabel={submitMutation.isPending ? "Menyimpan..." : "Simpan Jawaban"}
+                        />
+                        )}
                 </div>
             </PraktikanAuthenticated>
             <PraktikanUtilities />

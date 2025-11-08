@@ -41,6 +41,8 @@ class Praktikum extends Model
         'isActive' => 'bool',
         'started_at' => 'datetime',
         'ended_at' => 'datetime',
+        'phase_elapsed_seconds' => 'int',
+        'phase_started_at' => 'datetime',
         'report_submitted_at' => 'datetime',
     ];
 
@@ -52,6 +54,8 @@ class Praktikum extends Model
         'isActive',
         'status',
         'current_phase',
+        'phase_elapsed_seconds',
+        'phase_started_at',
         'started_at',
         'ended_at',
         'report_notes',

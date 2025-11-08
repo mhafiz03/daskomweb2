@@ -7,14 +7,20 @@ const fetchTugasPendahuluan = async () => {
     const { data } = await api.get("/api-v1/tugas-pendahuluan");
 
     if (Array.isArray(data?.data)) {
-        return data.data;
+        return {
+            items: data.data,
+            meta: data.meta ?? {},
+        };
     }
 
     if (data?.success === false) {
         throw new Error(data?.message ?? "Gagal memuat tugas pendahuluan");
     }
 
-    return [];
+    return {
+        items: [],
+        meta: {},
+    };
 };
 
 export const useTugasPendahuluanQuery = (options = {}) =>

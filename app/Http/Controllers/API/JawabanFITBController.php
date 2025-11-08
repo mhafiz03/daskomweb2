@@ -65,7 +65,7 @@ class JawabanFITBController extends Controller
             }
 
             $modul = Modul::findOrFail($idModul);
-            if ($modul->isUnlocked) {
+            if ($modul->isQuestionTypeUnlocked('fitb')) {
                 $jawaban = JawabanFitb::where('praktikan_id', $praktikan->id)
                     ->where('modul_id', $idModul)
                     ->get();

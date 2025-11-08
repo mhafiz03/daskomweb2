@@ -83,12 +83,13 @@ export default function ModalPraktikanAnswers({ isOpen, onClose, modulId, modulT
                 return null;
             }
 
-            const [tp, ta, jurnal, mandiri, tk] = await Promise.all([
+            const [tp, ta, jurnal, mandiri, tk, fitb] = await Promise.all([
                 safeFetch(`/api-v1/jawaban-tp/${modulId}`),
                 safeFetch(`/api-v1/jawaban-ta/${modulId}`),
                 safeFetch(`/api-v1/jawaban-jurnal/${modulId}`),
                 safeFetch(`/api-v1/jawaban-tm/${modulId}`),
                 safeFetch(`/api-v1/jawaban-tk/${modulId}`),
+                safeFetch(`/api-v1/jawaban-fitb/${modulId}`),
             ]);
 
             return {
@@ -97,6 +98,7 @@ export default function ModalPraktikanAnswers({ isOpen, onClose, modulId, modulT
                 jurnal: normaliseEssayAnswers(jurnal, "jawaban_jurnal"),
                 mandiri: normaliseEssayAnswers(mandiri, "jawaban_mandiri"),
                 tk: normaliseChoiceAnswers(tk, "jawaban_tk"),
+                fitb: normaliseEssayAnswers(fitb, "jawaban_fitb"),
             };
         },
         onError: (error) => {
@@ -128,6 +130,12 @@ export default function ModalPraktikanAnswers({ isOpen, onClose, modulId, modulT
                 title: "Jurnal",
                 type: "essay",
                 payload: answersQuery.data.jurnal,
+            },
+            {
+                key: "fitb",
+                title: "Fill in the Blank",
+                type: "essay",
+                payload: answersQuery.data.fitb,
             },
             {
                 key: "mandiri",
@@ -196,8 +204,8 @@ export default function ModalPraktikanAnswers({ isOpen, onClose, modulId, modulT
                                         key={section.key}
                                         onClick={() => setActiveTab(section.key)}
                                         className={`rounded-depth-full border px-4 py-2 text-sm font-semibold transition ${isActive
-                                                ? "border-[var(--depth-color-primary)] bg-[var(--depth-color-primary)]/10 text-[var(--depth-color-primary)]"
-                                                : "border-depth bg-depth-card text-depth-secondary hover:text-depth-primary"
+                                            ? "border-[var(--depth-color-primary)] bg-[var(--depth-color-primary)]/10 text-[var(--depth-color-primary)]"
+                                            : "border-depth bg-depth-card text-depth-secondary hover:text-depth-primary"
                                             }`}
                                     >
                                         {section.title}
@@ -263,7 +271,9 @@ const AnswerCard = ({ item, index, type }) => {
                     <div className="text-xs font-semibold uppercase tracking-wide text-mediumGray">
                         Soal {index + 1}
                     </div>
-                    {item?.pertanyaan && <p className="text-sm font-medium text-depth-primary">{item.pertanyaan}</p>}
+                    {item?.pertanyaan &&
+                        <pre className="text-sm font-medium text-depth-primary whitespace-pre-line break-words">{item.pertanyaan}</pre>
+                    }
                 </header>
                 <ul className="space-y-2">
                     {item.options.map((option) => {

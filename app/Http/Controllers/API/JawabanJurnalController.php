@@ -81,7 +81,7 @@ class JawabanJurnalController extends Controller
             }
 
             $modul = Modul::findOrFail($idModul);
-            if ($modul->isUnlocked) {
+            if ($modul->isQuestionTypeUnlocked('jurnal')) {
                 $jawaban = JawabanJurnal::where('praktikan_id', $praktikan->id)
                     ->where('modul_id', $idModul)
                     ->get();
@@ -95,7 +95,7 @@ class JawabanJurnalController extends Controller
 
             return response()->json([
                 'status' => 'success',
-                'messages' => 'Jawaban Masih Terkunci',
+                'message' => 'Jawaban masih terkunci.',
             ], 403);
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
             return response()->json([

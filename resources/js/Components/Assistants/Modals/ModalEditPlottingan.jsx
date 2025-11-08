@@ -16,9 +16,10 @@ import ModalCloseButton from "@/Components/Common/ModalCloseButton";
 import DepthToggleButton from "@/Components/Common/DepthToggleButton";
 
 export default function ModalEditPlotting({ onClose, kelas }) {
-    const [formData, setFormData] = useState({ kelas: "", hari: "", shift: "", totalGroup: "" });
+    const [formData, setFormData] = useState({ kelas: "", hari: "", shift: "", totalGroup: "", is_tot: 0 });
     const [newAsistenCode, setNewAsistenCode] = useState("");
     const [isEnglish, setIsEnglish] = useState(false);
+    const [isTot, setIsTot] = useState(false);
     const queryClient = useQueryClient();
 
     const { data: asistens = [] } = useAsistensQuery();
@@ -81,20 +82,56 @@ export default function ModalEditPlotting({ onClose, kelas }) {
                 hari: kelas.hari ?? "",
                 shift: kelas.shift ?? "",
                 totalGroup: kelas.totalGroup ?? "",
+                is_tot: kelas.is_tot ? 1 : 0,
             });
             setIsEnglish(Boolean(kelas.isEnglish));
+            setIsTot(Boolean(kelas.is_tot));
         }
     }, [kelas]);
 
     const handleInputChange = (event) => {
-        const { id, value } = event.target;
-        setFormData((prev) => ({ ...prev, [id]: value }));
+        const { id } = event.target;
+        let { value } = event.target;
+
+        if (id === "kelas" || id === "hari") {
+            value = value.toUpperCase();
+        }
+
+        setFormData((prev) => {
+            const next = { ...prev, [id]: value };
+
+            if (id === "kelas") {
+                if (value.includes("INT")) {
+                    next.isEnglish = 1;
+                    if (!isEnglish) {
+                        setIsEnglish(true);
+                    }
+                }
+
+                if (value.includes("TOT")) {
+                    next.is_tot = 1;
+                    if (!isTot) {
+                        setIsTot(true);
+                    }
+                }
+            }
+
+            return next;
+        });
     };
 
     const toggleEnglish = () => {
         setIsEnglish((previous) => {
             const next = !previous;
             setFormData((current) => ({ ...current, isEnglish: next ? 1 : 0 }));
+            return next;
+        });
+    };
+
+    const toggleTot = () => {
+        setIsTot((previous) => {
+            const next = !previous;
+            setFormData((current) => ({ ...current, is_tot: next ? 1 : 0 }));
             return next;
         });
     };
@@ -195,6 +232,7 @@ export default function ModalEditPlotting({ onClose, kelas }) {
                 shift: Number(formData.shift),
                 totalGroup: Number(formData.totalGroup),
                 isEnglish: isEnglish ? 1 : 0,
+                is_tot: isTot ? 1 : 0,
             },
         });
     };
@@ -349,7 +387,10 @@ export default function ModalEditPlotting({ onClose, kelas }) {
                 </div>
 
                 <div className="flex flex-wrap items-center justify-end gap-3">
-                    <DepthToggleButton label={isEnglish ? "English" : "Reguler"} isOn={isEnglish} onToggle={toggleEnglish} />
+                    <div className="flex flex-wrap gap-3">
+                        <DepthToggleButton label={isEnglish ? "English" : "Reguler"} isOn={isEnglish} onToggle={toggleEnglish} />
+                        <DepthToggleButton label={isTot ? "TOT" : "Non TOT"} isOn={isTot} onToggle={toggleTot} />
+                    </div>
                     <button
                         type="button"
                         onClick={onClose}

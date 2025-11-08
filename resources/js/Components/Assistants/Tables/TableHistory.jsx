@@ -90,29 +90,25 @@ export default function TableHistory() {
                             const modulName = item?.modul?.judul ?? "-";
                             const kelasName = item?.kelas?.kelas ?? "-";
                             const hasReport = Boolean(item?.report_notes);
-                            const pjName = item?.pj
-                                ? [item.pj.nama, item.pj.kode].filter(Boolean).join(" • ") || `Asisten #${item.pj.id}`
-                                : item?.pj_id
-                                ? `Asisten #${item.pj_id}`
-                                : "-";
+                            const pjName = item?.pj ? item.pj.kode : item?.pj_id ? `Asisten #${item.pj_id}` : "-";
 
                             return (
                                 <Fragment key={item?.id ?? `${item?.kelas_id ?? "kelas"}-${item?.modul_id ?? "modul"}`}>
-                                    <div className="flex h-full items-center justify-center rounded-depth-md bg-depth-card px-4 py-2 text-center text-sm text-depth-primary shadow-depth-sm">
+                                    <div className="flex h-full items-center justify-center rounded-depth-sm bg-depth-card px-4 py-2 text-center text-sm text-depth-primary shadow-depth-sm">
                                         {submittedAt}
                                     </div>
-                                    <div className="flex h-full items-center justify-center rounded-depth-md bg-depth-card px-4 py-2 text-center text-sm text-depth-primary shadow-depth-sm">
+                                    <div className="flex h-full items-center justify-center rounded-depth-sm bg-depth-card px-4 py-2 text-center text-sm text-depth-primary shadow-depth-sm">
                                         {modulName}
                                     </div>
-                                    <div className="flex h-full items-center justify-center rounded-depth-md bg-depth-card px-4 py-2 text-center text-sm text-depth-primary shadow-depth-sm">
+                                    <div className="flex h-full items-center justify-center rounded-depth-sm bg-depth-card px-4 py-2 text-center text-sm text-depth-primary shadow-depth-sm">
                                         {kelasName}
                                     </div>
-                                    <div className="flex h-full items-center justify-center rounded-depth-md bg-depth-card px-2 py-2 shadow-depth-sm">
+                                    <div className="flex h-full items-center justify-center rounded-depth-sm bg-depth-card px-2 py-2 shadow-depth-sm">
                                         <button
                                             type="button"
                                             onClick={() => handleOpenModal(item)}
                                             disabled={!hasReport}
-                                            className={`flex h-9 w-9 items-center justify-center rounded-depth-md border border-depth shadow-depth-sm transition ${
+                                            className={`flex h-9 w-9 items-center justify-center rounded-depth-sm border border-depth shadow-depth-sm transition ${
                                                 hasReport
                                                     ? "bg-[var(--depth-color-primary)] text-white hover:-translate-y-0.5 hover:shadow-depth-md"
                                                     : "cursor-not-allowed bg-depth-interactive text-depth-secondary"

@@ -35,9 +35,22 @@ class KelasController extends Controller
             'hari' => 'required|string',
             'totalGroup' => 'required|integer',
             'isEnglish' => 'required|boolean',
+            'is_tot' => 'nullable|boolean',
         ]);
         try {
-            $moduls = Modul::where('isEnglish', $request->isEnglish)->get();
+            $kelasName = Str::upper($request->kelas);
+            $hari = Str::upper($request->hari);
+
+            $isEnglish = $request->boolean('isEnglish');
+            if ($this->kelasNameIndicatesEnglish($kelasName)) {
+                $isEnglish = true;
+            }
+
+            $isTot = $request->has('is_tot')
+                ? $request->boolean('is_tot')
+                : $this->kelasNameIndicatesTot($kelasName);
+
+            $moduls = Modul::where('isEnglish', $isEnglish)->get();
             if ($moduls->isEmpty()) {
                 return response()->json([
                     'status' => 'error',
@@ -54,11 +67,12 @@ class KelasController extends Controller
                 ], 400);
             }
             $kelas = Kelas::create([
-                'kelas' => Str::upper($request->kelas),
+                'kelas' => $kelasName,
                 'shift' => $request->shift,
-                'hari' => Str::upper($request->hari),
+                'hari' => $hari,
                 'totalGroup' => $request->totalGroup,
-                'isEnglish' => $request->isEnglish,
+                'isEnglish' => $isEnglish ? 1 : 0,
+                'is_tot' => $isTot ? 1 : 0,
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);
@@ -137,7 +151,8 @@ class KelasController extends Controller
             'hari' => 'required|string',
             'shift' => 'required|integer',
             'totalGroup' => 'required|min:1|max:20|integer',
-            'isEnglish' => 'required|boolean', // Tambahkan validasi untuk isEnglish
+            'isEnglish' => 'required|boolean',
+            'is_tot' => 'nullable|boolean',
         ]);
 
         try {
@@ -154,12 +169,29 @@ class KelasController extends Controller
                 ], 400);
             }
 
+            $kelasName = Str::upper($request->kelas);
+            $hari = Str::upper($request->hari);
+
+            $isEnglish = $request->boolean('isEnglish');
+            if ($this->kelasNameIndicatesEnglish($kelasName)) {
+                $isEnglish = true;
+            }
+
+            $isTot = $request->has('is_tot')
+                ? $request->boolean('is_tot')
+                : ($kelas->is_tot ?? false);
+
+            if (! $request->has('is_tot') && $this->kelasNameIndicatesTot($kelasName)) {
+                $isTot = true;
+            }
+
             $kelas->update([
-                'kelas' => Str::upper($request->kelas),
-                'hari' => Str::upper($request->hari),
+                'kelas' => $kelasName,
+                'hari' => $hari,
                 'shift' => $request->shift,
                 'totalGroup' => $request->totalGroup,
-                'isEnglish' => $request->isEnglish, // Simpan isEnglish
+                'isEnglish' => $isEnglish ? 1 : 0,
+                'is_tot' => $isTot ? 1 : 0,
                 'updated_at' => now(),
             ]);
 
@@ -242,5 +274,15 @@ class KelasController extends Controller
                 'error' => $e->getMessage(),
             ], 500);
         }
+    }
+
+    private function kelasNameIndicatesEnglish(string $kelasName): bool
+    {
+        return str_contains($kelasName, 'INT');
+    }
+
+    private function kelasNameIndicatesTot(string $kelasName): bool
+    {
+        return str_contains($kelasName, 'TOT');
     }
 }

@@ -7,10 +7,13 @@ import {
     useTugasPendahuluanQuery,
     TUGAS_PENDAHULUAN_QUERY_KEY,
 } from "@/hooks/useTugasPendahuluanQuery";
+import { useConfigurationQuery, CONFIG_QUERY_KEY } from "@/hooks/useConfigurationQuery";
 import { send } from "@/lib/http";
 import { update as updateTugasPendahuluanRoute } from "@/lib/routes/tugasPendahuluan";
+import { update as updateConfigurationRoute } from "@/lib/routes/configuration";
 import ModalCloseButton from "@/Components/Common/ModalCloseButton";
 import { ModalOverlay } from "@/Components/Common/ModalPortal";
+import DepthToggleButton from "@/Components/Common/DepthToggleButton";
 
 const normaliseModuleId = (module) => Number(module?.idM ?? module?.id ?? module?.modul_id ?? 0);
 
@@ -27,9 +30,17 @@ export default function ModalActiveTP({ onClose }) {
             toast.error(error?.message ?? "Gagal memuat konfigurasi tugas pendahuluan.");
         },
     });
+    const configurationQuery = useConfigurationQuery({
+        onError: (error) => {
+            toast.error(error?.message ?? "Gagal memuat konfigurasi global TP.");
+        },
+    });
 
     const modules = modulesQuery.data ?? [];
-    const tugasPendahuluan = tugasPendahuluanQuery.data ?? [];
+    const tugasPendahuluanPayload = tugasPendahuluanQuery.data ?? { items: [], meta: {} };
+    const tugasPendahuluan = tugasPendahuluanPayload.items ?? [];
+    const configuration = configurationQuery.data ?? null;
+    const isTpGloballyActive = Boolean(configuration?.tp_activation);
 
     const moduleMap = useMemo(() => {
         return new Map(
@@ -91,14 +102,44 @@ export default function ModalActiveTP({ onClose }) {
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: TUGAS_PENDAHULUAN_QUERY_KEY });
             toast.success("Konfigurasi tugas pendahuluan berhasil disimpan.");
-            onClose?.();
         },
         onError: (error) => {
             toast.error(error?.response?.data?.message ?? error?.message ?? "Gagal menyimpan konfigurasi.");
         },
     });
 
-    const handleSave = () => {
+    const configurationMutation = useMutation({
+        mutationFn: async (payload) => {
+            const { data } = await send(updateConfigurationRoute(), payload);
+            return data?.config ?? data;
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: CONFIG_QUERY_KEY });
+            toast.success("Status tugas pendahuluan diperbarui.");
+        },
+        onError: (error) => {
+            toast.error(error?.response?.data?.message ?? error?.message ?? "Gagal memperbarui konfigurasi TP.");
+        },
+    });
+
+    const handleToggleTpActivation = () => {
+        if (!configuration) {
+            toast.error("Konfigurasi belum dimuat.");
+            return;
+        }
+
+        const payload = {
+            tp_activation: isTpGloballyActive ? 0 : 1,
+            registrationAsisten_activation: configuration.registrationAsisten_activation ? 1 : 0,
+            registrationPraktikan_activation: configuration.registrationPraktikan_activation ? 1 : 0,
+            tubes_activation: configuration.tubes_activation ? 1 : 0,
+            polling_activation: configuration.polling_activation ? 1 : 0,
+        };
+
+        configurationMutation.mutate(payload);
+    };
+
+    const persistSelections = (nextRegularSelection, nextEnglishSelection) => {
         if (!Array.isArray(tugasPendahuluan) || tugasPendahuluan.length === 0) {
             toast.error("Belum ada data tugas pendahuluan.");
             return;
@@ -108,8 +149,8 @@ export default function ModalActiveTP({ onClose }) {
             const module = moduleMap.get(Number(item.modul_id));
             const isEnglishModule = Number(module?.isEnglish ?? 0) === 1;
             const shouldBeActive = isEnglishModule
-                ? englishSelection && Number(englishSelection) === Number(item.modul_id)
-                : regularSelection && Number(regularSelection) === Number(item.modul_id);
+                ? nextEnglishSelection && Number(nextEnglishSelection) === Number(item.modul_id)
+                : nextRegularSelection && Number(nextRegularSelection) === Number(item.modul_id);
 
             return {
                 id: item.id,
@@ -123,31 +164,36 @@ export default function ModalActiveTP({ onClose }) {
     const isBusy =
         modulesQuery.isLoading ||
         tugasPendahuluanQuery.isLoading ||
-        updateMutation.isPending;
+        updateMutation.isPending ||
+        configurationMutation.isPending;
 
     return (
         <ModalOverlay onClose={onClose} className="depth-modal-overlay z-[60]">
-            <div className="depth-modal-container w-full max-w-2xl">
+            <div className="depth-modal-container w-full max-w-2xl" style={{ maxWidth: 'var(--depth-modal-width-xl, 30vw)' }}>
                 <div className="depth-modal-header">
-                    <h2 className="depth-modal-title">Konfigurasi Modul Tugas Pendahuluan</h2>
-                    <ModalCloseButton onClick={onClose} ariaLabel="Tutup konfigurasi TP" />
+                    <h2 className="depth-modal-title">Tugas Pendahuluan</h2>
+                    <div className="flex gap-5 items-center">
+                        <DepthToggleButton
+                            label={isTpGloballyActive ? "ON" : "OFF"}
+                            isOn={isTpGloballyActive}
+                            onToggle={handleToggleTpActivation}
+                            disabled={configurationQuery.isLoading || configurationMutation.isPending}
+                        />
+                        <ModalCloseButton onClick={onClose} ariaLabel="Tutup konfigurasi TP" />
+                    </div>
                 </div>
 
-                <p className="text-sm text-depth-secondary dark:text-depth-secondary/80">
-                    Pilih modul yang aktif untuk praktikan reguler dan kelas English Lab.
-                    Perubahan akan segera berlaku setelah disimpan.
-                </p>
-
-                <div className="mt-6 space-y-6">
-                    <section className="rounded-depth-md border border-depth bg-depth-interactive/40 p-4 shadow-inner dark:border-depth/80 dark:bg-depth-card/40">
-                        <h3 className="text-sm font-semibold text-depth-primary dark:text-white">Modul Reguler</h3>
-                        <p className="mt-1 text-xs text-depth-secondary dark:text-depth-secondary/80">
-                            Modul yang dipilih akan digunakan sebagai tugas pendahuluan utama.
-                        </p>
+                <div className="mt-6">
+                    <section className="p-4">
+                        <h3 className="text-sm font-semibold text-depth-primary dark:text-white">Kelas Reguler</h3>
                         <select
                             className="mt-3 w-full rounded-depth-md border border-depth bg-depth-card/80 p-2 text-sm text-depth-primary shadow-depth-sm transition focus:border-[var(--depth-color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)] dark:border-depth/70 dark:bg-depth-card/50 dark:text-gray-700"
                             value={regularSelection}
-                            onChange={(event) => setRegularSelection(event.target.value)}
+                            onChange={(event) => {
+                                const value = event.target.value;
+                                setRegularSelection(value);
+                                persistSelections(value, englishSelection);
+                            }}
                             disabled={regularModules.length === 0 || isBusy}
                         >
                             {regularModules.length === 0 && (
@@ -164,19 +210,20 @@ export default function ModalActiveTP({ onClose }) {
                         </select>
                     </section>
 
-                    <section className="rounded-depth-md border border-depth bg-depth-interactive/40 p-4 shadow-inner dark:border-depth/80 dark:bg-depth-card/40">
+                    <section className="p-4">
                         <div className="flex items-center justify-between">
                             <div>
-                                <h3 className="text-sm font-semibold text-depth-primary dark:text-white">Modul English Lab</h3>
-                                <p className="mt-1 text-xs text-depth-secondary dark:text-depth-secondary/80">
-                                    Opsional untuk kelas berbahasa Inggris jika tersedia.
-                                </p>
+                                <h3 className="text-sm font-semibold text-depth-primary dark:text-white">Kelas Internasional</h3>
                             </div>
                         </div>
                         <select
                             className="mt-3 w-full rounded-depth-md border border-depth bg-depth-card/80 p-2 text-sm text-depth-primary shadow-depth-sm transition focus:border-[var(--depth-color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)] dark:border-depth/70 dark:bg-depth-card/50 dark:text-gray-700"
                             value={englishSelection}
-                            onChange={(event) => setEnglishSelection(event.target.value)}
+                            onChange={(event) => {
+                                const value = event.target.value;
+                                setEnglishSelection(value);
+                                persistSelections(regularSelection, value);
+                            }}
                             disabled={englishModules.length === 0 || isBusy}
                         >
                             {englishModules.length === 0 && (
@@ -193,31 +240,6 @@ export default function ModalActiveTP({ onClose }) {
                         </select>
                     </section>
                 </div>
-
-                <div className="mt-6 flex items-center justify-end gap-3">
-                    <button
-                        type="button"
-                        className="rounded-depth-md border border-depth bg-depth-interactive px-4 py-2 text-sm font-semibold text-depth-primary shadow-depth-sm transition hover:-translate-y-0.5 hover:shadow-depth-md"
-                        onClick={onClose}
-                        disabled={updateMutation.isPending}
-                    >
-                        Batal
-                    </button>
-                    <button
-                        type="button"
-                        className="inline-flex items-center justify-center rounded-depth-md bg-[var(--depth-color-primary)] px-4 py-2 text-sm font-semibold text-white shadow-depth-sm transition hover:-translate-y-0.5 hover:shadow-depth-md disabled:cursor-not-allowed disabled:opacity-60"
-                        onClick={handleSave}
-                        disabled={isBusy}
-                    >
-                        {updateMutation.isPending ? "Menyimpan..." : "Simpan"}
-                    </button>
-                </div>
-
-                {isBusy && (modulesQuery.isLoading || tugasPendahuluanQuery.isLoading) && (
-                    <div className="mt-4 rounded-depth-md border border-depth bg-depth-interactive/40 p-3 text-xs text-depth-secondary">
-                        Memuat data terbaru...
-                    </div>
-                )}
             </div>
         </ModalOverlay>
     );

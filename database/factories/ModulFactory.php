@@ -21,6 +21,7 @@ class ModulFactory extends Factory
             'deskripsi' => $this->faker->text,
             'isEnglish' => $this->faker->boolean,
             'isUnlocked' => $this->faker->boolean,
+            'unlock_config' => null,
         ];
 
     }

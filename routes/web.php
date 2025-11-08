@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\API\AnomalyController;
 use App\Http\Controllers\API\AsistenController;
 use App\Http\Controllers\API\AutosaveSnapshotController;
 use App\Http\Controllers\API\ConfigurationController;
@@ -33,9 +34,11 @@ use App\Http\Controllers\API\TugasPendahuluanController;
 use App\Http\Controllers\AuditLogController;
 use App\Http\Controllers\Auth\RegisteredAsistenController;
 use App\Http\Controllers\Auth\RegisteredPraktikanController;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
+
 Route::inertia('/', 'LandingPage')
     ->name('landing')
     ->middleware('check.auth');
@@ -133,6 +136,15 @@ Route::inertia('/praktikum', 'Praktikan/PraktikumPage')
     ->name('praktikum')
     ->middleware(['auth:praktikan', 'can:lihat-modul']);
 
+Route::get('/praktikum/feedback', function (Request $request) {
+    return Inertia::render('Praktikan/FeedbackPage', [
+        'modulId' => $request->query('modul_id'),
+        'assistantId' => $request->query('asisten_id'),
+    ]);
+})
+    ->name('praktikum.feedback')
+    ->middleware(['auth:praktikan', 'can:lihat-modul']);
+
 Route::inertia('/praktikan-modul', 'Praktikan/ModulesPage')
     ->name('praktikan-modul')
     ->middleware(['auth:praktikan', 'can:lihat-modul']);
@@ -156,7 +168,7 @@ Route::inertia('/polling-assistant', 'Praktikan/PollingPage')
 Route::prefix('api-v1')->middleware('audit.assistant')->group(function () {
     // ImageKit authentication endpoint
     Route::get('/imagekit/auth', [ImageKitAuthController::class, 'generateAuth'])->name('imagekit.auth');
-    
+
     // ImageKit server-side upload endpoint
     Route::post('/imagekit/upload', [ImageKitAuthController::class, 'upload'])->name('imagekit.upload');
 
@@ -240,21 +252,20 @@ Route::prefix('api-v1')->middleware('audit.assistant')->group(function () {
     // Route::get('/modul', [ModulController::class, 'index'])->name('get.modul');
     Route::get('/modul', [ModulController::class, 'index'])->name('get.modul')->middleware(['auth:asisten,praktikan', 'permission:manage-modul|lihat-modul']);
     Route::post('/modul', [ModulController::class, 'store'])->name('store.modul')->middleware(['auth:asisten', 'can:manage-modul']);
+    Route::patch('/modul/bulk-update', [ModulController::class, 'bulkUpdate'])
+        ->name('modul.bulkUpdate')
+        ->middleware(['auth:asisten', 'can:manage-modul']);
     // Route::put('/modul/{id}', [ModulController::class, 'update'])->name('update.modul')->middleware(['auth:asisten', 'can:manage-modul']);
     Route::patch('/modul/{id}', [ModulController::class, 'update'])->name('modul.update')->middleware(['auth:asisten', 'can:manage-modul']);
     Route::delete('/modul/{id}', [ModulController::class, 'destroy'])->name('delete.modul')->middleware(['auth:asisten', 'can:manage-modul']);
-    // Route::post('/modul/reset', [ModulController::class, 'reset'])->name('reset.modul')->middleware(['auth:asisten', 'can:lms-configuration']);
-    // Route::delete('/moduls/reset-all', [ModulController::class, 'resetAll'])->name('moduls.reset-all');
-    // Route untuk update status isUnlocked
-    // Route::patch('/modul/update-status', [ModulController::class, 'updateStatus'])
-    //     ->name('modul.updateStatus')
-    //     ->middleware(['auth:asisten', 'can:manage-modul']);
 
-    // // Route untuk bulk update
-    // Route::patch('/api-v1/modul/bulk-update', [ModulController::class, 'bulkUpdate'])
-    //     ->name('modul.bulkUpdate')
-    //     ->middleware(['auth:asisten', 'can:manage-modul']);
-    // Route::patch('/api-v1/modul/{id}', [ModulController::class, 'update'])->name('modul.update')->middleware(['auth:asisten', 'can:manage-modul']);
+    Route::get('/anomalies/attendance', [AnomalyController::class, 'attendance'])
+        ->name('anomalies.attendance')
+        ->middleware(['auth:asisten', 'permission:manage-praktikum|see-praktikum']);
+
+    Route::get('/anomalies/grades', [AnomalyController::class, 'nilai'])
+        ->name('anomalies.grades')
+        ->middleware(['auth:asisten', 'permission:manage-praktikum|see-praktikum']);
 
     // Kelas
     Route::get('/kelas', [KelasController::class, 'index'])->name('get.kelas');

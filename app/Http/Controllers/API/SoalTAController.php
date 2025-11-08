@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use App\Models\Modul;
+use App\Models\Praktikan;
 use App\Models\SoalOpsi;
 use App\Models\SoalTa;
 use Illuminate\Http\JsonResponse;
@@ -51,7 +52,7 @@ class SoalTAController extends Controller
     public function show(int $modulId): JsonResponse
     {
         $modul = Modul::find($modulId);
-        if (!$modul) {
+        if (! $modul) {
             return response()->json([
                 'message' => "Modul dengan ID {$modulId} tidak ditemukan.",
             ], 404);
@@ -61,10 +62,8 @@ class SoalTAController extends Controller
         $soalQuery = SoalTa::with('options')->where('modul_id', $modulId);
 
         if ($user) {
-            $isTot = str_starts_with($user->kelas->kelas ?? '', 'TOT');
-            $soals = $isTot
-                ? $soalQuery->get()
-                : $soalQuery->inRandomOrder()->take(10)->get();
+            $limit = $this->isTotPraktikan($user) ? 15 : 10;
+            $soals = $soalQuery->inRandomOrder()->take($limit)->get();
 
             $data = $soals->map(fn (SoalTa $soal) => $this->formatPraktikanSoal($soal));
         } else {
@@ -81,7 +80,7 @@ class SoalTAController extends Controller
     {
         $soal = SoalTa::with('options')->find($id);
 
-        if (!$soal) {
+        if (! $soal) {
             return response()->json([
                 'message' => "Soal dengan ID {$id} tidak ditemukan.",
             ], 404);
@@ -119,7 +118,7 @@ class SoalTAController extends Controller
     public function destroy(int $id): JsonResponse
     {
         $soal = SoalTa::find($id);
-        if (!$soal) {
+        if (! $soal) {
             return response()->json([
                 'message' => "Soal dengan ID {$id} tidak ditemukan.",
             ], 404);
@@ -206,7 +205,7 @@ class SoalTAController extends Controller
             if ($optionId) {
                 /** @var SoalOpsi|null $option */
                 $option = $existing->get($optionId);
-                if (!$option) {
+                if (! $option) {
                     throw ValidationException::withMessages([
                         "options.{$index}.id" => 'Opsi tidak valid untuk soal ini.',
                     ]);
@@ -236,11 +235,11 @@ class SoalTAController extends Controller
     }
 
     /**
-     * @param array<int, int> $optionIds
+     * @param  array<int, int>  $optionIds
      */
     private function applyOptionReferences(SoalTa $soal, array $optionIds, int $correctIndex): void
     {
-        if (!array_key_exists($correctIndex, $optionIds)) {
+        if (! array_key_exists($correctIndex, $optionIds)) {
             throw ValidationException::withMessages([
                 'correct_option' => 'Opsi benar tidak valid.',
             ]);
@@ -314,5 +313,23 @@ class SoalTAController extends Controller
             'modul_id' => $soal->modul_id,
             'options' => $options,
         ];
+    }
+
+    private function isTotPraktikan(?Praktikan $praktikan): bool
+    {
+        if (! $praktikan) {
+            return false;
+        }
+
+        $praktikan->loadMissing('kelas');
+        $kelas = $praktikan->kelas;
+
+        if ($kelas && $kelas->is_tot !== null) {
+            return (bool) $kelas->is_tot;
+        }
+
+        $kelasName = strtoupper($kelas->kelas ?? '');
+
+        return $kelasName !== '' && str_contains($kelasName, 'TOT');
     }
 }

@@ -227,11 +227,7 @@ export default function ModalGoogleTools({ onClose }) {
     ]);
 
     const renderDriveTab = () => (
-        <div className="space-y-5 rounded-depth-xl border border-depth bg-depth-card/80 p-5 shadow-depth-lg">
-            <p className="text-sm text-depth-secondary">
-                Gunakan tombol di bawah ini untuk membuka Google Drive Picker dan menautkan file ke
-                soal yang sedang Anda kelola. File yang dipilih ditampilkan bersama tautan cepat sehingga mudah dibuka kembali.
-            </p>
+        <div className="space-y-5 p-5">
             <button
                 type="button"
                 onClick={handleOpenDrivePicker}
@@ -349,7 +345,7 @@ export default function ModalGoogleTools({ onClose }) {
     );
 
     const renderFormsTab = () => (
-        <div className="space-y-5 rounded-depth-xl border border-depth bg-depth-card/80 p-5 shadow-depth-lg">
+        <div className="space-y-5 p-5">
             <div className="grid gap-4 md:grid-cols-2">
                 <div className="space-y-2">
                     <label className="text-xs font-semibold uppercase tracking-wide text-depth-secondary">
@@ -402,20 +398,6 @@ export default function ModalGoogleTools({ onClose }) {
                     className="w-full rounded-depth-md border border-depth bg-depth-card px-3 py-2 text-depth-primary shadow-depth-sm focus:border-[var(--depth-color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)] focus:ring-offset-0"
                 />
             </div>
-
-            <div className="space-y-2">
-                <label className="text-xs font-semibold uppercase tracking-wide text-depth-secondary">
-                    Deskripsi Form (Opsional)
-                </label>
-                <textarea
-                    rows={3}
-                    value={formDescription}
-                    onChange={(event) => setFormDescription(event.target.value)}
-                    className="w-full rounded-depth-md border border-depth bg-depth-card px-3 py-2 text-sm text-depth-primary shadow-depth-sm focus:border-[var(--depth-color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)] focus:ring-offset-0"
-                    placeholder="Tuliskan instruksi singkat atau catatan untuk peserta."
-                />
-            </div>
-
             <div className="rounded-depth-lg border border-depth bg-depth-interactive/60 p-4 text-sm">
                 <p className="font-semibold text-depth-primary">Ringkasan Soal</p>
                 <div className="mt-2 grid gap-3 md:grid-cols-3">
@@ -442,10 +424,7 @@ export default function ModalGoogleTools({ onClose }) {
                 </div>
             </div>
 
-            <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-                <p className="text-sm text-depth-secondary">
-                    Tombol berikut akan membuat Google Form baru menggunakan daftar soal berdasarkan modul dan kategori yang dipilih.
-                </p>
+            <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-end">
                 <button
                     type="button"
                     onClick={handleGenerateForm}
@@ -496,13 +475,10 @@ export default function ModalGoogleTools({ onClose }) {
             onClose={onClose}
             className="depth-modal-overlay z-50 flex items-start justify-center px-4 py-10"
         >
-            <div className="w-full max-w-5xl rounded-depth-2xl border border-depth bg-depth-surface/95 p-6 shadow-depth-2xl max-h-[90vh] overflow-y-auto">
+            <div className="w-full max-w-5xl rounded-depth-lg border border-depth bg-depth-card p-6 shadow-depth-lg max-h-[90vh] overflow-y-auto">
                 <div className="mb-6 flex items-start justify-between gap-4">
                     <div>
                         <h2 className="text-2xl font-semibold text-depth-primary">Integrasi Google</h2>
-                        <p className="text-sm text-depth-secondary">
-                            Kelola file Google Drive dan buat Google Form langsung dari daftar soal.
-                        </p>
                     </div>
                     <ModalCloseButton onClick={onClose} />
                 </div>

@@ -13,6 +13,7 @@ import DepthToggleButton from "@/Components/Common/DepthToggleButton";
 
 export default function ModalAddPlottingan({ onClose, fetchKelas }) {
     const [isEnglishOn, setIsEnglishOn] = useState(false);
+    const [isTotOn, setIsTotOn] = useState(false);
     const queryClient = useQueryClient();
     const [asistenInput, setAsistenInput] = useState("");
     const [pendingAsistens, setPendingAsistens] = useState([]);
@@ -89,14 +90,44 @@ export default function ModalAddPlottingan({ onClose, fetchKelas }) {
         shift: "",
         totalGroup: "",
         isEnglish: 0,
+        is_tot: 0,
     });
 
     // Handle perubahan input
-    const handleInputChange = (e) => {
-        const { id, value } = e.target;
-        setFormData({
-            ...formData,
-            [id]: value,
+    const handleInputChange = (event) => {
+        const { id } = event.target;
+        let { value } = event.target;
+
+        if (id === "kelas" || id === "hari") {
+            value = value.toUpperCase();
+        }
+
+        setFormData((prev) => {
+            const next = {
+                ...prev,
+                [id]: value,
+            };
+
+            if (id === "kelas") {
+                const containsInt = value.includes("INT");
+                const containsTot = value.includes("TOT");
+
+                if (containsInt) {
+                    next.isEnglish = 1;
+                    if (!isEnglishOn) {
+                        setIsEnglishOn(true);
+                    }
+                }
+
+                if (containsTot) {
+                    next.is_tot = 1;
+                    if (!isTotOn) {
+                        setIsTotOn(true);
+                    }
+                }
+            }
+
+            return next;
         });
     };
 
@@ -107,6 +138,17 @@ export default function ModalAddPlottingan({ onClose, fetchKelas }) {
             setFormData((current) => ({
                 ...current,
                 isEnglish: next ? 1 : 0,
+            }));
+            return next;
+        });
+    };
+
+    const handleToggleTot = () => {
+        setIsTotOn((previous) => {
+            const next = !previous;
+            setFormData((current) => ({
+                ...current,
+                is_tot: next ? 1 : 0,
             }));
             return next;
         });
@@ -290,8 +332,17 @@ export default function ModalAddPlottingan({ onClose, fetchKelas }) {
                     </div>
 
                 <div className="flex justify-end gap-3">
-                    <div className="md:ml-auto">
-                        <DepthToggleButton label={isEnglishOn ? "English" : "Reguler"} isOn={isEnglishOn} onToggle={handleToggleEnglish} />
+                    <div className="flex flex-wrap gap-3 md:ml-auto">
+                        <DepthToggleButton
+                            label={isEnglishOn ? "English" : "Reguler"}
+                            isOn={isEnglishOn}
+                            onToggle={handleToggleEnglish}
+                        />
+                        <DepthToggleButton
+                            label={isTotOn ? "TOT" : "Non TOT"}
+                            isOn={isTotOn}
+                            onToggle={handleToggleTot}
+                        />
                     </div>
                     <button
                         type="button"

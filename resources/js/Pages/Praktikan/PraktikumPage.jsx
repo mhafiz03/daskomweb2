@@ -1,9 +1,9 @@
 import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Head } from "@inertiajs/react";
+import { Head, router } from "@inertiajs/react";
 import debounce from "lodash/debounce";
 import PraktikanAuthenticated from "@/Layouts/PraktikanAuthenticatedLayout";
 import { api } from "@/lib/api";
-import { useAsistensQuery } from "@/hooks/useAsistensQuery";
+import toast from "react-hot-toast";
 
 const NoPraktikumSection = lazy(() => import("@/Components/Praktikans/Sections/NoPraktikumSection"));
 const TesAwal = lazy(() => import("@/Components/Praktikans/Sections/TesAwal"));
@@ -11,7 +11,6 @@ const Jurnal = lazy(() => import("@/Components/Praktikans/Sections/Jurnal"));
 const Mandiri = lazy(() => import("@/Components/Praktikans/Sections/Mandiri"));
 const TesKeterampilan = lazy(() => import("@/Components/Praktikans/Sections/TesKeterampilan"));
 const PraktikanUtilities = lazy(() => import("@/Components/Praktikans/Layout/PraktikanUtilities"));
-const FeedbackModal = lazy(() => import("@/Components/Modals/FeedbackModal"));
 const ScoreDisplayModal = lazy(() => import("@/Components/Modals/ScoreDisplayModal"));
 
 const TASK_COMPONENTS = {
@@ -132,8 +131,6 @@ export default function PraktikumPage({ auth }) {
     const [taskError, setTaskError] = useState(null);
     const [isSubmittingTask, setIsSubmittingTask] = useState(false);
     const [submissionError, setSubmissionError] = useState(null);
-    const [isFeedbackModalOpen, setIsFeedbackModalOpen] = useState(false);
-    const [isFeedbackPending, setIsFeedbackPending] = useState(false);
     const [feedbackReminder, setFeedbackReminder] = useState({
         isPending: false,
         modulId: null,
@@ -164,8 +161,6 @@ export default function PraktikumPage({ auth }) {
         setAnswers([]);
         setQuestionsCount(0);
     }, []);
-
-    const { data: assistantOptions = [] } = useAsistensQuery();
 
     const getAutosaveHandler = useCallback((tipeSoal) => {
         if (!tipeSoal) {
@@ -201,6 +196,7 @@ export default function PraktikumPage({ auth }) {
     }, [clearTaskProgress]);
 
     const scoreFetchLocksRef = useRef(new Set());
+    const hasNavigatedToFeedbackRef = useRef(false);
 
     const closeScoreModal = useCallback(() => {
         setScoreModalState((previous) => ({
@@ -511,14 +507,8 @@ export default function PraktikumPage({ auth }) {
                 setActiveComponent("NoPraktikumSection");
             }
 
-            // Only open feedback modal on explicit phase change, not on refresh with pending feedback
-            if (praktikumState.current_phase === "feedback" && !isFeedbackModalOpen) {
-                setIsFeedbackModalOpen(true);
-            }
-            // Note: pending feedback reminder is tracked in feedbackReminder state
-            // but modal won't auto-open on page refresh to avoid disrupting user flow
         },
-        [resetActiveTaskState, isFeedbackModalOpen]
+        [resetActiveTaskState]
     );
 
     const handleNavigate = useCallback(
@@ -724,19 +714,62 @@ export default function PraktikumPage({ auth }) {
     }, [moduleMeta?.current_phase, activeModulId]);
 
     useEffect(() => {
-        if (moduleMeta?.current_phase !== "feedback" && !feedbackReminder.isPending && isFeedbackModalOpen) {
-            setIsFeedbackModalOpen(false);
+        if (moduleMeta?.current_phase !== "feedback") {
+            hasNavigatedToFeedbackRef.current = false;
         }
-    }, [moduleMeta?.current_phase, feedbackReminder.isPending, isFeedbackModalOpen]);
+    }, [moduleMeta?.current_phase]);
 
     const ActiveTaskComponent = TASK_COMPONENTS[activeComponent] ?? null;
     const activeTaskConfig = TASK_CONFIG[activeComponent] ?? null;
     const activeCommentType = activeTaskConfig?.commentType ?? null;
+    const reminderModuleLabel = useMemo(() => {
+        if (moduleMeta?.modul?.judul) {
+            return moduleMeta.modul.judul;
+        }
+
+        if (moduleMeta?.modul_name) {
+            return moduleMeta.modul_name;
+        }
+
+        if (feedbackReminder.modulId) {
+            return `Modul #${feedbackReminder.modulId}`;
+        }
+
+        return null;
+    }, [feedbackReminder.modulId, moduleMeta?.modul?.judul, moduleMeta?.modul_name]);
+    const showFeedbackReminderBanner = feedbackReminder.isPending;
+
+    const navigateToFeedback = useCallback(
+        (options = {}) => {
+            const primaryModulId = options.modulId ?? feedbackReminder.modulId ?? activeModulId;
+
+            if (!primaryModulId) {
+                toast.error("Modul feedback tidak ditemukan.");
+                return;
+            }
+
+            const query = { modul_id: primaryModulId };
+            const assistantCandidate = options.asistenId ?? feedbackReminder.asistenId ?? moduleMeta?.pj_id ?? null;
+
+            if (assistantCandidate) {
+                query.asisten_id = assistantCandidate;
+            }
+
+            hasNavigatedToFeedbackRef.current = true;
+            router.visit(route("praktikum.feedback", query));
+        },
+        [activeModulId, feedbackReminder.asistenId, feedbackReminder.modulId, moduleMeta?.pj_id],
+    );
 
     const handlePhaseChange = useCallback(
         (currentPhase) => {
             if (currentPhase === "feedback") {
-                setIsFeedbackModalOpen(true);
+                if (!hasNavigatedToFeedbackRef.current) {
+                    navigateToFeedback({
+                        modulId: moduleMeta?.modul_id ?? activeModulId ?? feedbackReminder.modulId ?? null,
+                        asistenId: moduleMeta?.pj_id ?? feedbackReminder.asistenId ?? null,
+                    });
+                }
                 setActiveComponent("NoPraktikumSection");
 
                 return;
@@ -751,7 +784,7 @@ export default function PraktikumPage({ auth }) {
                 handleNavigate(targetComponent);
             }
         },
-        [handleNavigate]
+        [activeModulId, feedbackReminder.asistenId, feedbackReminder.modulId, handleNavigate, moduleMeta?.modul_id, moduleMeta?.pj_id, navigateToFeedback]
     );
 
     // Combined phase change handler with auto-submit
@@ -805,69 +838,6 @@ export default function PraktikumPage({ auth }) {
         handlePhaseChange(newPhase);
     }, [moduleMeta?.current_phase, activeModulId, answers, activeComponent, activeTask, isSubmittingTask, handleTaskSubmit, handlePhaseChange, fetchPhaseScore]);
 
-    const handleFeedbackSubmit = async ({ feedback, rating_praktikum, rating_asisten, asisten_id }) => {
-        setIsFeedbackPending(true);
-        try {
-            const resolvedModulId = feedbackReminder.modulId ?? activeModulId;
-
-            if (!resolvedModulId) {
-                throw new Error("Modul feedback tidak ditemukan.");
-            }
-
-            await api.post('/api-v1/laporan-praktikan', {
-                praktikan_id: praktikanId,
-                modul_id: resolvedModulId,
-                laporan: feedback,
-                pesan: feedback,
-                rating: rating_praktikum ?? null,
-                rating_praktikum: rating_praktikum ?? null,
-                rating_asisten: rating_asisten ?? null,
-                asisten_id: asisten_id ?? null,
-            });
-
-            setIsFeedbackModalOpen(false);
-            setFeedbackReminder({ isPending: false, modulId: null, asistenId: null });
-            setModuleMeta((previous) => {
-                if (!previous) {
-                    return previous;
-                }
-
-                return {
-                    ...previous,
-                    feedback_pending: false,
-                };
-            });
-
-            try {
-                const { data: refreshData } = await api.get('/api-v1/praktikum/check-praktikum');
-                if (refreshData?.status === 'success') {
-                    const refreshedPayload = refreshData?.data ?? null;
-                    const refreshedPending = refreshData?.feedback_pending ?? refreshedPayload?.feedback_pending ?? false;
-                    const mergedPayload = refreshedPayload ? { ...refreshedPayload } : null;
-                    const payloadHasMeta = refreshedPending || (refreshData?.feedback_modul_id ?? null) !== null;
-
-                    if (mergedPayload || payloadHasMeta) {
-                        handlePraktikumStateChange({
-                            ...(mergedPayload ?? {}),
-                            feedback_pending: refreshedPending,
-                            feedback_modul_id: refreshData?.feedback_modul_id ?? mergedPayload?.feedback_modul_id ?? mergedPayload?.modul_id ?? null,
-                            feedback_asisten_id: refreshData?.feedback_asisten_id ?? mergedPayload?.feedback_asisten_id ?? mergedPayload?.pj_id ?? null,
-                        });
-                    } else {
-                        handlePraktikumStateChange(null);
-                    }
-                }
-            } catch (refreshError) {
-                console.warn('Failed to refresh praktikum state after feedback submission', refreshError);
-            }
-        } catch (error) {
-            console.error('Failed to submit feedback:', error);
-            throw error;
-        } finally {
-            setIsFeedbackPending(false);
-        }
-    };
-
     // Join presence channel for online status tracking
     useEffect(() => {
         if (!window.Echo || !kelasId || !praktikanId) {
@@ -902,6 +872,25 @@ export default function PraktikumPage({ auth }) {
                 <Head title="Praktikum Praktikan" />
                 <div className="mt-[8vh] relative items-center flex flex-col">
                     <div className="flex-1 transition-all duration-300">
+                        {showFeedbackReminderBanner && (
+                            <div className="mb-4 rounded-depth-lg border border-amber-200 bg-amber-50/80 p-4 text-sm text-amber-900 shadow-depth-sm">
+                                <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                                    <div>
+                                        <p className="font-semibold">Feedback praktikum belum terkirim</p>
+                                        <p className="text-xs text-amber-800/80">
+                                            Segera lengkapi feedback untuk {reminderModuleLabel ?? "modul terkait"} sebelum meninggalkan halaman.
+                                        </p>
+                                    </div>
+                                    <button
+                                        type="button"
+                                        onClick={() => navigateToFeedback()}
+                                        className="inline-flex items-center justify-center rounded-depth-md bg-amber-500 px-4 py-2 text-sm font-semibold text-white shadow-depth-sm transition hover:-translate-y-0.5 hover:shadow-depth-md"
+                                    >
+                                        Buka Form Feedback
+                                    </button>
+                                </div>
+                            </div>
+                        )}
                         <Suspense fallback={<div className="mt-6 text-sm text-depth-secondary">Memuat status praktikum...</div>}>
                             <NoPraktikumSection
                                 isVisible={activeComponent === "NoPraktikumSection"}
@@ -936,21 +925,6 @@ export default function PraktikumPage({ auth }) {
             <Suspense fallback={null}>
                 <PraktikanUtilities />
             </Suspense>
-
-            {/* Feedback Modal */}
-            <Suspense fallback={null}>
-                <FeedbackModal
-                    isOpen={isFeedbackModalOpen}
-                    onClose={() => setIsFeedbackModalOpen(false)}
-                    onSubmit={handleFeedbackSubmit}
-                    isPending={isFeedbackPending}
-                    praktikumId={feedbackReminder.modulId ?? activeModulId}
-                    assistantOptions={assistantOptions}
-                    defaultAssistantId={feedbackReminder.asistenId ?? moduleMeta?.pj_id ?? null}
-                    modulLabel={moduleMeta?.modul?.judul ?? moduleMeta?.modul_name ?? null}
-                />
-            </Suspense>
-
             <Suspense fallback={null}>
                 <ScoreDisplayModal
                     isOpen={scoreModalState.isOpen}

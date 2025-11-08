@@ -97,6 +97,8 @@ class PraktikumController extends Controller
                 'dk' => $validated['dk'],
                 'status' => 'idle',
                 'current_phase' => self::PHASE_SEQUENCE[0],
+                'phase_elapsed_seconds' => 0,
+                'phase_started_at' => null,
                 'isActive' => false,
                 'started_at' => null,
                 'ended_at' => null,
@@ -217,6 +219,7 @@ class PraktikumController extends Controller
         $praktikum->report_notes = null;
         $praktikum->report_submitted_at = null;
         $praktikum->pj_id = optional(Auth::user())->id;
+        $this->resetPhaseTiming($praktikum, $now);
         $praktikum->save();
     }
 
@@ -229,6 +232,7 @@ class PraktikumController extends Controller
         $praktikum->status = 'paused';
         $praktikum->isActive = false;
         $praktikum->ended_at = $now;
+        $this->freezePhaseTiming($praktikum, $now);
         $praktikum->save();
     }
 
@@ -248,6 +252,7 @@ class PraktikumController extends Controller
         $praktikum->isActive = true;
         $praktikum->started_at = $now->copy()->subSeconds($elapsed);
         $praktikum->ended_at = null;
+        $praktikum->phase_started_at = $now;
         $praktikum->save();
     }
 
@@ -268,6 +273,7 @@ class PraktikumController extends Controller
                 $praktikum->isActive = false;
                 $praktikum->ended_at = $now;
                 $praktikum->current_phase = $phase;
+                $this->freezePhaseTiming($praktikum, $now);
             } else {
                 $praktikum->current_phase = $phase;
                 $praktikum->status = 'running';
@@ -278,6 +284,7 @@ class PraktikumController extends Controller
                     $praktikum->started_at = $now->copy()->subSeconds($elapsed);
                 }
                 $praktikum->ended_at = null;
+                $this->resetPhaseTiming($praktikum, $now);
             }
         } else {
             // Fallback to auto-calculating next phase
@@ -294,6 +301,7 @@ class PraktikumController extends Controller
                 $praktikum->status = 'completed';
                 $praktikum->isActive = false;
                 $praktikum->ended_at = $now;
+                $this->freezePhaseTiming($praktikum, $now);
             } else {
                 $praktikum->current_phase = self::PHASE_SEQUENCE[$currentIndex + 1];
                 $praktikum->status = 'running';
@@ -304,6 +312,7 @@ class PraktikumController extends Controller
                     $praktikum->started_at = $now->copy()->subSeconds($elapsed);
                 }
                 $praktikum->ended_at = null;
+                $this->resetPhaseTiming($praktikum, $now);
             }
         }
 
@@ -315,6 +324,7 @@ class PraktikumController extends Controller
         $praktikum->status = 'exited';
         $praktikum->isActive = false;
         $praktikum->ended_at = $now;
+        $this->freezePhaseTiming($praktikum, $now);
         $praktikum->save();
     }
 
@@ -383,7 +393,9 @@ class PraktikumController extends Controller
                     ->where('modul_id', $latestCompletedPraktikum->modul_id)
                     ->exists();
 
-                if (! $hasSubmittedFeedback) {
+                $praktikumHasReport = trim((string) ($latestCompletedPraktikum->report_notes ?? '')) !== '';
+
+                if (! $hasSubmittedFeedback && ! $praktikumHasReport) {
                     $feedbackPending = true;
                     $pendingModulId = $latestCompletedPraktikum->modul_id;
                     $pendingAsistenId = $latestCompletedPraktikum->pj_id;
@@ -393,7 +405,10 @@ class PraktikumController extends Controller
             if ($activePraktikum) {
                 $activePraktikum->setAttribute(
                     'feedback_pending',
-                    $feedbackPending && $pendingModulId !== null && $pendingModulId === $activePraktikum->modul_id
+                    $feedbackPending
+                        && $pendingModulId !== null
+                        && $pendingModulId === $activePraktikum->modul_id
+                        && trim((string) ($activePraktikum->report_notes ?? '')) === ''
                 );
                 $activePraktikum->setAttribute('feedback_modul_id', $pendingModulId);
                 $activePraktikum->setAttribute('feedback_asisten_id', $pendingAsistenId);
@@ -438,6 +453,29 @@ class PraktikumController extends Controller
         } catch (\Throwable $th) {
             return $this->respondWithServerError($th);
         }
+    }
+
+    private function calculatePhaseElapsedSeconds(Praktikum $praktikum, Carbon $now): int
+    {
+        $baseSeconds = max(0, (int) ($praktikum->phase_elapsed_seconds ?? 0));
+
+        if ($praktikum->phase_started_at instanceof Carbon) {
+            return $baseSeconds + max(0, $praktikum->phase_started_at->diffInSeconds($now));
+        }
+
+        return $baseSeconds;
+    }
+
+    private function resetPhaseTiming(Praktikum $praktikum, Carbon $now): void
+    {
+        $praktikum->phase_elapsed_seconds = 0;
+        $praktikum->phase_started_at = $now;
+    }
+
+    private function freezePhaseTiming(Praktikum $praktikum, Carbon $now): void
+    {
+        $praktikum->phase_elapsed_seconds = $this->calculatePhaseElapsedSeconds($praktikum, $now);
+        $praktikum->phase_started_at = null;
     }
 
     private function respondWithServerError(\Throwable $throwable): JsonResponse

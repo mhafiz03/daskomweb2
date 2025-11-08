@@ -8,6 +8,7 @@ use App\Models\Tugaspendahuluan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
 
 class ModulController extends BaseController
 {
@@ -20,12 +21,19 @@ class ModulController extends BaseController
                     'deskripsi',
                     'isEnglish',
                     'isUnlocked',
+                    'unlock_config',
                     'moduls.id as idM',
                     'resources.id as idR',
                     'resources.modul_link',
-                    'resources.ppt_link'
+                    'resources.ppt_link',
+                    'resources.video_link'
                 )
-                ->get();
+                ->get()
+                ->map(function ($modul) {
+                    $modul->unlock_config = $this->decodeUnlockConfig($modul->unlock_config);
+
+                    return $modul;
+                });
 
             return response()->json([
                 'data' => $moduls,
@@ -45,7 +53,7 @@ class ModulController extends BaseController
         try {
             // Mengambil modul dengan eager loading relasi 'resource'
             $modul = Modul::with('resource')
-                ->select('judul', 'deskripsi', 'isEnglish', 'isUnlocked', 'moduls.id as idM')
+                ->select('judul', 'deskripsi', 'isEnglish', 'isUnlocked', 'unlock_config', 'moduls.id as idM')
                 ->where('moduls.id', $id)
                 ->first();
             if (! $modul) {
@@ -56,6 +64,7 @@ class ModulController extends BaseController
             $modul->resource_id = $modul->resource->id ?? null;
             $modul->modul_link = $modul->resource->modul_link ?? null;
             $modul->ppt_link = $modul->resource->ppt_link ?? null;
+            $modul->video_link = $modul->resource->video_link ?? null;
 
             return response()->json([
                 'success' => true,
@@ -75,18 +84,32 @@ class ModulController extends BaseController
         $request->validate([
             'judul' => 'required|unique:moduls|string',
             'deskripsi' => 'required|string',
-            'isEnglish' => 'required|integer',
-            'isUnlocked' => 'required|integer',
+            'isEnglish' => 'required|boolean',
+            'isUnlocked' => 'required|boolean',
+            'unlock_config' => 'nullable|array',
+            'unlock_config.*' => 'boolean',
             'modul_link' => 'nullable|string',
             'ppt_link' => 'nullable|string',
             'video_link' => 'nullable|string',
         ]);
         try {
+            $judul = $request->judul;
+            $deskripsi = $request->deskripsi;
+            $isEnglish = $request->boolean('isEnglish');
+
+            if ($this->titleIndicatesEnglish($judul)) {
+                $isEnglish = true;
+            }
+
             $modul = Modul::create([
-                'judul' => $request->judul,
-                'deskripsi' => $request->deskripsi,
-                'isEnglish' => $request->isEnglish,
-                'isUnlocked' => $request->isUnlocked,
+                'judul' => $judul,
+                'deskripsi' => $deskripsi,
+                'isEnglish' => $isEnglish ? 1 : 0,
+                'isUnlocked' => $request->boolean('isUnlocked') ? 1 : 0,
+                'unlock_config' => Modul::normalizeUnlockConfig(
+                    $request->input('unlock_config'),
+                    (bool) $request->isUnlocked
+                ),
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);
@@ -118,8 +141,10 @@ class ModulController extends BaseController
         $validator = Validator::make($request->all(), [
             'judul' => 'required|string',
             'deskripsi' => 'required|string',
-            'isEnglish' => 'required|integer',
-            'isUnlocked' => 'required|integer',
+            'isEnglish' => 'required|boolean',
+            'isUnlocked' => 'required|boolean',
+            'unlock_config' => 'nullable|array',
+            'unlock_config.*' => 'boolean',
             'modul_link' => 'nullable|string',
             'ppt_link' => 'nullable|string',
             'video_link' => 'nullable|string',
@@ -150,10 +175,25 @@ class ModulController extends BaseController
 
             $resource = Resource::firstOrNew(['modul_id' => $modul->id]);
 
-            $modul->judul = $request->judul;
+            $judul = $request->judul;
+            $isEnglish = $request->boolean('isEnglish');
+
+            if ($this->titleIndicatesEnglish($judul)) {
+                $isEnglish = true;
+            }
+
+            $modul->judul = $judul;
             $modul->deskripsi = $request->deskripsi;
-            $modul->isEnglish = (int) $request->isEnglish;
-            $modul->isUnlocked = (int) $request->isUnlocked;
+            $modul->isEnglish = $isEnglish ? 1 : 0;
+            $modul->isUnlocked = $request->boolean('isUnlocked') ? 1 : 0;
+
+            if ($request->has('unlock_config')) {
+                $modul->unlock_config = Modul::normalizeUnlockConfig(
+                    $request->input('unlock_config', []),
+                    (bool) $modul->isUnlocked
+                );
+            }
+
             $modul->save();
 
             $resource->modul_link = $request->modul_link ?? '';
@@ -169,6 +209,7 @@ class ModulController extends BaseController
                     'deskripsi' => $modul->deskripsi,
                     'isEnglish' => (int) $modul->isEnglish,
                     'isUnlocked' => (int) $modul->isUnlocked,
+                    'unlock_config' => $modul->unlock_config,
                     'modul_link' => $resource->modul_link,
                     'ppt_link' => $resource->ppt_link,
                     'video_link' => $resource->video_link,
@@ -297,24 +338,94 @@ class ModulController extends BaseController
 
     public function bulkUpdate(Request $request)
     {
-        // Validasi request
-        $request->validate([
-            '*.id' => 'required|integer',
-            '*.isUnlocked' => 'required|integer|in:0,1',
+        $data = [
+            'payload' => $request->input('payload'),
+        ];
+
+        if ($data['payload'] === null && array_is_list($request->all())) {
+            $data['payload'] = $request->all();
+        }
+
+        $validator = Validator::make($data, [
+            'payload' => 'required|array',
+            'payload.*.id' => 'required|integer|exists:moduls,id',
+            'payload.*.judul' => 'nullable|string',
+            'payload.*.deskripsi' => 'nullable|string',
+            'payload.*.isUnlocked' => 'nullable|boolean',
+            'payload.*.isEnglish' => 'nullable|boolean',
+            'payload.*.modul_link' => 'nullable|string',
+            'payload.*.ppt_link' => 'nullable|string',
+            'payload.*.video_link' => 'nullable|string',
         ]);
 
-        // Update setiap modul
-        foreach ($request->all() as $data) {
-            $modul = Modul::find($data['id']);
-            if ($modul) {
-                $modul->update([
-                    'isUnlocked' => $data['isUnlocked'],
-                ]);
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => 'Validasi gagal.',
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        $payloadData = $validator->validated()['payload'] ?? [];
+
+        if (empty($payloadData)) {
+            return response()->json([
+                'message' => 'Tidak ada data yang dikirim.',
+            ], 422);
+        }
+
+        $ids = collect($payloadData)->pluck('id')->all();
+        $modules = Modul::whereIn('id', $ids)->get()->keyBy('id');
+
+        $updatedCount = 0;
+
+        foreach ($payloadData as $entry) {
+            $module = $modules->get($entry['id']);
+
+            if (! $module) {
+                continue;
+            }
+
+            $changes = [];
+
+            if (array_key_exists('isUnlocked', $entry)) {
+                $changes['isUnlocked'] = (bool) $entry['isUnlocked'];
+            }
+
+            if (array_key_exists('isEnglish', $entry)) {
+                $changes['isEnglish'] = (bool) $entry['isEnglish'];
+            }
+
+            // Only update the fields we intend to change, ignore the other fields
+            // that were sent for validation purposes
+            if (! empty($changes)) {
+                $module->update($changes);
+                $updatedCount++;
             }
         }
 
         return response()->json([
             'message' => 'Bulk update berhasil',
-        ], 200);
+            'updated' => $updatedCount,
+        ]);
+    }
+
+    private function decodeUnlockConfig(mixed $value): ?array
+    {
+        if (is_array($value)) {
+            return $value;
+        }
+
+        if (is_string($value) && $value !== '') {
+            $decoded = json_decode($value, true);
+
+            return is_array($decoded) ? $decoded : null;
+        }
+
+        return null;
+    }
+
+    private function titleIndicatesEnglish(string $title): bool
+    {
+        return str_contains(Str::upper($title), 'ENG');
     }
 }

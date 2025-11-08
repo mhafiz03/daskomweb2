@@ -181,7 +181,7 @@ export default function WindowModal({
                     role="dialog"
                     aria-modal="false"
                     aria-label={title}
-                    className="pointer-events-auto absolute flex flex-col rounded-depth-lg border border-depth bg-depth-card text-depth-primary shadow-depth-xl"
+                    className="pointer-events-auto absolute flex flex-col rounded-depth-lg border border-depth bg-depth-card text-depth-primary shadow-depth-lg"
                     style={{
                         width: `${size.width}px`,
                         height: `${size.height}px`,

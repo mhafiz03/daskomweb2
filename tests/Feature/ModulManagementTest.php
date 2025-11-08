@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\Asisten;
+use App\Models\Modul;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
@@ -99,5 +100,56 @@ class ModulManagementTest extends TestCase
         $this->assertDatabaseMissing('moduls', [
             'judul' => $payload['judul'],
         ]);
+    }
+
+    public function test_bulk_update_accepts_top_level_array_payload(): void
+    {
+        $this->actingAsAssistantWithPermissions(['manage-modul']);
+
+        $modules = Modul::factory()->count(2)->create([
+            'isUnlocked' => false,
+            'isEnglish' => false,
+        ]);
+
+        $payload = $modules
+            ->map(fn (Modul $module) => [
+                'id' => $module->id,
+                'isUnlocked' => 1,
+                'isEnglish' => 1,
+            ])
+            ->all();
+
+        $response = $this->patchJson('/api-v1/modul/bulk-update', $payload);
+
+        $response
+            ->assertOk()
+            ->assertJson([
+                'message' => 'Bulk update berhasil',
+                'updated' => 2,
+            ]);
+
+        foreach ($modules as $module) {
+            $this->assertDatabaseHas('moduls', [
+                'id' => $module->id,
+                'isUnlocked' => true,
+                'isEnglish' => true,
+            ]);
+        }
+    }
+
+    public function test_bulk_update_requires_valid_module_ids(): void
+    {
+        $this->actingAsAssistantWithPermissions(['manage-modul']);
+
+        $response = $this->patchJson('/api-v1/modul/bulk-update', [
+            ['id' => 9999, 'isUnlocked' => 1],
+        ]);
+
+        $response
+            ->assertStatus(422)
+            ->assertJson([
+                'message' => 'Validasi gagal.',
+            ])
+            ->assertJsonValidationErrors(['payload.0.id']);
     }
 }

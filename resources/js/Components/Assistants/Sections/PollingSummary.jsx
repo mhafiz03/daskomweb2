@@ -59,7 +59,7 @@ export default function PollingSummary({ categories = [] }) {
                 {summaryData.map(({ category, top3 }) => (
                     <div
                         key={category.id}
-                        className="rounded-depth-lg border border-depth bg-depth-card p-5 shadow-depth-lg transition-all hover:shadow-depth-xl"
+                        className="rounded-depth-lg border border-depth bg-depth-card p-5 shadow-depth-lg transition-all hover:shadow-depth-lg"
                     >
                         <h3 className="mb-4 text-lg font-bold text-[var(--depth-color-primary)]">
                             {category.judul}

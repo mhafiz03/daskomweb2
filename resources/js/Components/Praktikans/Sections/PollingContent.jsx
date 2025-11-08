@@ -91,7 +91,7 @@ export default function PollingContent({
             {/* Modal for selected asisten */}
             {activeModalCards[activeCategory] && (
                 <div className="pointer-events-none absolute inset-0 z-50 flex items-center justify-center">
-                    <div className="pointer-events-auto h-[50vh] w-[23vw] rounded-depth-lg border-2 border-[var(--depth-color-primary)] bg-depth-card p-6 shadow-depth-xl backdrop-blur-sm">
+                    <div className="pointer-events-auto h-[50vh] w-[23vw] rounded-depth-lg border-2 border-[var(--depth-color-primary)] bg-depth-card p-6 shadow-depth-lg backdrop-blur-sm">
                         {activeModalCards[activeCategory]?.foto ? (
                             <Image
                                 src={activeModalCards[activeCategory].foto}

@@ -7,6 +7,7 @@ import { send } from "@/lib/http";
 import { update as updateConfigurationRoute } from "@/lib/routes/configuration";
 import { ModalOverlay } from "@/Components/Common/ModalPortal";
 import ModalCloseButton from "@/Components/Common/ModalCloseButton";
+import DepthToggleButton from "@/Components/Common/DepthToggleButton";
 
 export default function ModalKonfigurasi({ onClose }) {
     const [isTugasPendahuluanOn, setIsTugasPendahuluanOn] = useState(false);
@@ -79,29 +80,6 @@ export default function ModalKonfigurasi({ onClose }) {
         },
     });
 
-    // Toggle switch handler
-    const toggleSwitch = (key) => {
-        switch (key) {
-            case "tp_activation":
-                setIsTugasPendahuluanOn((prev) => !prev);
-                break;
-            case "registrationAsisten_activation":
-                setIsRegistrasiAsistenOn((prev) => !prev);
-                break;
-            case "registrationPraktikan_activation":
-                setIsRegistrasiPraktikanOn((prev) => !prev);
-                break;
-            case "tubes_activation":
-                setIsTugasBesarOn((prev) => !prev);
-                break;
-            case "polling_activation":
-                setIsPollingAsistenOn((prev) => !prev);
-                break;
-            default:
-                break;
-        }
-    };
-
     // Handle save configuration
     const handleSave = async () => {
         const config = {
@@ -117,13 +95,11 @@ export default function ModalKonfigurasi({ onClose }) {
 
     return (
         <ModalOverlay onClose={onClose}>
-            <div className="depth-modal-container max-w-xl">
-                    {/* Header */}
+            <div className="depth-modal-container" style={{ maxWidth: 'var(--depth-modal-width-xl, 20vw)' }}>
                     <div className="depth-modal-header">
                         <h2 className="depth-modal-title flex items-center gap-2">
                             <img className="edit-icon-filter h-6 w-6" src={editIcon} alt="praktikum" /> Configuration
                         </h2>
-                        {/* Tombol X untuk tutup */}
                         <ModalCloseButton onClick={onClose} ariaLabel="Tutup konfigurasi" />
                     </div>
 
@@ -136,36 +112,20 @@ export default function ModalKonfigurasi({ onClose }) {
                             {/* Switch Options */}
                             <div className="space-y-4">
                                 {[
-                                    { key: "tp_activation", label: "Tugas Pendahuluan", value: isTugasPendahuluanOn },
-                                    { key: "registrationAsisten_activation", label: "Registrasi Asisten", value: isRegistrasiAsistenOn },
-                                    { key: "registrationPraktikan_activation", label: "Registrasi Praktikan", value: isRegistrasiPraktikanOn },
-                                    { key: "tubes_activation", label: "Tugas Besar", value: isTugasBesarOn },
-                                    { key: "polling_activation", label: "Polling Asisten", value: isPollingAsistenOn },
+                                    { key: "tp_activation", label: "Tugas Pendahuluan", value: isTugasPendahuluanOn, setter: setIsTugasPendahuluanOn },
+                                    { key: "registrationAsisten_activation", label: "Registrasi Asisten", value: isRegistrasiAsistenOn, setter: setIsRegistrasiAsistenOn },
+                                    { key: "registrationPraktikan_activation", label: "Registrasi Praktikan", value: isRegistrasiPraktikanOn, setter: setIsRegistrasiPraktikanOn },
+                                    { key: "tubes_activation", label: "Tugas Besar", value: isTugasBesarOn, setter: setIsTugasBesarOn },
+                                    { key: "polling_activation", label: "Polling Asisten", value: isPollingAsistenOn, setter: setIsPollingAsistenOn },
                                 ].map((item) => (
-                                    <div key={item.key} className="flex justify-between items-center">
-                                        <span className="capitalize text-depth-primary">{item.label}</span>
-                                        <label className="inline-flex items-center cursor-pointer">
-                                            <span className="text-xs font-bold text-depth-primary mr-2">
-                                                {item.value ? "ON" : "OFF"}
-                                            </span>
-                                            <input
-                                                type="checkbox"
-                                                checked={item.value}
-                                                onChange={() => toggleSwitch(item.key)}
-                                                className="hidden"
-                                            />
-                                            <div
-                                                className={`w-20 h-8 flex items-center rounded-depth-full px-2 transition-all duration-300 shadow-depth-sm ${
-                                                    item.value ? "bg-[var(--depth-color-primary)]" : "bg-red-500"
-                                                }`}
-                                            >
-                                                <div
-                                                    className={`w-6 h-6 bg-white rounded-depth-full shadow-depth-md transform transition-transform ${
-                                                        item.value ? "translate-x-10" : "translate-x-0"
-                                                    }`}
-                                                ></div>
-                                            </div>
-                                        </label>
+                                    <div key={item.key} className="flex items-center justify-between">
+                                        <span className="capitalize text-depth-primary font-semibold">{item.label}</span>
+                                        <DepthToggleButton
+                                            label={item.value ? "ON" : "OFF"}
+                                            isOn={Boolean(item.value)}
+                                            onToggle={() => item.setter((prev) => !prev)}
+                                            disabled={updateConfigurationMutation.isPending}
+                                        />
                                     </div>
                                 ))}
                             </div>

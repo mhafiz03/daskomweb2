@@ -406,16 +406,16 @@ export default function SoalInputEssay({ kategoriSoal, modul, modules = [], onMo
                 >
                     Compare
                 </button>
-                <button
+                {/* <button
                     className="rounded-depth-md border border-depth bg-depth-interactive px-6 py-2 text-sm font-semibold text-depth-primary shadow-depth-sm transition duration-200 hover:-translate-y-0.5 hover:shadow-depth-md disabled:cursor-not-allowed disabled:opacity-60"
                     onClick={handleExportJson}
                     type="button"
                     disabled={!Array.isArray(soalList) || soalList.length === 0}
                 >
                     Export JSON
-                </button>
+                </button> */}
                 <button
-                    className="rounded-depth-md border border-depth bg-depth-card px-6 py-2 text-sm font-semibold text-depth-primary shadow-depth-sm transition duration-200 hover:-translate-y-0.5 hover:shadow-depth-md disabled:opacity-60"
+                    className="rounded-depth-md border border-depth bg-depth-interactive px-6 py-2 text-sm font-semibold text-depth-primary shadow-depth-sm transition duration-200 hover:-translate-y-0.5 hover:shadow-depth-md disabled:opacity-60"
                     onClick={() => setIsBatchModalOpen(true)}
                     disabled={soalLoading || soalList.length === 0}
                 >

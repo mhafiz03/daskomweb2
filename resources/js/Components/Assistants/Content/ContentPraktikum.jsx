@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useAssistantToolbar } from "@/Layouts/AssistantToolbarContext";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
@@ -87,12 +87,15 @@ export default function ContentPraktikum() {
     const [selectedDk, setSelectedDk] = useState(DK_OPTIONS[0]);
     const [session, setSession] = useState(null);
     const [displaySeconds, setDisplaySeconds] = useState(0);
+    const [phaseDisplaySeconds, setPhaseDisplaySeconds] = useState(0);
     const [reportText, setReportText] = useState("");
     const [pendingAction, setPendingAction] = useState(null);
     const [onlinePraktikan, setOnlinePraktikan] = useState(new Set());
     const [isAsistenExpanded, setIsAsistenExpanded] = useState(false);
     const [progressData, setProgressData] = useState(null);
     const [isProgressPolling, setIsProgressPolling] = useState(false);
+    const sessionIdRef = useRef(null);
+    const lastServerReportRef = useRef("");
 
     const queryClient = useQueryClient();
 
@@ -325,6 +328,29 @@ export default function ContentPraktikum() {
         return Math.max(0, Math.floor((Date.now() - startedAt.getTime()) / 1000));
     }, []);
 
+    const computePhaseElapsedSeconds = useCallback(
+        (praktikum) => {
+            if (!praktikum) {
+                return 0;
+            }
+
+            const baseSeconds = Math.max(0, Number(praktikum?.phase_elapsed_seconds ?? 0));
+            const phaseStartedAt = praktikum?.phase_started_at ? new Date(praktikum.phase_started_at) : null;
+
+            if (praktikum.status === "running" && phaseStartedAt && !Number.isNaN(phaseStartedAt.getTime())) {
+                const delta = Math.max(0, Math.floor((Date.now() - phaseStartedAt.getTime()) / 1000));
+                return baseSeconds + delta;
+            }
+
+            if (baseSeconds > 0) {
+                return baseSeconds;
+            }
+
+            return computeElapsedSeconds(praktikum);
+        },
+        [computeElapsedSeconds],
+    );
+
     useEffect(() => {
         if (!selectedPraktikum) {
             setSession(null);
@@ -347,19 +373,28 @@ export default function ContentPraktikum() {
 
     useEffect(() => {
         setDisplaySeconds(computeElapsedSeconds(session));
-    }, [session, computeElapsedSeconds]);
+        setPhaseDisplaySeconds(computePhaseElapsedSeconds(session));
+    }, [session, computeElapsedSeconds, computePhaseElapsedSeconds]);
 
     useEffect(() => {
-        if (!effectiveSession) {
-            setReportText((prev) => (prev === "" ? prev : ""));
+        const currentId = effectiveSession?.id ?? null;
+        const serverNotes = typeof effectiveSession?.report_notes === "string" ? effectiveSession.report_notes : "";
+
+        if (sessionIdRef.current !== currentId) {
+            sessionIdRef.current = currentId;
+            lastServerReportRef.current = serverNotes;
+            setReportText(serverNotes);
             return;
         }
 
-        if (effectiveSession.status === "completed") {
-            const targetText = effectiveSession.report_notes ?? "";
-            setReportText((prev) => (prev === targetText ? prev : targetText));
-        } else {
-            setReportText((prev) => (prev === "" ? prev : ""));
+        if (serverNotes && serverNotes !== lastServerReportRef.current) {
+            lastServerReportRef.current = serverNotes;
+            setReportText(serverNotes);
+        }
+
+        if (!effectiveSession) {
+            lastServerReportRef.current = "";
+            setReportText("");
         }
     }, [effectiveSession]);
 
@@ -370,10 +405,11 @@ export default function ContentPraktikum() {
 
         const intervalId = setInterval(() => {
             setDisplaySeconds(computeElapsedSeconds(session));
+            setPhaseDisplaySeconds(computePhaseElapsedSeconds(session));
         }, 1000);
 
         return () => clearInterval(intervalId);
-    }, [session, computeElapsedSeconds]);
+    }, [session, computeElapsedSeconds, computePhaseElapsedSeconds]);
 
     useEffect(() => {
         if (!window.Echo || !selectedPraktikumId) {
@@ -693,13 +729,18 @@ export default function ContentPraktikum() {
     const handleSubmitReport = useCallback(() => {
         const trimmedNotes = reportText.trim();
 
+        if (effectiveSession?.current_phase !== "feedback") {
+            toast.error("Laporan hanya dapat dikirim pada tahap Feedback.");
+            return;
+        }
+
         if (trimmedNotes.length < 3) {
             toast.error("Isi laporan minimal 3 karakter.");
             return;
         }
 
         handleAction("report", { report_notes: trimmedNotes });
-    }, [reportText, handleAction]);
+    }, [effectiveSession?.current_phase, reportText, handleAction]);
 
     const handleSwitchToRunning = useCallback((praktikum) => {
         if (!praktikum) {
@@ -717,6 +758,7 @@ export default function ContentPraktikum() {
     const isRunning = effectiveSession?.status === "running";
     const isPaused = effectiveSession?.status === "paused";
     const isCompleted = effectiveSession?.status === "completed";
+    const isFeedbackPhase = effectiveSession?.current_phase === "feedback";
     const isTerminal = effectiveSession
         ? ["completed", "exited"].includes(effectiveSession.status)
         : false;
@@ -725,8 +767,8 @@ export default function ContentPraktikum() {
         typeof effectiveSession?.report_notes === "string" &&
         effectiveSession.report_notes.trim().length > 0
     );
-    const showReportForm = isCompleted && !reportSubmitted;
-    const showReportPreview = isCompleted && reportSubmitted;
+    const showReportForm = isFeedbackPhase && !reportSubmitted;
+    const showReportPreview = reportSubmitted;
     const showControls = true; // Always show controls
     const isSubmittingReport = pendingAction === "report" && praktikumMutation.isPending;
 
@@ -750,6 +792,17 @@ export default function ContentPraktikum() {
         return index;
     }, [effectiveSession]);
 
+    const currentPhaseLabel = useMemo(() => {
+        if (!effectiveSession?.current_phase) {
+            return null;
+        }
+
+        return (
+            PHASE_SEQUENCE.find((phase) => phase.key === effectiveSession.current_phase)?.label ??
+            effectiveSession.current_phase
+        );
+    }, [effectiveSession?.current_phase]);
+
     const baseStartDisabled =
         !hasSelection || praktikumMutation.isPending || createPraktikumMutation.isPending;
     const pauseDisabled =
@@ -769,11 +822,10 @@ export default function ContentPraktikum() {
 
     const restartLocked = isCompleted && reportSubmitted;
     const startDisabled = baseStartDisabled || restartLocked;
-    const restartLockedMessage = restartLocked
-        ? "Praktikum tidak dapat dimulai ulang setelah laporan dikirim."
-        : null;
 
     const reportSubmitDisabled =
+        !isFeedbackPhase ||
+        reportSubmitted ||
         reportText.trim().length < 3 ||
         praktikumMutation.isPending ||
         createPraktikumMutation.isPending;
@@ -966,8 +1018,12 @@ export default function ContentPraktikum() {
                             <div className="flex flex-col items-center gap-6">
                                 <div className="w-full text-center">
                                     <div className="mt-2 text-5xl font-bold text-depth-primary">
-                                        {formatDuration(displaySeconds)}
+                                        {formatDuration(phaseDisplaySeconds)}
                                     </div>
+                                    <p className="mt-2 text-xs font-semibold uppercase tracking-wide text-depth-secondary">
+                                        Tahap saat ini{currentPhaseLabel ? `: ${currentPhaseLabel}` : ""} • Total{" "}
+                                        {formatDuration(displaySeconds)}
+                                    </p>
                                 </div>
 
                                 <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
@@ -1030,7 +1086,11 @@ export default function ContentPraktikum() {
                                                 disabled={reportSubmitDisabled}
                                                 title={
                                                     reportSubmitDisabled
-                                                        ? "Minimal 3 karakter sebelum mengirim."
+                                                        ? !isFeedbackPhase
+                                                            ? "Laporan baru dapat dikirim pada tahap Feedback."
+                                                            : reportSubmitted
+                                                                ? "Laporan sudah dikirim."
+                                                                : "Minimal 3 karakter sebelum mengirim."
                                                         : undefined
                                                 }
                                                 className={`glass-button flex items-center gap-2 rounded-depth-lg px-6 py-3 font-semibold shadow-depth-md transition-all ${reportSubmitDisabled
@@ -1220,11 +1280,6 @@ export default function ContentPraktikum() {
                                         </svg>
                                     </button>
                                 </div>
-                                {restartLockedMessage && (
-                                    <p className="mt-3 text-center text-xs font-semibold text-amber-500">
-                                        {restartLockedMessage}
-                                    </p>
-                                )}
                             </div>
                         )}
 

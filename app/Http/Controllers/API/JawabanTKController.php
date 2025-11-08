@@ -269,7 +269,7 @@ class JawabanTKController extends Controller
         try {
             $modul = Modul::findOrFail($modulId);
 
-            if (! $modul->isUnlocked) {
+            if (! $modul->isQuestionTypeUnlocked('tk')) {
                 return response()->json([
                     'status' => 'locked',
                     'message' => 'Jawaban masih terkunci.',

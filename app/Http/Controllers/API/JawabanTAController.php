@@ -270,11 +270,11 @@ class JawabanTAController extends Controller
         try {
             $modul = Modul::findOrFail($id);
 
-            if (! $modul->isUnlocked) {
+            if (! $modul->isQuestionTypeUnlocked('ta')) {
                 return response()->json([
                     'status' => 'success',
-                    'messages' => 'Jawaban Masih Terkunci',
-                ]);
+                    'message' => 'Jawaban masih terkunci.',
+                ], 403);
             }
 
             $praktikan = auth('praktikan')->user();

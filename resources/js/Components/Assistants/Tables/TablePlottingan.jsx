@@ -194,62 +194,73 @@ export default function TablePlottingan() {
                     </div>
                 ) : kelas.length > 0 ? (
                     <div className="divide-y divide-[color:var(--depth-border)]">
-                        {kelas.map((kelasItem) => (
-                            <div
-                                key={kelasItem.id}
-                                className="grid grid-cols-5 items-center gap-2 px-4 py-3 text-sm text-depth-primary"
-                            >
-                                <span className="flex items-center justify-center gap-2 font-semibold">
-                                    {kelasItem.kelas}
-                                    {Number(kelasItem.isEnglish) === 1 && (
-                                        <span className="rounded-depth-full border border-depth bg-depth-interactive px-3 py-1 text-xs font-semibold text-depth-primary">
-                                            English
-                                        </span>
-                                    )}
-                                </span>
-                                <span className="text-center text-depth-secondary">{kelasItem.hari}</span>
-                                <span className="text-center text-depth-secondary">{kelasItem.shift}</span>
-                                <span className="text-center text-depth-secondary">{kelasItem.totalGroup}</span>
-                                <div className="flex items-center justify-center gap-2">
-                                    <button
-                                        type="button"
-                                        onClick={() => handleOpenViewPraktikan(kelasItem)}
-                                        className="flex h-9 w-9 items-center justify-center rounded-depth-md border border-depth shadow-depth-sm transition hover:-translate-y-0.5 hover:shadow-depth-md bg-[var(--depth-color-primary)] text-white "
-                                        aria-label={`Lihat praktikan kelas ${kelasItem.kelas}`}
-                                    >
-                                        <svg
-                                            xmlns="http://www.w3.org/2000/svg"
-                                            fill="none"
-                                            viewBox="0 0 24 24"
-                                            strokeWidth="2"
-                                            stroke="currentColor"
-                                            className="h-4 w-4"
+                        {kelas.map((kelasItem) => {
+                            const kelasName = kelasItem.kelas ?? "";
+                            const isEnglishClass = Number(kelasItem.isEnglish) === 1;
+                            const isTotClass = Boolean(kelasItem.is_tot);
+
+                            return (
+                                <div
+                                    key={kelasItem.id}
+                                    className="grid grid-cols-5 items-center gap-2 px-4 py-3 text-sm text-depth-primary"
+                                >
+                                    <div className="flex flex-wrap items-center justify-center gap-2 font-semibold">
+                                        <span>{kelasName}</span>
+                                        {isEnglishClass && (
+                                            <span className="rounded-depth-full border border-blue-400/60 bg-blue-500/10 px-2 py-0.5 text-[0.65rem] font-semibold uppercase text-blue-500">
+                                                ENG
+                                            </span>
+                                        )}
+                                        {isTotClass && (
+                                            <span className="rounded-depth-full border border-emerald-400/60 bg-emerald-500/10 px-2 py-0.5 text-[0.65rem] font-semibold uppercase text-emerald-600">
+                                                TOT
+                                            </span>
+                                        )}
+                                    </div>
+                                    <span className="text-center text-depth-secondary">{kelasItem.hari}</span>
+                                    <span className="text-center text-depth-secondary">{kelasItem.shift}</span>
+                                    <span className="text-center text-depth-secondary">{kelasItem.totalGroup}</span>
+                                    <div className="flex items-center justify-center gap-2">
+                                        <button
+                                            type="button"
+                                            onClick={() => handleOpenViewPraktikan(kelasItem)}
+                                            className="flex h-9 w-9 items-center justify-center rounded-depth-md border border-depth shadow-depth-sm transition hover:-translate-y-0.5 hover:shadow-depth-md bg-[var(--depth-color-primary)] text-white "
+                                            aria-label={`Lihat praktikan kelas ${kelasItem.kelas}`}
                                         >
-                                            <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                            <path
-                                                strokeLinecap="round"
-                                                strokeLinejoin="round"
-                                                d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                                            />
-                                        </svg>
-                                    </button>
-                                    <button
-                                        type="button"
-                                        onClick={() => handleOpenModalEdit(kelasItem)}
-                                        className="flex h-9 w-9 items-center justify-center rounded-depth-md border border-depth bg-depth-interactive shadow-depth-sm transition hover:-translate-y-0.5 hover:shadow-depth-md"
-                                    >
-                                        <img className="edit-icon-filter h-4 w-4" src={editIcon} alt="edit icon" />
-                                    </button>
-                                    <button
-                                        type="button"
-                                        onClick={() => handleOpenModalDelete(kelasItem)}
-                                        className="flex h-9 w-9 items-center justify-center rounded-depth-md border border-red-400/60 bg-red-400/15 text-red-500 shadow-depth-sm transition hover:-translate-y-0.5 hover:shadow-depth-md"
-                                    >
-                                        <img className="h-4 w-4" src={trashIcon} alt="delete icon" />
-                                    </button>
+                                            <svg
+                                                xmlns="http://www.w3.org/2000/svg"
+                                                fill="none"
+                                                viewBox="0 0 24 24"
+                                                strokeWidth="2"
+                                                stroke="currentColor"
+                                                className="h-4 w-4"
+                                            >
+                                                <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                <path
+                                                    strokeLinecap="round"
+                                                    strokeLinejoin="round"
+                                                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                                                />
+                                            </svg>
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={() => handleOpenModalEdit(kelasItem)}
+                                            className="flex h-9 w-9 items-center justify-center rounded-depth-md border border-depth bg-depth-interactive shadow-depth-sm transition hover:-translate-y-0.5 hover:shadow-depth-md"
+                                        >
+                                            <img className="edit-icon-filter h-4 w-4" src={editIcon} alt="edit icon" />
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={() => handleOpenModalDelete(kelasItem)}
+                                            className="flex h-9 w-9 items-center justify-center rounded-depth-md border border-red-400/60 bg-red-400/15 text-red-500 shadow-depth-sm transition hover:-translate-y-0.5 hover:shadow-depth-md"
+                                        >
+                                            <img className="h-4 w-4" src={trashIcon} alt="delete icon" />
+                                        </button>
+                                    </div>
                                 </div>
-                            </div>
-                        ))}
+                            );
+                        })}
                     </div>
                 ) : (
                     <div className="px-6 py-10 text-center text-depth-secondary">
@@ -271,7 +282,7 @@ export default function TablePlottingan() {
 
             {isModalViewPraktikanOpen && (
                 <ModalOverlay onClose={handleCloseViewPraktikan} className="depth-modal-overlay z-[70]">
-                    <div className="depth-modal-container w-full max-w-3xl space-y-6">
+                    <div className="depth-modal-container w-full space-y-6" style={{ maxWidth: 'var(--depth-modal-width-xl, 90vw)' }}>
                         <div className="depth-modal-header">
                             <div>
                                 <p className="text-xs font-semibold uppercase tracking-wide text-depth-secondary">Daftar Praktikan</p>

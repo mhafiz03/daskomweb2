@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use App\Models\JawabanMandiri;
+use App\Models\Modul;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
@@ -124,6 +125,15 @@ class JawabanTMController extends Controller
                     'status' => 'error',
                     'message' => 'Unauthorized.',
                 ], 401);
+            }
+
+            $modul = Modul::findOrFail($idModul);
+
+            if (! $modul->isQuestionTypeUnlocked('tm')) {
+                return response()->json([
+                    'status' => 'success',
+                    'message' => 'Jawaban masih terkunci.',
+                ], 403);
             }
 
             $jawaban = JawabanMandiri::where('praktikan_id', $praktikan->id)

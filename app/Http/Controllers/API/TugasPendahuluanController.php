@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
+use App\Models\Configuration;
 use App\Models\Modul;
 use App\Models\Tugaspendahuluan;
 use Illuminate\Http\Request;
@@ -17,7 +18,7 @@ class TugasPendahuluanController extends Controller
         try {
             // Ambil data tugas pendahuluan dengan join ke tabel modul
             $tugas = Tugaspendahuluan::leftJoin('moduls', 'moduls.id', '=', 'tugaspendahuluans.modul_id')
-                ->select('tugaspendahuluans.*', 'moduls.judul as nama_modul')
+                ->select('tugaspendahuluans.*', 'moduls.judul as nama_modul', 'moduls.isEnglish as modul_is_english')
                 ->get();
 
             if ($tugas->isEmpty()) {
@@ -34,18 +35,34 @@ class TugasPendahuluanController extends Controller
                 }
 
                 $tugas = Tugaspendahuluan::leftJoin('moduls', 'moduls.id', '=', 'tugaspendahuluans.modul_id')
-                    ->select('tugaspendahuluans.*', 'moduls.judul as nama_modul')
+                    ->select('tugaspendahuluans.*', 'moduls.judul as nama_modul', 'moduls.isEnglish as modul_is_english')
                     ->get();
             }
 
+            $configuration = Configuration::select('tp_activation')->first();
+            $tpActive = $configuration ? (bool) $configuration->tp_activation : true;
+
+            $activeRegular = $tugas->first(function ($item) {
+                return (int) ($item->isActive ?? 0) === 1 && (int) ($item->modul_is_english ?? 0) !== 1;
+            });
+
+            $activeEnglish = $tugas->first(function ($item) {
+                return (int) ($item->isActive ?? 0) === 1 && (int) ($item->modul_is_english ?? 0) === 1;
+            });
+
             return response()->json([
-                "status" => "success",
-                "data" => $tugas,
+                'status' => 'success',
+                'data' => $tugas,
+                'meta' => [
+                    'tp_active' => $tpActive,
+                    'active_regular_modul_id' => $activeRegular->modul_id ?? null,
+                    'active_english_modul_id' => $activeEnglish->modul_id ?? null,
+                ],
             ], 200);
         } catch (\Exception $e) {
             return response()->json([
-                "message" => "Terjadi kesalahan saat mengambil data tugas.",
-                "error" => $e->getMessage(),
+                'message' => 'Terjadi kesalahan saat mengambil data tugas.',
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
@@ -67,7 +84,7 @@ class TugasPendahuluanController extends Controller
             foreach ($request->data as $item) {
                 $tugas = Tugaspendahuluan::find($item['id']);
 
-                if (!$tugas) {
+                if (! $tugas) {
                     return response()->json([
                         'message' => "Tugas dengan ID {$item['id']} tidak ditemukan.",
                     ], 404);
