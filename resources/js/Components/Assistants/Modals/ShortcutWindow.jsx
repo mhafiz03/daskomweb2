@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import WindowModal from "@/Components/Common/WindowModal";
 
 const LOGIN_URL = "https://see.labs.telkomuniversity.ac.id/praktikum/index.php/home/loginprak";
@@ -15,6 +15,46 @@ const HARI_OPTIONS = [
     { label: "JUMAT", value: "5" },
 ];
 
+const STORAGE_KEYS = {
+    login: "shortcutWindow:loginPayload",
+    schedule: "shortcutWindow:schedulePayload",
+};
+
+const DEFAULT_LOGIN_PAYLOAD = {
+    user_nim: "",
+    kode: "",
+};
+
+const DEFAULT_SCHEDULE_PAYLOAD = {
+    hari_id: "1",
+    shift_id: "1",
+    kelompok_id: "1",
+};
+
+const readStoredPayload = (key, fallback) => {
+    if (typeof window === "undefined" || !window.localStorage) {
+        return fallback;
+    }
+
+    try {
+        const raw = window.localStorage.getItem(key);
+        if (!raw) {
+            return fallback;
+        }
+
+        const parsed = JSON.parse(raw);
+        if (parsed && typeof parsed === "object") {
+            return { ...fallback, ...parsed };
+        }
+
+        return fallback;
+    } catch (error) {
+        console.warn(`[ShortcutWindow] Failed to read ${key}`, error);
+        return fallback;
+    }
+};
+
+
 export default function ShortcutWindow({
     open,
     onClose,
@@ -24,18 +64,45 @@ export default function ShortcutWindow({
     scoreFields = [],
     formatScoreValue,
 }) {
-    const [loginPayload, setLoginPayload] = useState({
-        user_nim: "101022300004",
-        kode: "110",
-    });
-    const [schedulePayload, setSchedulePayload] = useState({
-        hari_id: "1",
-        shift_id: "1",
-        kelompok_id: "24",
-    });
+    const [loginPayload, setLoginPayload] = useState(() =>
+        readStoredPayload(STORAGE_KEYS.login, DEFAULT_LOGIN_PAYLOAD)
+    );
+    const [schedulePayload, setSchedulePayload] = useState(() =>
+        readStoredPayload(STORAGE_KEYS.schedule, DEFAULT_SCHEDULE_PAYLOAD)
+    );
     const loginFormRef = useRef(null);
     const kelompokFormRef = useRef(null);
     const iframeRef = useRef(null);
+
+    useEffect(() => {
+        if (typeof window === "undefined" || !window.localStorage) {
+            return;
+        }
+
+        try {
+            window.localStorage.setItem(
+                STORAGE_KEYS.login,
+                JSON.stringify(loginPayload)
+            );
+        } catch (error) {
+            console.warn("[ShortcutWindow] Failed to persist login payload", error);
+        }
+    }, [loginPayload]);
+
+    useEffect(() => {
+        if (typeof window === "undefined" || !window.localStorage) {
+            return;
+        }
+
+        try {
+            window.localStorage.setItem(
+                STORAGE_KEYS.schedule,
+                JSON.stringify(schedulePayload)
+            );
+        } catch (error) {
+            console.warn("[ShortcutWindow] Failed to persist schedule payload", error);
+        }
+    }, [schedulePayload]);
 
     const handleLoginPayloadChange = (event) => {
         const { name, value } = event.target;
