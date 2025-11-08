@@ -582,10 +582,10 @@ class ImportSqlDump extends Command
         $exec("INSERT IGNORE INTO `{$newDb}`.`laporan_praktikans`
               (`id`,`pesan`,`rating_praktikum`,`rating_asisten`,`praktikan_id`,`asisten_id`,`modul_id`,`created_at`,`updated_at`)
                SELECT id,pesan,rating_praktikum,rating_asisten,praktikan_id,asisten_id,modul_id,created_at,updated_at
-               FROM `{$legacyDb}`.`laporan_praktikans`");
+               FROM `{$legacyDb}`.`laporan__praktikans`");
 
         $this->info('Mapping: soal_fitbs/jurnals/mandiris/tps');
-        foreach (['soal_fitbs' => 'soal_fitbs', 'soal_jurnals' => 'soal_jurnals', 'soal_mandiris' => 'soal_mandiris'] as $legacy => $new) {
+        foreach (['soal__fitbs' => 'soal_fitbs', 'soal__jurnals' => 'soal_jurnals', 'soal__mandiris' => 'soal_mandiris'] as $legacy => $new) {
             $exec("INSERT IGNORE INTO `{$newDb}`.`{$new}` (`id`,`modul_id`,`soal`,`created_at`,`updated_at`)
                    SELECT id, modul_id, soal, created_at, updated_at
                    FROM `{$legacyDb}`.`{$legacy}`");
@@ -594,22 +594,22 @@ class ImportSqlDump extends Command
         $exec("INSERT IGNORE INTO `{$newDb}`.`soal_tps`
               (`id`,`modul_id`,`soal`,`created_at`,`updated_at`)
                SELECT id, modul_id, soal, created_at, updated_at
-               FROM `{$legacyDb}`.`soal_tps`");
+               FROM `{$legacyDb}`.`soal__tps`");
 
         $this->info('Mapping: soal_tas (legacy text options → soal_opsis + FK columns)');
-        $this->mapTaTk($connection, $legacyDb, $newDb, 'soal_tas', 'soal_tas', 'TA', $exec);
+        $this->mapTaTk($connection, $legacyDb, $newDb, 'soal__tas', 'soal_tas', 'TA', $exec);
         $this->info('Mapping: soal_tks');
-        $this->mapTaTk($connection, $legacyDb, $newDb, 'soal_tks', 'soal_tks', 'TK', $exec);
+        $this->mapTaTk($connection, $legacyDb, $newDb, 'soal__tks', 'soal_tks', 'TK', $exec);
 
         $this->info('Mapping: jawaban essays');
-        foreach (['jawaban_fitbs' => 'jawaban_fitbs', 'jawaban_jurnals' => 'jawaban_jurnals', 'jawaban_mandiris' => 'jawaban_mandiris', 'jawaban_tps' => 'jawaban_tps'] as $legacy => $new) {
+        foreach (['jawaban__fitbs' => 'jawaban_fitbs', 'jawaban__jurnals' => 'jawaban_jurnals', 'jawaban__mandiris' => 'jawaban_mandiris', 'jawaban__tps' => 'jawaban_tps'] as $legacy => $new) {
             $exec("INSERT IGNORE INTO `{$newDb}`.`{$new}` (`id`,`praktikan_id`,`soal_id`,`modul_id`,`jawaban`,`created_at`,`updated_at`)
                    SELECT id, praktikan_id, soal_id, modul_id, jawaban, created_at, updated_at
                    FROM `{$legacyDb}`.`{$legacy}`");
         }
 
         $this->info('Mapping: jawaban_tas/tks → opsi_id (nulling by default)');
-        foreach (['jawaban_tas' => 'jawaban_tas', 'jawaban_tks' => 'jawaban_tks'] as $legacy => $new) {
+        foreach (['jawaban__tas' => 'jawaban_tas', 'jawaban__tks' => 'jawaban_tks'] as $legacy => $new) {
             $exec("INSERT IGNORE INTO `{$newDb}`.`{$new}` (`id`,`praktikan_id`,`soal_id`,`modul_id`,`opsi_id`,`created_at`,`updated_at`)
                    SELECT id, praktikan_id, soal_id, modul_id, NULL AS opsi_id, created_at, updated_at
                    FROM `{$legacyDb}`.`{$legacy}`");
@@ -623,7 +623,7 @@ class ImportSqlDump extends Command
         $runStatement("TRUNCATE TABLE `{$newDb}`.`jadwal_jagas`", 'TRUNCATE jadwal_jagas');
         $runStatement(
             "INSERT INTO `{$newDb}`.`jadwal_jagas` (`id`,`kelas_id`,`asisten_id`,`created_at`,`updated_at`)
-             SELECT id, kelas_id, asisten_id, created_at, updated_at FROM `{$legacyDb}`.`jadwal_jagas`",
+             SELECT id, kelas_id, asisten_id, created_at, updated_at FROM `{$legacyDb}`.`jadwal__jagas`",
             'Insert jadwal_jagas from legacy'
         );
 
@@ -653,21 +653,18 @@ class ImportSqlDump extends Command
                    COALESCE(lp.updated_at, p.updated_at),
                    p.created_at, p.updated_at
             FROM `{$legacyDb}`.`praktikums` p
-            LEFT JOIN `{$legacyDb}`.`laporan_pjs` lp ON lp.id = p.laporan_id",
+            LEFT JOIN `{$legacyDb}`.`laporan__pjs` lp ON lp.id = p.laporan_id",
             'Insert praktikums from legacy'
         );
 
         $this->info('Mapping: configurations');
         $runStatement(
-            'INSERT INTO `'.$newDb.'`.`configurations` (`id`, `registrationPraktikan_activation`, `registrationAsisten_activation`, `tp_activation`, `tp_schedule_enabled`, `tp_schedule_start_at`, `tp_schedule_end_at`, `tubes_activation`, `secretfeature_activation`, `polling_activation`, `kode_asisten`, `created_at`, `updated_at`)
-             VALUES (1, 0, 1, 0, 0, NULL, NULL, 1, 1, 0, \'ABC\', \'2025-01-21 14:40:32\', \'2025-01-21 14:41:23\')
+            'INSERT INTO `'.$newDb.'`.`configurations` (`id`, `registrationPraktikan_activation`, `registrationAsisten_activation`, `tp_activation`, `tubes_activation`, `secretfeature_activation`, `polling_activation`, `kode_asisten`, `created_at`, `updated_at`)
+             VALUES (1, 0, 1, 0, 1, 1, 0, \'ABC\', \'2025-01-21 14:40:32\', \'2025-01-21 14:41:23\')
              ON DUPLICATE KEY UPDATE
                  `registrationPraktikan_activation` = VALUES(`registrationPraktikan_activation`),
                  `registrationAsisten_activation` = VALUES(`registrationAsisten_activation`),
                  `tp_activation` = VALUES(`tp_activation`),
-                 `tp_schedule_enabled` = VALUES(`tp_schedule_enabled`),
-                 `tp_schedule_start_at` = VALUES(`tp_schedule_start_at`),
-                 `tp_schedule_end_at` = VALUES(`tp_schedule_end_at`),
                  `tubes_activation` = VALUES(`tubes_activation`),
                  `secretfeature_activation` = VALUES(`secretfeature_activation`),
                  `polling_activation` = VALUES(`polling_activation`),
@@ -727,7 +724,7 @@ class ImportSqlDump extends Command
     private function syncJawabanOpsi(Connection $conn, string $legacyDb, string $newDb, string $type, bool $dryRun): void
     {
         $table = $type === 'TA' ? 'jawaban_tas' : 'jawaban_tks';
-        $legacyTable = $type === 'TA' ? 'jawaban_tas' : 'jawaban_tks';
+        $legacyTable = $type === 'TA' ? 'jawaban__tas' : 'jawaban__tks';
 
         if ($dryRun) {
             $this->line("[dry-run] resolve {$table}.opsi_id via string compare");

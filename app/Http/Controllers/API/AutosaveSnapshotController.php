@@ -6,6 +6,7 @@ use App\Events\PraktikumProgressUpdated;
 use App\Http\Controllers\Controller;
 use App\Models\Praktikan;
 use App\Services\Praktikum\QuestionProgressService;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Cache\Repository as CacheRepository;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -91,22 +92,32 @@ class AutosaveSnapshotController extends Controller
         }
     }
 
+    private function resolvePraktikan(Request $request): Praktikan
+    {
+        $praktikan = $request->user('praktikan');
+
+        if (! $praktikan instanceof Praktikan) {
+            throw new AuthorizationException();
+        }
+
+        return $praktikan;
+    }
+
     public function index(Request $request): JsonResponse
     {
         $validated = $request->validate([
-            'praktikan_id' => ['nullable', 'integer'],
             'modul_id' => ['nullable', 'integer'],
             'tipe_soal' => ['nullable', 'string'],
         ]);
 
-        $praktikanId = $validated['praktikan_id'] ?? null;
+        $praktikanId = $this->resolvePraktikan($request)->id;
         $modulId = $validated['modul_id'] ?? null;
         $tipeSoal = $validated['tipe_soal'] ?? null;
 
         $cache = $this->cache();
         $snapshots = [];
 
-        if ($praktikanId && $modulId && $tipeSoal) {
+        if ($modulId && $tipeSoal) {
             $key = $this->cacheKey($praktikanId, $modulId, $tipeSoal);
             $snapshot = $cache->get($key);
 
@@ -120,7 +131,7 @@ class AutosaveSnapshotController extends Controller
             ]);
         }
 
-        if ($praktikanId && $modulId) {
+        if ($modulId) {
             $pattern = $this->cachePattern($praktikanId, $modulId);
             $keys = $this->getRedisKeys($pattern);
 
@@ -171,15 +182,16 @@ class AutosaveSnapshotController extends Controller
     public function store(Request $request): JsonResponse
     {
         $validated = $request->validate([
-            'praktikan_id' => ['required', 'integer', 'exists:praktikans,id'],
             'modul_id' => ['required', 'integer', 'exists:moduls,id'],
             'tipe_soal' => ['required', Rule::in(self::SUPPORTED_SOAL_TYPES)],
             'jawaban' => ['required', 'array'],
         ]);
 
+        $praktikanId = $this->resolvePraktikan($request)->id;
+
         $cache = $this->cache();
         $key = $this->cacheKey(
-            (int) $validated['praktikan_id'],
+            $praktikanId,
             (int) $validated['modul_id'],
             $validated['tipe_soal']
         );
@@ -188,7 +200,7 @@ class AutosaveSnapshotController extends Controller
         $timestamp = Carbon::now()->toISOString();
 
         $payload = [
-            'praktikan_id' => (int) $validated['praktikan_id'],
+            'praktikan_id' => $praktikanId,
             'modul_id' => (int) $validated['modul_id'],
             'tipe_soal' => $validated['tipe_soal'],
             'jawaban' => $validated['jawaban'],
@@ -201,7 +213,7 @@ class AutosaveSnapshotController extends Controller
 
         $this->broadcastProgressUpdates([
             [
-                'praktikan_id' => (int) $validated['praktikan_id'],
+                'praktikan_id' => $praktikanId,
                 'modul_id' => (int) $validated['modul_id'],
             ],
         ]);
@@ -216,7 +228,6 @@ class AutosaveSnapshotController extends Controller
     {
         $validated = $request->validate([
             'items' => ['required', 'array', 'min:1'],
-            'items.*.praktikan_id' => ['required', 'integer', 'exists:praktikans,id'],
             'items.*.modul_id' => ['required', 'integer', 'exists:moduls,id'],
             'items.*.tipe_soal' => ['required', Rule::in(self::SUPPORTED_SOAL_TYPES)],
             'items.*.jawaban' => ['required', 'array'],
@@ -226,11 +237,13 @@ class AutosaveSnapshotController extends Controller
         $ttl = (int) config('cache.snapshot_ttl', self::DEFAULT_TTL_SECONDS);
         $timestamp = Carbon::now()->toISOString();
 
+        $praktikanId = (int) $this->resolvePraktikan($request)->id;
+
         $pairs = [];
 
         foreach ($validated['items'] as $item) {
             $key = $this->cacheKey(
-                (int) $item['praktikan_id'],
+                $praktikanId,
                 (int) $item['modul_id'],
                 $item['tipe_soal']
             );
@@ -238,7 +251,7 @@ class AutosaveSnapshotController extends Controller
             $existing = $cache->get($key);
 
             $payload = [
-                'praktikan_id' => (int) $item['praktikan_id'],
+                'praktikan_id' => $praktikanId,
                 'modul_id' => (int) $item['modul_id'],
                 'tipe_soal' => $item['tipe_soal'],
                 'jawaban' => $item['jawaban'],
@@ -249,7 +262,7 @@ class AutosaveSnapshotController extends Controller
             $cache->put($key, $payload, $ttl);
 
             $pairs[] = [
-                'praktikan_id' => (int) $item['praktikan_id'],
+                'praktikan_id' => $praktikanId,
                 'modul_id' => (int) $item['modul_id'],
             ];
         }
@@ -264,7 +277,6 @@ class AutosaveSnapshotController extends Controller
     public function destroy(Request $request): JsonResponse
     {
         $validated = $request->validate([
-            'praktikan_id' => ['required', 'integer', 'exists:praktikans,id'],
             'modul_id' => ['required', 'integer', 'exists:moduls,id'],
             'tipe_soal' => ['nullable', Rule::in(self::SUPPORTED_SOAL_TYPES)],
         ]);
@@ -272,7 +284,7 @@ class AutosaveSnapshotController extends Controller
         $cache = $this->cache();
         $deleted = 0;
 
-        $praktikanId = (int) $validated['praktikan_id'];
+        $praktikanId = (int) $this->resolvePraktikan($request)->id;
         $modulId = (int) $validated['modul_id'];
 
         if (! empty($validated['tipe_soal'])) {
@@ -317,17 +329,18 @@ class AutosaveSnapshotController extends Controller
     public function storeQuestionIds(Request $request): JsonResponse
     {
         $validated = $request->validate([
-            'praktikan_id' => ['required', 'integer', 'exists:praktikans,id'],
             'modul_id' => ['required', 'integer', 'exists:moduls,id'],
             'tipe_soal' => ['required', Rule::in(['ta', 'tk', 'mandiri'])],
             'question_ids' => ['required', 'array', 'min:1'],
             'question_ids.*' => ['integer'],
         ]);
 
+        $praktikanId = (int) $this->resolvePraktikan($request)->id;
+
         $cache = $this->cache();
         $suffix = "{$validated['tipe_soal']}_questions";
         $key = $this->cacheKey(
-            (int) $validated['praktikan_id'],
+            $praktikanId,
             (int) $validated['modul_id'],
             $suffix
         );
@@ -345,7 +358,7 @@ class AutosaveSnapshotController extends Controller
 
         $timestamp = Carbon::now()->toISOString();
         $payload = [
-            'praktikan_id' => (int) $validated['praktikan_id'],
+            'praktikan_id' => $praktikanId,
             'modul_id' => (int) $validated['modul_id'],
             'tipe_soal' => $suffix,
             'question_ids' => $validated['question_ids'],
@@ -358,7 +371,7 @@ class AutosaveSnapshotController extends Controller
 
         $this->broadcastProgressUpdates([
             [
-                'praktikan_id' => (int) $validated['praktikan_id'],
+                'praktikan_id' => $praktikanId,
                 'modul_id' => (int) $validated['modul_id'],
             ],
         ]);
@@ -373,15 +386,16 @@ class AutosaveSnapshotController extends Controller
     public function getQuestionIds(Request $request): JsonResponse
     {
         $validated = $request->validate([
-            'praktikan_id' => ['required', 'integer', 'exists:praktikans,id'],
             'modul_id' => ['required', 'integer', 'exists:moduls,id'],
             'tipe_soal' => ['required', Rule::in(['ta', 'tk', 'mandiri'])],
         ]);
 
+        $praktikanId = (int) $this->resolvePraktikan($request)->id;
+
         $cache = $this->cache();
         $suffix = "{$validated['tipe_soal']}_questions";
         $key = $this->cacheKey(
-            (int) $validated['praktikan_id'],
+            $praktikanId,
             (int) $validated['modul_id'],
             $suffix
         );

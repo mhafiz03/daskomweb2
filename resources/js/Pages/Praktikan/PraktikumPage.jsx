@@ -70,6 +70,11 @@ const AUTOSAVE_TYPE_MAP = {
     TesKeterampilan: "tk",
 };
 
+const SCORE_PHASE_BY_TASK = {
+    TesAwal: "ta",
+    TesKeterampilan: "tk",
+};
+
 const STICKY_TASKS = new Set(["TesAwal", "Mandiri", "TesKeterampilan"]);
 
 const extractQuestions = (response) => {
@@ -863,16 +868,12 @@ export default function PraktikumPage({ auth }) {
                 answer: taskAnswers[index],
             }));
 
+            let multipleChoiceSelections = [];
+
             if (config.variant === "multiple-choice") {
-                const selectedAnswers = normalizedAnswers.filter(
+                multipleChoiceSelections = normalizedAnswers.filter(
                     (entry) => entry.answer !== null && entry.answer !== undefined
                 );
-
-                if (!selectedAnswers.length && !silent) {
-                    setSubmissionError("Pilih minimal satu jawaban sebelum mengirimkan.");
-
-                    return;
-                }
             }
 
             setIsSubmittingTask(true);
@@ -909,9 +910,7 @@ export default function PraktikumPage({ auth }) {
                     const payload = {
                         praktikan_id: praktikanId,
                         modul_id: activeModulId,
-                        answers: normalizedAnswers
-                            .filter((entry) => entry.answer !== null && entry.answer !== undefined)
-                            .map((entry) => ({
+                        answers: multipleChoiceSelections.map((entry) => ({
                                 soal_id: entry.question.id,
                                 opsi_id: entry.answer,
                             })),
@@ -948,6 +947,17 @@ export default function PraktikumPage({ auth }) {
                 setCompletedCategories((prev) => ({ ...prev, [taskName]: true }));
                 clearTaskProgress();
 
+                const zeroScorePhase = SCORE_PHASE_BY_TASK[taskName];
+                if (!silent && zeroScorePhase && multipleChoiceSelections.length === 0) {
+                    setScoreModalState({
+                        isOpen: true,
+                        phaseType: zeroScorePhase,
+                        correctAnswers: 0,
+                        totalQuestions: questions.length,
+                        percentage: 0,
+                    });
+                }
+
                 if (!silent) {
                     setActiveComponent("NoPraktikumSection");
                 }
@@ -959,7 +969,7 @@ export default function PraktikumPage({ auth }) {
                 setIsSubmittingTask(false);
             }
         },
-        [activeModulId, answers, clearTaskProgress, persistAnswersToLocalStorage, praktikanId, questions]
+        [activeModulId, answers, clearTaskProgress, persistAnswersToLocalStorage, praktikanId, questions, setScoreModalState]
     );
 
     const handleReviewTask = useCallback(

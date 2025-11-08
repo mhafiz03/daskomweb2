@@ -115,7 +115,7 @@ export default function ModalKonfigurasi({ onClose }) {
                                     { key: "tp_activation", label: "Tugas Pendahuluan", value: isTugasPendahuluanOn, setter: setIsTugasPendahuluanOn },
                                     { key: "registrationAsisten_activation", label: "Registrasi Asisten", value: isRegistrasiAsistenOn, setter: setIsRegistrasiAsistenOn },
                                     { key: "registrationPraktikan_activation", label: "Registrasi Praktikan", value: isRegistrasiPraktikanOn, setter: setIsRegistrasiPraktikanOn },
-                                    { key: "tubes_activation", label: "Tugas Besar", value: isTugasBesarOn, setter: setIsTugasBesarOn },
+                                    // { key: "tubes_activation", label: "Tugas Besar", value: isTugasBesarOn, setter: setIsTugasBesarOn },
                                     { key: "polling_activation", label: "Polling Asisten", value: isPollingAsistenOn, setter: setIsPollingAsistenOn },
                                 ].map((item) => (
                                     <div key={item.key} className="flex items-center justify-between">

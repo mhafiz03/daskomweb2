@@ -99,7 +99,7 @@ export default function ContentPolling() {
                 },
             ],
         }),
-        [handleRefresh, openAddJenisModal],
+        [handleRefresh, loading, openAddJenisModal],
     );
 
     useAssistantToolbar(toolbarConfig);

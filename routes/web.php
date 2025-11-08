@@ -164,8 +164,12 @@ Route::prefix('api-v1')->middleware('audit.assistant')->group(function () {
     Route::post('/imagekit/upload', [ImageKitAuthController::class, 'upload'])->name('imagekit.upload');
 
     Route::put('/asisten', [AsistenController::class, 'update'])->name('update.asisten')->middleware(['auth:asisten', 'can:manage-profile']);
-    Route::post('/profilePic', [AsistenController::class, 'updatePp'])->name('updatePp.asisten');
-    Route::delete('/profilePic', [AsistenController::class, 'destroyPp'])->name('destroyPp.asisten');
+    Route::post('/profilePic', [AsistenController::class, 'updatePp'])
+        ->name('updatePp.asisten')
+        ->middleware('auth:asisten');
+    Route::delete('/profilePic', [AsistenController::class, 'destroyPp'])
+        ->name('destroyPp.asisten')
+        ->middleware('auth:asisten');
 
     // i guess
     Route::post('/register/asisten', [RegisteredAsistenController::class, 'store'])->name('store.asisten')->middleware('guest');

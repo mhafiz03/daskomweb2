@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('nilais', function (Blueprint $table) {
-            $table->float('rating')->nullable()->after('avg');;
+            $table->float('rating')->nullable()->after('avg');
         });
     }
 

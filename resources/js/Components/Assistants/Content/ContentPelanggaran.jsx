@@ -4,7 +4,7 @@ import ButtonResetPelanggaran from "../Modals/ModalResetPelanggaran";
 import TablePelanggaran from "../Tables/TablePelanggaran";
 
 export default function ContentPelanggaran() {
-    const [showModalReset, setShowModalReset] = useState(false); 
+    const [showModalReset, setShowModalReset] = useState(false);
 
     const handleOpenModalReset = useCallback(() => setShowModalReset(true), []);
     const handleCloseModalReset = useCallback(() => setShowModalReset(false), []);
@@ -33,7 +33,7 @@ export default function ContentPelanggaran() {
                 <TablePelanggaran />
             </div>
 
-            {/* Modal Reset Plottingan */}
+            {/* Modal Reset Pelanggaran */}
             {showModalReset && <ButtonResetPelanggaran onClose={handleCloseModalReset} />} 
         </section>
     );

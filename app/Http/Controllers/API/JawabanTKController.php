@@ -68,7 +68,7 @@ class JawabanTKController extends Controller
         $validated = $request->validate([
             'praktikan_id' => ['required', 'integer'],
             'modul_id' => ['required', 'integer'],
-            'answers' => ['required', 'array', 'min:1'],
+            'answers' => ['present', 'array'],
             'answers.*.soal_id' => ['required', 'integer', 'exists:soal_tks,id'],
             'answers.*.opsi_id' => ['required', 'integer', 'exists:soal_opsis,id'],
         ]);

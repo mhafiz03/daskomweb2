@@ -39,7 +39,16 @@ class TugasPendahuluanController extends Controller
                     ->get();
             }
 
-            $configuration = Configuration::select('tp_activation')->first();
+            $configuration = Configuration::select(
+                'id',
+                'tp_activation',
+                'tp_schedule_enabled',
+                'tp_schedule_start_at',
+                'tp_schedule_end_at'
+            )->first();
+            if ($configuration) {
+                $configuration->refreshTpActivationFromSchedule();
+            }
             $tpActive = $configuration ? (bool) $configuration->tp_activation : true;
 
             $activeRegular = $tugas->first(function ($item) {

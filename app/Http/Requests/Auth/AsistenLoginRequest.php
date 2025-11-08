@@ -37,16 +37,17 @@ class AsistenLoginRequest extends FormRequest
      *
      * @throws \Illuminate\Validation\ValidationException
      */
-    public function authenticate()
+    public function authenticate(): void
     {
         $this->ensureIsNotRateLimited();
         if (! Auth::guard('asisten')->attempt($this->only('kode', 'password'))) {
             RateLimiter::hit($this->throttleKey());
 
-            return redirect()->back()->withErrors([
+            throw ValidationException::withMessages([
                 'kode' => trans('auth.failed'),
             ]);
         }
+        RateLimiter::clear($this->throttleKey());
     }
 
     /**

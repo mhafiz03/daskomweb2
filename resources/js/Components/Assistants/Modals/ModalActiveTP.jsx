@@ -16,6 +16,28 @@ import { ModalOverlay } from "@/Components/Common/ModalPortal";
 import DepthToggleButton from "@/Components/Common/DepthToggleButton";
 
 const normaliseModuleId = (module) => Number(module?.idM ?? module?.id ?? module?.modul_id ?? 0);
+const boolToInt = (value) => (value ? 1 : 0);
+const formatDatetimeLocalValue = (value) => {
+    if (!value) {
+        return "";
+    }
+
+    const date = value instanceof Date ? value : new Date(value);
+    if (Number.isNaN(date.getTime())) {
+        return "";
+    }
+
+    const timezoneOffset = date.getTimezoneOffset() * 60000;
+    return new Date(date.getTime() - timezoneOffset).toISOString().slice(0, 16);
+};
+
+const normaliseDatetimePayload = (value) => {
+    if (!value) {
+        return null;
+    }
+
+    return value.length === 16 ? `${value}:00` : value;
+};
 
 export default function ModalActiveTP({ onClose }) {
     const queryClient = useQueryClient();
@@ -60,6 +82,9 @@ export default function ModalActiveTP({ onClose }) {
 
     const [regularSelection, setRegularSelection] = useState("");
     const [englishSelection, setEnglishSelection] = useState("");
+    const [isScheduleEnabled, setIsScheduleEnabled] = useState(false);
+    const [scheduleStartAt, setScheduleStartAt] = useState("");
+    const [scheduleEndAt, setScheduleEndAt] = useState("");
 
     useEffect(() => {
         if (modulesQuery.isLoading || tugasPendahuluanQuery.isLoading) {
@@ -94,6 +119,19 @@ export default function ModalActiveTP({ onClose }) {
         englishModules,
     ]);
 
+    useEffect(() => {
+        if (!configuration) {
+            setIsScheduleEnabled(false);
+            setScheduleStartAt("");
+            setScheduleEndAt("");
+            return;
+        }
+
+        setIsScheduleEnabled(Boolean(configuration.tp_schedule_enabled));
+        setScheduleStartAt(formatDatetimeLocalValue(configuration.tp_schedule_start_at));
+        setScheduleEndAt(formatDatetimeLocalValue(configuration.tp_schedule_end_at));
+    }, [configuration]);
+
     const updateMutation = useMutation({
         mutationFn: async (payload) => {
             const { data } = await send(updateTugasPendahuluanRoute(), payload);
@@ -122,19 +160,139 @@ export default function ModalActiveTP({ onClose }) {
         },
     });
 
+    const buildConfigurationPayload = (overrides = {}) => {
+        if (!configuration) {
+            return null;
+        }
+
+        const scheduleEnabled =
+            overrides.tp_schedule_enabled !== undefined
+                ? Boolean(overrides.tp_schedule_enabled)
+                : isScheduleEnabled;
+
+        return {
+            tp_activation:
+                overrides.tp_activation !== undefined
+                    ? overrides.tp_activation
+                    : boolToInt(isTpGloballyActive),
+            registrationAsisten_activation:
+                overrides.registrationAsisten_activation !== undefined
+                    ? overrides.registrationAsisten_activation
+                    : boolToInt(configuration.registrationAsisten_activation),
+            registrationPraktikan_activation:
+                overrides.registrationPraktikan_activation !== undefined
+                    ? overrides.registrationPraktikan_activation
+                    : boolToInt(configuration.registrationPraktikan_activation),
+            tubes_activation:
+                overrides.tubes_activation !== undefined
+                    ? overrides.tubes_activation
+                    : boolToInt(configuration.tubes_activation),
+            polling_activation:
+                overrides.polling_activation !== undefined
+                    ? overrides.polling_activation
+                    : boolToInt(configuration.polling_activation),
+            tp_schedule_enabled: scheduleEnabled ? 1 : 0,
+            tp_schedule_start_at:
+                overrides.tp_schedule_start_at !== undefined
+                    ? overrides.tp_schedule_start_at
+                    : scheduleEnabled
+                        ? normaliseDatetimePayload(scheduleStartAt)
+                        : null,
+            tp_schedule_end_at:
+                overrides.tp_schedule_end_at !== undefined
+                    ? overrides.tp_schedule_end_at
+                    : scheduleEnabled
+                        ? normaliseDatetimePayload(scheduleEndAt)
+                        : null,
+        };
+    };
+
     const handleToggleTpActivation = () => {
         if (!configuration) {
             toast.error("Konfigurasi belum dimuat.");
             return;
         }
 
-        const payload = {
+        const payload = buildConfigurationPayload({
             tp_activation: isTpGloballyActive ? 0 : 1,
-            registrationAsisten_activation: configuration.registrationAsisten_activation ? 1 : 0,
-            registrationPraktikan_activation: configuration.registrationPraktikan_activation ? 1 : 0,
-            tubes_activation: configuration.tubes_activation ? 1 : 0,
-            polling_activation: configuration.polling_activation ? 1 : 0,
-        };
+        });
+
+        if (!payload) {
+            toast.error("Konfigurasi tidak tersedia.");
+            return;
+        }
+
+        configurationMutation.mutate(payload);
+    };
+
+    const handleToggleSchedule = () => {
+        if (!configuration) {
+            toast.error("Konfigurasi belum dimuat.");
+            return;
+        }
+
+        if (isScheduleEnabled) {
+            setIsScheduleEnabled(false);
+            setScheduleStartAt("");
+            setScheduleEndAt("");
+            const payload = buildConfigurationPayload({
+                tp_schedule_enabled: 0,
+                tp_schedule_start_at: null,
+                tp_schedule_end_at: null,
+            });
+            configurationMutation.mutate(payload);
+            return;
+        }
+
+        setIsScheduleEnabled(true);
+        if (!scheduleStartAt) {
+            const now = new Date();
+            setScheduleStartAt(formatDatetimeLocalValue(now));
+        }
+        if (!scheduleEndAt) {
+            const nextHour = new Date();
+            nextHour.setHours(nextHour.getHours() + 1);
+            setScheduleEndAt(formatDatetimeLocalValue(nextHour));
+        }
+    };
+
+    const handleSaveSchedule = () => {
+        if (!configuration) {
+            toast.error("Konfigurasi belum dimuat.");
+            return;
+        }
+
+        if (isScheduleEnabled) {
+            if (!scheduleStartAt || !scheduleEndAt) {
+                toast.error("Lengkapi waktu mulai dan selesai jadwal.");
+                return;
+            }
+
+            const startTime = new Date(scheduleStartAt);
+            const endTime = new Date(scheduleEndAt);
+
+            if (!(startTime instanceof Date) || Number.isNaN(startTime.getTime())) {
+                toast.error("Format waktu mulai tidak valid.");
+                return;
+            }
+
+            if (!(endTime instanceof Date) || Number.isNaN(endTime.getTime())) {
+                toast.error("Format waktu selesai tidak valid.");
+                return;
+            }
+
+            if (endTime <= startTime) {
+                toast.error("Waktu selesai harus setelah waktu mulai.");
+                return;
+            }
+        }
+
+        const payload = buildConfigurationPayload();
+
+        if (!payload) {
+            toast.error("Konfigurasi tidak tersedia.");
+            return;
+        }
 
         configurationMutation.mutate(payload);
     };
@@ -183,11 +341,67 @@ export default function ModalActiveTP({ onClose }) {
                     </div>
                 </div>
 
-                <div className="mt-6">
+                <div className="mt-6 space-y-6">
+                    <section className="rounded-depth-md border border-depth/60 bg-depth-card/60 p-4 shadow-depth-sm dark:border-depth/30 dark:bg-depth-card/40">
+                        <div className="flex items-center justify-between gap-4">
+                            <div>
+                                <h3 className="text-sm font-semibold text-depth-primary dark:text-white">
+                                    Jadwal Otomatis TP
+                                </h3>
+                                <p className="mt-1 text-xs text-depth-secondary dark:text-gray-400">
+                                    Aktifkan jadwal agar TP menyala dan mati otomatis sesuai rentang waktu.
+                                </p>
+                            </div>
+                            <DepthToggleButton
+                                label={isScheduleEnabled ? "Jadwal Aktif" : "Jadwal Mati"}
+                                isOn={isScheduleEnabled}
+                                onToggle={handleToggleSchedule}
+                                disabled={configurationQuery.isLoading || configurationMutation.isPending}
+                            />
+                        </div>
+
+                        {isScheduleEnabled && (
+                            <div className="mt-4 space-y-4">
+                                <label className="flex flex-col text-xs font-semibold text-depth-primary dark:text-white">
+                                    Mulai Aktif
+                                    <input
+                                        type="datetime-local"
+                                        lang="id-ID"
+                                        className="mt-1 w-full rounded-depth-md border border-depth bg-depth-card px-3 py-2 text-sm font-medium text-depth-primary shadow-depth-inset focus:border-[var(--depth-color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)] focus:ring-offset-0 dark:border-depth/70 dark:bg-depth-card/70 dark:text-white"
+                                        value={scheduleStartAt}
+                                        onChange={(event) => setScheduleStartAt(event.target.value)}
+                                        disabled={isBusy}
+                                    />
+                                </label>
+
+                                <label className="flex flex-col text-xs font-semibold text-depth-primary dark:text-white">
+                                    Berakhir
+                                    <input
+                                        type="datetime-local"
+                                        lang="id-ID"
+                                        className="mt-1 w-full rounded-depth-md border border-depth bg-depth-card px-3 py-2 text-sm font-medium text-depth-primary shadow-depth-inset focus:border-[var(--depth-color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)] focus:ring-offset-0 dark:border-depth/70 dark:bg-depth-card/70 dark:text-white"
+                                        value={scheduleEndAt}
+                                        onChange={(event) => setScheduleEndAt(event.target.value)}
+                                        disabled={isBusy}
+                                    />
+                                </label>
+
+                                <button
+                                    type="button"
+                                    onClick={handleSaveSchedule}
+                                    className="w-full rounded-depth-md bg-[var(--depth-color-primary)] px-4 py-2 text-sm font-semibold text-white shadow-depth-sm transition hover:bg-[var(--depth-color-primary-dark)] disabled:cursor-not-allowed disabled:bg-depth-secondary"
+                                    disabled={isBusy}
+                                >
+                                    Simpan Jadwal
+                                </button>
+                            </div>
+                        )}
+                    </section>
+
                     <section className="p-4">
                         <h3 className="text-sm font-semibold text-depth-primary dark:text-white">Kelas Reguler</h3>
                         <select
-                            className="mt-3 w-full rounded-depth-md border border-depth bg-depth-card/80 p-2 text-sm text-depth-primary shadow-depth-sm transition focus:border-[var(--depth-color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)] dark:border-depth/70 dark:bg-depth-card/50 dark:text-gray-700"
+                            className="mt-3 w-full appearance-none rounded-depth-md border border-depth bg-depth-card px-3 py-2 text-sm font-medium text-depth-primary shadow-depth-inset transition focus:border-[var(--depth-color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)] focus:ring-offset-0 dark:border-depth/70 dark:bg-depth-card/70 dark:text-white"
                             value={regularSelection}
                             onChange={(event) => {
                                 const value = event.target.value;
@@ -217,7 +431,7 @@ export default function ModalActiveTP({ onClose }) {
                             </div>
                         </div>
                         <select
-                            className="mt-3 w-full rounded-depth-md border border-depth bg-depth-card/80 p-2 text-sm text-depth-primary shadow-depth-sm transition focus:border-[var(--depth-color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)] dark:border-depth/70 dark:bg-depth-card/50 dark:text-gray-700"
+                            className="mt-3 w-full appearance-none rounded-depth-md border border-depth bg-depth-card px-3 py-2 text-sm font-medium text-depth-primary shadow-depth-inset transition focus:border-[var(--depth-color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)] focus:ring-offset-0 dark:border-depth/70 dark:bg-depth-card/70 dark:text-white"
                             value={englishSelection}
                             onChange={(event) => {
                                 const value = event.target.value;
