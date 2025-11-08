@@ -18,6 +18,20 @@ export default function LoginPage() {
         setMode(currentMode);
     }, [ziggy?.location]);
 
+    const handleModeChange = (nextMode) => {
+        if (!nextMode || nextMode === mode) {
+            return;
+        }
+
+        setMode(nextMode);
+
+        if (typeof window !== "undefined") {
+            const url = new URL(window.location.href);
+            url.searchParams.set("mode", nextMode);
+            window.history.replaceState({}, "", url);
+        }
+    };
+
     return (
         <>
             <Head title={mode === 'praktikan' ? "Login - Praktikan" : "Login - Asisten"} />
@@ -34,7 +48,7 @@ export default function LoginPage() {
                     <div className="w-1/2 flex flex-col items-center justify-center">
                         <Vector size="w-[410px]" />
                         <div className="flex flex-col items-center mt-4 w-full">
-                            <ButtonGroup currentMode={mode} />
+                            <ButtonGroup currentMode={mode} onModeChange={handleModeChange} />
                         </div>
                     </div>
                 </div>
