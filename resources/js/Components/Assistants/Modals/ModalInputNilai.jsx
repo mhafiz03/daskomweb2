@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import toast from "react-hot-toast";
-import { submit } from "@/lib/http";
+import { send } from "@/lib/http";
 import { api } from "@/lib/api";
 import {
     store as storeNilai,
@@ -17,8 +17,8 @@ const scoresSchema = [
     { key: "d2", label: "D2" },
     { key: "d3", label: "D3" },
     { key: "d4", label: "D4" },
-    { key: "i1", label: "I1" },
-    { key: "i2", label: "I2" },
+    { key: "l1", label: "L1" },
+    { key: "l2", label: "L2" },
 ];
 
 const clampScore = (value) => {
@@ -148,8 +148,8 @@ export default function ModalInputNilai({
         d2: 0,
         d3: 0,
         d4: 0,
-        i1: 0,
-        i2: 0,
+        l1: 0,
+        l2: 0,
     });
     const [isSaving, setIsSaving] = useState(false);
     const [activeQuestionTab, setActiveQuestionTab] = useState(null);
@@ -489,8 +489,8 @@ export default function ModalInputNilai({
                 d2: clampScore(nilaiSebelumnya.d2),
                 d3: clampScore(nilaiSebelumnya.d3),
                 d4: clampScore(nilaiSebelumnya.d4),
-                i1: clampScore(nilaiSebelumnya.i1 ?? nilaiSebelumnya.l1),
-                i2: clampScore(nilaiSebelumnya.i2 ?? nilaiSebelumnya.l2),
+                l1: clampScore(nilaiSebelumnya.l1 ?? nilaiSebelumnya.i1),
+                l2: clampScore(nilaiSebelumnya.l2 ?? nilaiSebelumnya.i2),
             });
             setRating(clampRating(nilaiSebelumnya.rating));
         } else {
@@ -501,8 +501,8 @@ export default function ModalInputNilai({
                 d2: 0,
                 d3: 0,
                 d4: 0,
-                i1: 0,
-                i2: 0,
+                l1: 0,
+                l2: 0,
             });
             setRating(null);
         }
@@ -570,23 +570,20 @@ export default function ModalInputNilai({
             ? updateNilai(nilaiSebelumnya.id)
             : storeNilai();
 
-        submit(action, {
-            data: payload,
-            preserveScroll: true,
-            onSuccess: () => {
+        send(action, payload)
+            .then(() => {
                 toast.success("Nilai berhasil disimpan 🎉");
                 onSaved?.();
-            },
-            onError: (error) => {
+            })
+            .catch((error) => {
                 const responseMessage = error?.response?.data?.message;
                 toast.error(
                     responseMessage ?? "Terjadi kesalahan saat menyimpan nilai."
                 );
-            },
-            onFinish: () => {
+            })
+            .finally(() => {
                 setIsSaving(false);
-            },
-        });
+            });
     };
 
     return (

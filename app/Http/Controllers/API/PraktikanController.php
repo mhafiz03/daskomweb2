@@ -349,6 +349,7 @@ class PraktikanController extends Controller
                         'l1' => $nilai->l1,
                         'l2' => $nilai->l2,
                         'avg' => $nilai->avg,
+                        'rating' => $nilai->rating,
                         'updated_at' => optional($nilai->updated_at)->toIso8601String(),
                     ] : null,
                 ];
@@ -445,23 +446,52 @@ class PraktikanController extends Controller
             $praktikan = Praktikan::find(auth()->guard('praktikan')->user()->id);
 
             if (! $praktikan) {
+                if ($request->expectsJson()) {
+                    return response()->json([
+                        'message' => 'Praktikan not found.',
+                    ], 404);
+                }
+
                 return redirect()->back()->withErrors([
                     'error' => 'Praktikan not found.',
                 ]);
             }
 
             if (! Hash::check($request->current_password, $praktikan->password)) {
+                $message = 'Password saat ini tidak sesuai';
+
+                if ($request->expectsJson()) {
+                    return response()->json([
+                        'message' => $message,
+                        'errors' => [
+                            'current_password' => [$message],
+                        ],
+                    ], 422);
+                }
+
                 return redirect()->back()->withErrors([
-                    'current_password' => 'Password saat ini tidak sesuai',
+                    'current_password' => $message,
                 ]);
             }
 
             $praktikan->password = Hash::make($request->password);
             $praktikan->save();
 
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'message' => 'Password berhasil diubah',
+                ]);
+            }
+
             return redirect()->back()->with('success', 'Password berhasil diubah');
         } catch (\Exception $e) {
-            // Since we're using Inertia, return a redirect with errors instead of JSON
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'message' => 'Gagal mengubah password.',
+                    'error' => $e->getMessage(),
+                ], 500);
+            }
+
             return redirect()->back()->withErrors([
                 'error' => 'Gagal mengubah password: '.$e->getMessage(),
             ]);

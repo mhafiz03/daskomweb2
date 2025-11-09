@@ -35,7 +35,12 @@ export default function LoginFormPraktikan({ mode, onSwitchToRegister }) {
 
     function handleChange(e) {
         const key = e.target.id;
-        const value = e.target.value;
+        let value = e.target.value;
+
+        if (key === 'nim') {
+            value = value.replace(/\D/g, '').slice(0, 12);
+        }
+
         setValues((values) => ({
             ...values,
             [key]: value,
@@ -75,7 +80,18 @@ export default function LoginFormPraktikan({ mode, onSwitchToRegister }) {
             <p className="font-bold text-lg text-depth-secondary text-center">Please login to start practicum.</p>
 
             <form className="flex flex-col gap-2" onSubmit={handleSubmit}>
-                <input className="bg-depth-card py-2 px-4 mt-10 rounded-depth-md border border-depth placeholder-depth-secondary focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)] focus:border-transparent transition-all shadow-depth-sm" type="text" inputMode="numeric" pattern="[0-9]*" name="nim" id='nim' value={values.nim} placeholder="NIM" onChange={handleChange} />
+                <input
+                    className="bg-depth-card py-2 px-4 mt-10 rounded-depth-md border border-depth placeholder-depth-secondary focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)] focus:border-transparent transition-all shadow-depth-sm"
+                    type="text"
+                    inputMode="numeric"
+                    pattern="[0-9]*"
+                    maxLength={12}
+                    name="nim"
+                    id='nim'
+                    value={values.nim}
+                    placeholder="NIM"
+                    onChange={handleChange}
+                />
                 <div className="relative">
                     <input
                         className="bg-depth-card py-2 px-4 mt-1 w-full rounded-depth-md border border-depth placeholder-depth-secondary focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)] focus:border-transparent transition-all shadow-depth-sm"

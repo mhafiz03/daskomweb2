@@ -181,27 +181,55 @@ class AsistenController extends Controller
             $asisten = Asisten::find(auth()->guard('asisten')->user()->id);
 
             if (! $asisten) {
+                if ($request->expectsJson()) {
+                    return response()->json([
+                        'message' => 'Asisten not found.',
+                    ], 404);
+                }
+
                 return redirect()->back()->withErrors([
                     'error' => 'Asisten not found.',
                 ]);
             }
 
             if (! Hash::check($request->current_password, $asisten->password)) {
+                $message = 'Password Sebelunmnya tidak sesuai';
+
+                if ($request->expectsJson()) {
+                    return response()->json([
+                        'message' => $message,
+                        'errors' => [
+                            'current_password' => [$message],
+                        ],
+                    ], 422);
+                }
+
                 return redirect()->back()->withErrors([
-                    'current_password' => 'Password Sebelunmnya tidak sesuai',
+                    'current_password' => $message,
                 ]);
             }
 
             $asisten->password = Hash::make($request->password);
             $asisten->save();
 
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'message' => 'Password berhasil diubah',
+                ]);
+            }
+
             return redirect()->back()->with('success', 'Password berhasil diubah');
         } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'gagal mengubah password',
-                'error' => $e->getMessage(),
-            ], 500);
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'message' => 'gagal mengubah password',
+                    'error' => $e->getMessage(),
+                ], 500);
+            }
+
+            return redirect()->back()->withErrors([
+                'error' => 'gagal mengubah password: '.$e->getMessage(),
+            ]);
         }
     }
 

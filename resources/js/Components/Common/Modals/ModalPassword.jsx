@@ -1,7 +1,7 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { usePage } from "@inertiajs/react";
 import failedIcon from "../../../../assets/modal/failedSymbol.png";
-import { submit } from "@/lib/http";
+import { send } from "@/lib/http";
 import { ModalOverlay } from "@/Components/Common/ModalPortal";
 import ModalCloseButton from "../ModalCloseButton";
 
@@ -14,35 +14,63 @@ export default function ModalPassword({ isOpen, onClose, updatePasswordAction, u
     const [isSuccess, setIsSuccess] = useState(false);
     const [errorMessage, setErrorMessage] = useState("");
     
-    const { auth, errors, flash } = usePage().props;
+    const { auth } = usePage().props;
     const user = auth?.[userType];
     
     useEffect(() => {
-        if (flash?.success) {
-            setIsSuccess(true);
-            setTimeout(() => {
-                setIsSuccess(false);
-                onClose();
-            }, 1500);
-        }
-        
-        if (errors && Object.keys(errors).length > 0) {
-            const errorMessages = Object.values(errors).flat().join('\n');
-            setErrorMessage(errorMessages);
-        }
-    }, [flash, errors, onClose]);
-
-    useEffect(() => {
-        if (user) {
+        if (user && isOpen) {
             setValues({
                 current_password: "",
                 password: "",
             });
         }
-    }, [user]);
+    }, [user, isOpen]);
 
-    const handleSave = (e) => {
+    useEffect(() => {
+        if (!isSuccess) {
+            return;
+        }
+
+        const timeout = setTimeout(() => {
+            setIsSuccess(false);
+            onClose?.();
+        }, 1500);
+
+        return () => clearTimeout(timeout);
+    }, [isSuccess, onClose]);
+
+    const resolveActionDescriptor = () => {
+        if (typeof updatePasswordAction === "function") {
+            return updatePasswordAction(values);
+        }
+
+        return updatePasswordAction ?? null;
+    };
+
+    const extractErrorMessage = (error) => {
+        const responseData = error?.response?.data;
+
+        if (responseData?.errors && typeof responseData.errors === "object") {
+            return Object.values(responseData.errors).flat().join("\n");
+        }
+
+        if (typeof responseData?.message === "string" && responseData.message.trim() !== "") {
+            return responseData.message;
+        }
+
+        if (error?.message) {
+            return error.message;
+        }
+
+        return "Terjadi kesalahan saat mengganti password. Silakan coba lagi.";
+    };
+
+    const handleSave = async (e) => {
         e.preventDefault();
+        if (isLoading) {
+            return;
+        }
+
         setIsLoading(true);
         setErrorMessage("");
     
@@ -58,36 +86,30 @@ export default function ModalPassword({ isOpen, onClose, updatePasswordAction, u
             return;
         }
         
-        try {
-            const actionDescriptor = updatePasswordAction?.(values);
+        const actionDescriptor = resolveActionDescriptor();
 
-            if (actionDescriptor && typeof actionDescriptor.then === "function") {
-                actionDescriptor
-                    .then(() => setIsLoading(false))
-                    .catch((error) => {
-                        console.error("Password update failed:", error);
-                        setErrorMessage("Terjadi kesalahan saat mengganti password. Silakan coba lagi.");
-                        setIsLoading(false);
-                    });
-                return;
-            }
-
-            if (actionDescriptor) {
-                submit(actionDescriptor, {
-                    data: values,
-                    preserveScroll: true,
-                    onFinish: () => {
-                        setIsLoading(false);
-                    }
-                });
-                return;
-            }
-
+        if (!actionDescriptor) {
             setErrorMessage("Tidak dapat mengganti password saat ini. Silakan coba lagi nanti.");
             setIsLoading(false);
+            return;
+        }
+
+        try {
+            if (typeof actionDescriptor.then === "function") {
+                await actionDescriptor;
+            } else {
+                await send(actionDescriptor, values);
+            }
+
+            setValues({
+                current_password: "",
+                password: "",
+            });
+            setIsSuccess(true);
         } catch (error) {
             console.error("Password update failed:", error);
-            setErrorMessage("Terjadi kesalahan saat mengganti password. Silakan coba lagi.");
+            setErrorMessage(extractErrorMessage(error));
+        } finally {
             setIsLoading(false);
         }
     };

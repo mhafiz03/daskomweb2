@@ -133,11 +133,11 @@ class ImageKitAdapter implements FilesystemAdapter
 
     public function lastModified(string $path): FileAttributes
     {
-        $file = $this->searchFile($file);
+        $file = $this->searchFile($path);
 
         $meta = $this->client->getFileDetails($file->fileId);
 
-        return new FileAttributes($path, null, null, strtotime($meta->success->updatedAt));
+        return new FileAttributes($path, null, null, strtotime($meta->result->updatedAt));
     }
 
     public function fileSize(string $path): FileAttributes

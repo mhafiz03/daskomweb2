@@ -155,7 +155,7 @@ Route::inertia('/polling-assistant', 'Praktikan/PollingPage')
     ->name('polling-assistant');
 
 // ///////////////////////////////////// Data Routes ///////////////////////////////////////
-Route::prefix('api-v1')->middleware('audit.assistant')->group(function () {
+Route::prefix('api-v1')->middleware(['audit.assistant', 'auth:asisten,praktikan'])->group(function () {
     // ImageKit authentication endpoint
     Route::get('/imagekit/auth', [ImageKitAuthController::class, 'generateAuth'])->name('imagekit.auth');
 
