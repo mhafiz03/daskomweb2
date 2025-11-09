@@ -463,7 +463,7 @@ export default function FeedbackPhase({
                         </div>
                     </div>
 
-                    <div className="mt-6 flex flex-col justify-end gap-3 sm:flex-row">
+                    <div className="mt-6 mb-10 flex flex-col justify-end gap-3 sm:flex-row">
                         <button
                             type="button"
                             onClick={handleSubmit}

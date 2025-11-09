@@ -25,20 +25,20 @@ export default function ScoreDisplayModal({
     
     // Determine grade and color based on percentage
     let gradeColor = 'text-red-600 dark:text-red-400';
-    let bgGradient = 'linear-gradient(135deg, rgba(239, 68, 68, 0.78), rgba(220, 38, 38, 0.78))';
-    
+    let bgGradient = 'linear-gradient(135deg, rgba(239, 68, 68, 0.9), rgba(220, 38, 38, 0.9))';
+
     if (scorePercentage >= 90) {
         gradeColor = 'text-green-600 dark:text-green-400';
-        bgGradient = 'linear-gradient(135deg, rgba(34, 197, 94, 0.78), rgba(22, 163, 74, 0.78))';
+        bgGradient = 'linear-gradient(135deg, rgba(34, 197, 94, 0.9), rgba(22, 163, 74, 0.9))';
     } else if (scorePercentage >= 80) {
         gradeColor = 'text-blue-600 dark:text-blue-400';
-        bgGradient = 'linear-gradient(135deg, rgba(59, 130, 246, 0.78), rgba(37, 99, 235, 0.78))';
+        bgGradient = 'linear-gradient(135deg, rgba(59, 130, 246, 0.9), rgba(37, 99, 235, 0.9))';
     } else if (scorePercentage >= 70) {
         gradeColor = 'text-cyan-600 dark:text-cyan-400';
-        bgGradient = 'linear-gradient(135deg, rgba(6, 182, 212, 0.78), rgba(8, 145, 178, 0.78))';
+        bgGradient = 'linear-gradient(135deg, rgba(6, 182, 212, 0.9), rgba(8, 145, 178, 0.9))';
     } else if (scorePercentage >= 60) {
         gradeColor = 'text-amber-600 dark:text-amber-400';
-        bgGradient = 'linear-gradient(135deg, rgba(245, 158, 11, 0.78), rgba(217, 119, 6, 0.78))';
+        bgGradient = 'linear-gradient(135deg, rgba(245, 158, 11, 0.9), rgba(217, 119, 6, 0.9))';
     }
 
     return (
@@ -48,7 +48,7 @@ export default function ScoreDisplayModal({
                 onClick={onClose}
             />
 
-            <div className="relative z-10 w-full max-w-lg overflow-hidden rounded-[2.25rem] border border-depth/40 bg-white/90 shadow-[0_30px_70px_rgba(15,23,42,0.35)] backdrop-blur-xl backdrop-saturate-150 dark:border-emerald-200/40 dark:bg-depth-card/90">
+            <div className="relative z-10 w-full max-w-lg overflow-hidden rounded-[2.25rem] border border-depth/40 bg-white/90 shadow-[0_30px_70px_rgba(15,23,42,0.35)] backdrop-blur-xl backdrop-saturate-150 dark:border-emerald-200/40 dark:bg-depth-card">
                 <div
                     className="absolute inset-x-0 top-0 h-1"
                     style={{ background: bgGradient }}
@@ -75,7 +75,7 @@ export default function ScoreDisplayModal({
                     </div>
 
                     <div className="mx-auto grid max-w-md gap-6">
-                        <div className="grid grid-cols-2 gap-4 rounded-3xl border border-depth/60 bg-white/70 p-6 shadow-inner dark:border-depth dark:bg-depth-card/80">
+                        <div className="grid grid-cols-2 gap-4 rounded-3xl border border-depth bg-depth-interactive/40 p-6">
                             <div className="flex flex-col items-center justify-center gap-1">
                                 <span className="text-xs font-semibold tracking-wide text-depth-secondary">Nilai (%)</span>
                                 <span className="text-5xl font-black text-depth-primary">{scorePercentage}<span className="text-2xl align-top">%</span></span>
@@ -95,7 +95,7 @@ export default function ScoreDisplayModal({
                             </div>
                         </div>
 
-                        <div className="rounded-3xl border border-depth/40 bg-white/60 p-5 text-sm font-medium text-depth-primary shadow-sm dark:border-depth dark:bg-depth-card/75">
+                        <div className="rounded-3xl bg-depth-interactive/30 p-5 text-sm font-medium text-depth-primary">
                             {scorePercentage >= 90 && "🎉 Luar biasa! Pertahankan performa terbaikmu."}
                             {scorePercentage >= 80 && scorePercentage < 90 && "👏 Bagus sekali! Kamu berada di jalur yang tepat."}
                             {scorePercentage >= 70 && scorePercentage < 80 && "👍 Hasil cukup baik, tinggal sedikit lagi menuju puncak."}
