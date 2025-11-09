@@ -6,6 +6,7 @@ use App\Models\Configuration;
 use App\Models\Modul;
 use App\Models\Tugaspendahuluan;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Cache;
 use Tests\TestCase;
 
 class ConfigurationScheduleTest extends TestCase
@@ -17,6 +18,7 @@ class ConfigurationScheduleTest extends TestCase
         parent::setUp();
 
         $this->withoutMiddleware();
+        Cache::flush();
     }
 
     protected function seedConfiguration(array $overrides = []): Configuration
@@ -81,5 +83,21 @@ class ConfigurationScheduleTest extends TestCase
         $this->assertDatabaseHas('configurations', [
             'tp_activation' => false,
         ]);
+    }
+
+    public function test_schedule_state_cached_after_request(): void
+    {
+        $config = $this->seedConfiguration([
+            'tp_activation' => false,
+            'tp_schedule_enabled' => true,
+            'tp_schedule_start_at' => now()->subMinutes(2),
+            'tp_schedule_end_at' => now()->addMinutes(8),
+        ]);
+
+        $this->getJson('/api-v1/config')->assertOk();
+
+        $cacheKey = $config->fresh()->tpScheduleCacheKey();
+        $this->assertTrue(Cache::has($cacheKey));
+        $this->assertSame(true, Cache::get($cacheKey));
     }
 }

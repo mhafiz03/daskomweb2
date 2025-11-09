@@ -82,7 +82,8 @@ class ConfigurationController extends Controller
             $editor = $request->user();
             $config->kode_asisten = $editor?->kode ?? 'UNK';
             $config->save();
-            $config->refreshTpActivationFromSchedule();
+            $config->flushTpScheduleCache();
+            $config->refreshTpActivationFromSchedule(true);
 
             return response()->json([
                 'config' => $config,

@@ -330,19 +330,6 @@ export default function Jurnal({
                                                                 Pilih File
                                                             </button>
                                                         </div>
-                                                        <input
-                                                            id={`file-upload-${index}`}
-                                                            type="file"
-                                                            className="hidden"
-                                                            accept="image/*"
-                                                            onChange={(e) => {
-                                                                const file = e.target.files[0];
-                                                                if (file) {
-                                                                    handleFileUpload(index, file);
-                                                                }
-                                                            }}
-                                                            disabled={uploadingIndexes[index]}
-                                                        />
                                                     </div>
                                                 ) : (
                                                     <div className="relative rounded-depth-md border border-depth bg-depth-card p-3">
@@ -404,6 +391,19 @@ export default function Jurnal({
                                                         )}
                                                     </div>
                                                 )}
+                                                <input
+                                                    id={`file-upload-${index}`}
+                                                    type="file"
+                                                    className="hidden"
+                                                    accept="image/*"
+                                                    onChange={(e) => {
+                                                        const file = e.target.files[0];
+                                                        if (file) {
+                                                            handleFileUpload(index, file);
+                                                        }
+                                                    }}
+                                                    disabled={uploadingIndexes[index]}
+                                                />
                                             </div>
                                         ) : (
                                             <textarea

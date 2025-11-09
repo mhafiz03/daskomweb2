@@ -8,6 +8,7 @@ namespace App\Models;
 
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Cache;
 
 /**
  * Class Configuration
@@ -29,6 +30,8 @@ use Illuminate\Database\Eloquent\Model;
 class Configuration extends Model
 {
     protected $table = 'configurations';
+
+    private const TP_SCHEDULE_CACHE_SECONDS = 60;
 
     protected $casts = [
         'registrationPraktikan_activation' => 'bool',
@@ -59,16 +62,58 @@ class Configuration extends Model
         'kode_asisten',
     ];
 
-    public function refreshTpActivationFromSchedule(): void
+    public function refreshTpActivationFromSchedule(bool $force = false): void
     {
-        if (! $this->tp_schedule_enabled) {
+        $scheduledState = $this->rememberScheduleState($force);
+
+        if ($scheduledState === null) {
             return;
         }
 
-        if (! $this->tp_schedule_start_at || ! $this->tp_schedule_end_at) {
-            return;
+        if ((bool) $this->tp_activation !== $scheduledState) {
+            $this->tp_activation = $scheduledState;
+            $this->saveQuietly();
+        }
+    }
+
+    public function flushTpScheduleCache(): void
+    {
+        Cache::forget($this->tpScheduleCacheKey());
+    }
+
+    public function tpScheduleCacheKey(): string
+    {
+        $identifier = $this->getKey() ?? 'pending';
+        $hashSource = implode('|', [
+            $this->tp_schedule_enabled ? 1 : 0,
+            optional($this->tp_schedule_start_at)->timestamp ?? 'null',
+            optional($this->tp_schedule_end_at)->timestamp ?? 'null',
+        ]);
+
+        return sprintf('tp-schedule-state:config:%s:%s', $identifier, md5($hashSource));
+    }
+
+    protected function rememberScheduleState(bool $force = false): ?bool
+    {
+        if (! $this->tp_schedule_enabled || ! $this->tp_schedule_start_at || ! $this->tp_schedule_end_at) {
+            $this->flushTpScheduleCache();
+
+            return null;
         }
 
+        if ($force) {
+            $this->flushTpScheduleCache();
+        }
+
+        $cacheKey = $this->tpScheduleCacheKey();
+
+        return Cache::remember($cacheKey, now()->addSeconds(self::TP_SCHEDULE_CACHE_SECONDS), function (): bool {
+            return $this->computeScheduleState();
+        });
+    }
+
+    protected function computeScheduleState(): bool
+    {
         $now = now();
         $start = $this->tp_schedule_start_at instanceof Carbon
             ? $this->tp_schedule_start_at
@@ -77,11 +122,6 @@ class Configuration extends Model
             ? $this->tp_schedule_end_at
             : Carbon::parse($this->tp_schedule_end_at);
 
-        $shouldBeActive = $now->between($start, $end, true);
-
-        if ((bool) $this->tp_activation !== $shouldBeActive) {
-            $this->tp_activation = $shouldBeActive;
-            $this->saveQuietly();
-        }
+        return $now->between($start, $end, true);
     }
 }

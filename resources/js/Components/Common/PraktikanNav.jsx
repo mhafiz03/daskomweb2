@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Link, usePage } from "@inertiajs/react";
 import profileIcon from "../../../assets/nav/Icon-Profile.svg";
 import praktikumIcon from "../../../assets/nav/Icon-Praktikum.svg";
@@ -71,6 +71,18 @@ const NAV_ITEMS = [
 export default function PraktikanNav({ praktikan }) {
     const { url } = usePage();
 
+    const normalizePathSegment = (path) => {
+        if (!path) {
+            return "";
+        }
+
+        const basePath = path.split("?")[0];
+        const trimmed = basePath.replace(/\/+$/, "");
+        return trimmed === "" ? "/" : trimmed;
+    };
+
+    const normalizedUrl = useMemo(() => normalizePathSegment(url) || "/", [url]);
+
     const getInitialCollapsed = () => {
         if (typeof window === 'undefined') {
             return true;
@@ -104,7 +116,22 @@ export default function PraktikanNav({ praktikan }) {
     };
 
     const isActiveItem = (item) => {
-        return item.paths?.some((path) => url?.startsWith(path)) ?? false;
+        if (!item?.paths || !normalizedUrl) {
+            return false;
+        }
+
+        return item.paths.some((path) => {
+            const normalizedPath = normalizePathSegment(path);
+            if (!normalizedPath) {
+                return false;
+            }
+
+            if (normalizedPath === normalizedUrl) {
+                return true;
+            }
+
+            return normalizedUrl.startsWith(`${normalizedPath}/`);
+        });
     };
 
     const navLinkBaseClass =

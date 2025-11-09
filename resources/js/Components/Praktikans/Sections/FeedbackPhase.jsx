@@ -254,233 +254,234 @@ export default function FeedbackPhase({
         isSubmitting;
 
     return (
-        <div className="mt-6 flex flex-col gap-6">
-            <div className="">
-                <div className="mb-6 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-                    <div>
-                        <h1 className="text-3xl font-bold text-depth-primary">Feedback</h1>
-                        {modulLabel && (
-                            <p className="mt-2 text-xs font-medium text-depth-tertiary">
-                                Modul Praktikum: <span className="text-depth-primary">{modulLabel}</span>
-                            </p>
-                        )}
+        <div
+            className="mt-6 flex flex-1 flex-col gap-6 overflow-hidden"
+            style={{ maxHeight: "calc(100vh - 4rem)" }}
+        >
+            <div className="flex flex-1 flex-col gap-6 overflow-y-auto pr-1">
+                <div className="">
+                    <div className="mb-6 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                        <div>
+                            <h1 className="text-3xl font-bold text-depth-primary">Feedback</h1>
+                            {modulLabel && (
+                                <p className="mt-2 text-xs font-medium text-depth-tertiary">
+                                    Modul Praktikum: <span className="text-depth-primary">{modulLabel}</span>
+                                </p>
+                            )}
+                        </div>
                     </div>
-                </div>
 
-                {!normalizedModulId && (
-                    <div className="mb-6 rounded-depth-md border border-red-200 bg-red-50 p-4 text-sm text-red-700">
-                        Modul untuk feedback belum ditentukan.
-                    </div>
-                )}
+                    {!normalizedModulId && (
+                        <div className="mb-6 rounded-depth-md border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+                            Modul untuk feedback belum ditentukan.
+                        </div>
+                    )}
 
-                <div className="mb-6" ref={dropdownRef}>
-                    <label className="mb-3 block text-sm font-semibold text-depth-primary">
-                        Pilih Asisten Penanggung Jawab 
-                    </label>
-                    <div className="relative">
-                        <input
-                            type="search"
-                            value={searchTerm}
-                            onChange={(event) => {
-                                setSearchTerm(event.target.value);
-                                setIsDropdownOpen(true);
-                                setHighlightedIndex(-1);
-                            }}
-                            onFocus={() => {
-                                setIsDropdownOpen(true);
-                                if (filteredAssistants.length > 0 && highlightedIndex === -1) {
-                                    setHighlightedIndex(0);
-                                }
-                            }}
-                            onKeyDown={(event) => {
-                                if (event.key === "Enter") {
-                                    event.preventDefault();
-                                    if (
-                                        highlightedIndex >= 0 &&
-                                        highlightedIndex < filteredAssistants.length
-                                    ) {
-                                        handleAssistantSelect(filteredAssistants[highlightedIndex].id);
-                                    } else if (filteredAssistants.length > 0) {
-                                        handleAssistantSelect(filteredAssistants[0].id);
-                                    }
-                                } else if (event.key === "ArrowDown") {
-                                    event.preventDefault();
-                                    if (!isDropdownOpen) {
-                                        setIsDropdownOpen(true);
-                                        setHighlightedIndex(0);
-                                        return;
-                                    }
-                                    if (filteredAssistants.length === 0) {
-                                        setHighlightedIndex(-1);
-                                        return;
-                                    }
-                                    setHighlightedIndex((previous) => {
-                                        const nextIndex = previous + 1;
-                                        if (nextIndex >= filteredAssistants.length || nextIndex < 0) {
-                                            return 0;
-                                        }
-                                        return nextIndex;
-                                    });
-                                } else if (event.key === "ArrowUp") {
-                                    event.preventDefault();
-                                    if (!isDropdownOpen) {
-                                        setIsDropdownOpen(true);
-                                        setHighlightedIndex(Math.max(filteredAssistants.length - 1, 0));
-                                        return;
-                                    }
-                                    if (filteredAssistants.length === 0) {
-                                        setHighlightedIndex(-1);
-                                        return;
-                                    }
-                                    setHighlightedIndex((previous) => {
-                                        const nextIndex = previous - 1;
-                                        if (nextIndex < 0) {
-                                            return filteredAssistants.length - 1;
-                                        }
-                                        return nextIndex;
-                                    });
-                                } else if (event.key === "Escape") {
-                                    setIsDropdownOpen(false);
+                    <div className="mb-6" ref={dropdownRef}>
+                        <label className="mb-3 block text-sm font-semibold text-depth-primary">
+                            Pilih Asisten Penanggung Jawab
+                        </label>
+                        <div className="relative">
+                            <input
+                                type="search"
+                                value={searchTerm}
+                                onChange={(event) => {
+                                    setSearchTerm(event.target.value);
+                                    setIsDropdownOpen(true);
                                     setHighlightedIndex(-1);
-                                }
-                            }}
-                            placeholder="Cari asisten berdasarkan kode atau nama"
-                            className="w-full rounded-depth-lg border border-depth bg-depth-card px-4 py-3 text-sm text-depth-primary shadow-depth-inset transition focus:border-[var(--depth-color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)] focus:ring-offset-0"
-                        />
-                        {isDropdownOpen && (
-                            <div className="absolute z-20 mt-2 max-h-56 w-full overflow-y-auto rounded-depth-lg border border-depth bg-depth-card shadow-depth-lg">
-                                {filteredAssistants.length === 0 ? (
-                                    <div className="px-4 py-3 text-sm text-depth-secondary">Asisten tidak ditemukan.</div>
-                                ) : (
-                                    <ul className="divide-y divide-[color:var(--depth-border)]">
-                                        {filteredAssistants.map((assistant, index) => {
-                                            const isActive = index === highlightedIndex;
-                                            return (
-                                                <li key={`assistant-option-${assistant.id}`}>
-                                                    <button
-                                                        type="button"
-                                                        onClick={() => handleAssistantSelect(assistant.id)}
-                                                        className={`flex w-full items-center justify-between px-4 py-3 text-left text-sm transition hover:bg-depth-interactive ${
-                                                            String(assistant.id) === selectedAssistantId
-                                                                ? "bg-depth-interactive/80 font-semibold text-depth-primary"
-                                                                : isActive
-                                                                    ? "bg-depth-interactive/60 text-depth-primary"
-                                                                    : "text-depth-primary"
-                                                        }`}
-                                                    >
-                                                        <span>{formatAssistantOption(assistant)}</span>
-                                                        {String(assistant.id) === selectedAssistantId && (
-                                                            <svg
-                                                            className="h-4 w-4 text-[var(--depth-color-primary)]"
-                                                            viewBox="0 0 24 24"
-                                                            fill="none"
-                                                            stroke="currentColor"
-                                                            strokeWidth={2}
+                                }}
+                                onFocus={() => {
+                                    setIsDropdownOpen(true);
+                                    if (filteredAssistants.length > 0 && highlightedIndex === -1) {
+                                        setHighlightedIndex(0);
+                                    }
+                                }}
+                                onKeyDown={(event) => {
+                                    if (event.key === "Enter") {
+                                        event.preventDefault();
+                                        if (
+                                            highlightedIndex >= 0 &&
+                                            highlightedIndex < filteredAssistants.length
+                                        ) {
+                                            handleAssistantSelect(filteredAssistants[highlightedIndex].id);
+                                        } else if (filteredAssistants.length > 0) {
+                                            handleAssistantSelect(filteredAssistants[0].id);
+                                        }
+                                    } else if (event.key === "ArrowDown") {
+                                        event.preventDefault();
+                                        if (!isDropdownOpen) {
+                                            setIsDropdownOpen(true);
+                                            setHighlightedIndex(0);
+                                            return;
+                                        }
+                                        if (filteredAssistants.length === 0) {
+                                            setHighlightedIndex(-1);
+                                            return;
+                                        }
+                                        setHighlightedIndex((previous) => {
+                                            const nextIndex = previous + 1;
+                                            if (nextIndex >= filteredAssistants.length || nextIndex < 0) {
+                                                return 0;
+                                            }
+                                            return nextIndex;
+                                        });
+                                    } else if (event.key === "ArrowUp") {
+                                        event.preventDefault();
+                                        if (!isDropdownOpen) {
+                                            setIsDropdownOpen(true);
+                                            setHighlightedIndex(Math.max(filteredAssistants.length - 1, 0));
+                                            return;
+                                        }
+                                        if (filteredAssistants.length === 0) {
+                                            setHighlightedIndex(-1);
+                                            return;
+                                        }
+                                        setHighlightedIndex((previous) => {
+                                            const nextIndex = previous - 1;
+                                            if (nextIndex < 0) {
+                                                return filteredAssistants.length - 1;
+                                            }
+                                            return nextIndex;
+                                        });
+                                    } else if (event.key === "Escape") {
+                                        setIsDropdownOpen(false);
+                                        setHighlightedIndex(-1);
+                                    }
+                                }}
+                                placeholder="Cari asisten berdasarkan kode atau nama"
+                                className="w-full rounded-depth-lg border border-depth bg-depth-card px-4 py-3 text-sm text-depth-primary shadow-depth-inset transition focus:border-[var(--depth-color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)] focus:ring-offset-0"
+                            />
+                            {isDropdownOpen && (
+                                <div className="absolute z-20 mt-2 max-h-56 w-full overflow-y-auto rounded-depth-lg border border-depth bg-depth-card shadow-depth-lg">
+                                    {filteredAssistants.length === 0 ? (
+                                        <div className="px-4 py-3 text-sm text-depth-secondary">Asisten tidak ditemukan.</div>
+                                    ) : (
+                                        <ul className="divide-y divide-[color:var(--depth-border)]">
+                                            {filteredAssistants.map((assistant, index) => {
+                                                const isActive = index === highlightedIndex;
+                                                return (
+                                                    <li key={`assistant-option-${assistant.id}`}>
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => handleAssistantSelect(assistant.id)}
+                                                            className={`flex w-full items-center justify-between px-4 py-3 text-left text-sm transition hover:bg-depth-interactive ${String(assistant.id) === selectedAssistantId
+                                                                    ? "bg-depth-interactive/80 font-semibold text-depth-primary"
+                                                                    : isActive
+                                                                        ? "bg-depth-interactive/60 text-depth-primary"
+                                                                        : "text-depth-primary"
+                                                                }`}
                                                         >
-                                                            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                                                        </svg>
-                                                        )}
-                                                    </button>
-                                                </li>
-                                            );
-                                        })}
-                                    </ul>
-                                )}
+                                                            <span>{formatAssistantOption(assistant)}</span>
+                                                            {String(assistant.id) === selectedAssistantId && (
+                                                                <svg
+                                                                    className="h-4 w-4 text-[var(--depth-color-primary)]"
+                                                                    viewBox="0 0 24 24"
+                                                                    fill="none"
+                                                                    stroke="currentColor"
+                                                                    strokeWidth={2}
+                                                                >
+                                                                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                                                                </svg>
+                                                            )}
+                                                        </button>
+                                                    </li>
+                                                );
+                                            })}
+                                        </ul>
+                                    )}
+                                </div>
+                            )}
+                        </div>
+                    </div>
+
+                    <div className="grid gap-6 md:grid-cols-2">
+                        <div className="">
+                            <h3 className="text-sm font-semibold text-depth-primary">Praktikum</h3>
+                            <div className="mt-4 w-full rounded-depth-lg border border-depth bg-depth-card px-4 py-3 shadow-depth-inset transition focus:border-[var(--depth-color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)] focus:ring-offset-0">
+                                {STAR_VALUES.map((value) => (
+                                    <button
+                                        key={`praktikum-star-${value}`}
+                                        type="button"
+                                        onClick={() => setRatingPraktikum(value)}
+                                        className="p-1 mx-2"
+                                    >
+                                        <svg
+                                            className={`h-8 w-8 drop-shadow-sm transition ${value <= ratingPraktikum ? "text-yellow-400" : "text-depth-disabled"
+                                                }`}
+                                            viewBox="0 0 24 24"
+                                            fill="currentColor"
+                                        >
+                                            <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
+                                        </svg>
+                                    </button>
+                                ))}
                             </div>
-                        )}
-                    </div>
-                </div>
-
-                <div className="grid gap-6 md:grid-cols-2">
-                    <div className="">
-                        <h3 className="text-sm font-semibold text-depth-primary">Praktikum</h3>
-                        <div className="mt-4 w-full rounded-depth-lg border border-depth bg-depth-card px-4 py-3 shadow-depth-inset transition focus:border-[var(--depth-color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)] focus:ring-offset-0">
-                            {STAR_VALUES.map((value) => (
-                                <button
-                                    key={`praktikum-star-${value}`}
-                                    type="button"
-                                    onClick={() => setRatingPraktikum(value)}
-                                    className="p-1 mx-2"
-                                >
-                                    <svg
-                                        className={`h-8 w-8 drop-shadow-sm transition ${
-                                            value <= ratingPraktikum ? "text-yellow-400" : "text-depth-disabled"
-                                        }`}
-                                        viewBox="0 0 24 24"
-                                        fill="currentColor"
+                        </div>
+                        <div className="">
+                            <h3 className="text-sm font-semibold text-depth-primary">Asisten</h3>
+                            <div className="mt-4 w-full rounded-depth-lg border border-depth bg-depth-card px-4 py-3 shadow-depth-inset transition focus:border-[var(--depth-color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)] focus:ring-offset-0">
+                                {STAR_VALUES.map((value) => (
+                                    <button
+                                        key={`assistant-star-${value}`}
+                                        type="button"
+                                        onClick={() => setRatingAsisten(value)}
+                                        className="p-1 mx-2"
                                     >
-                                        <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
-                                    </svg>
-                                </button>
-                            ))}
+                                        <svg
+                                            className={`h-8 w-8 drop-shadow-sm transition ${value <= ratingAsisten ? "text-yellow-400" : "text-depth-disabled"
+                                                }`}
+                                            viewBox="0 0 24 24"
+                                            fill="currentColor"
+                                        >
+                                            <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
+                                        </svg>
+                                    </button>
+                                ))}
+                            </div>
                         </div>
                     </div>
-                    <div className="">
-                        <h3 className="text-sm font-semibold text-depth-primary">Asisten</h3>
-                        <div className="mt-4 w-full rounded-depth-lg border border-depth bg-depth-card px-4 py-3 shadow-depth-inset transition focus:border-[var(--depth-color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)] focus:ring-offset-0">
-                            {STAR_VALUES.map((value) => (
-                                <button
-                                    key={`assistant-star-${value}`}
-                                    type="button"
-                                    onClick={() => setRatingAsisten(value)}
-                                    className="p-1 mx-2"
-                                >
-                                    <svg
-                                        className={`h-8 w-8 drop-shadow-sm transition ${
-                                            value <= ratingAsisten ? "text-yellow-400" : "text-depth-disabled"
-                                        }`}
-                                        viewBox="0 0 24 24"
-                                        fill="currentColor"
-                                    >
-                                        <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
-                                    </svg>
-                                </button>
-                            ))}
+
+                    <div className="mt-6">
+                        <label htmlFor="feedback" className="mb-2 block text-sm font-semibold text-depth-primary">
+                            Feedback Praktikan
+                        </label>
+                        <textarea
+                            id="feedback"
+                            value={feedback}
+                            onChange={(event) => setFeedback(event.target.value)}
+                            rows={8}
+                            className="w-full rounded-depth-lg border border-depth bg-depth-card p-4 text-sm text-depth-primary shadow-depth-inset transition focus:border-[var(--depth-color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)] focus:ring-offset-0"
+                            placeholder="Bagikan pengalaman Anda selama praktikum, kendala yang dihadapi, saran perbaikan, atau hal lain yang ingin disampaikan..."
+                        />
+                        <div className="mt-2 flex items-center justify-between text-xs">
+                            <span className={feedback.trim().length < 10 ? "text-red-500" : "text-green-600 dark:text-green-400"}>
+                                {feedback.trim().length < 10
+                                    ? `Minimal 10 karakter (${Math.max(0, 10 - feedback.trim().length)} lagi)`
+                                    : "Feedback sudah cukup"}
+                            </span>
+                            <span className="text-depth-secondary">{feedback.length} karakter</span>
                         </div>
                     </div>
-                </div>
 
-                <div className="mt-6">
-                    <label htmlFor="feedback" className="mb-2 block text-sm font-semibold text-depth-primary">
-                        Feedback Praktikan 
-                    </label>
-                    <textarea
-                        id="feedback"
-                        value={feedback}
-                        onChange={(event) => setFeedback(event.target.value)}
-                        rows={8}
-                        className="w-full rounded-depth-lg border border-depth bg-depth-card p-4 text-sm text-depth-primary shadow-depth-inset transition focus:border-[var(--depth-color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)] focus:ring-offset-0"
-                        placeholder="Bagikan pengalaman Anda selama praktikum, kendala yang dihadapi, saran perbaikan, atau hal lain yang ingin disampaikan..."
-                    />
-                    <div className="mt-2 flex items-center justify-between text-xs">
-                        <span className={feedback.trim().length < 10 ? "text-red-500" : "text-green-600 dark:text-green-400"}>
-                            {feedback.trim().length < 10
-                                ? `Minimal 10 karakter (${Math.max(0, 10 - feedback.trim().length)} lagi)`
-                                : "Feedback sudah cukup"}
-                        </span>
-                        <span className="text-depth-secondary">{feedback.length} karakter</span>
+                    <div className="mt-6 flex flex-col justify-end gap-3 sm:flex-row">
+                        <button
+                            type="button"
+                            onClick={handleSubmit}
+                            disabled={isSubmitDisabled}
+                            className={`glass-button inline-flex min-w-[160px] items-center justify-center gap-2 rounded-depth-lg px-6 py-3 font-semibold shadow-depth-md transition-all ${isSubmitDisabled ? "cursor-not-allowed opacity-50" : "hover:-translate-y-0.5 hover:shadow-depth-lg"
+                                }`}
+                            style={{
+                                background: isSubmitDisabled
+                                    ? undefined
+                                    : "linear-gradient(135deg, rgba(34, 197, 94, 0.9), rgba(22, 163, 74, 0.9))",
+                            }}
+                        >
+                            <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            {isSubmitting ? "Mengirim..." : "Kirim Feedback"}
+                        </button>
                     </div>
-                </div>
-
-                <div className="mt-6 flex flex-col justify-end gap-3 sm:flex-row">
-                    <button
-                        type="button"
-                        onClick={handleSubmit}
-                        disabled={isSubmitDisabled}
-                        className={`glass-button inline-flex min-w-[160px] items-center justify-center gap-2 rounded-depth-lg px-6 py-3 font-semibold shadow-depth-md transition-all ${
-                            isSubmitDisabled ? "cursor-not-allowed opacity-50" : "hover:-translate-y-0.5 hover:shadow-depth-lg"
-                        }`}
-                        style={{
-                            background: isSubmitDisabled
-                                ? undefined
-                                : "linear-gradient(135deg, rgba(34, 197, 94, 0.9), rgba(22, 163, 74, 0.9))",
-                        }}
-                    >
-                        <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        {isSubmitting ? "Mengirim..." : "Kirim Feedback"}
-                    </button>
                 </div>
             </div>
         </div>
