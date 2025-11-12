@@ -151,13 +151,13 @@ export default function PraktikanNav({ praktikan }) {
     const getIconFilterClass = (isActive) =>
         isActive ? "nav-icon-filter-active" : "nav-icon-filter";
 
-    const genericHamburgerLine = `h-1 w-6 my-1 rounded-full bg-white transition ease transform duration-300`;
+    const genericHamburgerLine = `h-1 w-6 my-1 rounded-full bg-slate-500 dark:bg-white transition ease transform duration-300`;
 
     return (
         <>
             <nav className="flex h-screen items-center">
                 <div
-                    className={`mx-2 flex h-[91vh] flex-col rounded-depth-lg border border-depth glass-surface shadow-depth-lg transition-all duration-300 ${
+                    className={`mx-2 flex h-[91vh] flex-col rounded-depth-lg border border-depth bg-depth-card dark:glass-surface shadow-depth-lg transition-all duration-300 ${
                         isCollapsed ? "w-12" : "w-[230px]"
                     }`}
                 >

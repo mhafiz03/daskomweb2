@@ -22,8 +22,6 @@ Saya juga ingin mengucapkan terima kasih kepada teman-teman yang telah berkontri
 
 ![happy-gif](https://media1.giphy.com/media/v1.Y2lkPTc5MGI3NjExa3p0NDJ2N3ZnZzVraGlheDl4OXQwOWtnYTN4OXF3OHV2dmlybW14dCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/l3fQffw0vQ9p91apy/giphy.gif)
 
-📖 Berikut dokumentasi lengkapnya:
-[Daskom 2.0 Gitbook]()
 
 ## Developers
 

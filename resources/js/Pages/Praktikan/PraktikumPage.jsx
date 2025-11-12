@@ -317,7 +317,10 @@ export default function PraktikumPage({ auth }) {
         praktikanData?.kelas?.id ??
         null;
     const kelasName = praktikanData?.kelas?.kelas ?? "";
-    const isTotClass = kelasName.trim().toUpperCase().startsWith("TOT");
+    const kelasIsTotFlag = praktikanData?.kelas?.is_tot ?? false;
+    const isTotClass =
+        Boolean(kelasIsTotFlag) ||
+        kelasName.trim().toUpperCase().startsWith("TOT");
     const { data: moduleOptions = [] } = useModulesQuery();
 
     const resolveModuleTitle = useCallback(

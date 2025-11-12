@@ -71,14 +71,15 @@ export default function AuditLogsTable({ logs }) {
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-depth/30">
-                            {entries.map((log) => {
+                            {entries.map((log, index) => {
                                 const createdAt = formatDateTime(log?.created_at);
                                 const assistantIdentifier = log?.asisten?.kode ?? log?.asisten?.nama ?? "Sistem";
                                 const metadata = log?.metadata ?? {};
                                 const isExpanded = expandedLogId === log?.id;
+                                const rowKey = log?.id ?? ['log', log?.action, log?.created_at, index].filter(Boolean).join('-');
 
                                 return (
-                                    <Fragment key={log?.id ?? Math.random().toString(36)}>
+                                    <Fragment key={rowKey}>
                                         <tr className="transition hover:bg-depth-interactive/50">
                                             <td className="px-4 py-3 align-top text-xs font-medium text-depth-secondary">
                                                 {createdAt}
