@@ -5,8 +5,12 @@ import { Head } from "@inertiajs/react";
 export default function SoalPraktikum() {
     return (
         <AssistantLayout>
-            <Head title="Soal Praktikum" />
-            <ContentSoal />
+            {({ asisten }) => (
+                <>
+                    <Head title="Soal Praktikum" />
+                    <ContentSoal isEditable={asisten?.role_id === 8} />
+                </>
+            )}
         </AssistantLayout>
     );
 }

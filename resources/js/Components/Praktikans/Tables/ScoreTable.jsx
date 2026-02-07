@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { api } from '@/lib/api';
 import ModalPraktikanAnswers from '@/Components/Praktikans/Modals/ModalPraktikanAnswers';
+import ModalNilaiComplaint from '@/Components/Praktikans/Modals/ModalNilaiComplaint';
 
 export default function ScoreTable() {
     const nilaiQuery = useQuery({
@@ -62,6 +63,7 @@ export default function ScoreTable() {
     };
 
     const [modalState, setModalState] = useState(null);
+    const [complaintModal, setComplaintModal] = useState(null);
 
     const Table = ({ rows, onOpenAnswers }) => {
         if (loading) {
@@ -117,6 +119,7 @@ export default function ScoreTable() {
                             <th className="px-4 py-3 text-center">Rata-rata</th>
                             <th className="px-4 py-3 text-left">Asisten</th>
                             <th className="px-4 py-3 text-center">Jawaban</th>
+                            <th className="px-4 py-3 text-center">Komplain</th>
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-depth">
@@ -157,6 +160,24 @@ export default function ScoreTable() {
                                             </svg>
                                     </button>
                                 </td>
+                                <td className="px-4 py-3 text-center">
+                                    <button
+                                        type="button"
+                                        onClick={() => setComplaintModal({ nilaiId: row.id, modulTitle: row.modul, modulScore: row.scores.avg })}
+                                        className="rounded-depth-md border border-red-500 bg-red-50 px-3 py-1.5 text-xs font-semibold text-red-600 shadow-depth-sm transition hover:-translate-y-0.5 hover:shadow-depth-md dark:bg-red-900/20"
+                                    >
+                                        <svg
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            fill="none"
+                                            viewBox="0 0 24 24"
+                                            strokeWidth="2"
+                                            stroke="currentColor"
+                                            className="h-4 w-4"
+                                        >
+                                            <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z" />
+                                        </svg>
+                                    </button>
+                                </td>
                             </tr>
                         ))}
                     </tbody>
@@ -176,6 +197,13 @@ export default function ScoreTable() {
                 modulId={modalState?.modulId ?? null}
                 modulTitle={modalState?.modulTitle ?? null}
                 onClose={() => setModalState(null)}
+            />
+            <ModalNilaiComplaint
+                isOpen={Boolean(complaintModal)}
+                onClose={() => setComplaintModal(null)}
+                nilaiId={complaintModal?.nilaiId}
+                modulTitle={complaintModal?.modulTitle}
+                modulScore={complaintModal?.modulScore}
             />
         </div>
     );

@@ -33,3 +33,7 @@ node_modules/
 frankenphp
 frankenphp-worker.php
 dbdata
+
+runapp.sh
+supervisord.log
+supervisord.pid

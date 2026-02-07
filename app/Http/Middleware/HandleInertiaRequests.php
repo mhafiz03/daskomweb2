@@ -34,12 +34,13 @@ class HandleInertiaRequests extends Middleware
 
         if ($assistant) {
             $assistant->loadMissing(['role.permissions']);
+            $assistant->loadAvg('laporan_praktikans as rating', 'rating_asisten');
         }
 
         $praktikan = $request->user('praktikan');
 
         if ($praktikan) {
-            $praktikan->loadMissing(['kelas']);
+            $praktikan->loadMissing(['kelas', 'nilais', 'laporan_praktikans']);
         }
 
         return [

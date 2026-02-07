@@ -5,8 +5,12 @@ import { Head } from "@inertiajs/react";
 export default function PollingAssistant() {
     return (
         <AssistantLayout>
-            <Head title="Polling Assistant" />
-            <ContentPolling />
+            {({ roleName }) => (
+                <>
+                    <Head title="Polling Assistant" />
+                    <ContentPolling roleName={roleName} />
+                </>
+            )}
         </AssistantLayout>
     );
 }

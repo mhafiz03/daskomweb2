@@ -49,7 +49,7 @@ const normalizeOptionsForDisplay = (soalItem) => {
     return normalized;
 };
 
-export default function SoalInputPG({ kategoriSoal, modul, modules = [], onModalSuccess, onModalValidation, onChangeModul }) {
+export default function SoalInputPG({ kategoriSoal, modul, modules = [], onModalSuccess, onModalValidation, onChangeModul, isEditable = true }) {
     const [formState, setFormState] = useState({
         pertanyaan: "",
         options: [...EMPTY_OPTIONS],
@@ -531,92 +531,98 @@ export default function SoalInputPG({ kategoriSoal, modul, modules = [], onModal
 
     return (
         <div className="space-y-6 text-depth-primary">
-            <div className="space-y-2">
-                <label className="block text-xs font-semibold uppercase tracking-wide text-depth-secondary">
-                    Soal
-                </label>
-                <textarea
-                    className="w-full rounded-depth-lg border border-depth bg-depth-card p-4 text-sm text-depth-primary shadow-depth-sm transition duration-200 placeholder:text-depth-secondary focus:border-transparent focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)] focus:ring-offset-2 focus:ring-offset-[var(--depth-color-card)]"
-                    rows={4}
-                    placeholder="Masukkan soal..."
-                    value={formState.pertanyaan}
-                    onChange={(e) =>
-                        setFormState((prev) => ({ ...prev, pertanyaan: e.target.value }))
-                    }
-                />
-            </div>
-
-            <div className="space-y-3">
-                <label className="block text-xs font-semibold uppercase tracking-wide text-depth-secondary">
-                    Pilihan Jawaban
-                </label>
-                <div className="space-y-3">
-                    {formState.options.map((option, index) => (
-                        <div
-                            key={index}
-                            className="flex items-center gap-3 rounded-depth-lg border border-depth bg-depth-card p-3 shadow-depth-sm transition-colors duration-200"
-                        >
-                            <input
-                                type="radio"
-                                name="correctOption"
-                                checked={formState.correctIndex === index}
-                                onChange={() => handleSetCorrect(index)}
-                                className="h-4 w-4 accent-[var(--depth-color-primary)]"
-                            />
-                            <input
-                                type="text"
-                                className="flex-1 rounded-depth-md border border-transparent bg-depth-interactive p-3 text-sm text-depth-primary shadow-depth-inset transition duration-200 placeholder:text-depth-secondary focus:border-[var(--depth-color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)] focus:ring-offset-0"
-                                placeholder={`Pilihan ${String.fromCharCode(65 + index)}`}
-                                value={option}
-                                onChange={(e) => handleOptionChange(index, e.target.value)}
-                            />
-                        </div>
-                    ))}
+            {isEditable && (
+                <div className="space-y-2">
+                    <label className="block text-xs font-semibold uppercase tracking-wide text-depth-secondary">
+                        Soal
+                    </label>
+                    <textarea
+                        className="w-full rounded-depth-lg border border-depth bg-depth-card p-4 text-sm text-depth-primary shadow-depth-sm transition duration-200 placeholder:text-depth-secondary focus:border-transparent focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)] focus:ring-offset-2 focus:ring-offset-[var(--depth-color-card)]"
+                        rows={4}
+                        placeholder="Masukkan soal..."
+                        value={formState.pertanyaan}
+                        onChange={(e) =>
+                            setFormState((prev) => ({ ...prev, pertanyaan: e.target.value }))
+                        }
+                    />
                 </div>
-            </div>
+            )}
 
-            <div className="flex flex-wrap justify-end gap-3">
-                {isAnalysisSupported && (
+            {isEditable && (
+                <div className="space-y-3">
+                    <label className="block text-xs font-semibold uppercase tracking-wide text-depth-secondary">
+                        Pilihan Jawaban
+                    </label>
+                    <div className="space-y-3">
+                        {formState.options.map((option, index) => (
+                            <div
+                                key={index}
+                                className="flex items-center gap-3 rounded-depth-lg border border-depth bg-depth-card p-3 shadow-depth-sm transition-colors duration-200"
+                            >
+                                <input
+                                    type="radio"
+                                    name="correctOption"
+                                    checked={formState.correctIndex === index}
+                                    onChange={() => handleSetCorrect(index)}
+                                    className="h-4 w-4 accent-[var(--depth-color-primary)]"
+                                />
+                                <input
+                                    type="text"
+                                    className="flex-1 rounded-depth-md border border-transparent bg-depth-interactive p-3 text-sm text-depth-primary shadow-depth-inset transition duration-200 placeholder:text-depth-secondary focus:border-[var(--depth-color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)] focus:ring-offset-0"
+                                    placeholder={`Pilihan ${String.fromCharCode(65 + index)}`}
+                                    value={option}
+                                    onChange={(e) => handleOptionChange(index, e.target.value)}
+                                />
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            )}
+
+            {isEditable && (
+                <div className="flex flex-wrap justify-end gap-3">
+                    {isAnalysisSupported && (
+                        <button
+                            className="rounded-depth-md border border-depth bg-depth-interactive px-6 py-2 text-sm font-semibold text-depth-primary shadow-depth-sm transition duration-200 hover:-translate-y-0.5 hover:shadow-depth-md disabled:cursor-not-allowed disabled:opacity-60"
+                            onClick={handleOpenAnalyzeModal}
+                            type="button"
+                            disabled={!String(modul)}
+                        >
+                            Analyze
+                        </button>
+                    )}
                     <button
-                        className="rounded-depth-md border border-depth bg-depth-interactive px-6 py-2 text-sm font-semibold text-depth-primary shadow-depth-sm transition duration-200 hover:-translate-y-0.5 hover:shadow-depth-md disabled:cursor-not-allowed disabled:opacity-60"
-                        onClick={handleOpenAnalyzeModal}
+                        className="rounded-depth-md border border-depth bg-depth-card px-6 py-2 text-sm font-semibold text-depth-primary shadow-depth-sm transition duration-200 hover:-translate-y-0.5 hover:shadow-depth-md disabled:cursor-not-allowed disabled:opacity-60"
+                        onClick={handleOpenCompareModal}
                         type="button"
-                        disabled={!String(modul)}
+                        disabled={regularModules.length === 0 && englishModules.length === 0}
                     >
-                        Analyze
+                        Compare
                     </button>
-                )}
-                <button
-                    className="rounded-depth-md border border-depth bg-depth-card px-6 py-2 text-sm font-semibold text-depth-primary shadow-depth-sm transition duration-200 hover:-translate-y-0.5 hover:shadow-depth-md disabled:cursor-not-allowed disabled:opacity-60"
-                    onClick={handleOpenCompareModal}
-                    type="button"
-                    disabled={regularModules.length === 0 && englishModules.length === 0}
-                >
-                    Compare
-                </button>
-                {/* <button
-                    className="rounded-depth-md border border-depth bg-depth-interactive px-6 py-2 text-sm font-semibold text-depth-primary shadow-depth-sm transition duration-200 hover:-translate-y-0.5 hover:shadow-depth-md disabled:cursor-not-allowed disabled:opacity-60"
-                    onClick={handleExportJson}
-                    type="button"
-                    disabled={!Array.isArray(soalList) || soalList.length === 0}
-                >
-                    Export JSON
-                </button> */}
-                <button
-                    className="rounded-depth-md border border-depth bg-depth-interactive px-6 py-2 text-sm font-semibold text-depth-primary shadow-depth-sm transition duration-200 hover:-translate-y-0.5 hover:shadow-depth-md disabled:opacity-60"
-                    onClick={() => setIsBatchModalOpen(true)}
-                    disabled={soalQuery.isLoading || soalList.length === 0}
-                >
-                    Batch Edit
-                </button>
-                <button
-                    className="rounded-depth-md bg-[var(--depth-color-primary)] px-6 py-2 text-sm font-semibold text-white shadow-depth-sm transition duration-200 hover:-translate-y-0.5 hover:shadow-depth-md focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)] focus:ring-offset-2 focus:ring-offset-[var(--depth-color-card)] disabled:opacity-70"
-                    onClick={handleTambahSoal}
-                    disabled={postSoalMutation.isPending}
-                >
-                    {postSoalMutation.isPending ? "Menyimpan..." : "+ Tambah Soal"}
-                </button>
-            </div>
+                    {/* <button
+                        className="rounded-depth-md border border-depth bg-depth-interactive px-6 py-2 text-sm font-semibold text-depth-primary shadow-depth-sm transition duration-200 hover:-translate-y-0.5 hover:shadow-depth-md disabled:cursor-not-allowed disabled:opacity-60"
+                        onClick={handleExportJson}
+                        type="button"
+                        disabled={!Array.isArray(soalList) || soalList.length === 0}
+                    >
+                        Export JSON
+                    </button> */}
+                    <button
+                        className="rounded-depth-md border border-depth bg-depth-interactive px-6 py-2 text-sm font-semibold text-depth-primary shadow-depth-sm transition duration-200 hover:-translate-y-0.5 hover:shadow-depth-md disabled:opacity-60"
+                        onClick={() => setIsBatchModalOpen(true)}
+                        disabled={soalQuery.isLoading || soalList.length === 0}
+                    >
+                        Batch Edit
+                    </button>
+                    <button
+                        className="rounded-depth-md bg-[var(--depth-color-primary)] px-6 py-2 text-sm font-semibold text-white shadow-depth-sm transition duration-200 hover:-translate-y-0.5 hover:shadow-depth-md focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)] focus:ring-offset-2 focus:ring-offset-[var(--depth-color-card)] disabled:opacity-70"
+                        onClick={handleTambahSoal}
+                        disabled={postSoalMutation.isPending}
+                    >
+                        {postSoalMutation.isPending ? "Menyimpan..." : "+ Tambah Soal"}
+                    </button>
+                </div>
+            )}
 
             <div className="space-y-4">
                 <h3 className="text-base font-semibold text-depth-secondary">
@@ -676,26 +682,30 @@ export default function SoalInputPG({ kategoriSoal, modul, modules = [], onModal
                                 </div>
 
                                 <div className="absolute right-4 top-4 flex gap-2">
-                                    <button
-                                        onClick={() => handleOpenModalDelete(soalItem)}
-                                        className="flex h-9 w-9 items-center justify-center rounded-depth-md border border-depth bg-depth-interactive text-red-500 shadow-depth-sm transition duration-150 hover:border-red-400 hover:shadow-depth-md hover:-translate-y-0.5"
-                                        type="button"
-                                    >
-                                        <img className="h-4 w-4" src={trashIcon} alt="Delete" />
-                                    </button>
+                                    {isEditable && (
+                                        <button
+                                            onClick={() => handleOpenModalDelete(soalItem)}
+                                            className="flex h-9 w-9 items-center justify-center rounded-depth-md border border-depth bg-depth-interactive text-red-500 shadow-depth-sm transition duration-150 hover:border-red-400 hover:shadow-depth-md hover:-translate-y-0.5"
+                                            type="button"
+                                        >
+                                            <img className="h-4 w-4" src={trashIcon} alt="Delete" />
+                                        </button>
+                                    )}
                                     <SoalCommentsButton
                                         kategoriSoal={kategoriSoal}
                                         modulId={soalItem?.modul_id ?? (modul ? Number(modul) : null)}
                                         soalId={soalItem?.id}
                                         variant="icon"
                                     />
-                                    <button
-                                        onClick={() => handleOpenModalEdit(soalItem)}
-                                        className="flex h-9 w-9 items-center justify-center rounded-depth-md border border-depth bg-depth-interactive shadow-depth-sm transition duration-150 hover:border-blue-400 hover:shadow-depth-md hover:-translate-y-0.5"
-                                        type="button"
-                                    >
-                                        <img className="edit-icon-filter h-4 w-4" src={editIcon} alt="Edit" />
-                                    </button>
+                                    {isEditable && (
+                                        <button
+                                            onClick={() => handleOpenModalEdit(soalItem)}
+                                            className="flex h-9 w-9 items-center justify-center rounded-depth-md border border-depth bg-depth-interactive shadow-depth-sm transition duration-150 hover:border-blue-400 hover:shadow-depth-md hover:-translate-y-0.5"
+                                            type="button"
+                                        >
+                                            <img className="edit-icon-filter h-4 w-4" src={editIcon} alt="Edit" />
+                                        </button>
+                                    )}
                                     
                                 </div>
                             </li>

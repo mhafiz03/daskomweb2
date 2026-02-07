@@ -6,7 +6,7 @@ import { ModalOverlay } from "@/Components/Common/ModalPortal";
 import ModalCloseButton from "@/Components/Common/ModalCloseButton";
 import deleteIcon from "../../../../assets/nav/Icon-Delete.svg";
 
-const noop = () => {};
+const noop = () => { };
 
 export default function DropdownPolling({
     value = "",
@@ -14,6 +14,7 @@ export default function DropdownPolling({
     onSelectPolling = noop,
     onCategoriesLoaded = noop,
     onLoadingChange = noop,
+    canEdit = false,
 }) {
     const [selectedCategory, setSelectedCategory] = useState(value ?? "");
     const [deleteCandidate, setDeleteCandidate] = useState(null);
@@ -163,14 +164,16 @@ export default function DropdownPolling({
                     </select>
                     {isBusy && <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-depth-secondary">Memuat…</span>}
                 </div>
-                <button
-                    type="button"
-                    onClick={handleOpenDeleteModal}
-                    disabled={!selectedCategory || isBusy}
-                    className="inline-flex items-center gap-2 rounded-depth-md border border-red-500/60 bg-red-500/15 px-4 py-2 text-xs font-semibold text-red-400 shadow-depth-sm transition hover:-translate-y-0.5 hover:shadow-depth-md disabled:cursor-not-allowed disabled:opacity-60"
-                >
-                    <img src={deleteIcon} alt="" className="h-4 w-4"/>
-                </button>
+                {canEdit && (
+                    <button
+                        type="button"
+                        onClick={handleOpenDeleteModal}
+                        disabled={!selectedCategory || isBusy}
+                        className="inline-flex items-center gap-2 rounded-depth-md border border-red-500/60 bg-red-500/15 px-4 py-2 text-xs font-semibold text-red-400 shadow-depth-sm transition hover:-translate-y-0.5 hover:shadow-depth-md disabled:cursor-not-allowed disabled:opacity-60"
+                    >
+                        <img src={deleteIcon} alt="" className="h-4 w-4" />
+                    </button>
+                )}
             </div>
 
             {deleteCandidate && (

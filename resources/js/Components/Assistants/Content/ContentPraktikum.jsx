@@ -683,14 +683,6 @@ export default function ContentPraktikum() {
             }
 
             const praktikumIdentifier = payload.praktikumId ?? selectedPraktikumId ?? null;
-            if (payload.phase) {
-                console.log(`[${new Date().toISOString()}] Changing praktikum phase`, {
-                    praktikumId: praktikumIdentifier,
-                    action,
-                    fromPhase: effectiveSession?.current_phase ?? null,
-                    toPhase: payload.phase,
-                });
-            }
 
             if (!selectedPraktikumId && action === "start") {
                 createPraktikumMutation.mutate(undefined, {
@@ -817,7 +809,7 @@ export default function ContentPraktikum() {
         currentPhaseIndex >= PHASE_SEQUENCE.length - 1; // Disable at last phase
     const exitDisabled =
         !hasSession ||
-        !(isRunning || isPaused) || 
+        !(isRunning || isPaused) ||
         praktikumMutation.isPending;
 
     const restartLocked = isCompleted && reportSubmitted;
@@ -1094,8 +1086,8 @@ export default function ContentPraktikum() {
                                                         : undefined
                                                 }
                                                 className={`glass-button flex items-center gap-2 rounded-depth-lg px-6 py-3 font-semibold shadow-depth-md transition-all ${reportSubmitDisabled
-                                                        ? "cursor-not-allowed opacity-50"
-                                                        : "hover:-translate-y-0.5 hover:shadow-depth-lg"
+                                                    ? "cursor-not-allowed opacity-50"
+                                                    : "hover:-translate-y-0.5 hover:shadow-depth-lg"
                                                     }`}
                                                 style={{
                                                     background: reportSubmitDisabled
@@ -1183,14 +1175,14 @@ export default function ContentPraktikum() {
                                                         : "Resume"
                                         }
                                         className={`flex w-full items-center justify-center rounded-depth-lg border border-depth bg-depth-interactive p-3 text-depth-primary shadow-depth-md transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--depth-color-primary)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--depth-color-card)] enabled:text-white disabled:bg-depth-card disabled:text-depth-secondary ${(!hasSession || effectiveSession?.status === "idle"
+                                            ? startDisabled
+                                            : isTerminal
                                                 ? startDisabled
-                                                : isTerminal
-                                                    ? startDisabled
-                                                    : isRunning
-                                                        ? pauseDisabled
-                                                        : resumeDisabled)
-                                                ? "cursor-not-allowed opacity-50"
-                                                : "hover:-translate-y-0.5 hover:shadow-depth-lg"
+                                                : isRunning
+                                                    ? pauseDisabled
+                                                    : resumeDisabled)
+                                            ? "cursor-not-allowed opacity-50"
+                                            : "hover:-translate-y-0.5 hover:shadow-depth-lg"
                                             }`}
                                         style={{
                                             background: (!hasSession || effectiveSession?.status === "idle"
@@ -1245,8 +1237,8 @@ export default function ContentPraktikum() {
                                         title="Next Phase"
                                         aria-label="Next Phase"
                                         className={`flex w-full items-center justify-center rounded-depth-lg border border-depth bg-depth-interactive p-3 text-depth-primary shadow-depth-md transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--depth-color-primary)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--depth-color-card)] enabled:text-white disabled:bg-depth-card disabled:text-depth-secondary ${nextDisabled
-                                                ? "cursor-not-allowed opacity-50"
-                                                : "hover:-translate-y-0.5 hover:shadow-depth-lg"
+                                            ? "cursor-not-allowed opacity-50"
+                                            : "hover:-translate-y-0.5 hover:shadow-depth-lg"
                                             }`}
                                         style={{
                                             background: nextDisabled
@@ -1266,8 +1258,8 @@ export default function ContentPraktikum() {
                                         title="Exit Praktikum"
                                         aria-label="Exit Praktikum"
                                         className={`flex w-full items-center justify-center rounded-depth-lg border border-depth bg-depth-interactive p-3 text-depth-primary shadow-depth-md transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--depth-color-primary)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--depth-color-card)] enabled:text-white disabled:bg-depth-card disabled:text-depth-secondary ${exitDisabled
-                                                ? "cursor-not-allowed opacity-50"
-                                                : "hover:-translate-y-0.5 hover:shadow-depth-lg"
+                                            ? "cursor-not-allowed opacity-50"
+                                            : "hover:-translate-y-0.5 hover:shadow-depth-lg"
                                             }`}
                                         style={{
                                             background: exitDisabled
@@ -1283,7 +1275,7 @@ export default function ContentPraktikum() {
                             </div>
                         )}
 
-                        
+
                         <div className="grid grid-rows-1 gap-3">
                             <div className="rounded-depth-lg p-3 shadow-depth-md border border-depth focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--depth-color-primary)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--depth-color-card)] enabled:text-white disabled:bg-depth-card disabled:text-depth-secondary">
                                 <div
@@ -1334,17 +1326,17 @@ export default function ContentPraktikum() {
                                     <p className="text-xs text-gray-500">Pilih kelas untuk melihat daftar asisten.</p>
                                 )}
                             </div>
-                        
-                    </div>
-                    {selectedPraktikumId && (
-                        <TablePraktikanProgress
-                            progress={progressData}
-                            onlinePraktikan={onlinePraktikan}
-                            isLoading={progressLoading}
-                            isFetching={progressFetching}
-                            onRefresh={refetchProgress}
-                        />
-                    )}
+
+                        </div>
+                        {selectedPraktikumId && (
+                            <TablePraktikanProgress
+                                progress={progressData}
+                                onlinePraktikan={onlinePraktikan}
+                                isLoading={progressLoading}
+                                isFetching={progressFetching}
+                                onRefresh={refetchProgress}
+                            />
+                        )}
                     </div>
                 </div>
             </div>

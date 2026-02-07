@@ -321,6 +321,8 @@ export default function PraktikumPage({ auth }) {
     const isTotClass =
         Boolean(kelasIsTotFlag) ||
         kelasName.trim().toUpperCase().startsWith("TOT");
+
+
     const { data: moduleOptions = [] } = useModulesQuery();
 
     const resolveModuleTitle = useCallback(
@@ -433,6 +435,8 @@ export default function PraktikumPage({ auth }) {
 
                 const totalQuestions = data?.total_questions ?? data?.totalQuestions ?? 0;
                 const correctAnswersRaw = data?.correct_answers ?? data?.correctAnswers;
+                // Resolved percentage in here is not being used, but it's being used in the score modal.
+                // To be removed in the future
                 const resolvedPercentage = typeof data?.score === "number" ? data.score : null;
                 const correctAnswers =
                     typeof correctAnswersRaw === "number"
@@ -441,7 +445,7 @@ export default function PraktikumPage({ auth }) {
                             ? Math.round((resolvedPercentage / 100) * totalQuestions)
                             : 0;
 
-                const percentage =
+                const percentage =  
                     typeof resolvedPercentage === "number"
                         ? resolvedPercentage
                         : totalQuestions > 0
@@ -577,10 +581,6 @@ export default function PraktikumPage({ auth }) {
                 return;
             }
 
-            console.log(`[${new Date().toISOString()}] Fetching task data`, {
-                taskKey,
-                modulId,
-            });
             setIsLoadingTask(true);
             setTaskError(null);
             setSubmissionError(null);
@@ -775,7 +775,6 @@ export default function PraktikumPage({ auth }) {
     const handlePraktikumStateChange = useCallback(
         (praktikumState) => {
             const timestamp = new Date().toISOString();
-            console.log(`[${timestamp}] Praktikum state update:`, praktikumState);
             if (!praktikumState) {
                 setActiveModulId(null);
                 setModuleMeta(null);
@@ -810,10 +809,6 @@ export default function PraktikumPage({ auth }) {
 
     const handleNavigate = useCallback(
         (componentName) => {
-            console.log(`[${new Date().toISOString()}] Navigating praktikum task`, {
-                requested: componentName,
-                activeModulId,
-            });
             const nextComponent = ALLOWED_COMPONENTS.has(componentName)
                 ? componentName
                 : "NoPraktikumSection";
@@ -914,9 +909,9 @@ export default function PraktikumPage({ auth }) {
                         praktikan_id: praktikanId,
                         modul_id: activeModulId,
                         answers: multipleChoiceSelections.map((entry) => ({
-                                soal_id: entry.question.id,
-                                opsi_id: entry.answer,
-                            })),
+                            soal_id: entry.question.id,
+                            opsi_id: entry.answer,
+                        })),
                     };
 
                     await api.post(config.submitEndpoint, payload);
@@ -1219,10 +1214,6 @@ export default function PraktikumPage({ auth }) {
             }
 
             const targetComponent = PHASE_TO_COMPONENT[currentPhase];
-            console.log(`[${new Date().toISOString()}] Phase change received`, {
-                phase: currentPhase,
-                targetComponent,
-            });
             if (targetComponent) {
                 handleNavigate(targetComponent);
             }

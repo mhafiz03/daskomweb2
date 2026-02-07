@@ -2,7 +2,6 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { Head, usePage } from "@inertiajs/react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import toast from "react-hot-toast";
-
 import PraktikanAuthenticated from "@/Layouts/PraktikanAuthenticatedLayout";
 import PraktikanUtilities from "@/Components/Praktikans/Layout/PraktikanUtilities";
 import TugasPendahuluan from "@/Components/Praktikans/Sections/TugasPendahuluan";
@@ -56,28 +55,40 @@ export default function TugasPendahuluanPage() {
         [modules]
     );
 
+    const praktikanKelasId = praktikan?.kelas_id ?? praktikan?.kelas?.id ?? null;
+
     const fallbackActiveModuleEntry = useMemo(() => {
         if (!Array.isArray(tugasPendahuluan) || tugasPendahuluan.length === 0) {
             return null;
         }
 
-        return (
-            tugasPendahuluan.find((item) => {
-                const module = moduleMap.get(Number(item.modul_id));
-                if (!module) {
-                    return false;
-                }
-                const isEnglishModule = Number(module?.isEnglish ?? 0) === 1;
-                return item.isActive && (isEnglishClass ? isEnglishModule : !isEnglishModule);
-            }) ?? null
-        );
-    }, [tugasPendahuluan, moduleMap, isEnglishClass]);
+        // Find all modules that are active for this praktikan's class
+        const activeForClass = tugasPendahuluan.filter((item) => {
+            if (!item.isActive) {
+                return false;
+            }
 
-    const metaActiveModuleId = isEnglishClass
-        ? Number(tugasMeta.active_english_modul_id ?? 0)
-        : Number(tugasMeta.active_regular_modul_id ?? 0);
+            // Check class-specific activation
+            const activeKelasIds = item.active_kelas_ids ?? [];
+            return activeKelasIds.length === 0 ||
+                (praktikanKelasId && activeKelasIds.includes(Number(praktikanKelasId)));
+        });
 
-    const defaultModuleId = metaActiveModuleId || (fallbackActiveModuleEntry ? Number(fallbackActiveModuleEntry.modul_id) : null);
+        if (activeForClass.length === 0) {
+            return null;
+        }
+
+        // Prefer module matching the class type (English/Regular), but accept any
+        const preferredModule = activeForClass.find((item) => {
+            const module = moduleMap.get(Number(item.modul_id));
+            const isEnglishModule = Number(module?.isEnglish ?? 0) === 1;
+            return isEnglishClass ? isEnglishModule : !isEnglishModule;
+        });
+
+        return preferredModule ?? activeForClass[0];
+    }, [tugasPendahuluan, moduleMap, isEnglishClass, praktikanKelasId]);
+
+    const defaultModuleId = fallbackActiveModuleEntry ? Number(fallbackActiveModuleEntry.modul_id) : null;
     const activeModule = defaultModuleId ? moduleMap.get(defaultModuleId) ?? null : null;
 
     const [selectedModul, setSelectedModul] = useState(defaultModuleId ? String(defaultModuleId) : "");
@@ -221,22 +232,24 @@ export default function TugasPendahuluanPage() {
                         ? renderPlaceholder("Memuat konfigurasi tugas pendahuluan...")
                         : !isTpGloballyActive
                             ? renderPlaceholder("Tidak Ada Tugas Pendahuluan Saat Ini")
-                            : (
-                        <TugasPendahuluan
-                            isLoading={questionsQuery.isLoading}
-                            errorMessage={questionsQuery.isError ? (questionsQuery.error?.message ?? "Gagal memuat soal.") : null}
-                            questions={questions}
-                            answers={answers}
-                            setAnswers={setAnswers}
-                            setQuestionsCount={handleQuestionsCount}
-                            onSubmitTask={handleSubmitTask}
-                            tipeSoal="tp"
-                            praktikanId={praktikanId}
-                            isCommentEnabled={isTotClass}
-                            showSubmitButton={Boolean(selectedModul)}
-                            submitLabel={submitMutation.isPending ? "Menyimpan..." : "Simpan Jawaban"}
-                        />
-                        )}
+                            : !fallbackActiveModuleEntry
+                                ? renderPlaceholder("Tidak Ada Tugas Pendahuluan Untuk Kelas Anda")
+                                : (
+                                    <TugasPendahuluan
+                                        isLoading={questionsQuery.isLoading}
+                                        errorMessage={questionsQuery.isError ? (questionsQuery.error?.message ?? "Gagal memuat soal.") : null}
+                                        questions={questions}
+                                        answers={answers}
+                                        setAnswers={setAnswers}
+                                        setQuestionsCount={handleQuestionsCount}
+                                        onSubmitTask={handleSubmitTask}
+                                        tipeSoal="tp"
+                                        praktikanId={praktikanId}
+                                        isCommentEnabled={isTotClass}
+                                        showSubmitButton={Boolean(selectedModul)}
+                                        submitLabel={submitMutation.isPending ? "Menyimpan..." : "Simpan Jawaban"}
+                                    />
+                                )}
                 </div>
             </PraktikanAuthenticated>
             <PraktikanUtilities />

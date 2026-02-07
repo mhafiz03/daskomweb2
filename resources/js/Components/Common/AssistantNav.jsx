@@ -80,7 +80,7 @@ const BASE_NAV_ITEMS = [
     },
     {
         id: "see-soal",
-        permission: "manage-soal",
+        permission: "see-soal",
         href: "/soal",
         label: "Input Soal",
         icon: inputSoalIcon,
@@ -387,7 +387,7 @@ export default function AssisstantNav({ asisten, permission_name = [], roleName 
                     </div>
 
                     <div className="flex flex-1 flex-col overflow-hidden -mt-4">
-                        <div className="flex flex-1 flex-col overflow-y-auto">
+                        <div className="flex flex-1 flex-col overflow-y-auto scrollbar-hide">
                             <ul className={`flex flex-col gap-1 py-2 ${isCollapsed ? "px-1" : "px-4"}`}>
                                 {availableNavItems.map((item) => renderNavLink(item))}
                             </ul>

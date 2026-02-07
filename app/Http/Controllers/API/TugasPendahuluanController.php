@@ -16,8 +16,9 @@ class TugasPendahuluanController extends Controller
     public function index()
     {
         try {
-            // Ambil data tugas pendahuluan dengan join ke tabel modul
-            $tugas = Tugaspendahuluan::leftJoin('moduls', 'moduls.id', '=', 'tugaspendahuluans.modul_id')
+            // Ambil data tugas pendahuluan dengan eager load activeKelas
+            $tugas = Tugaspendahuluan::with('activeKelas:id')
+                ->leftJoin('moduls', 'moduls.id', '=', 'tugaspendahuluans.modul_id')
                 ->select('tugaspendahuluans.*', 'moduls.judul as nama_modul', 'moduls.isEnglish as modul_is_english')
                 ->get();
 
@@ -34,10 +35,19 @@ class TugasPendahuluanController extends Controller
                     );
                 }
 
-                $tugas = Tugaspendahuluan::leftJoin('moduls', 'moduls.id', '=', 'tugaspendahuluans.modul_id')
+                $tugas = Tugaspendahuluan::with('activeKelas:id')
+                    ->leftJoin('moduls', 'moduls.id', '=', 'tugaspendahuluans.modul_id')
                     ->select('tugaspendahuluans.*', 'moduls.judul as nama_modul', 'moduls.isEnglish as modul_is_english')
                     ->get();
             }
+
+            // Transform to include active_kelas_ids array
+            $tugasTransformed = $tugas->map(function ($item) {
+                $data = $item->toArray();
+                $data['active_kelas_ids'] = $item->activeKelas->pluck('id')->values()->all();
+                unset($data['active_kelas']);
+                return $data;
+            });
 
             $configuration = Configuration::select(
                 'id',
@@ -61,7 +71,7 @@ class TugasPendahuluanController extends Controller
 
             return response()->json([
                 'status' => 'success',
-                'data' => $tugas,
+                'data' => $tugasTransformed,
                 'meta' => [
                     'tp_active' => $tpActive,
                     'active_regular_modul_id' => $activeRegular->modul_id ?? null,
@@ -86,6 +96,8 @@ class TugasPendahuluanController extends Controller
             'data' => 'required|array',
             'data.*.id' => 'required|integer|exists:tugaspendahuluans,id',
             'data.*.isActive' => 'required|integer|in:0,1',
+            'data.*.kelas_ids' => 'sometimes|array',
+            'data.*.kelas_ids.*' => 'integer|exists:kelas,id',
         ]);
 
         try {
@@ -104,7 +116,18 @@ class TugasPendahuluanController extends Controller
                 $tugas->updated_at = now();
                 $tugas->save();
 
-                $updatedTugas[] = $tugas;
+                // Sync active classes if provided
+                if (array_key_exists('kelas_ids', $item)) {
+                    $tugas->activeKelas()->sync($item['kelas_ids'] ?? []);
+                }
+
+                // Reload with active kelas
+                $tugas->load('activeKelas:id');
+                $tugasData = $tugas->toArray();
+                $tugasData['active_kelas_ids'] = $tugas->activeKelas->pluck('id')->values()->all();
+                unset($tugasData['active_kelas']);
+
+                $updatedTugas[] = $tugasData;
             }
 
             return response()->json([
@@ -119,3 +142,4 @@ class TugasPendahuluanController extends Controller
         }
     }
 }
+

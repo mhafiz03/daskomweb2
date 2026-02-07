@@ -53,7 +53,6 @@ export default function LoginFormAssistant({ mode, onSwitchToRegister }) {
                 } else {
                     toast.error('Login failed! Please check your credentials.');
                 }
-                console.log(page.props);
             },
             onError: (error) => {
                 Object.values(error).forEach((errMsg) => {

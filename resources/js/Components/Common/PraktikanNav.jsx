@@ -9,6 +9,7 @@ import pollingIcon from "../../../assets/nav/Icon-Polling.svg";
 import tpIcon from "../../../assets/nav/Icon-Laporan.svg";
 import changePassIcon from "../../../assets/nav/Icon-GantiPassword.svg";
 import logoutIcon from "../../../assets/nav/Icon-Logout.svg";
+import komplainIcon from "../../../assets/nav/Icon-komplain.svg";
 import ModalLogout from './Modals/ModalLogout';
 import ModalPassword from './Modals/ModalPassword';
 import { updatePassword as updatePraktikanPassword } from "@/lib/routes/praktikan";

@@ -31,7 +31,7 @@ class PopulateImageKitData extends Command
     {
         parent::__construct();
         $this->imageKitService = $imageKitService;
-    }
+    }       
 
     /**
      * Execute the console command.
@@ -75,7 +75,7 @@ class PopulateImageKitData extends Command
         $skipped = 0;
         $moved = 0;
         $client = $this->imageKitService->getClient();
-        $targetFolder = '/daskom/profil-asisten/';
+        $targetFolder = '/FOTO-ASISTEN-WEBP';
 
         // Fetch all files in target folder in one API call
         $this->line('Fetching existing files from ImageKit...');

@@ -28,4 +28,13 @@ api.interceptors.request.use(
     (error) => Promise.reject(error)
 );
 
-export { api };
+const publicApi = axios.create({
+    baseURL: import.meta.env.VITE_API_URL ?? "",
+    withCredentials: false, // Public endpoints typically don't need credentials
+    headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+    },
+});
+
+export { api, publicApi };

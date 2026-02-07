@@ -8,9 +8,7 @@ export default function ProfileAssistant() {
             {({ asisten }) => (
                 <>
                     <Head title="Profil Asisten" />
-                    <div className="flex min-h-full w-full items-center justify-center p-6 mt-[15vh]">
-                        <AssistantCard asisten={asisten} />
-                    </div>
+                    <AssistantCard asisten={asisten} />
                 </>
             )}
         </AssistantLayout>

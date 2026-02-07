@@ -6,7 +6,9 @@ import TablePolling from "../Tables/TablePolling";
 import PollingSummary from "../Sections/PollingSummary";
 import ModalAddJenisPolling from "../Modals/ModalAddJenisPolling";
 
-export default function ContentPolling() {
+const ALLOWED_EDIT_ROLES = ['software', 'admin', 'kordas'];
+
+export default function ContentPolling({ roleName = null }) {
     const queryClient = useQueryClient();
     const [pollingData, setPollingData] = useState([]);
     const [loading, setLoading] = useState(false);
@@ -14,6 +16,8 @@ export default function ContentPolling() {
     const [isAddJenisOpen, setIsAddJenisOpen] = useState(false);
     const [categories, setCategories] = useState([]);
     const [viewMode, setViewMode] = useState("table"); // "table" or "summary"
+
+    const canEdit = ALLOWED_EDIT_ROLES.includes(roleName?.toLowerCase());
 
     const handleSelectPolling = useCallback((data) => {
         setPollingData(data);
@@ -80,15 +84,8 @@ export default function ContentPolling() {
     }, []);
 
     const toolbarConfig = useMemo(
-        () => ({
-            title: "Polling Assistant",
-            actions: [
-                {
-                    id: "add-jenis-polling",
-                    label: "Tambah Jenis Polling",
-                    variant: "primary",
-                    onClick: openAddJenisModal,
-                },
+        () => {
+            const actions = [
                 {
                     id: "refresh-polling",
                     label: loading ? "Loading..." : "Refresh",
@@ -97,9 +94,23 @@ export default function ContentPolling() {
                     onClick: handleRefresh,
                     disabled: loading,
                 },
-            ],
-        }),
-        [handleRefresh, loading, openAddJenisModal],
+            ];
+
+            if (canEdit) {
+                actions.unshift({
+                    id: "add-jenis-polling",
+                    label: "Tambah Jenis Polling",
+                    variant: "primary",
+                    onClick: openAddJenisModal,
+                });
+            }
+
+            return {
+                title: "Polling Assistant",
+                actions,
+            };
+        },
+        [canEdit, handleRefresh, loading, openAddJenisModal],
     );
 
     useAssistantToolbar(toolbarConfig);
@@ -115,6 +126,7 @@ export default function ContentPolling() {
                             onSelectPolling={handleSelectPolling}
                             onCategoriesLoaded={handleCategoriesLoaded}
                             onLoadingChange={handleLoadingChange}
+                            canEdit={canEdit}
                         />
                     }
                 </div>
@@ -159,7 +171,7 @@ export default function ContentPolling() {
                 )}
             </div>
 
-            {isAddJenisOpen ? (
+            {canEdit && isAddJenisOpen ? (
                 <ModalAddJenisPolling
                     onClose={closeAddJenisModal}
                     onSuccess={handleJenisCreated}

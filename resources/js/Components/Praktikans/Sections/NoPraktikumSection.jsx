@@ -27,7 +27,6 @@ export default function NoPraktikumSection({
 }) {
     const [praktikumState, setPraktikumState] = useState(null);
     const applyPraktikumState = useCallback((payload) => {
-        console.log(`[${new Date().toISOString()}] Applying praktikum payload:`, payload);
         if (!payload) {
             setPraktikumState(null);
 
@@ -123,14 +122,11 @@ export default function NoPraktikumSection({
                         : null;
 
                     applyPraktikumState(payloadToApply);
-                    console.log(`[${new Date().toISOString()}] Praktikum debug snapshot (initial load):`, payloadToApply);
                 } else {
                     applyPraktikumState(null);
-                    console.log(`[${new Date().toISOString()}] Praktikum debug snapshot: tidak ada praktikum aktif.`);
                 }
             } catch (error) {
                 console.error('Failed to fetch active praktikum:', error);
-                console.log(`[${new Date().toISOString()}] Praktikum debug snapshot: error fetching praktikum`, error);
             }
         };
 
@@ -157,12 +153,10 @@ export default function NoPraktikumSection({
                 : "Payload kosong diterima.";
 
             if (!praktikumPayload) {
-                console.log(`[${new Date().toISOString()}] Praktikum channel update received without payload, preserving current state.`);
                 return;
             }
 
             applyPraktikumState(praktikumPayload);
-            console.log(`[${new Date().toISOString()}] Praktikum debug snapshot (channel update):`, praktikumPayload ?? payload);
         };
 
         channel.listen(".PraktikumStatusUpdated", listener);

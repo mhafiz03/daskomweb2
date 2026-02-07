@@ -15,7 +15,7 @@ import { ModalOverlay } from "@/Components/Common/ModalPortal";
 import ModalCloseButton from "@/Components/Common/ModalCloseButton";
 import DepthToggleButton from "@/Components/Common/DepthToggleButton";
 
-export default function SoalInputEssay({ kategoriSoal, modul, modules = [], onModalSuccess, onModalValidation, onChangeModul }) {
+export default function SoalInputEssay({ kategoriSoal, modul, modules = [], onModalSuccess, onModalValidation, onChangeModul, isEditable = true }) {
     const [addSoal, setAddSoal] = useState({ soal: "" });
     const [enableFileUploadNew, setEnableFileUploadNew] = useState(false);
     const [isModalOpenEdit, setIsModalOpenEdit] = useState(false);
@@ -400,60 +400,64 @@ export default function SoalInputEssay({ kategoriSoal, modul, modules = [], onMo
 
     return (
         <div className="space-y-6 text-depth-primary">
-            <div className="space-y-2">
-                <label className="block text-xs font-semibold uppercase tracking-wide text-depth-secondary">
-                    Soal
-                </label>
-                <textarea
-                    className="h-48 w-full rounded-depth-lg border border-depth bg-depth-card p-4 text-sm text-depth-primary shadow-depth-sm transition duration-200 placeholder:text-depth-secondary focus:border-transparent focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)] focus:ring-offset-2 focus:ring-offset-[var(--depth-color-card)]"
-                    rows="8"
-                    placeholder="Masukkan soal..."
-                    value={addSoal.soal}
-                    onChange={(e) => setAddSoal({ soal: e.target.value })}
-                />
-                {supportsFileUpload && (
-                    <div className="flex items-center justify-between rounded-depth-md border border-depth bg-depth-interactive/40 px-4 py-3 text-sm font-semibold text-depth-primary">
-                        <span>Izinkan unggah file untuk soal ini</span>
-                        <DepthToggleButton
-                            isOn={enableFileUploadNew}
-                            onToggle={() => setEnableFileUploadNew((prev) => !prev)}
-                        />
-                    </div>
-                )}
-            </div>
+            {isEditable && (
+                <div className="space-y-2">
+                    <label className="block text-xs font-semibold uppercase tracking-wide text-depth-secondary">
+                        Soal
+                    </label>
+                    <textarea
+                        className="h-48 w-full rounded-depth-lg border border-depth bg-depth-card p-4 text-sm text-depth-primary shadow-depth-sm transition duration-200 placeholder:text-depth-secondary focus:border-transparent focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)] focus:ring-offset-2 focus:ring-offset-[var(--depth-color-card)]"
+                        rows="8"
+                        placeholder="Masukkan soal..."
+                        value={addSoal.soal}
+                        onChange={(e) => setAddSoal({ soal: e.target.value })}
+                    />
+                    {supportsFileUpload && (
+                        <div className="flex items-center justify-between rounded-depth-md border border-depth bg-depth-interactive/40 px-4 py-3 text-sm font-semibold text-depth-primary">
+                            <span>Izinkan unggah file untuk soal ini</span>
+                            <DepthToggleButton
+                                isOn={enableFileUploadNew}
+                                onToggle={() => setEnableFileUploadNew((prev) => !prev)}
+                            />
+                        </div>
+                    )}
+                </div>
+            )}
 
-            <div className="flex flex-wrap justify-end gap-3">
-                <button
-                    className="rounded-depth-md border border-depth bg-depth-card px-6 py-2 text-sm font-semibold text-depth-primary shadow-depth-sm transition duration-200 hover:-translate-y-0.5 hover:shadow-depth-md disabled:cursor-not-allowed disabled:opacity-60"
-                    onClick={handleOpenCompareModal}
-                    type="button"
-                    disabled={regularModules.length === 0 && englishModules.length === 0}
-                >
-                    Compare
-                </button>
-                {/* <button
-                    className="rounded-depth-md border border-depth bg-depth-interactive px-6 py-2 text-sm font-semibold text-depth-primary shadow-depth-sm transition duration-200 hover:-translate-y-0.5 hover:shadow-depth-md disabled:cursor-not-allowed disabled:opacity-60"
-                    onClick={handleExportJson}
-                    type="button"
-                    disabled={!Array.isArray(soalList) || soalList.length === 0}
-                >
-                    Export JSON
-                </button> */}
-                <button
-                    className="rounded-depth-md border border-depth bg-depth-interactive px-6 py-2 text-sm font-semibold text-depth-primary shadow-depth-sm transition duration-200 hover:-translate-y-0.5 hover:shadow-depth-md disabled:opacity-60"
-                    onClick={() => setIsBatchModalOpen(true)}
-                    disabled={soalLoading || soalList.length === 0}
-                >
-                    Batch Edit
-                </button>
-                <button
-                    className="rounded-depth-md bg-[var(--depth-color-primary)] px-6 py-2 text-sm font-semibold text-white shadow-depth-sm transition duration-200 hover:-translate-y-0.5 hover:shadow-depth-md focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)] focus:ring-offset-2 focus:ring-offset-[var(--depth-color-card)] disabled:opacity-70"
-                    onClick={handleTambahSoal}
-                    disabled={postSoalMutation.isPending}
-                >
-                    {postSoalMutation.isPending ? "Menyimpan..." : "+ Tambah Soal"}
-                </button>
-            </div>
+            {isEditable && (
+                <div className="flex flex-wrap justify-end gap-3">
+                    <button
+                        className="rounded-depth-md border border-depth bg-depth-card px-6 py-2 text-sm font-semibold text-depth-primary shadow-depth-sm transition duration-200 hover:-translate-y-0.5 hover:shadow-depth-md disabled:cursor-not-allowed disabled:opacity-60"
+                        onClick={handleOpenCompareModal}
+                        type="button"
+                        disabled={regularModules.length === 0 && englishModules.length === 0}
+                    >
+                        Compare
+                    </button>
+                    {/* <button
+                        className="rounded-depth-md border border-depth bg-depth-interactive px-6 py-2 text-sm font-semibold text-depth-primary shadow-depth-sm transition duration-200 hover:-translate-y-0.5 hover:shadow-depth-md disabled:cursor-not-allowed disabled:opacity-60"
+                        onClick={handleExportJson}
+                        type="button"
+                        disabled={!Array.isArray(soalList) || soalList.length === 0}
+                    >
+                        Export JSON
+                    </button> */}
+                    <button
+                        className="rounded-depth-md border border-depth bg-depth-interactive px-6 py-2 text-sm font-semibold text-depth-primary shadow-depth-sm transition duration-200 hover:-translate-y-0.5 hover:shadow-depth-md disabled:opacity-60"
+                        onClick={() => setIsBatchModalOpen(true)}
+                        disabled={soalLoading || soalList.length === 0}
+                    >
+                        Batch Edit
+                    </button>
+                    <button
+                        className="rounded-depth-md bg-[var(--depth-color-primary)] px-6 py-2 text-sm font-semibold text-white shadow-depth-sm transition duration-200 hover:-translate-y-0.5 hover:shadow-depth-md focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)] focus:ring-offset-2 focus:ring-offset-[var(--depth-color-card)] disabled:opacity-70"
+                        onClick={handleTambahSoal}
+                        disabled={postSoalMutation.isPending}
+                    >
+                        {postSoalMutation.isPending ? "Menyimpan..." : "+ Tambah Soal"}
+                    </button>
+                </div>
+            )}
 
             <div className="space-y-4">
                 <h3 className="text-base font-semibold text-depth-secondary">Daftar Soal</h3>
@@ -484,27 +488,30 @@ export default function SoalInputEssay({ kategoriSoal, modul, modules = [], onMo
                                     </pre>
                                 </div>
                                 <div className="absolute right-4 top-4 flex gap-2">
-                                    <button
-                                        onClick={() => handleOpenModalDelete(soalItem)}
-                                        className="flex h-9 w-9 items-center justify-center rounded-depth-md border border-depth bg-depth-interactive text-red-500 shadow-depth-sm transition duration-150 hover:border-red-400 hover:shadow-depth-md"
-                                        type="button"
-                                    >
-                                        <img className="h-4 w-4" src={trashIcon} alt="Delete" />
-                                    </button>
+                                    {isEditable && (
+                                        <button
+                                            onClick={() => handleOpenModalDelete(soalItem)}
+                                            className="flex h-9 w-9 items-center justify-center rounded-depth-md border border-depth bg-depth-interactive text-red-500 shadow-depth-sm transition duration-150 hover:border-red-400 hover:shadow-depth-md"
+                                            type="button"
+                                        >
+                                            <img className="h-4 w-4" src={trashIcon} alt="Delete" />
+                                        </button>
+                                    )}
                                     <SoalCommentsButton
                                         kategoriSoal={kategoriSoal}
                                         modulId={soalItem?.modul_id ?? (modul ? Number(modul) : null)}
                                         soalId={soalItem?.id}
                                         variant="icon"
                                     />
-                                    <button
-                                        onClick={() => handleOpenModalEdit(soalItem)}
-                                        className="flex h-9 w-9 items-center justify-center rounded-depth-md border border-depth bg-depth-interactive shadow-depth-sm transition duration-150 hover:border-blue-400 hover:shadow-depth-md"
-                                        type="button"
-                                    >
-                                        <img className="edit-icon-filter h-4 w-4" src={editIcon} alt="Edit" />
-                                    </button>
-
+                                    {isEditable && (
+                                        <button
+                                            onClick={() => handleOpenModalEdit(soalItem)}
+                                            className="flex h-9 w-9 items-center justify-center rounded-depth-md border border-depth bg-depth-interactive shadow-depth-sm transition duration-150 hover:border-blue-400 hover:shadow-depth-md"
+                                            type="button"
+                                        >
+                                            <img className="edit-icon-filter h-4 w-4" src={editIcon} alt="Edit" />
+                                        </button>
+                                    )}
 
                                 </div>
                             </li>

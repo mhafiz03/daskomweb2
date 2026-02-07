@@ -4,7 +4,7 @@ import FormSoalInput from "../Forms/FormSoalInput";
 import ButtonResetInputSoal from "../Modals/ModalResetInputSoal";
 import ModalGoogleTools from "../Modals/ModalGoogleTools";
 
-export default function ContentSoal() {
+export default function ContentSoal({ isEditable = true }) {
     const [showModalReset, setShowModalReset] = useState(false);
     const [showGoogleTools, setShowGoogleTools] = useState(false);
 
@@ -15,7 +15,7 @@ export default function ContentSoal() {
     const toolbarConfig = useMemo(
         () => ({
             title: "Manage Soal",
-            actions: [
+            actions: isEditable ? [
                 {
                     id: "google-tools",
                     label: "Integrasi Google",
@@ -23,9 +23,9 @@ export default function ContentSoal() {
                     variant: "primary",
                     onClick: () => setShowGoogleTools(true),
                 },
-            ],
+            ] : [],
         }),
-        [setShowGoogleTools],
+        [setShowGoogleTools, isEditable],
     );
 
     useAssistantToolbar(toolbarConfig);
@@ -37,7 +37,7 @@ export default function ContentSoal() {
             <div className="mt-4 rounded-depth-lg border border-depth bg-depth-card shadow-depth-lg">
                 {/* Panggil komponen dropdown jenis soal */}
                 <div className="w-full overflow-y-auto rounded-depth-lg p-6 h-[80vh]">
-                    <FormSoalInput />
+                    <FormSoalInput isEditable={isEditable} />
                 </div>
             </div>
 

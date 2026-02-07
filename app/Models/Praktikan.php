@@ -64,6 +64,11 @@ class Praktikan extends Authenticatable
         'remember_token',
     ];
 
+    protected $appends = [
+        'attendance_pct',
+        'avg_score',
+    ];
+
     protected $fillable = [
         'nama',
         'nim',
@@ -154,4 +159,35 @@ class Praktikan extends Authenticatable
     {
         return $this->hasMany(TempJawabantp::class);
     }
+
+    /**
+     * Get the attendance percentage for the praktikan
+     */
+    public function getAttendancePctAttribute(): string
+    {
+        // Fixed total of 10 modules
+        $totalModules = 10;
+        
+        // Count how many modules the praktikan attended (has laporan_praktikan record)
+        $attendedModules = $this->laporan_praktikans()->count();
+        
+        $percentage = round(($attendedModules / $totalModules) * 100);
+        
+        return $percentage . '%';
+    }
+
+    /**
+     * Get the average score for the praktikan
+     */
+    public function getAvgScoreAttribute(): string
+    {
+        $avgScore = $this->nilais()->avg('avg');
+        
+        if ($avgScore === null) {
+            return '0.0';
+        }
+        
+        return number_format($avgScore, 1);
+    }
+
 }

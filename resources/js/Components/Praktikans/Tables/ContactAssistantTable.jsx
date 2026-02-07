@@ -26,7 +26,7 @@ export default function ContactAssistantTable() {
     const openModal = (asisten) => {
         setSelectedAsisten(asisten);
     };
-
+    
     const closeModal = () => {
         setSelectedAsisten(null);
     };
@@ -45,10 +45,10 @@ export default function ContactAssistantTable() {
                                 loading="lazy"
                             />
                         ) : (
-                            <img 
+                            <img
                                 src={daskomIcon}
-                                alt={asisten.kode} 
-                                className="h-full w-full object-cover object-top" 
+                                alt={asisten.kode}
+                                className="h-full w-full object-cover object-top"
                             />
                         )}
                     </div>
@@ -100,49 +100,83 @@ export default function ContactAssistantTable() {
             {/* Modal */}
             {selectedAsisten && (
                 <Dialog open={true} onClose={closeModal} className="fixed inset-0 z-50 flex items-center justify-center">
-                    <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={closeModal}></div>
-                    <div className="relative z-10 w-full max-w-md rounded-depth-lg border border-depth bg-depth-card p-8 text-center shadow-depth-lg">
-                        {/* Close Button */}
-                        <ModalCloseButton
-                            onClick={closeModal}
-                            ariaLabel="Tutup detail asisten"
-                            className="absolute right-3 top-3"
-                        />
-                        
-                        <h2 className="mb-6 text-xl font-bold text-depth-primary">Detail Asisten</h2>
-                        <div className="mb-6 flex flex-col items-center">
-                            {selectedAsisten.foto ? (
-                                <Image
-                                    src={selectedAsisten.foto}
-                                    transformation={[{ height: "160", width: "160", crop: "maintain_ratio" }]}
-                                    alt={selectedAsisten.kode}
-                                    className="mb-4 h-40 w-40 rounded-full border-4 border-[var(--depth-color-primary)] object-cover shadow-depth-lg"
-                                    loading="lazy"
-                                />
-                            ) : (
-                                <img 
-                                    src={daskomIcon} 
-                                    alt={selectedAsisten.kode} 
-                                    className="mb-4 h-40 w-40 rounded-full border-4 border-[var(--depth-color-primary)] object-cover shadow-depth-lg" 
-                                />
-                            )}
-                            <h3 className="text-lg font-bold text-[var(--depth-color-primary)]">{selectedAsisten.kode}</h3>
-                            <hr className="my-2 w-full border-depth" />
-                            <p className="text-sm font-medium text-depth-secondary">{selectedAsisten.nama}</p>
-                        </div>
-                        <div className="mt-6 space-y-3">
-                            <div className="flex items-center justify-center gap-3 rounded-depth-md bg-depth-interactive px-4 py-2">
-                                <img className="w-6" src={iconWA} alt="iconWA" />
-                                <p className="font-medium text-depth-primary">{selectedAsisten.nomor_telepon}</p>
+                    <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={closeModal} />
+
+                    {/* Main Container with Depth Gradient */}
+                    <div className="relative z-10 w-full max-w-lg overflow-hidden rounded-3xl border border-[var(--depth-glass-border)] bg-[var(--depth-color-card)] shadow-depth-lg transition-all">
+
+                        {/* Background Gradient Shapes */}
+                        <div className="absolute inset-0 z-0 opacity-40" style={{ background: "var(--depth-gradient-background)" }} />
+
+                        <div className="relative z-10 p-6">
+                            <ModalCloseButton onClick={closeModal} className="absolute right-4 top-4 opacity-60 hover:opacity-100" />
+
+                            {/* Profile Section */}
+                            <div className="flex flex-col items-start pt-2">
+                                <div className="relative mb-4">
+                                    <div className="h-24 w-24 overflow-hidden rounded-full border-4 border-[var(--depth-color-card)] bg-depth-background shadow-depth-md">
+                                        <Image src={selectedAsisten.foto || daskomIcon} alt={selectedAsisten.kode} className="h-full w-full object-cover" />
+                                    </div>
+                                    {/* Online Indicator using Primary Color */}
+                                    <div className="absolute bottom-0 right-1 h-5 w-5 rounded-full border-3 border-[var(--depth-color-card)] bg-[var(--depth-color-primary)] shadow-sm" />
+                                </div>
+
+                                <h2 className="text-2xl font-bold tracking-tight text-depth-primary">{selectedAsisten.nama}</h2>
+                                <p className="text-sm font-medium text-depth-secondary opacity-80">{selectedAsisten.kode}</p>
                             </div>
-                            <div className="flex items-center justify-center gap-3 rounded-depth-md bg-depth-interactive px-4 py-2">
-                                <img className="w-6" src={iconLine} alt="iconLine" />
-                                <p className="font-medium text-depth-primary">{selectedAsisten.id_line}</p>
+
+                            {/* About Me Section */}
+                            <div className="mt-5">
+                                <h3 className="text-[10px] font-bold uppercase tracking-[0.15em] text-depth-secondary opacity-60">About Me</h3>
+                                <p className="mt-2 text-sm text-depth-primary leading-relaxed">
+                                    {selectedAsisten.deskripsi || "No description provided for this assistant."}
+                                </p>
                             </div>
-                            <div className="flex items-center justify-center gap-3 rounded-depth-md bg-depth-interactive px-4 py-2">
-                                <img className="w-6" src={iconIG} alt="iconIG" />
-                                <p className="font-medium text-depth-primary">{selectedAsisten.instagram}</p>
+
+                            {/* Social Media Section - Row Ordered with Labels */}
+                            <div className="mt-5 border-t border-depth pt-4">
+                                <h3 className="text-[10px] font-bold uppercase tracking-[0.15em] text-depth-secondary opacity-60 mb-2">Contact & Socials</h3>
+                                <div className="space-y-2">
+                                    {/* WhatsApp Row */}
+                                    <div
+                                        className="group flex items-center gap-2 rounded-lg bg-[var(--depth-color-interactive)] border border-depth p-2 transition-all "
+                                    >
+                                        <div className="flex h-7 w-7 items-center justify-center rounded-md bg-white/50 shadow-sm">
+                                            <img className="h-3.5 w-3.5 opacity-80 group-hover:opacity-100" src={iconWA} alt="WA" />
+                                        </div>
+                                        <span className="text-xs font-medium text-depth-primary">{selectedAsisten.nomor_telepon || "Not Available"}</span>
+                                    </div>
+
+                                    {/* ID Line Row */}
+                                    <div className="group flex items-center gap-2 rounded-lg bg-[var(--depth-color-interactive)] border border-depth p-2 transition-all">
+                                        <div className="flex h-7 w-7 items-center justify-center rounded-md bg-white/50 shadow-sm">
+                                            <img className="h-3.5 w-3.5 opacity-80" src={iconLine} alt="Line" />
+                                        </div>
+                                        <span className="text-xs font-medium text-depth-primary">{selectedAsisten.id_line || "Not Available"}</span>
+                                    </div>
+
+                                    {/* Instagram Row */}
+                                    <div
+                                        className="group flex items-center gap-2 rounded-lg bg-[var(--depth-color-interactive)] border border-depth p-2 transition-all "
+                                    >
+                                        <div className="flex h-7 w-7 items-center justify-center rounded-md bg-white/50 shadow-sm">
+                                            <img className="h-3.5 w-3.5 opacity-80 group-hover:opacity-100" src={iconIG} alt="IG" />
+                                        </div>
+                                        <span className="text-xs font-medium text-depth-primary">{selectedAsisten.instagram || "username"}</span>
+                                    </div>
+                                </div>
                             </div>
+
+                            {/* Action Button using Button Gradients */}
+                            <a
+                                href={`https://wa.me/${selectedAsisten.nomor_telepon}`}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="mt-6 flex w-full items-center justify-center rounded-[var(--depth-radius-full)] py-3 text-center text-sm font-bold text-white transition-all hover:brightness-110 active:scale-95 shadow-depth-md"
+                                style={{ background: "linear-gradient(135deg, var(--depth-button-gradient-start), var(--depth-button-gradient-end))" }}
+                            >
+                                Get In Touch
+                            </a>
                         </div>
                     </div>
                 </Dialog>

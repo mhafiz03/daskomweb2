@@ -8,8 +8,10 @@ import {
 } from "@/hooks/useAssignedPraktikanQuery";
 import { useAssistantToolbar } from "@/Layouts/AssistantToolbarContext";
 import ShortcutWindow from "@/Components/Assistants/Modals/ShortcutWindow";
+import { useNilaiComplaintsQuery } from "@/hooks/useNilaiComplaintsQuery";
 
 const ModalInputNilai = lazy(() => import("../Modals/ModalInputNilai"));
+const ModalNilaiComplaintAsisten = lazy(() => import("../Modals/ModalNilaiComplaintAsisten"));
 
 const SCORE_FIELDS = [
     { key: "tp", label: "TP" },
@@ -102,9 +104,11 @@ const getScoreValue = (nilai, key) => {
 export default function ContentNilai({ asisten }) {
     const [search, setSearch] = useState("");
     const [modalAssignment, setModalAssignment] = useState(null);
+    const [complaintModal, setComplaintModal] = useState(null);
     const [selectedAssignmentIds, setSelectedAssignmentIds] = useState([]);
     const [isWorkspaceOpen, setIsWorkspaceOpen] = useState(false);
     const queryClient = useQueryClient();
+    const { data: complaints = [] } = useNilaiComplaintsQuery();
 
     const {
         data: assignments = [],
@@ -160,7 +164,16 @@ export default function ContentNilai({ asisten }) {
 
     const handleSaved = () => {
         queryClient.invalidateQueries({ queryKey: ASSIGNED_PRAKTIKAN_QUERY_KEY });
+        queryClient.invalidateQueries({ queryKey: ['nilai-complaints-asisten'] });
         handleCloseModalInput();
+    };
+
+    const getPendingComplaintsForNilai = (nilaiId) => {
+        return complaints.filter((c) => c.nilai_id === nilaiId && c.status === 'pending').length;
+    };
+
+    const getFirstComplaintForNilai = (nilaiId) => {
+        return complaints.find((c) => c.nilai_id === nilaiId);
     };
 
     const handleToggleAssignmentSelection = useCallback((assignmentId) => {
@@ -392,6 +405,27 @@ export default function ContentNilai({ asisten }) {
                                                         </svg>
                                                     )}
                                                 </span>
+                                                {getFirstComplaintForNilai(assignment?.nilai?.id) && (
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => setComplaintModal(getFirstComplaintForNilai(assignment?.nilai?.id))}
+                                                        className="relative inline-flex h-9 w-9 items-center justify-center rounded-depth-md border border-depth bg-depth-interactive shadow-depth-sm transition hover:-translate-y-0.5 hover:shadow-depth-md"
+                                                        aria-label="Lihat komplain nilai"
+                                                    >
+                                                        <svg
+                                                            className="h-4 w-4 text-depth-primary"
+                                                            fill="currentColor"
+                                                            viewBox="0 0 24 24"
+                                                        >
+                                                            <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 12h-8v-2h8v2zm0-3h-8V9h8v2zm0-3H6V6h12v2z" />
+                                                        </svg>
+                                                        {getPendingComplaintsForNilai(assignment?.nilai?.id) > 0 && (
+                                                            <span className="absolute top-0 right-0 inline-flex items-center justify-center h-5 w-5 rounded-full bg-red-600 text-white text-[10px] font-bold -translate-y-2 translate-x-2">
+                                                                {getPendingComplaintsForNilai(assignment?.nilai?.id)}
+                                                            </span>
+                                                        )}
+                                                    </button>
+                                                )}
                                                 <button
                                                     type="button"
                                                     onClick={() => handleOpenModalInput(assignment)}
@@ -445,6 +479,20 @@ export default function ContentNilai({ asisten }) {
                         assignment={modalAssignment}
                         asistenId={asisten?.id}
                         onSaved={handleSaved}
+                    />
+                </Suspense>
+            )}
+
+            {complaintModal && (
+                <Suspense fallback={null}>
+                    <ModalNilaiComplaintAsisten
+                        isOpen={Boolean(complaintModal)}
+                        onClose={() => setComplaintModal(null)}
+                        complaint={complaintModal}
+                        onUpdated={() => {
+                            queryClient.invalidateQueries({ queryKey: ['nilai-complaints-asisten'] });
+                            setComplaintModal(null);
+                        }}
                     />
                 </Suspense>
             )}

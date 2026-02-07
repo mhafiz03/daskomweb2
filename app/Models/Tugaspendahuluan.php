@@ -7,6 +7,7 @@
 namespace App\Models;
 
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 
 /**
@@ -19,6 +20,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property Modul $modul
+ * @property Collection|Kelas[] $activeKelas
  */
 class Tugaspendahuluan extends Model
 {
@@ -38,5 +40,13 @@ class Tugaspendahuluan extends Model
     public function modul()
     {
         return $this->belongsTo(Modul::class);
+    }
+
+    /**
+     * Get the classes that are active for this tugas pendahuluan.
+     */
+    public function activeKelas()
+    {
+        return $this->belongsToMany(Kelas::class, 'tugaspendahuluan_kelas', 'tugaspendahuluan_id', 'kelas_id');
     }
 }

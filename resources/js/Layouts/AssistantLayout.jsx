@@ -74,8 +74,8 @@ export default function AssistantLayout({
             variant === "primary"
                 ? "border-transparent bg-[var(--depth-color-primary)] text-white"
                 : variant === "danger"
-                ? "border-red-500/60 bg-red-500/15 text-red-500"
-                : "border-depth bg-depth-interactive text-depth-primary";
+                    ? "border-red-500/60 bg-red-500/15 text-red-500"
+                    : "border-depth bg-depth-interactive text-depth-primary";
 
         const disabledClass = disabled ? "pointer-events-none opacity-60" : "";
 
@@ -148,7 +148,8 @@ export default function AssistantLayout({
                     </Link>
                 </div>
 
-                <div className="flex w-full flex-row gap-8 font-depth justify-start">
+                <div className="flex w-full flex-row gap-8 font-depth justify-start ">
+                    {/* Navbar Column - Kept as is */}
                     <div className="flex-shrink-0 lg:sticky lg:top-10 basis-64">
                         <AssisstantNav
                             asisten={asisten}
@@ -156,9 +157,13 @@ export default function AssistantLayout({
                             roleName={roleName}
                         />
                     </div>
-                    <div className="h-[calc(100vh-80px)] flex-col overflow-hidden w-3/4 max-w max-w-7xl px-6">
+
+                    {/* Main Content Area - UPDATED */}
+                    <div className="h-[calc(100vh-80px)] flex-1 flex flex-col overflow-hidden ">
                         {toolbarHeader}
-                        <div className="flex-1 overflow-y-auto">{renderedChildren}</div>
+                        <div className="flex-1 overflow-y-auto">
+                            {renderedChildren}
+                        </div>
                     </div>
                 </div>
             </AssistantToolbarContext.Provider>

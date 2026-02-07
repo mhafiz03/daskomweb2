@@ -19,27 +19,53 @@ class AsistenController extends Controller
     public function index()
     {
         try {
-            if (! auth()->guard('asisten')->user()) {
-                $asisten = Asisten::leftJoin('foto_asistens', 'foto_asistens.kode', '=', 'asistens.kode')
-                    ->select('asistens.id', 'nama', 'asistens.kode', 'foto_asistens.foto', 'nomor_telepon', 'id_line', 'instagram', 'deskripsi')
-                    ->orderBy('asistens.kode', 'asc')->get();
+            $query = Asisten::query()
+                ->leftJoin('foto_asistens', 'foto_asistens.kode', '=', 'asistens.kode')
+                ->withAvg('laporan_praktikans as rating', 'rating_asisten')
+                ->orderBy('asistens.kode', 'asc');
 
+            if (auth()->guard('asisten')->user()) {
+                $query->leftJoin('roles', 'roles.id', '=', 'asistens.role_id')
+                    ->select(
+                        'asistens.id',
+                        'asistens.nama',
+                        'asistens.kode',
+                        'foto_asistens.foto',
+                        'roles.name as role',
+                        'asistens.role_id',
+                        'asistens.nomor_telepon',
+                        'asistens.id_line',
+                        'asistens.instagram',
+                        'asistens.deskripsi'
+                    );
             } else {
-                $asisten = Asisten::leftJoin('roles', 'roles.id', '=', 'asistens.role_id')
-                    ->leftJoin('foto_asistens', 'foto_asistens.kode', '=', 'asistens.kode')
-                    ->select('asistens.id', 'nama', 'asistens.kode', 'foto_asistens.foto', 'roles.name as role', 'role_id', 'nomor_telepon', 'id_line', 'instagram', 'deskripsi')
-                    ->orderBy('asistens.kode', 'asc')->get();
+                $query->select(
+                    'asistens.id',
+                    'asistens.nama',
+                    'asistens.kode',
+                    'foto_asistens.foto',
+                    'asistens.nomor_telepon',
+                    'asistens.id_line',
+                    'asistens.instagram',
+                    'asistens.deskripsi'
+                );
             }
+
+            $asisten = $query->get();
 
             return response()->json([
                 'success' => true,
                 'asisten' => $asisten,
-                'message' => 'Asisten retrieved successfully.',
-            ], 200);
-        } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'Failed to retrieve Asisten.');
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to retrieve Asisten.',
+            ], 500);
         }
     }
+
+
 
     /**
      * Store a newly created resource in storage.
@@ -141,7 +167,7 @@ class AsistenController extends Controller
 
             return back()->with('success', 'Profile picture updated successfully.');
         } catch (\Exception $e) {
-            return back()->with('error', 'Something went wrong: '.$e->getMessage());
+            return back()->with('error', 'Something went wrong: ' . $e->getMessage());
         }
     }
 
@@ -162,7 +188,7 @@ class AsistenController extends Controller
 
             return back()->with('success', 'Profile picture deleted successfully.');
         } catch (\Exception $e) {
-            return back()->with('error', 'Failed to delete profile picture: '.$e->getMessage());
+            return back()->with('error', 'Failed to delete profile picture: ' . $e->getMessage());
         }
     }
 
@@ -228,7 +254,7 @@ class AsistenController extends Controller
             }
 
             return redirect()->back()->withErrors([
-                'error' => 'gagal mengubah password: '.$e->getMessage(),
+                'error' => 'gagal mengubah password: ' . $e->getMessage(),
             ]);
         }
     }

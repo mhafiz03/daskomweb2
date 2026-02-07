@@ -4,7 +4,7 @@ import toast from 'react-hot-toast';
 import eyeClose from '../../../../assets/form/eyeClose.png';
 import eyeOpen from '../../../../assets/form/eyeOpen.png';
 import ButtonOption from '../Buttons/ButtonOption';
-import { useKelasQuery } from '@/hooks/useKelasQuery';
+import { useKelasQuery, useKelasQueryGuess } from '@/hooks/useKelasQuery';
 import { submit } from '@/lib/http';
 import { store as registerPraktikan } from '@/lib/routes/auth/registeredPraktikan';
 
@@ -30,7 +30,7 @@ export default function RegistFormPraktikan({ mode, onSwitchToLogin }) {
         isLoading: kelasLoading,
         isError: kelasError,
         error: kelasQueryError,
-    } = useKelasQuery({
+    } = useKelasQueryGuess({
         onError: (err) => {
             toast.error(err.message ?? 'Whoops terjadi kesalahan');
         },
@@ -78,8 +78,8 @@ export default function RegistFormPraktikan({ mode, onSwitchToLogin }) {
                     onSuccess: () => {
                         toast.success('Registration finished!');
                         setTimeout(() => {
-                            router.visit('/login?mode=praktikan');                    
-                        }, 1500); 
+                            router.visit('/login?mode=praktikan');
+                        }, 1500);
                     },
                     onError: (error) => {
                         Object.values(error).forEach((errMsg) => {
@@ -93,7 +93,6 @@ export default function RegistFormPraktikan({ mode, onSwitchToLogin }) {
         }
     };
 
-    console.log(mode);
 
     return (
         <div className="w-1/2 my-1 px-10">
@@ -127,7 +126,7 @@ export default function RegistFormPraktikan({ mode, onSwitchToLogin }) {
                 />
                 {localErrors.nim && <p className="text-red-400 text-sm -mt-2">{localErrors.nim}</p>}
 
-               <select
+                <select
                     className="bg-depth-card py-2 px-4 rounded-depth-md border border-depth placeholder-depth-secondary text-depth-primary focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)] focus:border-transparent transition-all shadow-depth-sm w-full"
                     id="kelas_id"
                     value={values.kelas_id}

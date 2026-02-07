@@ -1,5 +1,5 @@
 import { Head } from "@inertiajs/react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
 import { send } from "@/lib/http";
@@ -10,7 +10,254 @@ import PollingContent from "@/Components/Praktikans/Sections/PollingContent";
 import PraktikanPageHeader from "@/Components/Praktikans/Common/PraktikanPageHeader";
 import PraktikanUtilities from "@/Components/Praktikans/Layout/PraktikanUtilities";
 
+// Typewriter Component
+function TypewriterText({ text, onComplete, speed = 50 }) {
+    const [displayedText, setDisplayedText] = useState("");
+    const [currentIndex, setCurrentIndex] = useState(0);
+    const [isComplete, setIsComplete] = useState(false);
+
+    useEffect(() => {
+        if (currentIndex < text.length) {
+            const timeout = setTimeout(() => {
+                setDisplayedText(prev => prev + text[currentIndex]);
+                setCurrentIndex(prev => prev + 1);
+            }, speed);
+            return () => clearTimeout(timeout);
+        } else if (!isComplete) {
+            setIsComplete(true);
+            if (onComplete) {
+                setTimeout(onComplete, 1000);
+            }
+        }
+    }, [currentIndex, text, speed, onComplete, isComplete]);
+
+    return (
+        <span>
+            {displayedText}
+            {currentIndex < text.length && (
+                <span className="animate-pulse">|</span>
+            )}
+        </span>
+    );
+}
+
+// Intro Scene Component
+function IntroScene({ onComplete }) {
+    const [phase, setPhase] = useState(0);
+    const [showSkip, setShowSkip] = useState(false);
+
+    const introTexts = [
+        "Akhirnya praktikum satu semester kelar juga! 🎉",
+        "Makasih buat semua effort dan partisipasi kalian selama ini.",
+        "",
+        "Sebelum benar-benar selesai, saatnya kita tentukan siapa yang pantas naik tahta sebagai pemegang title selanjutnya 👑"
+    ];
+
+    useEffect(() => {
+        const timer = setTimeout(() => setShowSkip(true), 2000);
+        return () => clearTimeout(timer);
+    }, []);
+
+    const handlePhaseComplete = useCallback(() => {
+        if (phase < introTexts.length - 1) {
+            setPhase(prev => prev + 1);
+        } else {
+            setTimeout(onComplete, 1500);
+        }
+    }, [phase, introTexts.length, onComplete]);
+
+    return (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-gradient-to-br from-gray-900 via-slate-900 to-gray-900">
+            {/* Animated background particles */}
+            <div className="absolute inset-0 overflow-hidden">
+                {[...Array(20)].map((_, i) => (
+                    <div
+                        key={i}
+                        className="absolute rounded-full bg-[var(--depth-color-primary)] opacity-10"
+                        style={{
+                            width: `${Math.random() * 10 + 5}px`,
+                            height: `${Math.random() * 10 + 5}px`,
+                            left: `${Math.random() * 100}%`,
+                            top: `${Math.random() * 100}%`,
+                            animation: `float ${Math.random() * 10 + 10}s linear infinite`,
+                            animationDelay: `${Math.random() * 5}s`
+                        }}
+                    />
+                ))}
+            </div>
+
+            {/* Content */}
+            <div className="relative z-10 max-w-3xl px-8 text-center">
+                <div className="mb-8 text-4xl font-bold leading-relaxed text-white md:text-5xl">
+                    {introTexts.slice(0, phase + 1).map((text, idx) => (
+                        <p key={idx} className={`mb-4 ${idx === phase ? '' : 'opacity-60'}`}>
+                            {idx === phase ? (
+                                <TypewriterText
+                                    text={text}
+                                    onComplete={handlePhaseComplete}
+                                    speed={40}
+                                />
+                            ) : (
+                                text
+                            )}
+                        </p>
+                    ))}
+                </div>
+
+                {/* Progress indicator */}
+                <div className="mt-8 flex justify-center gap-2">
+                    {introTexts.map((_, idx) => (
+                        <div
+                            key={idx}
+                            className={`h-2 w-2 rounded-full transition-all duration-500 ${idx <= phase
+                                ? 'bg-[var(--depth-color-primary)] scale-125'
+                                : 'bg-gray-600'
+                                }`}
+                        />
+                    ))}
+                </div>
+            </div>
+
+            {/* Skip button */}
+            {showSkip && (
+                <button
+                    onClick={onComplete}
+                    className="absolute bottom-8 right-8 rounded-full border border-white/20 bg-white/10 px-6 py-2 text-sm font-medium text-white/80 backdrop-blur-sm transition-all hover:bg-white/20 hover:text-white"
+                >
+                    Skip →
+                </button>
+            )}
+
+            {/* CSS for floating animation */}
+            <style>{`
+                @keyframes float {
+                    0%, 100% {
+                        transform: translateY(0) translateX(0);
+                        opacity: 0.1;
+                    }
+                    25% {
+                        transform: translateY(-100px) translateX(50px);
+                        opacity: 0.2;
+                    }
+                    50% {
+                        transform: translateY(-200px) translateX(-25px);
+                        opacity: 0.15;
+                    }
+                    75% {
+                        transform: translateY(-100px) translateX(-50px);
+                        opacity: 0.2;
+                    }
+                }
+            `}</style>
+        </div>
+    );
+}
+
+// Fullscreen Polling Session Component
+function FullscreenPollingSession({
+    activeCategory,
+    setActiveCategory,
+    availableCategories,
+    asistens,
+    loading,
+    error,
+    selectedCards,
+    setSelectedCards,
+    isSubmitted,
+    submitError,
+    handleSubmit
+}) {
+    return (
+        <div className="fixed inset-0 z-[90] flex flex-col overflow-hidden">
+            {/* Blurred dark background */}
+            <div className="absolute inset-0 bg-gradient-to-br from-gray-900/95 via-slate-900/95 to-gray-900/95 backdrop-blur-xl" />
+
+            {/* Content */}
+            <div className="relative z-10 flex h-full flex-col p-6">
+                {/* Header */}
+                <div className="mb-6 text-center">
+                    <h1 className="text-3xl font-bold text-white md:text-4xl">
+                        Polling Asisten Terbaik
+                    </h1>
+                    <p className="mt-2 text-lg text-gray-300">
+                        Pilih asisten favorit kamu untuk setiap kategori
+                    </p>
+                </div>
+
+                {/* Category tabs */}
+                <div className="mb-6 grid grid-cols-[1fr_auto] items-center gap-4 w-full">
+
+                    {/* 1. Category Scroll Area */}
+                    <div className="min-w-0"> {/* min-w-0 is mandatory for the scroll to trigger */}
+                        <div className="flex overflow-x-auto gap-3 pb-2 no-scrollbar">
+                            {availableCategories.map((category) => (
+                                <button
+                                    key={category.id}
+                                    onClick={() => setActiveCategory(category.id.toString())}
+                                    className={`whitespace-nowrap flex-none rounded-full px-6 py-2 text-sm font-semibold transition-all ${activeCategory === category.id.toString()
+                                        ? 'bg-[var(--depth-color-primary)] text-white shadow-lg shadow-[var(--depth-color-primary)]/30'
+                                        : 'bg-white/10 text-white/80 hover:bg-white/20'
+                                        }`}
+                                >
+                                    {category.judul}
+                                    {selectedCards[category.id.toString()] && (
+                                        <span className="ml-2 text-green-400">✓</span>
+                                    )}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* 2. Submit Button */}
+                    <div className="flex-shrink-0">
+                        <button
+                            type="button"
+                            onClick={handleSubmit}
+                            className={`inline-flex items-center gap-2 rounded-full px-8 py-3 text-base font-bold shadow-xl transition-all ${isSubmitted
+                                ? "cursor-not-allowed bg-gray-600 text-gray-400"
+                                : "bg-gradient-to-r from-[var(--depth-color-primary)] to-purple-600 text-white hover:scale-105 hover:shadow-2xl hover:shadow-[var(--depth-color-primary)]/40"
+                                }`}
+                            disabled={isSubmitted}
+                        >
+                            <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                            </svg>
+                            <span className="whitespace-nowrap">Submit Polling</span>
+                        </button>
+                    </div>
+                </div>
+
+                {submitError && (
+                    <div className="mx-auto mb-4 max-w-md rounded-lg border border-red-500/30 bg-red-500/10 p-3 text-center">
+                        <p className="text-sm text-red-400">{submitError}</p>
+                    </div>
+                )}
+
+                {/* Polling content - scrollable area */}
+                <div className="flex-1 overflow-hidden rounded-2xl border border-white/10 bg-white/5 backdrop-blur-sm">
+                    <PollingContent
+                        activeCategory={activeCategory}
+                        asistens={asistens}
+                        loading={loading}
+                        error={error}
+                        selectedCards={selectedCards}
+                        setSelectedCards={setSelectedCards}
+                        isSubmitted={isSubmitted}
+                        fullscreenMode={true}
+                    />
+                </div>
+            </div>
+        </div>
+    );
+}
+
 export default function PollingPage({ auth }) {
+    const [showIntro, setShowIntro] = useState(() => {
+        const hasSeenIntro = sessionStorage.getItem("pollingIntroSeen");
+        return !hasSeenIntro;
+    });
+    const [showPollingSession, setShowPollingSession] = useState(false);
+
     const [activeCategory, setActiveCategory] = useState(null);
     const [selectedCards, setSelectedCards] = useState(() => {
         const storedCards = localStorage.getItem("selectedCards");
@@ -39,6 +286,13 @@ export default function PollingPage({ auth }) {
     const getPollingId = (categoryId) => {
         return categoryId;
     };
+
+    // Handle intro completion
+    const handleIntroComplete = useCallback(() => {
+        sessionStorage.setItem("pollingIntroSeen", "true");
+        setShowIntro(false);
+        setShowPollingSession(true);
+    }, []);
 
     // Fetch categories to know total count
     const categoriesQuery = useQuery({
@@ -73,22 +327,29 @@ export default function PollingPage({ auth }) {
     // Filter available categories (exclude submitted ones)
     useEffect(() => {
         if (categories.length > 0) {
-            const available = categories.filter(category => 
+            const available = categories.filter(category =>
                 !submittedCategories.includes(category.id.toString())
             );
             setAvailableCategories(available);
-            
+
             // Set first available category as active if none selected
             if (!activeCategory && available.length > 0) {
                 setActiveCategory(available[0].id.toString());
             }
-            
+
             // Check if all categories are submitted
             if (available.length === 0 && categories.length > 0) {
                 setAllCategoriesSubmitted(true);
             }
         }
     }, [categories, submittedCategories, activeCategory]);
+
+    // If polling is active and has categories, show fullscreen session
+    useEffect(() => {
+        if (!showIntro && isPollingActive && availableCategories.length > 0) {
+            setShowPollingSession(true);
+        }
+    }, [showIntro, isPollingActive, availableCategories]);
 
     const asistenQuery = useQuery({
         queryKey: ['asisten', activeCategory],
@@ -122,7 +383,7 @@ export default function PollingPage({ auth }) {
             console.error("User or selectedCards missing", { user, selectedCards });
             return { success: false, message: 'User information or selections are missing' };
         }
-        
+
         try {
             const submissions = Object.entries(selectedCards)
                 .filter(([categoryId, asisten]) => categoryId && asisten && asisten.kode)
@@ -159,13 +420,13 @@ export default function PollingPage({ auth }) {
         }
     };
 
-    const handleSubmit = async() => {
-        if (isSubmitted) return; 
+    const handleSubmit = async () => {
+        if (isSubmitted) return;
 
         try {
             const result = await handleSubmitAll();
 
-            if (result.success){
+            if (result.success) {
                 setIsSubmitted(true);
                 setSubmitError(null);
                 setShowModal(true);
@@ -174,15 +435,14 @@ export default function PollingPage({ auth }) {
                 setTimeout(() => {
                     setShowModal(false);
                     setIsSubmitted(false); // Reset for next category
+                    setShowPollingSession(false); // Exit fullscreen mode
                 }, 2000);
             } else {
                 setSubmitError(result.message);
-                alert(result.message);
             }
         } catch (error) {
             console.error("Error submitting:", error);
-            setSubmitError("An unexpected error accured");
-            alert("An unexpected error accured");
+            setSubmitError("An unexpected error occurred");
         }
     };
 
@@ -232,43 +492,53 @@ export default function PollingPage({ auth }) {
                             <div className="flex items-center justify-end">
                                 <button
                                     type="button"
-                                    onClick={handleSubmit}
-                                    className={`inline-flex w-[120px] items-center justify-center rounded-depth-md border border-depth px-4 py-2 text-sm font-semibold text-white shadow-depth-md transition-all ${
-                                        isSubmitted
-                                            ? "cursor-not-allowed bg-depth-secondary opacity-50"
-                                            : "cursor-pointer bg-[var(--depth-color-primary)] hover:-translate-y-0.5 hover:shadow-depth-lg"
-                                    }`}
-                                    disabled={isSubmitted}
+                                    onClick={() => setShowPollingSession(true)}
+                                    className="inline-flex items-center gap-2 rounded-depth-md border border-[var(--depth-color-primary)] bg-[var(--depth-color-primary)] px-6 py-3 text-sm font-semibold text-white shadow-depth-md transition-all hover:-translate-y-0.5 hover:shadow-depth-lg"
                                 >
-                                    Submit
+                                    <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                                    </svg>
+                                    Mulai Polling
                                 </button>
                             </div>
-                            {submitError && (
-                                <div className="rounded-depth-md border border-red-300 bg-red-50 p-3 shadow-depth-sm">
-                                    <p className="text-sm text-red-600">{submitError}</p>
-                                </div>
-                            )}
-                            <PollingHeader
-                                onCategoryClick={(category) =>
-                                    setActiveCategory(category)
-                                }
-                                activeCategory={activeCategory}
-                                availableCategories={availableCategories}
-                            />
-                            <PollingContent
-                                activeCategory={activeCategory}
-                                asistens={asistens}
-                                loading={loading}
-                                error={error}
-                                selectedCards={selectedCards}
-                                setSelectedCards={setSelectedCards}
-                                isSubmitted={isSubmitted}
-                            />
                         </>
                     )}
                 </div>
             </PraktikanAuthenticated>
             <PraktikanUtilities />
+
+            {/* Intro Scene */}
+            {showIntro && isPollingActive && !showCompletedPlaceholder && (
+                <IntroScene onComplete={handleIntroComplete} />
+            )}
+
+            {/* Fullscreen Polling Session */}
+            {showPollingSession && !showIntro && isPollingActive && !showCompletedPlaceholder && (
+                <FullscreenPollingSession
+                    activeCategory={activeCategory}
+                    setActiveCategory={setActiveCategory}
+                    availableCategories={availableCategories}
+                    asistens={asistens}
+                    loading={loading}
+                    error={error}
+                    selectedCards={selectedCards}
+                    setSelectedCards={setSelectedCards}
+                    isSubmitted={isSubmitted}
+                    submitError={submitError}
+                    handleSubmit={handleSubmit}
+                />
+            )}
+
+            {/* Success Modal */}
+            {showModal && (
+                <div className="fixed inset-0 z-[110] flex items-center justify-center bg-black/60 backdrop-blur-sm">
+                    <div className="animate-bounce rounded-2xl bg-gradient-to-br from-green-500 to-emerald-600 p-8 text-center text-white shadow-2xl">
+                        <div className="mb-4 text-6xl">🎉</div>
+                        <h2 className="text-2xl font-bold">Berhasil!</h2>
+                        <p className="mt-2 text-green-100">Polling berhasil dikirim</p>
+                    </div>
+                </div>
+            )}
         </>
     );
 }

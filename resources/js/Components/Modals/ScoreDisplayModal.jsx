@@ -13,16 +13,18 @@ export default function ScoreDisplayModal({
 
     const safeTotal = Math.max(0, Number(totalQuestions) || 0);
     const displayTotal = isTotClass ? safeTotal : 10;
+
     const safeCorrect = Math.max(0, Number(correctAnswers) || 0);
     const displayCorrect = Math.min(safeCorrect, displayTotal);
-    const scorePercentage = Number.isFinite(percentage)
-        ? Math.max(0, Math.min(Math.round(percentage), 100))
-        : safeTotal > 0
-            ? Math.round((safeCorrect / safeTotal) * 100)
+
+    const scorePercentage =
+        displayTotal > 0
+            ? Math.round((displayCorrect / displayTotal) * 100)
             : 0;
 
+
     const phaseLabel = phaseType === "tk" ? "Tes Keterampilan" : "Tes Awal";
-    
+
     // Determine grade and color based on percentage
     let gradeColor = 'text-red-600 dark:text-red-400';
     let bgGradient = 'linear-gradient(135deg, rgba(239, 68, 68, 0.9), rgba(220, 38, 38, 0.9))';

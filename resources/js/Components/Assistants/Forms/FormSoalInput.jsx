@@ -5,7 +5,7 @@ const ModalSaveSoal = lazy(() => import('../Modals/ModalSaveSoal'));
 import { useModulesQuery } from "@/hooks/useModulesQuery";
 import toast from "react-hot-toast";
 
-export default function FormSoalInput() {
+export default function FormSoalInput({ isEditable = true }) {
     const [isModalSaveOpen, setIsModalSaveOpen] = useState(false);
     const [kategoriSoal, setKategoriSoal] = useState("");
     const [selectedModul, setSelectedModul] = useState("");
@@ -160,6 +160,7 @@ export default function FormSoalInput() {
                                 onModalSuccess={handleSuccessNotification}
                                 onModalValidation={handleValidationError}
                                 onChangeModul={setSelectedModul}
+                                isEditable={isEditable}
                             />
                         );
                     }
@@ -172,6 +173,7 @@ export default function FormSoalInput() {
                                 onModalValidation={handleValidationError}
                                 modules={moduls}
                                 onChangeModul={setSelectedModul}
+                                isEditable={isEditable}
                             />
                         );
                     }

@@ -18,6 +18,7 @@ use App\Http\Controllers\API\LaporanPraktikanController;
 use App\Http\Controllers\API\LeaderBoardController;
 use App\Http\Controllers\API\ModulController;
 use App\Http\Controllers\API\NilaiController;
+use App\Http\Controllers\Api\V1\NilaiComplaintController;
 use App\Http\Controllers\API\PollingsController;
 use App\Http\Controllers\API\PraktikanController;
 use App\Http\Controllers\API\PraktikumController;
@@ -154,6 +155,13 @@ Route::inertia('/contact-assistant', 'Praktikan/ContactAssistant')
 Route::inertia('/polling-assistant', 'Praktikan/PollingPage')
     ->name('polling-assistant');
 
+    
+Route::prefix('api-v1')->group(function () {
+    Route::get('/get-kelas', [RegisteredPraktikanController::class, 'getKelas'])->name('public-getkelas');
+    Route::post('/register/asisten', [RegisteredAsistenController::class, 'store'])->name('store.asisten');
+    Route::post('/register/praktikan', [RegisteredPraktikanController::class, 'store'])->name('store.praktikan');
+});
+
 // ///////////////////////////////////// Data Routes ///////////////////////////////////////
 Route::prefix('api-v1')->middleware(['audit.assistant', 'auth:asisten,praktikan'])->group(function () {
     // ImageKit authentication endpoint
@@ -169,11 +177,11 @@ Route::prefix('api-v1')->middleware(['audit.assistant', 'auth:asisten,praktikan'
     Route::delete('/profilePic', [AsistenController::class, 'destroyPp'])
         ->name('destroyPp.asisten')
         ->middleware('auth:asisten');
-
+    
     // i guess
-    Route::post('/register/asisten', [RegisteredAsistenController::class, 'store'])->name('store.asisten')->middleware('guest');
-    Route::post('/register/praktikan', [RegisteredPraktikanController::class, 'store'])->name('store.praktikan')->middleware('guest');
-    Route::get('/get-kelas', [RegisteredPraktikanController::class, 'getKelas'])->name('public-getkelas')->middleware('guest');
+    // Route::post('/register/asisten', [RegisteredAsistenController::class, 'store'])->name('store.asisten')->middleware('guest');
+    // Route::post('/register/praktikan', [RegisteredPraktikanController::class, 'store'])->name('store.praktikan')->middleware('guest');
+    // Route::get('/get-kelas', [RegisteredPraktikanController::class, 'getKelas'])->name('public-getkelas');
 
     // Praktikan
     Route::put('/praktikan', [PraktikanController::class, 'updateProfile'])->middleware('auth:praktikan');
@@ -359,6 +367,12 @@ Route::prefix('api-v1')->middleware(['audit.assistant', 'auth:asisten,praktikan'
     Route::get('/nilai/praktikan/{praktikan}/modul/{modul}', [NilaiController::class, 'showAsisten'])->name('showAsisten.nilais')->middleware(['auth:asisten', 'can:nilai-praktikan']);
     Route::put('/nilai/{id}', [NilaiController::class, 'update'])->name('update.nilais')->middleware(['auth:asisten', 'can:nilai-praktikan']);
     Route::get('/nilai', [NilaiController::class, 'show'])->name('show.nilais')->middleware(['auth:praktikan', 'can:lihat-nilai']);
+
+    // Nilai Complaints
+    Route::post('/nilai-complaints', [NilaiComplaintController::class, 'store'])->name('store.nilai-complaints')->middleware(['auth:praktikan']);
+    Route::get('/nilai-complaints', [NilaiComplaintController::class, 'index'])->name('index.nilai-complaints')->middleware(['auth:praktikan']);
+    Route::get('/nilai-complaints/asisten', [NilaiComplaintController::class, 'getForAsisten'])->name('get-asisten.nilai-complaints')->middleware(['auth:asisten', 'can:nilai-praktikan']);
+    Route::patch('/nilai-complaints/{complaint}', [NilaiComplaintController::class, 'updateStatus'])->name('update-status.nilai-complaints')->middleware(['auth:asisten', 'can:nilai-praktikan']);
 
     // Jawaban TM asisten
     Route::get('/jawaban-mandiri/praktikan/{praktikan}/modul/{modul}', [JawabanTMController::class, 'showAsisten'])
