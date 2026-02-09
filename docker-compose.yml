@@ -60,7 +60,7 @@ services:
     volumes:
       - ./:/app
     ports:
-      - "8000:8000"
+      - "8001:8000"
       - "8090:8090"
     networks:
       - lms2_network
