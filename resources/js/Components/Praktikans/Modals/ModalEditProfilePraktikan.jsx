@@ -239,6 +239,13 @@ export default function ModalEditProfilePraktikan({ isOpen, onClose, praktikan }
                                         Delete Avatar
                                     </button>
                                 </div>
+                                                                {/* Photo Rules Disclaimer */}
+                                <div className="mt-6 w-full rounded-depth-md border border-amber-200 bg-amber-50/80 p-4 text-xs text-amber-900 shadow-depth-sm dark:border-amber-900/30 dark:bg-amber-900/20 dark:text-amber-100">
+                                    <p className="font-semibold mb-2"> Peraturan Foto Profil:</p>
+                                    <p className="leading-relaxed">
+                                        Untuk foto dibebaskan foto apapun dengan syarat menunjukkan wajah diri sendiri dan tidak mengandung sara/pornografi. Jika melanggar maka akan diberikan sanksi akademik yang serius.
+                                    </p>
+                                </div>
                             </div>
                         </div>
 

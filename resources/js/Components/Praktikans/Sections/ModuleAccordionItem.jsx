@@ -1,6 +1,9 @@
 import iconPPT from "../../../../assets/practicum/iconPPT.svg";
 import iconVideo from "../../../../assets/practicum/iconVideo.svg";
 import iconModule from "../../../../assets/practicum/iconModule.svg";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import remarkBreaks from "remark-breaks";
 
 const ResourceLink = ({ href, icon, label, tone }) => {
     if (!href) {
@@ -79,9 +82,33 @@ export default function ModuleAccordionItem({ module, index, isOpen, onToggle })
                                 <h4 className="text-sm font-semibold uppercase tracking-wide text-depth-secondary">
                                     Pencapaian Pembelajaran
                                 </h4>
-                                <div className="rounded-depth-md border border-depth bg-depth-card p-4 text-sm text-depth-primary shadow-depth-sm">
+                                <div className="rounded-depth-md border border-depth bg-depth-card p-4 text-sm text-depth-primary shadow-depth-sm prose prose-invert max-w-none">
                                     {module?.deskripsi ? (
-                                        <pre className="whitespace-pre-wrap break-words">{module.deskripsi}</pre>
+                                        <ReactMarkdown
+                                            remarkPlugins={[remarkGfm, remarkBreaks]}
+                                            components={{
+                                                h1: ({ children }) => <h1 className="text-xl font-bold mb-3 mt-4">{children}</h1>,
+                                                h2: ({ children }) => <h2 className="text-lg font-bold mb-2 mt-3">{children}</h2>,
+                                                h3: ({ children }) => <h3 className="text-base font-bold mb-2 mt-2">{children}</h3>,
+                                                p: ({ children }) => <p className="mb-3">{children}</p>,
+                                                ul: ({ children }) => <ul className="list-disc list-inside mb-3 ml-2">{children}</ul>,
+                                                ol: ({ children }) => <ol className="list-decimal list-inside mb-3 ml-2">{children}</ol>,
+                                                li: ({ children }) => <li className="mb-1">{children}</li>,
+                                                blockquote: ({ children }) => <blockquote className="border-l-4 border-[var(--depth-color-primary)] pl-4 py-2 italic my-3">{children}</blockquote>,
+                                                code: ({ inline, children }) => inline ? (
+                                                    <code className="bg-depth-interactive px-1.5 py-0.5 rounded text-sm border border-depth">{children}</code>
+                                                ) : (
+                                                    <code className="block bg-depth-interactive p-3 rounded my-3 text-xs overflow-x-auto">{children}</code>
+                                                ),
+                                                a: ({ href, children }) => (
+                                                    <a href={href} target="_blank" rel="noopener noreferrer" className="text-[var(--depth-color-primary)] hover:underline">{children}</a>
+                                                ),
+                                                strong: ({ children }) => <strong className="font-bold">{children}</strong>,
+                                                em: ({ children }) => <em className="italic">{children}</em>,
+                                            }}
+                                        >
+                                            {module.deskripsi}
+                                        </ReactMarkdown>
                                     ) : (
                                         <p className="italic text-depth-secondary">Belum ada deskripsi modul.</p>
                                     )}

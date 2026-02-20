@@ -213,8 +213,14 @@ export default function FeedbackPhase({
 
         const hasRatings = ratingPraktikum > 0 && ratingAsisten > 0;
 
-        if (trimmedFeedback.length < 10 || !selectedAssistantId || !hasRatings) {
-            toast.error("Lengkapi feedback, pilih asisten penanggung jawab, dan berikan rating praktik & asisten.");
+        if (trimmedFeedback.length < 10 || trimmedFeedback.length > 1000 || !selectedAssistantId || !hasRatings) {
+            if (trimmedFeedback.length < 10) {
+                toast.error("Feedback minimal 10 karakter.");
+            } else if (trimmedFeedback.length > 1000) {
+                toast.error("Feedback maksimal 1000 karakter.");
+            } else {
+                toast.error("Lengkapi feedback, pilih asisten penanggung jawab, dan berikan rating praktik & asisten.");
+            }
             return;
         }
 
@@ -245,11 +251,13 @@ export default function FeedbackPhase({
     };
 
     const ratingsComplete = ratingPraktikum > 0 && ratingAsisten > 0;
+    const feedbackLength = feedback.trim().length;
+    const feedbackValid = feedbackLength >= 10 && feedbackLength <= 1000;
 
     const isSubmitDisabled =
         !normalizedModulId ||
         !selectedAssistantId ||
-        feedback.trim().length < 10 ||
+        !feedbackValid ||
         !ratingsComplete ||
         isSubmitting;
 
@@ -277,7 +285,7 @@ export default function FeedbackPhase({
                         </div>
                     )}
 
-                    <div className="mb-6" ref={dropdownRef}>
+                    <div className="mb-6 max-w-3xl" ref={dropdownRef}>
                         <label className="mb-3 block text-sm font-semibold text-depth-primary">
                             Pilih Asisten Penanggung Jawab
                         </label>
@@ -448,18 +456,21 @@ export default function FeedbackPhase({
                         <textarea
                             id="feedback"
                             value={feedback}
-                            onChange={(event) => setFeedback(event.target.value)}
+                            onChange={(event) => setFeedback(event.target.value.slice(0, 1000))}
                             rows={8}
+                            maxLength={1000}
                             className="w-full rounded-depth-lg border border-depth bg-depth-card p-4 text-sm text-depth-primary shadow-depth-inset transition focus:border-[var(--depth-color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)] focus:ring-offset-0"
                             placeholder="Bagikan pengalaman Anda selama praktikum, kendala yang dihadapi, saran perbaikan, atau hal lain yang ingin disampaikan..."
                         />
                         <div className="mt-2 flex items-center justify-between text-xs">
-                            <span className={feedback.trim().length < 10 ? "text-red-500" : "text-green-600 dark:text-green-400"}>
-                                {feedback.trim().length < 10
-                                    ? `Minimal 10 karakter (${Math.max(0, 10 - feedback.trim().length)} lagi)`
-                                    : "Feedback sudah cukup"}
+                            <span className={feedbackLength < 10 || feedbackLength > 1000 ? "text-red-500" : "text-green-600 dark:text-green-400"}>
+                                {feedbackLength < 10
+                                    ? `Minimal 10 karakter (${Math.max(0, 10 - feedbackLength)} lagi)`
+                                    : feedbackLength > 1000
+                                        ? `Terlalu panjang (${feedbackLength - 1000} karakter lebih)`
+                                        : "Feedback sudah cukup"}
                             </span>
-                            <span className="text-depth-secondary">{feedback.length} karakter</span>
+                            <span className="text-depth-secondary">{feedbackLength} / 1000 karakter</span>
                         </div>
                     </div>
 

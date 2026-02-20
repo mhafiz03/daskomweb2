@@ -54,7 +54,7 @@ export default function TesKeterampilan({
     }
 
     return (
-        <div className="-mt-[8vh] transition-all duration-300 max-w-4xl mx-auto">
+        <div className=" transition-all duration-300 w-full mx-auto">
             {/* Header */}
             <div className="flex bg-[var(--depth-color-primary)] rounded-depth-lg py-3 px-4 mb-6 justify-center shadow-depth-lg">
                 <h1 className="text-white text-center font-bold text-2xl">
@@ -97,7 +97,7 @@ export default function TesKeterampilan({
                                 return (
                                     <label
                                         key={option.id}
-                                        className={`group flex items-center gap-3 rounded-depth-md border px-4 py-3 text-sm transition-all duration-200 cursor-pointer ${
+                                        className={`max-w-2xl group flex items-center gap-3 rounded-depth-md border px-4 py-3 text-sm transition-all duration-200 cursor-pointer ${
                                             isSelected
                                                 ? "border-[var(--depth-color-primary)] bg-[var(--depth-color-primary)]/15 shadow-depth-sm scale-[1.02]"
                                                 : "border-depth bg-depth-card hover:border-[var(--depth-color-primary)]/40 hover:bg-[var(--depth-color-primary)]/5 hover:shadow-depth-sm"

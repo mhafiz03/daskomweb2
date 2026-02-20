@@ -1303,7 +1303,7 @@ export default function PraktikumPage({ auth }) {
             <PraktikanAuthenticated
                 user={praktikanData}
                 praktikan={praktikanData}
-                customWidth="w-[80%]"
+                customWidth="w-full"
                 header={
                     <h2 className="font-semibold text-xl text-gray-800 leading-tight">
                         Dashboard
@@ -1311,8 +1311,8 @@ export default function PraktikumPage({ auth }) {
                 }
             >
                 <Head title="Praktikum Praktikan" />
-                <div className="mt-[8vh] relative items-center flex flex-col">
-                    <div className="flex-1 transition-all duration-300">
+                <div className="mt-[8vh] relative items-center flex flex-col ">
+                    <div className="w-full transition-all duration-300 ">
                         {showFeedbackReminderBanner && (
                             <div className="mb-4 rounded-depth-lg border border-amber-200 bg-amber-50/80 p-4 text-sm text-amber-900 shadow-depth-sm">
                                 <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">

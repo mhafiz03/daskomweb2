@@ -217,7 +217,7 @@ export default function NoPraktikumSection({
 
     return (
         <div
-            className="mx-auto ml-[3vw] w-[896px] rounded-depth-lg border border-depth bg-depth-card px-6 py-6 shadow-depth-lg"
+            className="mx-auto w-full rounded-depth-lg border border-depth bg-depth-card px-6 py-6 shadow-depth-lg"
             style={{ display: isVisible ? "block" : "none" }}
         >
             <div className="mb-6 flex justify-center rounded-depth-md bg-[var(--depth-color-primary)] px-4 py-3 shadow-depth-md">

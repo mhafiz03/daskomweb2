@@ -207,7 +207,7 @@ export default function PraktikanNav({ praktikan }) {
                                             {isActive && (
                                                 <span
                                                     aria-hidden="true"
-                                                    className="absolute inset-y-1 translate-x-1 right-1 w-1 rounded-depth-full bg-white/70"
+                                                    className="absolute inset-y-1 translate-x-1 right-1 w-1 rounded-depth-full "
                                                 />
                                             )}
                                             <img
