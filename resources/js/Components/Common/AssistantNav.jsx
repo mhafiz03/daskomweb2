@@ -31,6 +31,7 @@ import logoutIcon from "../../../assets/nav/Icon-Logout.svg";
 
 const STORAGE_KEY = "assistantNavCollapsed";
 const ADMIN_ROLES = ["SOFTWARE", "KORDAS", "WAKORDAS", "ADMIN"];
+const PRAKTIKUM_ROLES = ["ATC", "RDC"];
 
 const BASE_NAV_ITEMS = [
     {
@@ -82,7 +83,7 @@ const BASE_NAV_ITEMS = [
         id: "see-soal",
         permission: "see-soal",
         href: "/soal",
-        label: "Input Soal",
+        label: "Soal",
         icon: inputSoalIcon,
         components: ["Assistants/SoalPraktikum"],
         paths: ["/soal"],
@@ -286,7 +287,7 @@ export default function AssisstantNav({ asisten, permission_name = [], roleName 
                 label: "Tugas Pendahuluan",
                 icon: tpModuleIcon,
                 permission: "check-tugas-pendahuluan",
-                allowedRoles: ADMIN_ROLES,
+                allowedRoles: [...ADMIN_ROLES, ...PRAKTIKUM_ROLES],
                 onSelect: () => setShowOpenTP(true),
             },
             {
