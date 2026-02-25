@@ -23,7 +23,7 @@ class SoalFITBController extends Controller
     {
         try {
             $validated = $request->validate([
-                'soal' => 'required|string|max:1000',
+                'soal' => 'required|string|max:10000',
                 'enable_file_upload' => 'sometimes|boolean',
             ]);
             // Cek duplikasi soal

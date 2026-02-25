@@ -194,7 +194,7 @@ class SoalTAController extends Controller
             'pertanyaan' => [
                 'required',
                 'string',
-                'max:1000',
+                'max:10000',
                 Rule::unique('soal_tas', 'pertanyaan')
                     ->where(fn ($query) => $query->where('modul_id', $modulId)),
             ],
