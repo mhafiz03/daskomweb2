@@ -14,6 +14,7 @@ import SoalCommentsButton from "./SoalCommentsButton";
 import { useSoalComparison } from "@/hooks/useSoalComparison";
 import { ModalOverlay } from "@/Components/Common/ModalPortal";
 import ModalCloseButton from "@/Components/Common/ModalCloseButton";
+import MarkdownRenderer from "../../MarkdownRenderer";
 
 const OPTION_COUNT = 4;
 const EMPTY_OPTIONS = Array.from({ length: OPTION_COUNT }, () => "");
@@ -647,9 +648,9 @@ export default function SoalInputPG({ kategoriSoal, modul, modules = [], onModal
                                     <div className="text-sm font-semibold text-depth-secondary">
                                         Soal {index + 1}
                                     </div>
-                                    <pre className="whitespace-pre-wrap break-words rounded-depth-md bg-depth-interactive p-3 text-sm text-depth-primary shadow-depth-inset">
-                                        {soalItem.pertanyaan}
-                                    </pre>
+                                    <div className="whitespace-pre-wrap break-words rounded-depth-md bg-depth-interactive p-3 text-sm text-depth-primary shadow-depth-inset max-h-[60vh] overflow-y-auto min-w-0">
+                                        <MarkdownRenderer content={soalItem.pertanyaan} />
+                                    </div>
                                 </div>
 
                                 <div className="space-y-2">
@@ -668,13 +669,15 @@ export default function SoalInputPG({ kategoriSoal, modul, modules = [], onModal
                                                         : "bg-depth-interactive text-depth-primary"
                                                         }`}
                                                 >
-                                                    {option.text ? (
-                                                        option.text
-                                                    ) : (
-                                                        <span className="italic text-depth-secondary">
-                                                            Belum diisi
-                                                        </span>
-                                                    )}
+                                                    <div className="flex-1 min-w-0">
+                                                        {option.text ? (
+                                                            <MarkdownRenderer content={option.text} />
+                                                        ) : (
+                                                            <span className="italic text-depth-secondary">
+                                                                Belum diisi
+                                                            </span>
+                                                        )}
+                                                    </div>
                                                 </li>
                                             );
                                         })}
@@ -706,7 +709,7 @@ export default function SoalInputPG({ kategoriSoal, modul, modules = [], onModal
                                             <img className="edit-icon-filter h-4 w-4" src={editIcon} alt="Edit" />
                                         </button>
                                     )}
-                                    
+
                                 </div>
                             </li>
                         ))}

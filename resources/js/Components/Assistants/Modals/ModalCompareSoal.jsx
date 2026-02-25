@@ -1,15 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
-import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
-import remarkBreaks from "remark-breaks";
-import { PrismLight as SyntaxHighlighter } from 'react-syntax-highlighter';
-import c from 'react-syntax-highlighter/dist/esm/languages/prism/c';
-import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism";
 import { parseEssayMarkdown, parsePgMarkdown } from "./ModalBatchEditSoal";
+import MarkdownRenderer from "../../MarkdownRenderer";
 import { ModalOverlay } from "@/Components/Common/ModalPortal";
 import ModalCloseButton from "@/Components/Common/ModalCloseButton";
 
-SyntaxHighlighter.registerLanguage('c', c);
 
 const proseClassName =
     "prose max-w-none whitespace-pre-wrap break-words text-sm text-depth-primary prose-headings:text-depth-primary prose-strong:text-depth-primary prose-li:marker:text-depth-secondary";
@@ -115,9 +109,7 @@ const renderEssayPreview = (items = [], markdownComponents) => {
                 >
                     <strong>Soal {index + 1}</strong>
                     <div className={`mt-2 ${proseClassName}`}>
-                        <ReactMarkdown remarkPlugins={[remarkGfm, remarkBreaks]} components={markdownComponents}>
-                            {item?.soal || "_(kosong)_"}
-                        </ReactMarkdown>
+                        <MarkdownRenderer content={item?.soal || "_(kosong)_"} />
                     </div>
                 </li>
             ))}
@@ -140,9 +132,7 @@ const renderPgPreview = (items = [], markdownComponents) => {
                     <div className="mb-3 space-y-1">
                         <strong>Soal {index + 1}</strong>
                         <div className={proseClassName}>
-                            <ReactMarkdown remarkPlugins={[remarkGfm, remarkBreaks]} components={markdownComponents}>
-                                {item?.pertanyaan || "_(kosong)_"}
-                            </ReactMarkdown>
+                            <MarkdownRenderer content={item?.pertanyaan || "_(kosong)_"} />
                         </div>
                     </div>
                     <div className="space-y-2">
@@ -153,17 +143,12 @@ const renderPgPreview = (items = [], markdownComponents) => {
                                     <li
                                         key={`pg-option-${index}-${optionIndex}`}
                                         className={`rounded-depth-md border px-3 py-2 text-md shadow-depth-sm ${isCorrect
-                                                ? "border-[var(--depth-color-primary)] bg-[var(--depth-color-primary)] text-white"
-                                                : "border-depth bg-depth-interactive text-depth-primary"
+                                            ? "border-[var(--depth-color-primary)] bg-[var(--depth-color-primary)] text-white"
+                                            : "border-depth bg-depth-interactive text-depth-primary"
                                             }`}
                                     >
                                         <div className={proseClassName}>
-                                            <ReactMarkdown
-                                                remarkPlugins={[remarkGfm, remarkBreaks]}
-                                                components={markdownComponents}
-                                            >
-                                                {option?.text || "_(kosong)_"}
-                                            </ReactMarkdown>
+                                            <MarkdownRenderer content={option?.text || "_(kosong)_"} />
                                         </div>
                                     </li>
                                 );
@@ -193,38 +178,6 @@ export default function ModalCompareSoal({
 }) {
     const isMultipleChoice = kategoriSoal === "ta" || kategoriSoal === "tk";
 
-    const markdownComponents = useMemo(
-        () => ({
-            code({ inline, className, children, ...props }) {
-                if (inline) {
-                    return (
-                        <code className={className} {...props}>
-                            {children}
-                        </code>
-                    );
-                }
-
-                const match = /language-(\w+)/.exec(className || "");
-                return (
-                    <SyntaxHighlighter
-                        style={vscDarkPlus}
-                        language={match ? match[1] : "text"}
-                        showLineNumbers
-                        PreTag="div"
-                        customStyle={{
-                            borderRadius: "0.75rem",
-                            background: "#111827",
-                            padding: "1.25rem",
-                        }}
-                        {...props}
-                    >
-                        {String(children).replace(/\n$/, "")}
-                    </SyntaxHighlighter>
-                );
-            },
-        }),
-        [],
-    );
 
     const regularOptions = useMemo(
         () => (regularModules ?? []).map(normalizeModuleOption).filter(Boolean),
@@ -305,8 +258,8 @@ export default function ModalCompareSoal({
             ) : (
                 <div className="min-h-[320px] overflow-y-auto rounded-depth-lg border border-depth bg-depth-card p-4 shadow-depth-sm">
                     {isMultipleChoice
-                        ? renderPgPreview(previewItems, markdownComponents)
-                        : renderEssayPreview(previewItems, markdownComponents)}
+                        ? renderPgPreview(previewItems)
+                        : renderEssayPreview(previewItems)}
                 </div>
             )}
         </div>
@@ -330,8 +283,8 @@ export default function ModalCompareSoal({
                                     type="button"
                                     onClick={() => setActiveTab(tabKey)}
                                     className={`rounded-depth-md px-4 py-2 text-sm font-semibold transition ${isActive
-                                            ? "bg-[var(--depth-color-primary)] text-white shadow-depth-md"
-                                            : "border border-depth bg-depth-interactive text-depth-primary shadow-depth-sm hover:-translate-y-0.5 hover:shadow-depth-md"
+                                        ? "bg-[var(--depth-color-primary)] text-white shadow-depth-md"
+                                        : "border border-depth bg-depth-interactive text-depth-primary shadow-depth-sm hover:-translate-y-0.5 hover:shadow-depth-md"
                                         }`}
                                 >
                                     {label}

@@ -125,7 +125,7 @@ export default function FormLihatTp() {
                         <div>
                             <label htmlFor="nim" className="mb-1 block text-sm font-medium text-depth-primary">
                                 NIM Praktikan
-                        </label>
+                            </label>
                             <input
                                 type="text"
                                 id="nim"

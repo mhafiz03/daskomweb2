@@ -14,6 +14,7 @@ import { useSoalComparison } from "@/hooks/useSoalComparison";
 import { ModalOverlay } from "@/Components/Common/ModalPortal";
 import ModalCloseButton from "@/Components/Common/ModalCloseButton";
 import DepthToggleButton from "@/Components/Common/DepthToggleButton";
+import MarkdownRenderer from "../../MarkdownRenderer";
 
 export default function SoalInputEssay({ kategoriSoal, modul, modules = [], onModalSuccess, onModalValidation, onChangeModul, isEditable = true }) {
     const [addSoal, setAddSoal] = useState({ soal: "" });
@@ -483,9 +484,9 @@ export default function SoalInputEssay({ kategoriSoal, modul, modules = [], onMo
                                             </span>
                                         )}
                                     </div>
-                                    <pre className="whitespace-pre-wrap break-words rounded-depth-md bg-depth-interactive p-3 text-sm text-depth-primary shadow-depth-inset">
-                                        {soalItem.soal}
-                                    </pre>
+                                    <div className="whitespace-pre-wrap break-words rounded-depth-md bg-depth-interactive p-3 text-sm text-depth-primary shadow-depth-inset max-h-[60vh] overflow-y-auto min-w-0">
+                                        <MarkdownRenderer content={soalItem.soal} />
+                                    </div>
                                 </div>
                                 <div className="absolute right-4 top-4 flex gap-2">
                                     {isEditable && (

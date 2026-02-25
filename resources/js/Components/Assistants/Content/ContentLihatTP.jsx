@@ -1,4 +1,5 @@
 import { router } from "@inertiajs/react";
+import MarkdownRenderer from "../../MarkdownRenderer";
 
 export default function ContentLihatTP({ jawabanData, praktikan, modul }) {
     // Check if we have data to display
@@ -41,13 +42,20 @@ export default function ContentLihatTP({ jawabanData, praktikan, modul }) {
                                 key={item.soal_id}
                                 className="p-4 rounded-lg bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 shadow-sm"
                             >
-                                <h3 className="font-semibold text-lg mb-3 text-gray-900 dark:text-gray-100">
-                                    {index + 1}. {item.soal_text}
-                                </h3>
+                                <div className="flex font-semibold text-lg mb-3 text-gray-900 dark:text-gray-100 gap-2">
+                                    <span>{index + 1}.</span>
+                                    <div className="flex-1 min-w-0">
+                                        <MarkdownRenderer content={item.soal_text} />
+                                    </div>
+                                </div>
                                 <div className="mt-2 p-3 bg-blue-50 dark:bg-blue-900/30 rounded-md border border-blue-200 dark:border-blue-700 shadow-inner">
-                                    <p className="text-gray-800 dark:text-gray-200 whitespace-pre-line">
-                                        {item.jawaban || "Tidak ada jawaban"}
-                                    </p>
+                                    <div className="text-gray-800 dark:text-gray-200 overflow-x-auto min-w-0">
+                                        {item.jawaban ? (
+                                            <MarkdownRenderer content={item.jawaban} />
+                                        ) : (
+                                            "Tidak ada jawaban"
+                                        )}
+                                    </div>
                                 </div>
                             </div>
                         ))
