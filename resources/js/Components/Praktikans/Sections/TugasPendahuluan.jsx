@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import QuestionCommentInput from "./QuestionCommentInput";
+import MarkdownRenderer from "../../MarkdownRenderer";
 
 export default function TugasPendahuluan({
     isLoading = false,
@@ -64,9 +65,9 @@ export default function TugasPendahuluan({
                             <span className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-[var(--depth-color-primary)] text-sm font-semibold text-white shadow-depth-sm">
                                 {index + 1}
                             </span>
-                            <pre className="flex-1 text-base font-semibold text-depth-primary whitespace-pre-line break-words">
-                                {question.text}
-                            </pre>
+                            <div className="flex-1 text-base font-semibold text-depth-primary break-words">
+                                <MarkdownRenderer content={question.text} />
+                            </div>
                         </div>
                         <QuestionCommentInput
                             questionId={question.id ?? question.soalId ?? question.soal_id ?? null}

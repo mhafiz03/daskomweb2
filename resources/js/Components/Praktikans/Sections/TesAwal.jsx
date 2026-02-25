@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import QuestionCommentInput from "./QuestionCommentInput";
+import MarkdownRenderer from "../../MarkdownRenderer";
 
 export default function TesAwal({
     isLoading = false,
@@ -65,8 +66,8 @@ export default function TesAwal({
             {/* Questions Container */}
             <div className="space-y-8 max-h-[90vh] p-6 rounded-depth-lg border border-depth bg-depth-card overflow-y-auto overflow-x-hidden shadow-depth-lg">
                 {questions.map((question, index) => (
-                    <div 
-                        key={question.id ?? index} 
+                    <div
+                        key={question.id ?? index}
                         className="p-5 rounded-depth-lg border border-depth bg-depth-interactive shadow-depth-md hover:shadow-depth-lg transition-all duration-200"
                     >
                         {/* Question Number and Text */}
@@ -75,9 +76,9 @@ export default function TesAwal({
                                 <span className="flex-shrink-0 flex items-center justify-center w-8 h-8 rounded-depth-full bg-[var(--depth-color-primary)] text-white font-bold text-sm shadow-depth-sm">
                                     {index + 1}
                                 </span>
-                                <p className="flex-1 text-depth-primary font-medium text-lg leading-relaxed whitespace-pre-wrap">
-                                    {question.text}
-                                </p>
+                                <div className="flex-1 text-depth-primary font-medium text-lg leading-relaxed">
+                                    <MarkdownRenderer content={question.text} />
+                                </div>
                             </div>
                             <QuestionCommentInput
                                 questionId={question.id ?? question.soalId ?? question.soal_id ?? null}
@@ -97,11 +98,10 @@ export default function TesAwal({
                                 return (
                                     <label
                                         key={option.id}
-                                        className={`max-w-3xl group flex items-center gap-3 rounded-depth-md border px-4 py-3 text-sm transition-all duration-200 cursor-pointer ${
-                                            isSelected
+                                        className={`max-w-3xl group flex items-center gap-3 rounded-depth-md border px-4 py-3 text-sm transition-all duration-200 cursor-pointer ${isSelected
                                                 ? "border-[var(--depth-color-primary)] bg-[var(--depth-color-primary)]/15 shadow-depth-sm scale-[1.02]"
                                                 : "border-depth bg-depth-card hover:border-[var(--depth-color-primary)]/40 hover:bg-[var(--depth-color-primary)]/5 hover:shadow-depth-sm"
-                                        }`}
+                                            }`}
                                         onClick={() => handleOptionChange(index, option.id)}
                                     >
                                         <input
@@ -109,24 +109,22 @@ export default function TesAwal({
                                             name={`tes-awal-${question.id}`}
                                             value={option.id}
                                             checked={isSelected}
-                                            onChange={() => {}}
+                                            onChange={() => { }}
                                             className="sr-only"
                                         />
-                                        <span className={`mr-2 flex items-center justify-center w-6 h-6 rounded-depth-md text-xs font-bold transition-all duration-200 flex-shrink-0 ${
-                                            isSelected 
-                                                ? "bg-[var(--depth-color-primary)] text-white shadow-depth-sm" 
+                                        <span className={`mr-2 flex items-center justify-center w-6 h-6 rounded-depth-md text-xs font-bold transition-all duration-200 flex-shrink-0 ${isSelected
+                                                ? "bg-[var(--depth-color-primary)] text-white shadow-depth-sm"
                                                 : "bg-depth-interactive text-depth-secondary group-hover:bg-[var(--depth-color-primary)]/20 group-hover:text-depth-primary"
-                                        }`}>
+                                            }`}>
                                             {optionLabels[optIdx]}
                                         </span>
-                                        <span className={`flex-1 leading-relaxed whitespace-pre-wrap transition-colors duration-200 text-lg ${
-                                            isSelected ? "text-depth-primary font-medium" : "text-depth-primary"
-                                        }`}>
-                                                {option.text}
-                                            </span>
-                                        </label>
-                                    );
-                                })}
+                                        <div className={`flex-1 leading-relaxed transition-colors duration-200 text-lg ${isSelected ? "text-depth-primary font-medium" : "text-depth-primary"
+                                            }`}>
+                                            <MarkdownRenderer content={option.text} />
+                                        </div>
+                                    </label>
+                                );
+                            })}
                         </div>
                     </div>
                 ))}
