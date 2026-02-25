@@ -252,7 +252,8 @@ Route::prefix('api-v1')->middleware(['audit.assistant', 'auth:asisten,praktikan'
 
     // Modul
     // Route::get('/modul', [ModulController::class, 'index'])->name('get.modul');
-    Route::get('/modul', [ModulController::class, 'index'])->name('get.modul')->middleware(['auth:asisten,praktikan', 'permission:manage-modul|lihat-modul']);
+    #Route::get('/modul', [ModulController::class, 'index'])->name('get.modul')->middleware(['auth:asisten,praktikan', 'permission:manage-modul|lihat-modul']);
+    Route::get('/modul', [ModulController::class, 'index'])->name('get.modul')->middleware(['auth:asisten,praktikan', 'permission:manage-modul|lihat-modul|see-soal']);
     Route::post('/modul', [ModulController::class, 'store'])->name('store.modul')->middleware(['auth:asisten', 'can:manage-modul']);
     Route::patch('/modul/bulk-update', [ModulController::class, 'bulkUpdate'])
         ->name('modul.bulkUpdate')
