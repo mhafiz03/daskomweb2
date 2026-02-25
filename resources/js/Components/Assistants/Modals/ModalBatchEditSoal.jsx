@@ -298,18 +298,13 @@ export const parseEssayMarkdown = (markdown) => {
         return [];
     }
 
-    const regex = /^Soal\s+\d+\s*\n([\s\S]*?)(?=^Soal\s+\d+|\Z)/gm;
-    const matches = Array.from(markdown.matchAll(regex));
+    // Split by "Soal X" pattern and filter empty entries
+    const soalPattern = /^Soal\s+\d+\s*\n/gm;
+    const parts = markdown.split(soalPattern).filter(part => part.trim().length > 0);
 
-    if (!matches.length) {
-        return [];
-    }
-
-    return matches.map((match) => {
-        const body = match[1].trim();
-
+    return parts.map((part) => {
         return {
-            soal: body || "",
+            soal: part.trim(),
         };
     });
 };
@@ -319,15 +314,12 @@ export const parsePgMarkdown = (markdown) => {
         return [];
     }
 
-    const regex = /^Soal\s+\d+\s*\n([\s\S]*?)(?=^Soal\s+\d+|\Z)/gm;
-    const matches = Array.from(markdown.matchAll(regex));
+    // Split by "Soal X" pattern and filter empty entries
+    const soalPattern = /^Soal\s+\d+\s*\n/gm;
+    const parts = markdown.split(soalPattern).filter(part => part.trim().length > 0);
 
-    if (!matches.length) {
-        return [];
-    }
-
-    return matches.map((match) => {
-        const body = match[1].trim();
+    return parts.map((part) => {
+        const body = part.trim();
 
         const questionMatch = body.match(/Pertanyaan:\s*\n([\s\S]*?)(?=\nPilihan:|\Z)/);
         const question = questionMatch ? questionMatch[1].trim() : "";

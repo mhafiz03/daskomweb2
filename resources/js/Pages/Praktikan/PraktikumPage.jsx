@@ -305,6 +305,8 @@ export default function PraktikumPage({ auth }) {
         correctAnswers: 0,
         totalQuestions: 0,
         percentage: 0,
+        hasError: false,
+        isRetrying: false,
     });
 
     const autosaveDebouncersRef = useRef({});
@@ -425,6 +427,12 @@ export default function PraktikumPage({ auth }) {
             scoreFetchLocksRef.current.add(cacheKey);
             scoreAckRequiredRef.current = true;
 
+            setScoreModalState((prev) => ({
+                ...prev,
+                isRetrying: true,
+                hasError: false,
+            }));
+
             try {
                 const endpoint =
                     phase === "ta"
@@ -458,9 +466,17 @@ export default function PraktikumPage({ auth }) {
                     correctAnswers,
                     totalQuestions,
                     percentage,
+                    hasError: false,
+                    isRetrying: false,
                 });
             } catch (error) {
                 console.error(`Failed to fetch ${phase.toUpperCase()} score`, error);
+                setScoreModalState((prev) => ({
+                    ...prev,
+                    isOpen: true,
+                    hasError: true,
+                    isRetrying: false,
+                }));
                 scoreFetchLocksRef.current.delete(cacheKey);
                 scoreAckRequiredRef.current = false;
             }
@@ -995,6 +1011,8 @@ export default function PraktikumPage({ auth }) {
             correctAnswers: 0,
             totalQuestions: 0,
             percentage: 0,
+            hasError: false,
+            isRetrying: false,
         });
     }, [activeModulId]);
 
@@ -1191,6 +1209,13 @@ export default function PraktikumPage({ auth }) {
         }
     }, [openFeedbackPhase]);
 
+    const retryFetchScore = useCallback(() => {
+        const phase = scoreModalState.phaseType;
+        if (phase && ["ta", "tk"].includes(phase)) {
+            fetchPhaseScore(phase);
+        }
+    }, [scoreModalState.phaseType, fetchPhaseScore]);
+
     const handlePhaseChange = useCallback(
         (currentPhase) => {
             if (currentPhase === "feedback") {
@@ -1386,6 +1411,9 @@ export default function PraktikumPage({ auth }) {
                     totalQuestions={scoreModalState.totalQuestions}
                     percentage={scoreModalState.percentage}
                     isTotClass={isTotClass}
+                    hasError={scoreModalState.hasError}
+                    onRetry={retryFetchScore}
+                    isRetrying={scoreModalState.isRetrying}
                 />
             </Suspense>
         </>
