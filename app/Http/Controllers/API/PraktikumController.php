@@ -359,13 +359,26 @@ class PraktikumController extends Controller
             }
 
             $kelasId = $user->kelas_id;
-            $dk = $user->dk ?? 'DK1';
+            $dk = $user->dk;
 
             if (! $kelasId) {
                 return response()->json([
                     'status' => 'error',
                     'message' => 'Praktikan does not have an assigned kelas.',
                 ], 400);
+            }
+
+            if (! $dk) {
+                return response()->json([
+                    'status' => 'success',
+                    'message' => 'Praktikan belum memilih DK. Silakan pilih DK terlebih dahulu.',
+                    'dk_required' => true,
+                    'data' => null,
+                    'phases' => self::PHASE_SEQUENCE,
+                    'feedback_pending' => false,
+                    'feedback_modul_id' => null,
+                    'feedback_asisten_id' => null,
+                ], 200);
             }
 
             $activePraktikum = Praktikum::with(['modul', 'kelas', 'pj'])
@@ -428,6 +441,31 @@ class PraktikumController extends Controller
         } catch (\Throwable $th) {
             return $this->respondWithServerError($th);
         }
+    }
+
+    public function storeDk(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'dk' => 'required|string|in:DK1,DK2',
+        ]);
+
+        $user = $request->user('praktikan');
+
+        if (! $user) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Unauthorized. Praktikan not authenticated.',
+            ], 401);
+        }
+
+        $user->dk = $validated['dk'];
+        $user->save();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'DK berhasil disimpan.',
+            'dk' => $user->dk,
+        ]);
     }
 
     public function history(Request $request): JsonResponse
