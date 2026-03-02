@@ -117,7 +117,10 @@ function useAlarm() {
 }
 
 // ─── Circular Progress Ring ────────────────────────────────────────────────────
+let circularProgressCounter = 0;
+
 function CircularProgress({ progress, size = 220, strokeWidth = 6, isRunning, children }) {
+    const [gradientId] = useState(() => `timerGradient-${++circularProgressCounter}`);
     const radius = (size - strokeWidth) / 2;
     const circumference = 2 * Math.PI * radius;
     const offset = circumference - progress * circumference;
@@ -125,6 +128,12 @@ function CircularProgress({ progress, size = 220, strokeWidth = 6, isRunning, ch
     return (
         <div className="relative inline-flex items-center justify-center" style={{ width: size, height: size }}>
             <svg width={size} height={size} className="absolute -rotate-90">
+                <defs>
+                    <linearGradient id={gradientId} x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stopColor="var(--depth-color-primary)" />
+                        <stop offset="100%" stopColor="rgba(var(--depth-color-primary-rgb, 99,102,241), 0.5)" />
+                    </linearGradient>
+                </defs>
                 <circle
                     cx={size / 2}
                     cy={size / 2}
@@ -139,19 +148,13 @@ function CircularProgress({ progress, size = 220, strokeWidth = 6, isRunning, ch
                     cy={size / 2}
                     r={radius}
                     fill="none"
-                    stroke="url(#timerGradient)"
+                    stroke={`url(#${gradientId})`}
                     strokeWidth={strokeWidth}
                     strokeLinecap="round"
                     strokeDasharray={circumference}
                     strokeDashoffset={offset}
                     className="transition-[stroke-dashoffset] duration-1000 ease-linear"
                 />
-                <defs>
-                    <linearGradient id="timerGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                        <stop offset="0%" stopColor="var(--depth-color-primary)" />
-                        <stop offset="100%" stopColor="rgba(var(--depth-color-primary-rgb, 99,102,241), 0.5)" />
-                    </linearGradient>
-                </defs>
             </svg>
             {isRunning && (
                 <div
@@ -340,8 +343,10 @@ function DkSessionCard({ praktikum }) {
 }
 
 // ─── DK Tab Content ────────────────────────────────────────────────────────────
-function DkTabContent({ dk, sessions, onAlarm }) {
+function DkTabContent({ dk, sessions, onAlarm, isActive }) {
     const prevStatesRef = useRef({});
+    const isActiveRef = useRef(isActive);
+    isActiveRef.current = isActive;
 
     useEffect(() => {
         const prevStates = prevStatesRef.current;
@@ -351,7 +356,7 @@ function DkTabContent({ dk, sessions, onAlarm }) {
             const currentPhase = session.current_phase;
             const currentStatus = session.status;
 
-            if (prev) {
+            if (prev && isActiveRef.current) {
                 if (prev.phase && prev.phase !== currentPhase) {
                     const prevIndex = getPhaseIndex(prev.phase);
                     const currentIndex = getPhaseIndex(currentPhase);
@@ -637,74 +642,47 @@ export default function PraktikumTimer() {
         setPopup(null);
     }, [alarm]);
 
+    const groupByDk = useCallback((praktikums) => {
+        const grouped = {};
+        for (const dk of DK_OPTIONS) {
+            grouped[dk] = praktikums.filter((p) => p.dk === dk);
+        }
+        return grouped;
+    }, []);
+
     const fetchActiveSessions = useCallback(async () => {
         try {
             const { data } = await publicApi.get("/api-v1/praktikum/active");
             const praktikums = Array.isArray(data?.data) ? data.data : [];
-
-            const grouped = {};
-            for (const dk of DK_OPTIONS) {
-                grouped[dk] = praktikums.filter((p) => p.dk === dk);
-            }
-            setSessions(grouped);
+            setSessions(groupByDk(praktikums));
         } catch {
             setSessions({ DK1: [], DK2: [] });
         } finally {
             setIsLoading(false);
         }
-    }, []);
+    }, [groupByDk]);
 
+    // Initial fetch
     useEffect(() => {
         fetchActiveSessions();
-        const pollId = setInterval(fetchActiveSessions, 5000);
-        return () => clearInterval(pollId);
     }, [fetchActiveSessions]);
 
+    // WebSocket: listen for signal to refetch active sessions
     useEffect(() => {
         if (!window.Echo) {
             return;
         }
 
-        const allSessions = [...(sessions.DK1 ?? []), ...(sessions.DK2 ?? [])];
-        const channels = [];
+        const channel = window.Echo.channel("praktikum.active-timer");
 
-        for (const session of allSessions) {
-            const channelName = `praktikum.${session.id}.dk.${session.dk}`;
-            const channel = window.Echo.channel(channelName);
-
-            channel.listen(".PraktikumStatusUpdated", (payload) => {
-                const updated = payload?.praktikum;
-                if (!updated) {
-                    return;
-                }
-
-                setSessions((prev) => {
-                    const dk = updated.dk ?? session.dk;
-                    const dkSessions = prev[dk] ?? [];
-                    const existingIdx = dkSessions.findIndex((s) => s.id === updated.id);
-
-                    let updatedDkSessions;
-                    if (existingIdx >= 0) {
-                        updatedDkSessions = dkSessions.map((s) =>
-                            s.id === updated.id ? { ...s, ...updated } : s
-                        );
-                    } else {
-                        updatedDkSessions = [...dkSessions, updated];
-                    }
-
-                    return { ...prev, [dk]: updatedDkSessions };
-                });
-            });
-
-            channels.push(channelName);
-        }
+        channel.listen(".ActivePraktikumUpdated", () => {
+            fetchActiveSessions();
+        });
 
         return () => {
-            for (const ch of channels) {
-                window.Echo.leave(ch);
-            }
+            window.Echo.leave("praktikum.active-timer");
         };
-    }, [sessions.DK1?.length, sessions.DK2?.length]);
+    }, [fetchActiveSessions]);
 
     const tabs = useMemo(
         () =>
@@ -794,6 +772,7 @@ export default function PraktikumTimer() {
                                     dk={dk}
                                     sessions={sessions[dk] ?? []}
                                     onAlarm={handleAlarm}
+                                    isActive={activeTab === dk}
                                 />
                             </div>
                         ))}

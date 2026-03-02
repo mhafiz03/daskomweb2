@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\API;
 
+use App\Events\ActivePraktikumBroadcast;
 use App\Events\PraktikumProgressUpdated;
 use App\Events\PraktikumStatusUpdated;
 use App\Http\Controllers\Controller;
@@ -206,6 +207,8 @@ class PraktikumController extends Controller
         $progressService = app(QuestionProgressService::class);
         $progressPayload = $progressService->buildForPraktikum($praktikum);
         broadcast(new PraktikumProgressUpdated($praktikum->id, $progressPayload));
+
+        broadcast(new ActivePraktikumBroadcast);
 
         return response()->json([
             'status' => 'success',
