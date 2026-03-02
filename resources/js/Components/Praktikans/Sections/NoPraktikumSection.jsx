@@ -23,6 +23,7 @@ const STATUS_LABELS = {
 export default function NoPraktikumSection({
     isVisible = true,
     kelasId = null,
+    dk = null,
     onPraktikumStateChange,
     moduleMeta,
 }) {
@@ -146,13 +147,13 @@ export default function NoPraktikumSection({
             return undefined;
         }
 
-        if (!kelasId) {
+        if (!kelasId || !dk) {
             applyPraktikumState(null);
             return undefined;
         }
 
         const echo = window.Echo;
-        const channelName = `praktikum.class.${kelasId}`;
+        const channelName = `praktikum.class.${kelasId}.dk.${dk}`;
         const channel = echo.channel(channelName);
         const listener = (payload) => {
             const praktikumPayload = payload?.praktikum ?? payload ?? null;
@@ -176,7 +177,7 @@ export default function NoPraktikumSection({
                 console.warn("Gagal meninggalkan channel praktikum:", err);
             }
         };
-    }, [kelasId, applyPraktikumState]);
+    }, [kelasId, dk, applyPraktikumState]);
 
     const statusLabel = praktikumState?.status
         ? STATUS_LABELS[praktikumState.status] ?? praktikumState.status

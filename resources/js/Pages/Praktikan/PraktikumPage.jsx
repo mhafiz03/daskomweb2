@@ -1365,6 +1365,7 @@ export default function PraktikumPage({ auth }) {
                                 setCompletedCategories={setCompletedCategories}
                                 onReviewTask={handleReviewTask}
                                 kelasId={kelasId}
+                                dk={moduleMeta?.dk}
                                 onPraktikumStateChange={handlePraktikumStateChange}
                                 moduleMeta={moduleMeta}
                             />

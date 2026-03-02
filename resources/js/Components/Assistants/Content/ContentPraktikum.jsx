@@ -412,11 +412,11 @@ export default function ContentPraktikum() {
     }, [session, computeElapsedSeconds, computePhaseElapsedSeconds]);
 
     useEffect(() => {
-        if (!window.Echo || !selectedPraktikumId) {
+        if (!window.Echo || !selectedPraktikumId || !selectedDk) {
             return undefined;
         }
 
-        const channelName = `praktikum.${selectedPraktikumId}`;
+        const channelName = `praktikum.${selectedPraktikumId}.dk.${selectedDk}`;
         const channel = window.Echo.channel(channelName);
 
         const statusListener = (payload) => {
@@ -486,7 +486,7 @@ export default function ContentPraktikum() {
         return () => {
             window.Echo.leave(channelName);
         };
-    }, [selectedPraktikumId, selectedKelas, computeElapsedSeconds, refetchProgress, queryClient]);
+    }, [selectedPraktikumId, selectedDk, selectedKelas, computeElapsedSeconds, refetchProgress, queryClient]);
 
     // Presence channel for online praktikan tracking
     useEffect(() => {
