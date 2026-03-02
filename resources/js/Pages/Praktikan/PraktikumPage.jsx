@@ -309,6 +309,9 @@ export default function PraktikumPage({ auth }) {
         isRetrying: false,
     });
 
+    const [isSavingProgress, setIsSavingProgress] = useState(false);
+    const [isRefreshingStatus, setIsRefreshingStatus] = useState(false);
+
     const autosaveDebouncersRef = useRef({});
     const isRestoringAutosaveRef = useRef(false);
 
@@ -822,6 +825,139 @@ export default function PraktikumPage({ auth }) {
         },
         [resetActiveTaskState]
     );
+
+    const handleSaveProgress = useCallback(async () => {
+        const autosaveType = AUTOSAVE_TYPE_MAP[activeTask];
+        if (!autosaveType || !praktikanId || !activeModulId) {
+            toast.error("Tidak ada sesi aktif untuk disimpan.");
+            return;
+        }
+
+        if (!Array.isArray(questions) || questions.length === 0) {
+            toast.error("Belum ada soal yang dimuat.");
+            return;
+        }
+
+        const jawabanEntries = {};
+        questions.forEach((question, index) => {
+            const questionId = question?.id;
+            if (!questionId) return;
+            const answerValue = answers[index];
+            const serializedAnswer = serializeAnswerForAutosave(question, answerValue);
+            if (serializedAnswer === null || serializedAnswer === undefined) return;
+            if (typeof serializedAnswer === "string" && serializedAnswer.trim() === "") return;
+            jawabanEntries[questionId] = serializedAnswer;
+        });
+
+        if (Object.keys(jawabanEntries).length === 0) {
+            toast("Belum ada jawaban untuk disimpan.", { icon: "\u26A0\uFE0F" });
+            return;
+        }
+
+        setIsSavingProgress(true);
+        try {
+            await api.post("/api-v1/praktikan/autosave", {
+                praktikan_id: praktikanId,
+                modul_id: activeModulId,
+                tipe_soal: autosaveType,
+                jawaban: jawabanEntries,
+            });
+            toast.success("Progress berhasil disimpan.");
+        } catch (error) {
+            console.error("[SaveProgress] Failed:", error);
+            toast.error(error?.response?.data?.message ?? "Gagal menyimpan progress.");
+        } finally {
+            setIsSavingProgress(false);
+        }
+    }, [activeTask, praktikanId, activeModulId, questions, answers]);
+
+    const handleRefreshStatus = useCallback(async () => {
+        setIsRefreshingStatus(true);
+        try {
+            const { data } = await api.get("/api-v1/praktikum/check-praktikum");
+
+            if (data?.dk_required) {
+                toast("DK belum dipilih. Silakan pilih DK terlebih dahulu.", { icon: "\u26A0\uFE0F" });
+                setIsRefreshingStatus(false);
+                return;
+            }
+
+            const hasActiveTask = activeTask && AUTOSAVE_TYPE_MAP[activeTask];
+
+            if (data?.status === "success") {
+                const praktikumPayload = data?.data ?? null;
+                const feedbackPending = Boolean(data?.feedback_pending ?? praktikumPayload?.feedback_pending ?? false);
+                const mergedPayload = praktikumPayload ? { ...praktikumPayload } : {};
+
+                const payloadToApply = feedbackPending || praktikumPayload
+                    ? {
+                        ...mergedPayload,
+                        feedback_pending: feedbackPending,
+                        feedback_modul_id: data?.feedback_modul_id ?? mergedPayload.feedback_modul_id ?? mergedPayload.modul_id ?? null,
+                        feedback_asisten_id: data?.feedback_asisten_id ?? mergedPayload.feedback_asisten_id ?? mergedPayload.pj_id ?? null,
+                    }
+                    : null;
+
+                const newPhase = payloadToApply?.current_phase ?? null;
+                const newStatus = payloadToApply?.status ?? null;
+                const currentPhase = moduleMeta?.current_phase ?? null;
+
+                const applyFeedbackReminder = (payload) => {
+                    if (!payload) return;
+                    setFeedbackReminder({
+                        isPending: Boolean(payload.feedback_pending),
+                        modulId: payload.feedback_modul_id ?? null,
+                        asistenId: payload.feedback_asisten_id ?? null,
+                    });
+                };
+
+                if (newStatus === "paused" || newStatus === "exited" || !payloadToApply) {
+                    if (hasActiveTask) {
+                        await handleSaveProgress();
+                    }
+                    resetActiveTaskState();
+                    setActiveComponent("NoPraktikumSection");
+                    if (payloadToApply) {
+                        setModuleMeta(payloadToApply);
+                        setActiveModulId(payloadToApply.modul_id ?? null);
+                        applyFeedbackReminder(payloadToApply);
+                    }
+                    toast.success("Status praktikum diperbarui.");
+                    return;
+                }
+
+                if (newPhase && newPhase === currentPhase) {
+                    setModuleMeta(payloadToApply);
+                    setActiveModulId(payloadToApply.modul_id ?? null);
+                    applyFeedbackReminder(payloadToApply);
+                    toast.success("Status praktikum berhasil diperbarui.");
+                } else {
+                    if (hasActiveTask) {
+                        await handleSaveProgress();
+                    }
+                    setModuleMeta(payloadToApply);
+                    setActiveModulId(payloadToApply.modul_id ?? null);
+                    applyFeedbackReminder(payloadToApply);
+                    toast.success("Status praktikum diperbarui \u2014 fase berubah.");
+                }
+            } else {
+                if (hasActiveTask) {
+                    await handleSaveProgress();
+                }
+                resetActiveTaskState();
+                setActiveComponent("NoPraktikumSection");
+                setModuleMeta(null);
+                setActiveModulId(null);
+                setFeedbackReminder({ isPending: false, modulId: null, asistenId: null });
+                toast("Tidak ada sesi praktikum aktif.", { icon: "\u2139\uFE0F" });
+            }
+        } catch (error) {
+            console.error("[RefreshStatus] Failed:", error);
+            toast.error(error?.response?.data?.message ?? "Gagal memperbarui status praktikum.");
+        } finally {
+            setIsRefreshingStatus(false);
+        }
+    }, [moduleMeta, activeTask, handleSaveProgress, resetActiveTaskState]);
 
     const handleNavigate = useCallback(
         (componentName) => {
@@ -1370,6 +1506,48 @@ export default function PraktikumPage({ auth }) {
                                 moduleMeta={moduleMeta}
                             />
                         </Suspense>
+                        {activeComponent !== "NoPraktikumSection" && (
+                            <div className="flex justify-end gap-2 mb-3">
+                                {ActiveTaskComponent && (
+                                    <button
+                                        type="button"
+                                        onClick={handleSaveProgress}
+                                        disabled={isSavingProgress}
+                                        className={`inline-flex items-center gap-1.5 rounded-depth-md border border-depth px-3 py-1.5 text-xs font-semibold shadow-depth-sm transition-all ${
+                                            isSavingProgress
+                                                ? "cursor-not-allowed opacity-50"
+                                                : "bg-depth-card text-depth-primary hover:bg-depth-interactive hover:shadow-depth-md"
+                                        }`}
+                                        title="Simpan progress jawaban secara manual"
+                                    >
+                                        <svg className={`h-4 w-4 ${isSavingProgress ? "animate-spin" : ""}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            {isSavingProgress ? (
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                            ) : (
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
+                                            )}
+                                        </svg>
+                                        {isSavingProgress ? "Menyimpan..." : "Save Progress"}
+                                    </button>
+                                )}
+                                <button
+                                    type="button"
+                                    onClick={handleRefreshStatus}
+                                    disabled={isRefreshingStatus}
+                                    className={`inline-flex items-center gap-1.5 rounded-depth-md border border-depth px-3 py-1.5 text-xs font-semibold shadow-depth-sm transition-all ${
+                                        isRefreshingStatus
+                                            ? "cursor-not-allowed opacity-50"
+                                            : "bg-depth-card text-depth-primary hover:bg-depth-interactive hover:shadow-depth-md"
+                                    }`}
+                                    title="Refresh status praktikum secara manual"
+                                >
+                                    <svg className={`h-4 w-4 ${isRefreshingStatus ? "animate-spin" : ""}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                    </svg>
+                                    {isRefreshingStatus ? "Memuat..." : "Refresh Status"}
+                                </button>
+                            </div>
+                        )}
                         {activeComponent !== "NoPraktikumSection" && (
                             <Suspense fallback={<div className="mt-6 text-sm text-depth-secondary">Memuat konten...</div>}>
                                 {ActiveTaskComponent ? (
