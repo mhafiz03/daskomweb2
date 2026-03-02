@@ -25,9 +25,6 @@ const STATUS_LABELS = {
 const DK_OPTIONS = ["DK1", "DK2"];
 const MANUAL_TEMPLATES = [10, 20, 30, 60, 90];
 
-const CIRCLE_RADIUS = 90;
-const CIRCLE_CIRCUMFERENCE = 2 * Math.PI * CIRCLE_RADIUS;
-
 const formatDuration = (totalSeconds = 0) => {
     const seconds = Math.max(0, Math.floor(totalSeconds));
     const hours = Math.floor(seconds / 3600);
@@ -121,7 +118,9 @@ function useAlarm() {
 
 // ─── Circular Progress Ring ────────────────────────────────────────────────────
 function CircularProgress({ progress, size = 220, strokeWidth = 6, isRunning, children }) {
-    const offset = CIRCLE_CIRCUMFERENCE - progress * CIRCLE_CIRCUMFERENCE;
+    const radius = (size - strokeWidth) / 2;
+    const circumference = 2 * Math.PI * radius;
+    const offset = circumference - progress * circumference;
 
     return (
         <div className="relative inline-flex items-center justify-center" style={{ width: size, height: size }}>
@@ -129,7 +128,7 @@ function CircularProgress({ progress, size = 220, strokeWidth = 6, isRunning, ch
                 <circle
                     cx={size / 2}
                     cy={size / 2}
-                    r={CIRCLE_RADIUS}
+                    r={radius}
                     fill="none"
                     stroke="currentColor"
                     strokeWidth={strokeWidth}
@@ -138,12 +137,12 @@ function CircularProgress({ progress, size = 220, strokeWidth = 6, isRunning, ch
                 <circle
                     cx={size / 2}
                     cy={size / 2}
-                    r={CIRCLE_RADIUS}
+                    r={radius}
                     fill="none"
                     stroke="url(#timerGradient)"
                     strokeWidth={strokeWidth}
                     strokeLinecap="round"
-                    strokeDasharray={CIRCLE_CIRCUMFERENCE}
+                    strokeDasharray={circumference}
                     strokeDashoffset={offset}
                     className="transition-[stroke-dashoffset] duration-1000 ease-linear"
                 />
@@ -251,89 +250,91 @@ function DkSessionCard({ praktikum }) {
     }, [currentPhaseIndex]);
 
     return (
-        <div className="rounded-depth-lg border border-depth bg-depth-card p-6 shadow-depth-md transition-all">
-            <div className="mb-5 flex flex-wrap items-center justify-between gap-2">
-                <div className="flex items-center gap-2">
-                    <span className="text-base font-semibold text-depth-secondary">
-                        {kelasName}
-                    </span>
-                    <span className="text-xs text-depth-secondary">•</span>
-                    <span className="text-base text-depth-secondary">{modulName}</span>
+        <div className="rounded-depth-lg border border-depth bg-depth-card px-6 py-5 shadow-depth-md transition-all">
+            <div className="flex flex-col items-center gap-4 sm:flex-row sm:items-start sm:gap-6">
+                {/* Circle */}
+                <div className="flex-shrink-0">
+                    <CircularProgress progress={phaseProgress} size={180} strokeWidth={6} isRunning={isRunning}>
+                        <div className="text-4xl font-bold tabular-nums text-depth-primary sm:text-5xl">
+                            {formatDuration(phaseSeconds)}
+                        </div>
+                        <p className="mt-1 text-[0.65rem] font-semibold uppercase tracking-wide text-depth-secondary">
+                            {currentPhaseLabel || "—"}
+                        </p>
+                    </CircularProgress>
                 </div>
-                <div className="flex items-center gap-2">
-                    <span
-                        className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold ${
-                            isRunning
-                                ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300"
-                                : isPaused
-                                  ? "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300"
-                                  : "bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400"
-                        }`}
-                    >
-                        {isRunning && (
-                            <span className="relative flex h-2 w-2">
-                                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-400 opacity-75" />
-                                <span className="relative inline-flex h-2 w-2 rounded-full bg-green-500" />
-                            </span>
-                        )}
-                        {statusLabel}
-                    </span>
-                </div>
-            </div>
 
-            <div className="flex justify-center py-4">
-                <CircularProgress progress={phaseProgress} size={220} strokeWidth={6} isRunning={isRunning}>
-                    <div className="text-5xl font-bold tabular-nums text-depth-primary sm:text-6xl">
-                        {formatDuration(phaseSeconds)}
-                    </div>
-                    <p className="mt-1 text-xs font-semibold uppercase tracking-wide text-depth-secondary">
-                        {currentPhaseLabel || "—"}
-                    </p>
-                </CircularProgress>
-            </div>
-
-            <p className="mt-2 text-center text-sm font-medium text-depth-secondary">
-                Total: {formatDuration(totalSeconds)}
-            </p>
-
-            <div className="mt-5 flex flex-wrap items-center justify-center gap-2">
-                {PHASE_SEQUENCE.map((phase, index) => {
-                    const isCurrent = index === currentPhaseIndex;
-                    const isPast = currentPhaseIndex >= 0 && index < currentPhaseIndex;
-
-                    return (
-                        <div
-                            key={phase.key}
-                            className={`flex items-center gap-1.5 rounded-full px-3.5 py-2 text-xs font-medium transition-all ${
-                                isCurrent
-                                    ? "bg-[var(--depth-color-primary)] text-white shadow-depth-sm scale-110"
-                                    : isPast
-                                      ? "bg-depth-primary/10 text-depth-primary"
-                                      : "bg-depth-card text-depth-secondary border border-depth"
+                {/* Info */}
+                <div className="flex flex-1 flex-col items-center gap-3 sm:items-start sm:pt-2">
+                    <div className="flex flex-wrap items-center gap-2">
+                        <span className="text-base font-semibold text-depth-primary">
+                            {kelasName}
+                        </span>
+                        <span className="text-xs text-depth-secondary">•</span>
+                        <span className="text-base text-depth-secondary">{modulName}</span>
+                        <span
+                            className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold ${
+                                isRunning
+                                    ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300"
+                                    : isPaused
+                                      ? "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300"
+                                      : "bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400"
                             }`}
                         >
-                            {isPast && (
-                                <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
-                                </svg>
-                            )}
-                            {isCurrent && isRunning && (
+                            {isRunning && (
                                 <span className="relative flex h-2 w-2">
-                                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-white opacity-75" />
-                                    <span className="relative inline-flex h-2 w-2 rounded-full bg-white" />
+                                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-400 opacity-75" />
+                                    <span className="relative inline-flex h-2 w-2 rounded-full bg-green-500" />
                                 </span>
                             )}
-                            {phase.label}
-                        </div>
-                    );
-                })}
-            </div>
+                            {statusLabel}
+                        </span>
+                    </div>
 
-            {pjName !== "-" && (
-                <p className="mt-4 text-center text-sm text-depth-secondary">
-                    PJ: {pjName}
-                </p>
-            )}
+                    <p className="text-sm font-medium text-depth-secondary">
+                        Total: {formatDuration(totalSeconds)}
+                    </p>
+
+                    <div className="flex flex-wrap items-center gap-1.5">
+                        {PHASE_SEQUENCE.map((phase, index) => {
+                            const isCurrent = index === currentPhaseIndex;
+                            const isPast = currentPhaseIndex >= 0 && index < currentPhaseIndex;
+
+                            return (
+                                <div
+                                    key={phase.key}
+                                    className={`flex items-center gap-1 rounded-full px-3 py-1.5 text-xs font-medium transition-all ${
+                                        isCurrent
+                                            ? "bg-[var(--depth-color-primary)] text-white shadow-depth-sm scale-105"
+                                            : isPast
+                                              ? "bg-depth-primary/10 text-depth-primary"
+                                              : "bg-depth-card text-depth-secondary border border-depth"
+                                    }`}
+                                >
+                                    {isPast && (
+                                        <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+                                        </svg>
+                                    )}
+                                    {isCurrent && isRunning && (
+                                        <span className="relative flex h-2 w-2">
+                                            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-white opacity-75" />
+                                            <span className="relative inline-flex h-2 w-2 rounded-full bg-white" />
+                                        </span>
+                                    )}
+                                    {phase.label}
+                                </div>
+                            );
+                        })}
+                    </div>
+
+                    {pjName !== "-" && (
+                        <p className="text-sm text-depth-secondary">
+                            PJ: {pjName}
+                        </p>
+                    )}
+                </div>
+            </div>
         </div>
     );
 }
@@ -391,7 +392,7 @@ function DkTabContent({ dk, sessions, onAlarm }) {
     }
 
     return (
-        <div className="grid gap-6 sm:grid-cols-1 lg:grid-cols-2">
+        <div className="grid gap-4">
             {sessions.map((session) => (
                 <DkSessionCard
                     key={session.id}
@@ -482,55 +483,57 @@ function ManualTimer({ onAlarm }) {
     const progress = initialSeconds > 0 ? remainingSeconds / initialSeconds : 0;
 
     return (
-        <div className="flex flex-col items-center gap-8">
-            <div className="w-full max-w-lg rounded-depth-lg border border-depth bg-depth-card p-8 shadow-depth-lg">
-                <div className="flex justify-center py-4">
-                    <CircularProgress progress={progress} size={240} strokeWidth={8} isRunning={isTimerRunning && !isPaused}>
-                        <div className="text-6xl font-bold tabular-nums text-depth-primary sm:text-7xl">
-                            {formatDuration(remainingSeconds)}
-                        </div>
-                        <p className="mt-2 text-sm font-semibold uppercase tracking-wide text-depth-secondary">
-                            {isTimerRunning
-                                ? isPaused
-                                    ? "Paused"
-                                    : "Running"
-                                : remainingSeconds === 0
-                                  ? "Set a timer"
-                                  : "Ready"}
-                        </p>
-                    </CircularProgress>
-                </div>
-
-                {isTimerRunning && (
-                    <div className="mt-6 flex justify-center gap-3">
-                        <button
-                            type="button"
-                            onClick={handlePauseResume}
-                            className="rounded-depth-md px-8 py-3 text-base font-semibold text-white shadow-depth-md transition-all hover:-translate-y-0.5 hover:shadow-depth-lg"
-                            style={{
-                                background: isPaused
-                                    ? "linear-gradient(135deg, rgba(34, 197, 94, 0.9), rgba(22, 163, 74, 0.9))"
-                                    : "linear-gradient(135deg, rgba(251, 191, 36, 0.9), rgba(245, 158, 11, 0.9))",
-                            }}
-                        >
-                            {isPaused ? "Resume" : "Pause"}
-                        </button>
-                        <button
-                            type="button"
-                            onClick={handleReset}
-                            className="rounded-depth-md px-8 py-3 text-base font-semibold text-white shadow-depth-md transition-all hover:-translate-y-0.5 hover:shadow-depth-lg"
-                            style={{
-                                background: "linear-gradient(135deg, rgba(239, 68, 68, 0.9), rgba(220, 38, 38, 0.9))",
-                            }}
-                        >
-                            Reset
-                        </button>
+        <div className="flex flex-col items-center gap-6">
+            <div className="w-full rounded-depth-lg border border-depth bg-depth-card px-6 py-5 shadow-depth-lg">
+                <div className="flex flex-col items-center gap-4 sm:flex-row sm:items-center sm:justify-center sm:gap-6">
+                    <div className="flex-shrink-0">
+                        <CircularProgress progress={progress} size={180} strokeWidth={6} isRunning={isTimerRunning && !isPaused}>
+                            <div className="text-4xl font-bold tabular-nums text-depth-primary sm:text-5xl">
+                                {formatDuration(remainingSeconds)}
+                            </div>
+                            <p className="mt-1 text-[0.65rem] font-semibold uppercase tracking-wide text-depth-secondary">
+                                {isTimerRunning
+                                    ? isPaused
+                                        ? "Paused"
+                                        : "Running"
+                                    : remainingSeconds === 0
+                                      ? "Set a timer"
+                                      : "Ready"}
+                            </p>
+                        </CircularProgress>
                     </div>
-                )}
+
+                    {isTimerRunning && (
+                        <div className="flex flex-wrap justify-center gap-3 sm:justify-start">
+                            <button
+                                type="button"
+                                onClick={handlePauseResume}
+                                className="rounded-depth-md px-8 py-3 text-base font-semibold text-white shadow-depth-md transition-all hover:-translate-y-0.5 hover:shadow-depth-lg"
+                                style={{
+                                    background: isPaused
+                                        ? "linear-gradient(135deg, rgba(34, 197, 94, 0.9), rgba(22, 163, 74, 0.9))"
+                                        : "linear-gradient(135deg, rgba(251, 191, 36, 0.9), rgba(245, 158, 11, 0.9))",
+                                }}
+                            >
+                                {isPaused ? "Resume" : "Pause"}
+                            </button>
+                            <button
+                                type="button"
+                                onClick={handleReset}
+                                className="rounded-depth-md px-8 py-3 text-base font-semibold text-white shadow-depth-md transition-all hover:-translate-y-0.5 hover:shadow-depth-lg"
+                                style={{
+                                    background: "linear-gradient(135deg, rgba(239, 68, 68, 0.9), rgba(220, 38, 38, 0.9))",
+                                }}
+                            >
+                                Reset
+                            </button>
+                        </div>
+                    )}
+                </div>
             </div>
 
             {!isTimerRunning && (
-                <div className="w-full max-w-lg space-y-6">
+                <div className="w-full space-y-4">
                     <div className="rounded-depth-lg border border-depth bg-depth-card p-6 shadow-depth-md">
                         <h3 className="mb-4 text-sm font-semibold uppercase tracking-wide text-depth-secondary">
                             Quick Start
