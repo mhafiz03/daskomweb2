@@ -14,23 +14,23 @@ export const contactData = [
         ],
     },
     {
-        name: "Indi Viska Rahmasari [VIS]",
+        name: "Roudhotul Jannah [RDJ]",
         details: [
-            { src: iconWhatsapp, text: "085802253573", alt: "WhatsApp Indi Viska Rahmasari" },
-            { src: iconLine, text: "indiviska", alt: "Line Indi Viska Rahmasari" },
+            { src: iconWhatsapp, text: "085722532973", alt: "WhatsApp Roudhotul Jannah" },
+            { src: iconLine, text: "roudho_", alt: "Line Roudhotul Jannah" },
         ],
     },
     {
-        name: "Dennytan Raharjo [TAN]",
+        name: "Stevannie Pratama [SNI]",
         details: [
-            { src: iconWhatsapp, text: "081395882733", alt: "WhatsApp Dennytan Raharjo" },
-            { src: iconLine, text: "dentan77", alt: "Line Dennytan Raharjo" },
+            { src: iconWhatsapp, text: "085269958753", alt: "WhatsApp Stevannie Pratama" },
+            { src: iconLine, text: "stevannie30", alt: "Line Stevannie Pratama" },
         ],
     },
     {
         name: "Email",
         details: [
-            { src: iconEmail, text: "daskom@labs.telkomuniversity.ac.id", alt: "Email Daskom Lab" },
+            { src: iconEmail, text: "contact@daskomlab.com", alt: "Email Daskom Lab" },
         ],
     },
 ];
