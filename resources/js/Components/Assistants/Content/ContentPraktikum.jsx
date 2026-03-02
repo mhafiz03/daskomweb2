@@ -94,6 +94,7 @@ export default function ContentPraktikum() {
     const [isAsistenExpanded, setIsAsistenExpanded] = useState(false);
     const [progressData, setProgressData] = useState(null);
     const [isProgressPolling, setIsProgressPolling] = useState(false);
+    const [confirmAction, setConfirmAction] = useState(null);
     const sessionIdRef = useRef(null);
     const lastServerReportRef = useRef("");
 
@@ -840,11 +841,57 @@ export default function ContentPraktikum() {
 
     useAssistantToolbar(toolbarConfig);
 
+    const handleConfirmedAction = useCallback(() => {
+        if (!confirmAction) {
+            return;
+        }
+
+        const { action, options } = confirmAction;
+        setConfirmAction(null);
+        handleAction(action, options);
+    }, [confirmAction, handleAction]);
+
     useEffect(() => {
         setSelectedDk(DK_OPTIONS[0]);
     }, [selectedKelas]);
     return (
         <section className="space-y-6 text-depth-primary">
+            {confirmAction && (
+                <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 backdrop-blur-sm">
+                    <div className="mx-4 w-full max-w-sm rounded-depth-lg border border-depth bg-depth-card p-6 shadow-depth-lg">
+                        <div className="flex flex-col items-center gap-4 text-center">
+                            <div
+                                className={`flex h-14 w-14 items-center justify-center rounded-full ${
+                                    confirmAction.variant === "danger"
+                                        ? "bg-red-100 dark:bg-red-900/30"
+                                        : "bg-amber-100 dark:bg-amber-900/30"
+                                }`}
+                            >
+                                {confirmAction.icon}
+                            </div>
+                            <h3 className="text-lg font-bold text-depth-primary">{confirmAction.title}</h3>
+                            <p className="text-sm text-depth-secondary">{confirmAction.message}</p>
+                            <div className="mt-2 flex w-full gap-3">
+                                <button
+                                    type="button"
+                                    onClick={() => setConfirmAction(null)}
+                                    className="flex-1 rounded-depth-md border border-depth bg-depth-card px-4 py-2.5 text-sm font-semibold text-depth-primary shadow-depth-sm transition-all hover:-translate-y-0.5 hover:shadow-depth-md"
+                                >
+                                    Batal
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={handleConfirmedAction}
+                                    className="flex-1 rounded-depth-md px-4 py-2.5 text-sm font-semibold text-white shadow-depth-md transition-all hover:-translate-y-0.5 hover:shadow-depth-lg"
+                                    style={{ background: confirmAction.buttonGradient }}
+                                >
+                                    {confirmAction.confirmLabel}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
             <div className="rounded-depth-lg border border-depth bg-depth-card shadow-depth-lg">
                 <div className="w-full overflow-y-auto p-6 md:h-96 lg:h-[48rem]">
                     <div className="mb-6 flex flex-col gap-4 lg:flex-row">
@@ -1139,10 +1186,22 @@ export default function ContentPraktikum() {
                                             if (!hasSession || effectiveSession?.status === "idle") {
                                                 handleAction("start");
                                             } else if (isTerminal) {
-                                                // Restart - same as start but for completed/exited praktikum
                                                 handleAction("start");
                                             } else if (isRunning) {
-                                                handleAction("pause");
+                                                setConfirmAction({
+                                                    action: "pause",
+                                                    options: {},
+                                                    title: "Pause Praktikum?",
+                                                    message: "Timer akan dihentikan sementara. Anda dapat melanjutkan kapan saja.",
+                                                    confirmLabel: "Ya, Pause",
+                                                    variant: "warning",
+                                                    buttonGradient: "linear-gradient(135deg, rgba(251, 191, 36, 0.9), rgba(245, 158, 11, 0.9))",
+                                                    icon: (
+                                                        <svg className="h-7 w-7 text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                        </svg>
+                                                    ),
+                                                });
                                             } else if (isPaused) {
                                                 handleAction("resume");
                                             }
@@ -1227,10 +1286,22 @@ export default function ContentPraktikum() {
                                         type="button"
                                         onClick={() => {
                                             const nextIndex = currentPhaseIndex + 1;
-                                            // Don't wrap around - stop at the last phase
                                             if (nextIndex < PHASE_SEQUENCE.length) {
                                                 const nextPhase = PHASE_SEQUENCE[nextIndex];
-                                                handleAction("next", { phase: nextPhase.key });
+                                                setConfirmAction({
+                                                    action: "next",
+                                                    options: { phase: nextPhase.key },
+                                                    title: "Lanjut ke Phase Berikutnya?",
+                                                    message: `Pindah dari ${currentPhaseLabel ?? "—"} ke ${nextPhase.label}. Aksi ini tidak dapat dibatalkan.`,
+                                                    confirmLabel: `Ya, Lanjut ke ${nextPhase.label}`,
+                                                    variant: "info",
+                                                    buttonGradient: "linear-gradient(135deg, rgba(59, 130, 246, 0.9), rgba(37, 99, 235, 0.9))",
+                                                    icon: (
+                                                        <svg className="h-7 w-7 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 9l3 3m0 0l-3 3m3-3H8m13 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                        </svg>
+                                                    ),
+                                                });
                                             }
                                         }}
                                         disabled={nextDisabled}
@@ -1253,7 +1324,22 @@ export default function ContentPraktikum() {
 
                                     <button
                                         type="button"
-                                        onClick={() => handleAction("exit")}
+                                        onClick={() => {
+                                            setConfirmAction({
+                                                action: "exit",
+                                                options: {},
+                                                title: "Exit Praktikum?",
+                                                message: "Praktikum akan dihentikan dan tidak dapat dilanjutkan. Pastikan semua tahap sudah selesai.",
+                                                confirmLabel: "Ya, Exit",
+                                                variant: "danger",
+                                                buttonGradient: "linear-gradient(135deg, rgba(239, 68, 68, 0.9), rgba(220, 38, 38, 0.9))",
+                                                icon: (
+                                                    <svg className="h-7 w-7 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                                    </svg>
+                                                ),
+                                            });
+                                        }}
                                         disabled={exitDisabled}
                                         title="Exit Praktikum"
                                         aria-label="Exit Praktikum"

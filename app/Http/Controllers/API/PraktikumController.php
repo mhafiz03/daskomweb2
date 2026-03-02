@@ -79,6 +79,25 @@ class PraktikumController extends Controller
         }
     }
 
+    public function active(): JsonResponse
+    {
+        try {
+            $praktikums = Praktikum::with(['modul', 'kelas', 'pj'])
+                ->whereIn('status', ['running', 'paused'])
+                ->orderBy('kelas_id')
+                ->orderBy('dk')
+                ->get();
+
+            return response()->json([
+                'status' => 'success',
+                'data' => $praktikums,
+                'phases' => self::PHASE_SEQUENCE,
+            ]);
+        } catch (\Throwable $th) {
+            return $this->respondWithServerError($th);
+        }
+    }
+
     public function store(Request $request): JsonResponse
     {
         $validated = $request->validate([

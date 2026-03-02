@@ -18,7 +18,6 @@ use App\Http\Controllers\API\LaporanPraktikanController;
 use App\Http\Controllers\API\LeaderBoardController;
 use App\Http\Controllers\API\ModulController;
 use App\Http\Controllers\API\NilaiController;
-use App\Http\Controllers\Api\V1\NilaiComplaintController;
 use App\Http\Controllers\API\PollingsController;
 use App\Http\Controllers\API\PraktikanController;
 use App\Http\Controllers\API\PraktikumController;
@@ -32,6 +31,7 @@ use App\Http\Controllers\API\SoalTKController;
 use App\Http\Controllers\API\SoalTMController;
 use App\Http\Controllers\API\SoalTPController;
 use App\Http\Controllers\API\TugasPendahuluanController;
+use App\Http\Controllers\Api\V1\NilaiComplaintController;
 use App\Http\Controllers\AuditLogController;
 use App\Http\Controllers\Auth\RegisteredAsistenController;
 use App\Http\Controllers\Auth\RegisteredPraktikanController;
@@ -155,11 +155,14 @@ Route::inertia('/contact-assistant', 'Praktikan/ContactAssistant')
 Route::inertia('/polling-assistant', 'Praktikan/PollingPage')
     ->name('polling-assistant');
 
-    
+Route::inertia('/praktikum/timer', 'PraktikumTimer')
+        ->name('praktikum.timer');
+
 Route::prefix('api-v1')->group(function () {
     Route::get('/get-kelas', [RegisteredPraktikanController::class, 'getKelas'])->name('public-getkelas');
     Route::post('/register/asisten', [RegisteredAsistenController::class, 'store'])->name('store.asisten');
     Route::post('/register/praktikan', [RegisteredPraktikanController::class, 'store'])->name('store.praktikan');
+    Route::get('/praktikum/active', [PraktikumController::class, 'active'])->name('api.public.praktikum.active');
 });
 
 // ///////////////////////////////////// Data Routes ///////////////////////////////////////
@@ -177,7 +180,7 @@ Route::prefix('api-v1')->middleware(['audit.assistant', 'auth:asisten,praktikan'
     Route::delete('/profilePic', [AsistenController::class, 'destroyPp'])
         ->name('destroyPp.asisten')
         ->middleware('auth:asisten');
-    
+
     // i guess
     // Route::post('/register/asisten', [RegisteredAsistenController::class, 'store'])->name('store.asisten')->middleware('guest');
     // Route::post('/register/praktikan', [RegisteredPraktikanController::class, 'store'])->name('store.praktikan')->middleware('guest');
@@ -252,7 +255,7 @@ Route::prefix('api-v1')->middleware(['audit.assistant', 'auth:asisten,praktikan'
 
     // Modul
     // Route::get('/modul', [ModulController::class, 'index'])->name('get.modul');
-    #Route::get('/modul', [ModulController::class, 'index'])->name('get.modul')->middleware(['auth:asisten,praktikan', 'permission:manage-modul|lihat-modul']);
+    // Route::get('/modul', [ModulController::class, 'index'])->name('get.modul')->middleware(['auth:asisten,praktikan', 'permission:manage-modul|lihat-modul']);
     Route::get('/modul', [ModulController::class, 'index'])->name('get.modul')->middleware(['auth:asisten,praktikan', 'permission:manage-modul|lihat-modul|see-soal']);
     Route::post('/modul', [ModulController::class, 'store'])->name('store.modul')->middleware(['auth:asisten', 'can:manage-modul']);
     Route::patch('/modul/bulk-update', [ModulController::class, 'bulkUpdate'])
