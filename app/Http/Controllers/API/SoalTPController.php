@@ -24,7 +24,7 @@ class SoalTPController extends Controller
         try {
             // Validasi input
             $request->validate([
-                'soal' => 'required|string|max:1000',
+                'soal' => 'required|string|max:10000',
             ]);
 
             // Menyimpan soal baru
