@@ -111,27 +111,27 @@ export default function CardPraktikan({ praktikan }) {
 
                             <div className="mt-8 space-y-6">
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                                    <div>
+                                    <div className="min-w-0">
                                         <h4 className="text-[10px] font-bold uppercase text-depth-secondary opacity-60 tracking-widest">Academic Class</h4>
-                                        <p className="mt-1 text-lg font-semibold text-depth-primary">
+                                        <p className="mt-1 text-lg font-semibold text-depth-primary truncate">
                                             {praktikan?.kelas?.kelas ?? praktikan?.kelas_id ?? "-"}
                                         </p>
                                     </div>
-                                    <div>
+                                    <div className="min-w-0">
                                         <h4 className="text-[10px] font-bold uppercase text-depth-secondary opacity-60 tracking-widest">Contact Number</h4>
-                                        <p className="mt-1 text-lg font-semibold text-depth-primary">
+                                        <p className="mt-1 text-lg font-semibold text-depth-primary truncate">
                                             {praktikan?.nomor_telepon || "-"}
                                         </p>
                                     </div>
-                                    <div>
+                                    <div className="min-w-0">
                                         <h4 className="text-[10px] font-bold uppercase text-depth-secondary opacity-60 tracking-widest">Email Address</h4>
-                                        <p className="mt-1 text-lg font-semibold text-depth-primary">
+                                        <p className="mt-1 text-lg font-semibold text-depth-primary truncate">
                                             {praktikan?.email || "-"}
                                         </p>
                                     </div>
-                                    <div>
+                                    <div className="min-w-0">
                                         <h4 className="text-[10px] font-bold uppercase text-depth-secondary opacity-60 tracking-widest">Address</h4>
-                                        <p className="mt-1 text-lg font-semibold text-depth-primary">
+                                        <p className="mt-1 text-lg font-semibold text-depth-primary truncate">
                                             {praktikan?.alamat || "-"}
                                         </p>
                                     </div>
