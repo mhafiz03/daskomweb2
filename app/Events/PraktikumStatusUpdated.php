@@ -38,6 +38,7 @@ class PraktikumStatusUpdated implements ShouldBroadcast
                 'id' => $this->praktikum->id,
                 'modul_id' => $this->praktikum->modul_id,
                 'kelas_id' => $this->praktikum->kelas_id,
+                'dk' => $this->praktikum->dk,
                 'status' => $this->praktikum->status,
                 'current_phase' => $this->praktikum->current_phase,
                 'started_at' => optional($this->praktikum->started_at)?->toIso8601String(),

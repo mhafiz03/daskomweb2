@@ -50,6 +50,7 @@ export default function NoPraktikumSection({
             return {
                 status: payload.status ?? previousState?.status ?? null,
                 current_phase: payload.current_phase ?? previousState?.current_phase ?? null,
+                dk: payload.dk ?? previousState?.dk ?? null,
                 modul: resolvedModul,
                 modul_id: payload.modul_id ?? previousState?.modul_id ?? null,
                 started_at: payload.started_at ?? previousState?.started_at ?? null,
@@ -147,13 +148,13 @@ export default function NoPraktikumSection({
             return undefined;
         }
 
-        if (!kelasId || !dk) {
-            applyPraktikumState(null);
+        const effectiveDk = dk ?? praktikumState?.dk ?? null;
+        if (!kelasId || !effectiveDk) {
             return undefined;
         }
 
         const echo = window.Echo;
-        const channelName = `praktikum.class.${kelasId}.dk.${dk}`;
+        const channelName = `praktikum.class.${kelasId}.dk.${effectiveDk}`;
         const channel = echo.channel(channelName);
         const listener = (payload) => {
             const praktikumPayload = payload?.praktikum ?? payload ?? null;
@@ -177,7 +178,7 @@ export default function NoPraktikumSection({
                 console.warn("Gagal meninggalkan channel praktikum:", err);
             }
         };
-    }, [kelasId, dk, applyPraktikumState]);
+    }, [kelasId, dk, praktikumState?.dk, applyPraktikumState]);
 
     const statusLabel = praktikumState?.status
         ? STATUS_LABELS[praktikumState.status] ?? praktikumState.status
@@ -219,8 +220,8 @@ export default function NoPraktikumSection({
     const modulId = moduleMeta?.modul_id ?? praktikumState?.modul_id ?? null;
     const modulTitle = resolveDisplayText(
         moduleMeta?.modul ??
-            praktikumState?.modul ??
-            (modulId ? `Modul #${modulId}` : null)
+        praktikumState?.modul ??
+        (modulId ? `Modul #${modulId}` : null)
     );
     const pjName = resolveDisplayText(moduleMeta?.pj ?? praktikumState?.pj);
 
@@ -283,22 +284,20 @@ export default function NoPraktikumSection({
                         <button
                             type="button"
                             onClick={() => setSelectedDk("DK1")}
-                            className={`rounded-depth-md px-8 py-3 text-lg font-bold transition ${
-                                selectedDk === "DK1"
-                                    ? "bg-[var(--depth-color-primary)] text-white shadow-depth-md"
-                                    : "border border-depth bg-depth-card text-depth-primary hover:bg-depth-interactive"
-                            }`}
+                            className={`rounded-depth-md px-8 py-3 text-lg font-bold transition ${selectedDk === "DK1"
+                                ? "bg-[var(--depth-color-primary)] text-white shadow-depth-md"
+                                : "border border-depth bg-depth-card text-depth-primary hover:bg-depth-interactive"
+                                }`}
                         >
                             DK1
                         </button>
                         <button
                             type="button"
                             onClick={() => setSelectedDk("DK2")}
-                            className={`rounded-depth-md px-8 py-3 text-lg font-bold transition ${
-                                selectedDk === "DK2"
-                                    ? "bg-[var(--depth-color-primary)] text-white shadow-depth-md"
-                                    : "border border-depth bg-depth-card text-depth-primary hover:bg-depth-interactive"
-                            }`}
+                            className={`rounded-depth-md px-8 py-3 text-lg font-bold transition ${selectedDk === "DK2"
+                                ? "bg-[var(--depth-color-primary)] text-white shadow-depth-md"
+                                : "border border-depth bg-depth-card text-depth-primary hover:bg-depth-interactive"
+                                }`}
                         >
                             DK2
                         </button>

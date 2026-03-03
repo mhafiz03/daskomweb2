@@ -95,6 +95,7 @@ export default function ContentPraktikum() {
     const [progressData, setProgressData] = useState(null);
     const [isProgressPolling, setIsProgressPolling] = useState(false);
     const [confirmAction, setConfirmAction] = useState(null);
+    const [isEchoConnected, setIsEchoConnected] = useState(false);
     const sessionIdRef = useRef(null);
     const lastServerReportRef = useRef("");
 
@@ -240,7 +241,7 @@ export default function ContentPraktikum() {
             const { data } = await api.get('/api-v1/praktikum');
             return Array.isArray(data?.data) ? data.data : [];
         },
-        refetchInterval: 5000, // Refresh every 5 seconds
+        refetchInterval: isEchoConnected ? false : 5000, // Only poll as fallback when WebSocket is not connected
     });
 
     const runningPraktikum = useMemo(() => {
@@ -275,7 +276,7 @@ export default function ContentPraktikum() {
             return data ?? null;
         },
         enabled: Boolean(selectedPraktikumId),
-        refetchInterval: isProgressPolling ? 10000 : false,
+        refetchInterval: isProgressPolling && !isEchoConnected ? 10000 : false, // Only poll as fallback when WebSocket is not connected
         staleTime: 5000,
     });
 
@@ -301,7 +302,8 @@ export default function ContentPraktikum() {
         if (refetchProgress) {
             refetchProgress();
         }
-    }, [selectedPraktikumId, refetchProgress]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [selectedPraktikumId]); // Only re-run when selectedPraktikumId changes (refetchProgress is not stable)
 
     const computeElapsedSeconds = useCallback((praktikum) => {
         if (!praktikum?.started_at) {
@@ -414,8 +416,11 @@ export default function ContentPraktikum() {
 
     useEffect(() => {
         if (!window.Echo || !selectedPraktikumId || !selectedDk) {
+            setIsEchoConnected(false);
             return undefined;
         }
+
+        setIsEchoConnected(true);
 
         const channelName = `praktikum.${selectedPraktikumId}.dk.${selectedDk}`;
         const channel = window.Echo.channel(channelName);
@@ -485,9 +490,11 @@ export default function ContentPraktikum() {
         channel.listen(".PraktikumProgressUpdated", progressListener);
 
         return () => {
+            setIsEchoConnected(false);
             window.Echo.leave(channelName);
         };
-    }, [selectedPraktikumId, selectedDk, selectedKelas, computeElapsedSeconds, refetchProgress, queryClient]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [selectedPraktikumId, selectedDk, selectedKelas, computeElapsedSeconds, queryClient]);
 
     // Presence channel for online praktikan tracking
     useEffect(() => {
@@ -861,11 +868,10 @@ export default function ContentPraktikum() {
                     <div className="mx-4 w-full max-w-sm rounded-depth-lg border border-depth bg-depth-card p-6 shadow-depth-lg">
                         <div className="flex flex-col items-center gap-4 text-center">
                             <div
-                                className={`flex h-14 w-14 items-center justify-center rounded-full ${
-                                    confirmAction.variant === "danger"
+                                className={`flex h-14 w-14 items-center justify-center rounded-full ${confirmAction.variant === "danger"
                                         ? "bg-red-100 dark:bg-red-900/30"
                                         : "bg-amber-100 dark:bg-amber-900/30"
-                                }`}
+                                    }`}
                             >
                                 {confirmAction.icon}
                             </div>

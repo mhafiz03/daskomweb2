@@ -155,14 +155,14 @@ Route::inertia('/contact-assistant', 'Praktikan/ContactAssistant')
 Route::inertia('/polling-assistant', 'Praktikan/PollingPage')
     ->name('polling-assistant');
 
-Route::inertia('/praktikum/timer', 'PraktikumTimer')
-        ->name('praktikum.timer');
+// Route::inertia('/praktikum/timer', 'PraktikumTimer')
+//         ->name('praktikum.timer');
 
 Route::prefix('api-v1')->group(function () {
     Route::get('/get-kelas', [RegisteredPraktikanController::class, 'getKelas'])->name('public-getkelas');
     Route::post('/register/asisten', [RegisteredAsistenController::class, 'store'])->name('store.asisten');
     Route::post('/register/praktikan', [RegisteredPraktikanController::class, 'store'])->name('store.praktikan');
-    Route::get('/praktikum/active', [PraktikumController::class, 'active'])->name('api.public.praktikum.active');
+    // Route::get('/praktikum/active', [PraktikumController::class, 'active'])->name('api.public.praktikum.active');
 });
 
 // ///////////////////////////////////// Data Routes ///////////////////////////////////////
@@ -244,7 +244,7 @@ Route::prefix('api-v1')->middleware(['audit.assistant', 'auth:asisten,praktikan'
     // Asisten
     Route::patch('/asisten/password', [AsistenController::class, 'updatePassword'])->name('asisten.password.update')->middleware('auth:asisten');
     // Route::get('/asisten', [AsistenController::class, 'index'])->name('get.asisten')->middleware(['auth:asisten,praktikan', 'can:lihat-asisten']);
-    Route::get('/asisten', [AsistenController::class, 'index'])->name('get.asisten')->middleware(['auth:asisten,praktikan', 'permission:lihat-asisten|manage-role']);
+    Route::get('/asisten', [AsistenController::class, 'index'])->name('get.asisten')->middleware(['auth:asisten,praktikan', 'permission:lihat-asisten|manage-role|manage-praktikum']);
     // Route::put('/asisten', [AsistenController::class, 'update'])->name('update.asisten')->middleware(['auth:asisten', 'can:manage-profile']);
     Route::post('/asisten/delete', [AsistenController::class, 'destroy'])->name('destroy.asisten')->middleware(['auth:asisten', 'can:manage-role']);
 
@@ -281,7 +281,7 @@ Route::prefix('api-v1')->middleware(['audit.assistant', 'auth:asisten,praktikan'
     Route::post('/kelas/reset', [KelasController::class, 'reset'])->name('reset.kelas')->middleware(['auth:asisten', 'can:lms-configuration']);
 
     // Jadwal Jaga
-    Route::get('/jadwal', [JadwalJagaController::class, 'index'])->name('get.jadwal')->middleware(['auth:asisten', 'permission:see-plot|manage-plot']);
+    Route::get('/jadwal', [JadwalJagaController::class, 'index'])->name('get.jadwal')->middleware(['auth:asisten', 'permission:see-plot|manage-plot|manage-praktikum']);
     Route::post('/jadwal', [JadwalJagaController::class, 'store'])->name('store.jadwal')->middleware(['auth:asisten', 'can:manage-plot']);
     Route::delete('/jadwal/{id}', [JadwalJagaController::class, 'destroy'])->name('delete.jadwal')->middleware(['auth:asisten', 'can:manage-plot']);
 
