@@ -531,6 +531,7 @@ const handleKelasToggle = (isEnglish, kelasId) => {
                                 } else {
                                     // Select all and activate
                                     setRegularKelasSelection(regularKelas.map(k => k.id));
+                                    setEnglishKelasSelection(englishKelas.map(k => k.id));
                                     const payload = buildConfigurationPayload({ tp_activation: 1 });
                                     if (payload) {
                                         configurationMutation.mutate(payload);
@@ -620,6 +621,28 @@ const handleKelasToggle = (isEnglish, kelasId) => {
                             })}
                         </select>
                         {renderKelasCheckboxes(false)}
+                    </section>
+                                        <section className="rounded-depth-md border border-depth/60 bg-depth-card/60 p-4 shadow-depth-sm dark:border-depth/30 dark:bg-depth-card/40">
+                        <h3 className="text-sm font-semibold text-depth-primary dark:text-white mb-3">Modul English</h3>
+                        <select
+                            className="mt-3 w-full appearance-none rounded-depth-md border border-depth bg-depth-card px-3 py-2 text-sm font-medium text-depth-primary shadow-depth-inset transition focus:border-[var(--depth-color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)] focus:ring-offset-0 dark:border-depth/70 dark:bg-depth-card/70 dark:text-white"
+                            value={englishSelection}
+                            onChange={(event) => handleModuleChange(true, event.target.value)}
+                            disabled={englishModules.length === 0 || isBusy}
+                        >
+                            {englishModules.length === 0 && (
+                                <option value="">Tidak ada modul English.</option>
+                            )}
+                            {englishModules.map((module) => {
+                                const moduleId = normaliseModuleId(module);
+                                return (
+                                    <option key={moduleId} value={moduleId}>
+                                        {module.judul}
+                                    </option>
+                                );
+                            })}
+                        </select>
+                        {renderKelasCheckboxes(true)}
                     </section>
 
 
