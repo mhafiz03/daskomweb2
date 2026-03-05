@@ -1,4 +1,5 @@
 import PraktikanNav from "@/Components/Common/PraktikanNav";
+import { Toaster } from "react-hot-toast";
 
 export default function PraktikanAuthenticated({
     children,
@@ -10,6 +11,7 @@ export default function PraktikanAuthenticated({
 
     return (
         <>
+            <Toaster position="top-right" reverseOrder={false} />
             <div className="relative h-screen overflow-hidden">
                 <div id="template" className="flex min-h-screen items-center gap-10 pl-10 pr-6">
                     <PraktikanNav praktikan={praktikanData} />

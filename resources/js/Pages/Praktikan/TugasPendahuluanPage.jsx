@@ -159,7 +159,8 @@ export default function TugasPendahuluanPage() {
 
     const submitMutation = useMutation({
         mutationFn: async (payload) => {
-            await api.post("/api-v1/jawaban-tp", payload);
+            const { data } = await api.post("/api-v1/jawaban-tp", payload);
+            return data;
         },
         onSuccess: () => {
             toast.success("Jawaban berhasil disimpan.");
