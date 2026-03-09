@@ -480,6 +480,60 @@ export default function ModalInputNilai({
     const questions = questionResult?.questions ?? [];
     const questionNotice = questionResult?.notice;
 
+    const canFetchTestScores = Boolean(praktikan?.id && modul?.id);
+
+    const { data: taScoreData } = useQuery({
+        queryKey: ["ta-auto-score", praktikan?.id, modul?.id],
+        enabled: canFetchTestScores,
+        retry: 1,
+        staleTime: 1000 * 60 * 5,
+        queryFn: async () => {
+            const { data } = await api.get(
+                `/api-v1/jawaban-ta/praktikan/${praktikan.id}/modul/${modul.id}`
+            );
+            const entries = Array.isArray(data?.jawaban_ta) ? data.jawaban_ta : [];
+
+            if (entries.length === 0) {
+                return { score: 0, hasAnswers: false };
+            }
+
+            const correct = entries.filter(
+                (e) => e.selected_opsi_id && e.selected_opsi_id === e.opsi_benar_id
+            ).length;
+
+            return {
+                score: Math.round((correct / entries.length) * 100 * 100) / 100,
+                hasAnswers: true,
+            };
+        },
+    });
+
+    const { data: tkScoreData } = useQuery({
+        queryKey: ["tk-auto-score", praktikan?.id, modul?.id],
+        enabled: canFetchTestScores,
+        retry: 1,
+        staleTime: 1000 * 60 * 5,
+        queryFn: async () => {
+            const { data } = await api.get(
+                `/api-v1/jawaban-tk/praktikan/${praktikan.id}/modul/${modul.id}`
+            );
+            const entries = Array.isArray(data?.jawaban_tk) ? data.jawaban_tk : [];
+
+            if (entries.length === 0) {
+                return { score: 0, hasAnswers: false };
+            }
+
+            const correct = entries.filter(
+                (e) => e.selected_opsi_id && e.selected_opsi_id === e.opsi_benar_id
+            ).length;
+
+            return {
+                score: Math.round((correct / entries.length) * 100 * 100) / 100,
+                hasAnswers: true,
+            };
+        },
+    });
+
     useEffect(() => {
         if (nilaiSebelumnya) {
             setScores({
@@ -507,6 +561,18 @@ export default function ModalInputNilai({
             setRating(null);
         }
     }, [nilaiSebelumnya]);
+
+    useEffect(() => {
+        if (taScoreData?.hasAnswers) {
+            setScores((prev) => ({ ...prev, ta: clampScore(taScoreData.score) }));
+        }
+    }, [taScoreData]);
+
+    useEffect(() => {
+        if (tkScoreData?.hasAnswers) {
+            setScores((prev) => ({ ...prev, l1: clampScore(tkScoreData.score) }));
+        }
+    }, [tkScoreData]);
 
     const average = useMemo(() => {
         const total = scoresSchema.reduce(
