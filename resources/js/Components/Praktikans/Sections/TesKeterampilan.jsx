@@ -64,7 +64,7 @@ export default function TesKeterampilan({
             </div>
 
             {/* Questions Container */}
-            <div className="space-y-8 max-h-[90vh] p-6 rounded-depth-lg border border-depth bg-depth-card overflow-y-auto overflow-x-hidden shadow-depth-lg">
+            <div className="space-y-8 max-h-[90vh] p-6 pb-16 rounded-depth-lg border border-depth bg-depth-card overflow-y-auto overflow-x-hidden shadow-depth-lg">
                 {questions.map((question, index) => (
                     <div
                         key={question.id ?? index}
