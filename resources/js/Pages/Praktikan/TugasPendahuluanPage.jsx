@@ -217,7 +217,7 @@ export default function TugasPendahuluanPage() {
         <>
             <PraktikanAuthenticated
                 praktikan={praktikan}
-                customWidth="w-[80%]"
+                customWidth="w-[90%]"
                 header={
                     <h2 className="font-semibold text-xl text-gray-800 leading-tight">
                         Dashboard
@@ -226,7 +226,7 @@ export default function TugasPendahuluanPage() {
             >
                 <Head title="Tugas Pendahuluan" />
 
-                <div className="mt-1 flex flex-col gap-6">
+                <div className="mt-1 flex flex-col gap-1 ">
                     <PraktikanPageHeader title="Tugas Pendahuluan" />
 
                     {tugasQuery.isLoading

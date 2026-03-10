@@ -456,7 +456,7 @@ export default function PraktikumPage({ auth }) {
                             ? Math.round((resolvedPercentage / 100) * totalQuestions)
                             : 0;
 
-                const percentage =  
+                const percentage =
                     typeof resolvedPercentage === "number"
                         ? resolvedPercentage
                         : totalQuestions > 0
@@ -1472,7 +1472,7 @@ export default function PraktikumPage({ auth }) {
                 }
             >
                 <Head title="Praktikum Praktikan" />
-                <div className="mt-[8vh] relative items-center flex flex-col ">
+                <div className="relative items-center flex flex-col ">
                     <div className="w-full transition-all duration-300 ">
                         {showFeedbackReminderBanner && (
                             <div className="mb-4 rounded-depth-lg border border-amber-200 bg-amber-50/80 p-4 text-sm text-amber-900 shadow-depth-sm">
@@ -1507,17 +1507,16 @@ export default function PraktikumPage({ auth }) {
                             />
                         </Suspense>
                         {activeComponent !== "NoPraktikumSection" && (
-                            <div className="flex justify-end gap-2 mb-3">
+                            <div className="fixed bottom-6 right-6 z-50 flex flex-col gap-2">
                                 {ActiveTaskComponent && (
                                     <button
                                         type="button"
                                         onClick={handleSaveProgress}
                                         disabled={isSavingProgress}
-                                        className={`inline-flex items-center gap-1.5 rounded-depth-md border border-depth px-3 py-1.5 text-xs font-semibold shadow-depth-sm transition-all ${
-                                            isSavingProgress
-                                                ? "cursor-not-allowed opacity-50"
-                                                : "bg-depth-card text-depth-primary hover:bg-depth-interactive hover:shadow-depth-md"
-                                        }`}
+                                        className={`inline-flex items-center gap-1.5 rounded-depth-md border border-depth px-3 py-1.5 text-xs font-semibold shadow-depth-sm transition-all ${isSavingProgress
+                                            ? "cursor-not-allowed opacity-50"
+                                            : "bg-depth-card text-depth-primary hover:bg-depth-interactive hover:shadow-depth-md"
+                                            }`}
                                         title="Simpan progress jawaban secara manual"
                                     >
                                         <svg className={`h-4 w-4 ${isSavingProgress ? "animate-spin" : ""}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -1534,11 +1533,10 @@ export default function PraktikumPage({ auth }) {
                                     type="button"
                                     onClick={handleRefreshStatus}
                                     disabled={isRefreshingStatus}
-                                    className={`inline-flex items-center gap-1.5 rounded-depth-md border border-depth px-3 py-1.5 text-xs font-semibold shadow-depth-sm transition-all ${
-                                        isRefreshingStatus
-                                            ? "cursor-not-allowed opacity-50"
-                                            : "bg-depth-card text-depth-primary hover:bg-depth-interactive hover:shadow-depth-md"
-                                    }`}
+                                    className={`inline-flex items-center gap-1.5 rounded-depth-md border border-depth px-3 py-1.5 text-xs font-semibold shadow-depth-sm transition-all ${isRefreshingStatus
+                                        ? "cursor-not-allowed opacity-50"
+                                        : "bg-depth-card text-depth-primary hover:bg-depth-interactive hover:shadow-depth-md"
+                                        }`}
                                     title="Refresh status praktikum secara manual"
                                 >
                                     <svg className={`h-4 w-4 ${isRefreshingStatus ? "animate-spin" : ""}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">

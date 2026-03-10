@@ -57,37 +57,39 @@ export default function TugasPendahuluan({
     }
 
     return (
-        <div className="mx-auto mt-2 max-w-5xl space-y-6 rounded-depth-lg border border-depth bg-depth-card/70 p-6 shadow-depth-lg">
-            <div className="space-y-10 max-h-[75vh] overflow-y-auto bg-depth-interactive/40 p-5 bg-depth-card rounded-depth-lg">
-                {questions.map((question, index) => (
-                    <div key={question.id ?? index} className="space-y-3">
-                        <div className="flex items-start gap-3">
-                            <span className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-[var(--depth-color-primary)] text-sm font-semibold text-white shadow-depth-sm">
-                                {index + 1}
-                            </span>
-                            <div className="flex-1 text-base font-semibold text-depth-primary break-words">
-                                <MarkdownRenderer content={question.text} />
+        <>
+            <div className="mx-auto mt-2 w-full flex flex-col gap-4 rounded-depth-lg border border-depth bg-depth-card/70 p-4 shadow-depth-lg max-h-[70vh] overflow-hidden">
+                <div className="space-y-6 overflow-y-auto min-h-0 flex-1 bg-depth-interactive/40 p-3.5 bg-depth-card rounded-depth-lg">
+                    {questions.map((question, index) => (
+                        <div key={question.id ?? index} className="space-y-2">
+                            <div className="flex items-start gap-2.5">
+                                <span className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-[var(--depth-color-primary)] text-xs font-semibold text-white shadow-depth-sm">
+                                    {index + 1}
+                                </span>
+                                <div className="flex-1 text-sm font-semibold text-depth-primary break-words">
+                                    <MarkdownRenderer content={question.text} />
+                                </div>
                             </div>
+                            <QuestionCommentInput
+                                questionId={question.id ?? question.soalId ?? question.soal_id ?? null}
+                                tipeSoal={tipeSoal}
+                                praktikanId={praktikanId}
+                                isEnabled={isCommentEnabled}
+                                className="pl-11"
+                            />
+                            <textarea
+                                className="min-h-[15vh] w-full dark:text-gray-700 rounded-depth-md border border-depth bg-depth-card/80 p-2.5 text-sm text-depth-primary shadow-depth-sm transition focus:border-[var(--depth-color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)]"
+                                placeholder="Tulis jawabanmu di sini..."
+                                value={answers[index] ?? ""}
+                                onChange={(event) => handleInputChange(index, event.target.value)}
+                            ></textarea>
                         </div>
-                        <QuestionCommentInput
-                            questionId={question.id ?? question.soalId ?? question.soal_id ?? null}
-                            tipeSoal={tipeSoal}
-                            praktikanId={praktikanId}
-                            isEnabled={isCommentEnabled}
-                            className="pl-11"
-                        />
-                        <textarea
-                            className="min-h-[20vh] w-full dark:text-gray-700 rounded-depth-md border border-depth bg-depth-card/80 p-3 text-sm text-depth-primary shadow-depth-sm transition focus:border-[var(--depth-color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)]"
-                            placeholder="Tulis jawabanmu di sini..."
-                            value={answers[index] ?? ""}
-                            onChange={(event) => handleInputChange(index, event.target.value)}
-                        ></textarea>
-                    </div>
-                ))}
+                    ))}
+                </div>
             </div>
 
             {showSubmitButton && (
-                <div className="mt-6 flex justify-end">
+                <div className="mt-3 flex justify-end">
                     <button
                         type="button"
                         onClick={handleSubmit}
@@ -97,6 +99,6 @@ export default function TugasPendahuluan({
                     </button>
                 </div>
             )}
-        </div>
+        </>
     );
 }

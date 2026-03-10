@@ -162,17 +162,17 @@ export default function Jurnal({
     return (
         <div className="p-5 py-0 transition-all duration-300 w-full ">
             {/* Header */}
-            <div className="flex bg-[var(--depth-color-primary)] rounded-depth-lg py-3 px-4 mb-6 justify-center shadow-depth-lg">
-                <h1 className="text-white text-center font-bold text-2xl">
+            <div className="flex bg-[var(--depth-color-primary)] rounded-depth-lg py-2 px-3 mb-4 justify-center shadow-depth-lg">
+                <h1 className="text-white text-center font-bold text-lg">
                     Jurnal
                 </h1>
             </div>
 
             {/* Questions Container */}
-            <div className="space-y-8 max-h-[88vh] p-6 rounded-depth-lg border border-depth bg-depth-card overflow-y-auto overflow-x-hidden shadow-depth-lg">
+            <div className="space-y-5 max-h-[80vh] p-4 rounded-depth-lg border border-depth bg-depth-card overflow-y-auto overflow-x-hidden shadow-depth-lg">
                 {/* FITB Questions Section */}
                 {groupedQuestions.fitb.length > 0 && (
-                    <section className="space-y-6">
+                    <section className="space-y-4">
                         {groupedQuestions.fitb.map((question) => {
                             const index = questions.findIndex((item) => item.id === question.id);
 
@@ -187,19 +187,19 @@ export default function Jurnal({
                             return (
                                 <div
                                     key={question.id ?? `fitb-${index}`}
-                                    className="p-5 rounded-depth-lg border border-depth bg-depth-interactive shadow-depth-md hover:shadow-depth-lg transition-all duration-200"
+                                    className="p-3.5 rounded-depth-lg border border-depth bg-depth-interactive shadow-depth-md hover:shadow-depth-lg transition-all duration-200"
                                 >
                                     {/* Question and Answer Side by Side */}
-                                    <div className="grid grid-cols-2 gap-6">
+                                    <div className="grid grid-cols-2 gap-4">
                                         {/* Question Column */}
-                                        <div className="flex flex-col gap-4">
+                                        <div className="flex flex-col gap-3">
                                             {/* Question Number and Text */}
-                                            <div className="mb-4">
-                                                <div className="flex items-start gap-3 pr-11">
-                                                    <span className="flex-shrink-0 flex items-center justify-center w-8 h-8 rounded-depth-full bg-[var(--depth-color-primary)] text-white font-bold text-sm shadow-depth-sm">
+                                            <div className="mb-3">
+                                                <div className="flex items-start gap-2.5 pr-8">
+                                                    <span className="flex-shrink-0 flex items-center justify-center w-6 h-6 rounded-depth-full bg-[var(--depth-color-primary)] text-white font-bold text-xs shadow-depth-sm">
                                                         {index + 1}
                                                     </span>
-                                                    <div className="flex-1 min-w-0 text-depth-primary font-medium text-base leading-relaxed max-h-[60vh] overflow-y-auto">
+                                                    <div className="flex-1 min-w-0 text-depth-primary font-medium text-sm leading-relaxed max-h-[60vh] overflow-y-auto">
                                                         <MarkdownRenderer content={question.text} />
                                                     </div>
                                                 </div>
@@ -214,7 +214,7 @@ export default function Jurnal({
                                         </div>
 
                                         {/* Answer Column */}
-                                        <div className="flex flex-col gap-4 min-w-0">
+                                        <div className="flex flex-col gap-3 min-w-0">
                                             {isFileUploadEnabled ? (
                                                 <div className="space-y-3">
                                                     {!isFileAnswer && !previews[index] ? (
@@ -347,7 +347,7 @@ export default function Jurnal({
 
                 {/* Jurnal Questions Section */}
                 {groupedQuestions.jurnal.length > 0 && (
-                    <section className="space-y-6">
+                    <section className="space-y-4">
                         {groupedQuestions.jurnal.map((question) => {
                             const index = questions.findIndex((item) => item.id === question.id);
 
@@ -362,19 +362,19 @@ export default function Jurnal({
                             return (
                                 <div
                                     key={question.id ?? `jurnal-${index}`}
-                                    className="p-5 rounded-depth-lg border border-depth bg-depth-interactive shadow-depth-md hover:shadow-depth-lg transition-all duration-200"
+                                    className="p-3.5 rounded-depth-lg border border-depth bg-depth-interactive shadow-depth-md hover:shadow-depth-lg transition-all duration-200"
                                 >
                                     {/* Question and Answer Side by Side */}
-                                    <div className="grid grid-cols-2 gap-6">
+                                    <div className="grid grid-cols-2 gap-4">
                                         {/* Question Column */}
-                                        <div className="flex flex-col gap-4 min-w-0">
+                                        <div className="flex flex-col gap-3 min-w-0">
                                             {/* Question Number and Text */}
-                                            <div className="mb-4">
-                                                <div className="flex items-start gap-3 pr-11">
-                                                    <span className="flex-shrink-0 flex items-center justify-center w-8 h-8 rounded-depth-full bg-[var(--depth-color-primary)] text-white font-bold text-sm shadow-depth-sm">
+                                            <div className="mb-3">
+                                                <div className="flex items-start gap-2.5 pr-8">
+                                                    <span className="flex-shrink-0 flex items-center justify-center w-6 h-6 rounded-depth-full bg-[var(--depth-color-primary)] text-white font-bold text-xs shadow-depth-sm">
                                                         {index + 1}
                                                     </span>
-                                                    <div className="flex-1 min-w-0 text-depth-primary font-medium text-lg leading-relaxed">
+                                                    <div className="flex-1 min-w-0 text-depth-primary font-medium text-sm leading-relaxed">
                                                         <MarkdownRenderer content={question.text} />
                                                     </div>
                                                 </div>
@@ -389,7 +389,7 @@ export default function Jurnal({
                                         </div>
 
                                         {/* Answer Column */}
-                                        <div className="flex flex-col gap-4 min-w-0">
+                                        <div className="flex flex-col gap-3 min-w-0">
                                             {isFileUploadEnabled ? (
                                                 <div className="space-y-3">
                                                     {/* File Upload Area */}

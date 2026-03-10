@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+
 import { Link, usePage } from "@inertiajs/react";
 import profileIcon from "../../../assets/nav/Icon-Profile.svg";
 import praktikumIcon from "../../../assets/nav/Icon-Praktikum.svg";
@@ -97,6 +98,24 @@ export default function PraktikanNav({ praktikan }) {
     const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
     const [showLogoutModal, setShowLogoutModal] = useState(false);
 
+    // Theme state
+    const getTheme = () => {
+        if (typeof window === 'undefined') return 'light';
+        const stored = window.localStorage.getItem('depth-theme');
+        if (stored === 'light' || stored === 'dark') return stored;
+        return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    };
+    const [theme, setTheme] = useState(getTheme);
+    const isDark = theme === 'dark';
+
+    useEffect(() => {
+        if (typeof document === 'undefined') return;
+        document.documentElement.dataset.theme = theme;
+        window.localStorage.setItem('depth-theme', theme);
+    }, [theme]);
+
+    const toggleTheme = () => setTheme((c) => (c === 'dark' ? 'light' : 'dark'));
+
     useEffect(() => {
         if (typeof window === 'undefined') {
             return;
@@ -143,8 +162,8 @@ export default function PraktikanNav({ praktikan }) {
     const labelVisibilityClass = isCollapsed
         ? "opacity-0 delay-0"
         : isAnimating
-        ? "opacity-0"
-        : "opacity-100 delay-300";
+            ? "opacity-0"
+            : "opacity-100 delay-300";
     const navLabelBaseClass = `text-sm font-medium transition-opacity duration-300 whitespace-nowrap ${labelVisibilityClass}`;
     const navIconClass = "h-6 w-6 flex-shrink-0 transition-all duration-300";
 
@@ -158,9 +177,8 @@ export default function PraktikanNav({ praktikan }) {
         <>
             <nav className="flex h-screen items-center">
                 <div
-                    className={`mx-2 flex h-[91vh] flex-col rounded-depth-lg border border-depth bg-depth-card dark:glass-surface shadow-depth-lg transition-all duration-300 ${
-                        isCollapsed ? "w-12" : "w-[230px]"
-                    }`}
+                    className={`mx-2 flex h-[91vh] flex-col rounded-depth-lg border border-depth bg-depth-card dark:glass-surface shadow-depth-lg transition-all duration-300 ${isCollapsed ? "w-12" : "w-[230px]"
+                        }`}
                 >
                     <div className={`relative flex items-center ${isCollapsed ? "justify-center" : "justify-end"}`}>
                         <button
@@ -169,19 +187,16 @@ export default function PraktikanNav({ praktikan }) {
                             aria-label="Toggle navigation"
                         >
                             <div
-                                className={`${genericHamburgerLine} ${
-                                    isCollapsed ? "opacity-100" : "translate-y-3 rotate-45"
-                                }`}
+                                className={`${genericHamburgerLine} ${isCollapsed ? "opacity-100" : "translate-y-3 rotate-45"
+                                    }`}
                             />
                             <div
-                                className={`${genericHamburgerLine} ${
-                                    isCollapsed ? "opacity-100" : "opacity-0"
-                                }`}
+                                className={`${genericHamburgerLine} ${isCollapsed ? "opacity-100" : "opacity-0"
+                                    }`}
                             />
                             <div
-                                className={`${genericHamburgerLine} ${
-                                    isCollapsed ? "opacity-100" : "-translate-y-3 -rotate-45"
-                                }`}
+                                className={`${genericHamburgerLine} ${isCollapsed ? "opacity-100" : "-translate-y-3 -rotate-45"
+                                    }`}
                             />
                         </button>
                     </div>
@@ -191,15 +206,12 @@ export default function PraktikanNav({ praktikan }) {
                         <ul className={`flex flex-col gap-1 py-1 ${isCollapsed ? "px-1" : "px-4"}`}>
                             {NAV_ITEMS.map((item) => {
                                 const isActive = isActiveItem(item);
-                                const linkClasses = `${navLinkBaseClass} ${
-                                    isActive ? activeLinkClass : inactiveLinkClass
-                                }`;
-                                const iconClasses = `${navIconClass} ${
-                                    isActive ? "opacity-100" : "opacity-70 group-hover:opacity-100"
-                                } ${getIconFilterClass(isActive)}`;
-                                const labelClasses = `${navLabelBaseClass} ${
-                                    isActive ? "text-gray-50" : "text-depth-primary"
-                                }`;
+                                const linkClasses = `${navLinkBaseClass} ${isActive ? activeLinkClass : inactiveLinkClass
+                                    }`;
+                                const iconClasses = `${navIconClass} ${isActive ? "opacity-100" : "opacity-70 group-hover:opacity-100"
+                                    } ${getIconFilterClass(isActive)}`;
+                                const labelClasses = `${navLabelBaseClass} ${isActive ? "text-gray-50" : "text-depth-primary"
+                                    }`;
 
                                 return (
                                     <li key={item.href}>
@@ -224,6 +236,55 @@ export default function PraktikanNav({ praktikan }) {
 
                         {/* Bottom Navigation Items */}
                         <ul className={`flex flex-col gap-1 py-8 ${isCollapsed ? "px-1" : "px-4"}`}>
+                            {/* Theme Toggle */}
+                            <li className={`flex items-center ${isCollapsed ? "justify-center" : "gap-3 px-2"} py-2`}>
+                                {isCollapsed ? (
+                                    <button
+                                        type="button"
+                                        onClick={toggleTheme}
+                                        className={`${navLinkBaseClass} ${inactiveLinkClass} justify-center`}
+                                        aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
+                                    >
+                                        {isDark ? (
+                                            <svg className="h-6 w-6 flex-shrink-0 opacity-70" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                                <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                                            </svg>
+                                        ) : (
+                                            <svg className="h-6 w-6 flex-shrink-0 opacity-70" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                                <path strokeLinecap="round" strokeLinejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                                            </svg>
+                                        )}
+                                    </button>
+                                ) : (
+                                    <>
+                                        <button
+                                            type="button"
+                                            onClick={toggleTheme}
+                                            className="relative flex h-7 w-12 flex-shrink-0 items-center rounded-full border border-depth transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)] focus:ring-offset-1"
+                                            style={{ backgroundColor: isDark ? 'var(--depth-color-primary)' : 'var(--depth-color-interactive)' }}
+                                            aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
+                                        >
+                                            <span
+                                                className={`inline-flex h-5 w-5 items-center justify-center rounded-full bg-white shadow-md transition-transform duration-300 ${isDark ? 'translate-x-[22px]' : 'translate-x-[3px]'}`}
+                                            >
+                                                {isDark ? (
+                                                    <svg className="h-3 w-3 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                                                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                                                    </svg>
+                                                ) : (
+                                                    <svg className="h-3 w-3 text-slate-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                                                        <path strokeLinecap="round" strokeLinejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                                                    </svg>
+                                                )}
+                                            </span>
+                                        </button>
+                                        <span className={`${navLabelBaseClass} text-depth-primary`}>
+                                            {isDark ? 'Dark' : 'Light'}
+                                        </span>
+                                    </>
+                                )}
+                            </li>
+
                             <li>
                                 <button
                                     type="button"

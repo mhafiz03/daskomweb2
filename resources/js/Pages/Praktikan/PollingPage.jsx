@@ -281,7 +281,7 @@ export default function PollingPage({ auth }) {
     });
     const [availableCategories, setAvailableCategories] = useState([]);
     const [allCategoriesSubmitted, setAllCategoriesSubmitted] = useState(false);
-    const [isPollingActive, setIsPollingActive] = useState(true);
+    const [isPollingActive, setIsPollingActive] = useState(null);
 
     const getPollingId = (categoryId) => {
         return categoryId;
@@ -457,7 +457,7 @@ export default function PollingPage({ auth }) {
         </div>
     );
 
-    const showInactivePlaceholder = !isPollingActive;
+    const showInactivePlaceholder = isPollingActive === false;
     const showCompletedPlaceholder = !showInactivePlaceholder && allCategoriesSubmitted;
 
     return (
@@ -477,7 +477,14 @@ export default function PollingPage({ auth }) {
                 <div className="mt-[8vh] flex flex-col gap-6">
                     <PraktikanPageHeader title="Polling Asisten" />
 
-                    {showInactivePlaceholder ? (
+                    {isPollingActive === null ? (
+                        <div className="p-8 mb-10">
+                            <div className="flex min-h-[70vh] flex-col items-center justify-center gap-3">
+                                <div className="w-10 h-10 border-4 border-[var(--depth-color-primary)] border-t-transparent rounded-full animate-spin"></div>
+                                <p className="text-depth-secondary">Memuat polling...</p>
+                            </div>
+                        </div>
+                    ) : showInactivePlaceholder ? (
                         renderPlaceholder(
                             "Polling sedang tidak aktif",
                             "Silakan kembali lagi nanti ketika polling telah dibuka."
