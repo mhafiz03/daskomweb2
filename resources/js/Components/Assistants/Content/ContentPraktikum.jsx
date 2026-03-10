@@ -809,6 +809,12 @@ export default function ContentPraktikum() {
         !hasSession || !isRunning || praktikumMutation.isPending;
     const resumeDisabled =
         !hasSession || !isPaused || praktikumMutation.isPending;
+    const previousDisabled =
+        !hasSession ||
+        praktikumMutation.isPending ||
+        effectiveSession?.status === "idle" ||
+        isTerminal ||
+        currentPhaseIndex <= 0;
     const nextDisabled =
         !hasSession ||
         praktikumMutation.isPending ||
@@ -1286,6 +1292,46 @@ export default function ContentPraktikum() {
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                                             </svg>
                                         )}
+                                    </button>
+
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            const prevIndex = currentPhaseIndex - 1;
+                                            if (prevIndex >= 0) {
+                                                const prevPhase = PHASE_SEQUENCE[prevIndex];
+                                                setConfirmAction({
+                                                    action: "next",
+                                                    options: { phase: prevPhase.key },
+                                                    title: "Kembali ke Phase Sebelumnya?",
+                                                    message: `Kembali dari ${currentPhaseLabel ?? "—"} ke ${prevPhase.label}.`,
+                                                    confirmLabel: `Ya, Kembali ke ${prevPhase.label}`,
+                                                    variant: "info",
+                                                    buttonGradient: "linear-gradient(135deg, rgba(168, 85, 247, 0.9), rgba(139, 92, 246, 0.9))",
+                                                    icon: (
+                                                        <svg className="h-7 w-7 text-purple-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 15l-3-3m0 0l3-3m-3 3h8m-13 0a9 9 0 1118 0 9 9 0 01-18 0z" />
+                                                        </svg>
+                                                    ),
+                                                });
+                                            }
+                                        }}
+                                        disabled={previousDisabled}
+                                        title="Previous Phase"
+                                        aria-label="Previous Phase"
+                                        className={`flex w-full items-center justify-center rounded-depth-lg border border-depth bg-depth-interactive p-3 text-depth-primary shadow-depth-md transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--depth-color-primary)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--depth-color-card)] enabled:text-white disabled:bg-depth-card disabled:text-depth-secondary ${previousDisabled
+                                            ? "cursor-not-allowed opacity-50"
+                                            : "hover:-translate-y-0.5 hover:shadow-depth-lg"
+                                            }`}
+                                        style={{
+                                            background: previousDisabled
+                                                ? undefined
+                                                : "linear-gradient(135deg, rgba(168, 85, 247, 0.9), rgba(139, 92, 246, 0.9))",
+                                        }}
+                                    >
+                                        <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 15l-3-3m0 0l3-3m-3 3h8m-13 0a9 9 0 1118 0 9 9 0 01-18 0z" />
+                                        </svg>
                                     </button>
 
                                     <button
