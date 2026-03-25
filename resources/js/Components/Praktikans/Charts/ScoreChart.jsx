@@ -91,14 +91,14 @@ const ScoreChart = () => {
 
     // Define colors for each line
     const lineConfig = {
-        tp: { color: '#ef4444', name: 'Tugas Pendahuluan' },
-        ta: { color: '#f97316', name: 'Tugas Akhir' },
-        d1: { color: '#eab308', name: 'Diskusi 1' },
-        d2: { color: '#84cc16', name: 'Diskusi 2' },
-        d3: { color: '#22c55e', name: 'Diskusi 3' },
-        d4: { color: '#06b6d4', name: 'Diskusi 4' },
-        l1: { color: '#0ea5e9', name: 'Lab/Interview 1' },
-        l2: { color: '#6366f1', name: 'Lab/Interview 2' },
+        tp: { color: '#ef4444', name: 'TP' },
+        ta: { color: '#f97316', name: 'TA' },
+        d1: { color: '#eab308', name: 'D1' },
+        d2: { color: '#84cc16', name: 'D2' },
+        d3: { color: '#22c55e', name: 'D3' },
+        d4: { color: '#06b6d4', name: 'D4' },
+        l1: { color: '#0ea5e9', name: 'I1' },
+        l2: { color: '#6366f1', name: 'I2' },
         avg: { color: '#8b5cf6', name: 'Rata-rata' },
     };
 
@@ -121,8 +121,8 @@ const ScoreChart = () => {
                 <div className="flex h-[400px] items-center justify-center">
                     <div className="text-center">
                         <p className="text-red-500">{errorMessage}</p>
-                        <button 
-                            onClick={() => nilaiQuery.refetch()} 
+                        <button
+                            onClick={() => nilaiQuery.refetch()}
                             className="mt-4 rounded-depth-md bg-[var(--depth-color-primary)] px-6 py-2 text-sm font-semibold text-white shadow-depth-sm transition hover:-translate-y-0.5 hover:shadow-depth-md"
                         >
                             Retry
@@ -159,11 +159,10 @@ const ScoreChart = () => {
                                 [key]: !prev[key],
                             }))
                         }
-                        className={`rounded-depth-md px-3 py-1 text-sm font-medium transition-all ${
-                            visibleLines[key]
-                                ? 'bg-opacity-100 text-white'
-                                : 'bg-depth-interactive text-depth-secondary'
-                        }`}
+                        className={`rounded-depth-md px-3 py-1 text-sm font-medium transition-all ${visibleLines[key]
+                            ? 'bg-opacity-100 text-white'
+                            : 'bg-depth-interactive text-depth-secondary'
+                            }`}
                         style={{
                             backgroundColor: visibleLines[key]
                                 ? lineConfig[key].color
