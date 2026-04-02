@@ -37,8 +37,7 @@ const Mermaid = ({ chart }) => {
 
 
 export default function MarkdownRenderer({ content, className = '' }) {
-    // Replace literal \n with actual newlines if the string contains them
-    const processedContent = typeof content === 'string' ? content.replace(/\\n/g, '\n') : content;
+    const processedContent = content;
 
     return (
         <div className={`prose prose-invert max-w-none ${className}`}>
