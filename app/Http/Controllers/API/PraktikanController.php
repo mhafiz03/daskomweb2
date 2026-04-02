@@ -227,16 +227,18 @@ class PraktikanController extends Controller
                 ], 404);
             }
 
-            $laporanPraktikan = LaporanPraktikan::where('praktikan_id', $praktikan->id)
-                ->where('modul_id', $request->modul_id)
-                ->first();
-
-            if (! $laporanPraktikan) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'No record found for this praktikan and modul combination',
-                ], 404);
-            }
+            $laporanPraktikan = LaporanPraktikan::firstOrCreate(
+                [
+                    'praktikan_id' => $praktikan->id,
+                    'modul_id'     => $request->modul_id,
+                ],
+                [
+                    'asisten_id'  => $asisten->id,
+                    'pesan'       => 'pulled by '.$asisten->kode,
+                    'created_at'  => now(),
+                    'updated_at'  => now(),
+                ]
+            );
 
             $nilai = Nilai::where('praktikan_id', $praktikan->id)
                 ->where('modul_id', $request->modul_id)

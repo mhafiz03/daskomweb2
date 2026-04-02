@@ -111,6 +111,10 @@ Route::inertia('/nilai-praktikan', 'Assistants/NilaiPraktikan')
     ->name('nilai-praktikan')
     ->middleware(['auth:asisten', 'can:nilai-praktikan']);
 
+Route::inertia('/set-praktikan', 'Assistants/SetPraktikan')
+    ->name('set-praktikan')
+    ->middleware(['auth:asisten']);
+
 Route::inertia('/manage-praktikan', 'Assistants/ManagePraktikan')
     ->name('manage-praktikan')
     ->middleware(['auth:asisten', 'can:set-praktikan']);

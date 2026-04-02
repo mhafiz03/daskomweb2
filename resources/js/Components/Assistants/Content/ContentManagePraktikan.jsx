@@ -10,7 +10,7 @@ import ModalUpsertPraktikan from "../Modals/ModalUpsertPraktikan";
 import ModalDeletePraktikan from "../Modals/ModalDeletePraktikan";
 import { send } from "@/lib/http";
 import { destroy as destroyPraktikan } from "@/lib/routes/praktikan";
-import ContentSetPraktikan from "./ContentSetPraktikan";
+
 
 const DK_OPTIONS = ["DK1", "DK2"];
 
@@ -177,7 +177,6 @@ export default function ContentManagePraktikan() {
 
     return (
         <section className="space-y-6">
-            <ContentSetPraktikan />
             <TableManagePraktikan
                 items={praktikanItems}
                 meta={meta}

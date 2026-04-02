@@ -144,6 +144,14 @@ const BASE_NAV_ITEMS = [
         paths: ["/manage-role"],
     },
     {
+        id: "set-praktikan",
+        href: "/set-praktikan",
+        label: "Set Praktikan",
+        icon: praktikanIcon,
+        components: ["Assistants/SetPraktikan"],
+        paths: ["/set-praktikan"],
+    },
+    {
         id: "manage-praktikan",
         permission: ["praktikan-regist", "manage-role"],
         href: "/manage-praktikan",
