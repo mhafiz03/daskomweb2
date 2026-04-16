@@ -17,8 +17,8 @@ const scoresSchema = [
     { key: "d2", label: "D2" },
     { key: "d3", label: "D3" },
     { key: "d4", label: "D4" },
-    { key: "l1", label: "L1" },
-    { key: "l2", label: "L2" },
+    { key: "l1", label: "I1" },
+    { key: "l2", label: "I2" },
 ];
 
 const clampScore = (value) => {
@@ -654,22 +654,22 @@ export default function ModalInputNilai({
 
     return (
         <ModalOverlay onClose={onClose} className="depth-modal-overlay z-50" style={{ padding: 0 }}>
-            <div className="flex h-full w-full items-center justify-center px-4 py-6 sm:py-10 pointer-events-none">
+            <div className="flex h-full w-full items-center justify-center px-2 py-4 sm:py-6 pointer-events-none">
                 <div
-                    className="depth-modal-container flex w-full max-w-5xl max-h-[85vh] flex-col overflow-hidden pointer-events-auto"
-                    style={{ "--depth-modal-max-width": "72rem" }}
+                    className="depth-modal-container flex w-full max-w-[95vw] max-h-[90vh] flex-col overflow-hidden pointer-events-auto"
+                    style={{ "--depth-modal-max-width": "95vw" }}
                 >
                     <div className="relative mb-6">
                         <ModalCloseButton onClick={onClose} ariaLabel="Tutup input nilai" className="absolute right-0 -top-2" />
                         <header className="text-center">
-                        <h2 className="text-2xl font-semibold text-depth-primary">
-                            {nilaiSebelumnya ? "Perbarui Nilai" : "Input Nilai"}
-                        </h2>
-                        <p className="mt-2 text-sm text-depth-secondary">
-                            {praktikan?.nama ?? "Praktikan"} (
-                            {praktikan?.nim ?? "-"}) ·{" "}
-                            {modul?.judul ?? "Modul tidak dikenal"}
-                        </p>
+                            <h2 className="text-2xl font-semibold text-depth-primary">
+                                {nilaiSebelumnya ? "Perbarui Nilai" : "Input Nilai"}
+                            </h2>
+                            <p className="mt-2 text-sm text-depth-secondary">
+                                {praktikan?.nama ?? "Praktikan"} (
+                                {praktikan?.nim ?? "-"}) ·{" "}
+                                {modul?.judul ?? "Modul tidak dikenal"}
+                            </p>
                         </header>
                     </div>
 
@@ -740,311 +740,311 @@ export default function ModalInputNilai({
                                     />
                                 </label>
                             </div>
-                            
-                                <div className="flex flex-wrap gap-2">
-                                    {availableQuestionTabs.length === 0 ? (
-                                        <span className="text-xs text-depth-secondary">
-                                            Tidak ada tipe soal yang dapat
-                                            ditinjau.
-                                        </span>
-                                    ) : (
-                                        availableQuestionTabs.map((tab) => {
-                                            const isActive =
-                                                tab.key === activeQuestionTab;
-                                            const baseClasses =
-                                                "rounded-depth-full border px-4 py-1.5 text-sm font-semibold transition focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[var(--depth-color-primary)]";
-                                            const variantClasses = isActive
-                                                ? "border-[var(--depth-color-primary)] bg-[var(--depth-color-primary)]/15 text-[var(--depth-color-primary)] shadow-depth-sm"
-                                                : "border-depth bg-depth-interactive text-depth-primary shadow-depth-inset hover:-translate-y-0.5 hover:shadow-depth-sm";
 
-                                            return (
-                                                <button
-                                                    key={tab.key}
-                                                    type="button"
-                                                    onClick={() =>
-                                                        setActiveQuestionTab(
-                                                            tab.key
-                                                        )
-                                                    }
-                                                    className={`${baseClasses} ${variantClasses}`}
-                                                >
-                                                    {tab.label}
-                                                </button>
-                                            );
-                                        })
-                                    )}
-                                </div>
-
+                            <div className="flex flex-wrap gap-2">
                                 {availableQuestionTabs.length === 0 ? (
-                                    <div className="mt-4 rounded-depth-md border border-depth bg-depth-interactive/40 p-6 text-sm text-depth-secondary">
-                                        Soal dan jawaban tidak tersedia.
-                                        Pastikan praktikan telah mengerjakan
-                                        modul ini.
-                                    </div>
+                                    <span className="text-xs text-depth-secondary">
+                                        Tidak ada tipe soal yang dapat
+                                        ditinjau.
+                                    </span>
                                 ) : (
-                                    <div className="mt-4 max-h-[32rem] overflow-y-auto pr-1">
-                                        {isQuestionsLoading ? (
-                                            <div className="flex items-center justify-center gap-2 py-10 text-depth-primary">
-                                                <span className="inline-block h-5 w-5 animate-spin rounded-full border-2 border-[var(--depth-color-primary)] border-t-transparent" />
-                                                Memuat jawaban...
-                                            </div>
-                                        ) : isQuestionsError ? (
-                                            <div className="rounded-depth-md border border-rose-500/40 bg-rose-500/10 p-4 text-sm text-rose-200">
-                                                <p>
-                                                    {questionsError?.response
-                                                        ?.data?.message ??
-                                                        questionsError?.message ??
-                                                        "Terjadi kesalahan saat memuat jawaban."}
-                                                </p>
-                                                <button
-                                                    type="button"
-                                                    onClick={() =>
-                                                        refetchQuestions()
-                                                    }
-                                                    className="mt-3 inline-flex items-center justify-center rounded-depth-full border border-rose-400/60 bg-transparent px-4 py-1.5 text-xs font-semibold uppercase tracking-wide text-rose-200 transition hover:border-rose-300 hover:text-rose-100"
-                                                >
-                                                    Coba Lagi
-                                                </button>
-                                            </div>
-                                        ) : questions.length === 0 ? (
-                                            <div className="rounded-depth-md border border-depth bg-depth-interactive/40 p-6 text-sm text-depth-secondary">
-                                                {questionNotice ??
-                                                    "Belum ada jawaban yang disubmit untuk tipe soal ini."}
-                                            </div>
-                                        ) : (
-                                            <div className="space-y-4 py-1">
-                                                {questions.map(
-                                                    (item, index) => {
-                                                        const hasOptions =
-                                                            Array.isArray(
-                                                                item.options
-                                                            ) &&
+                                    availableQuestionTabs.map((tab) => {
+                                        const isActive =
+                                            tab.key === activeQuestionTab;
+                                        const baseClasses =
+                                            "rounded-depth-full border px-4 py-1.5 text-sm font-semibold transition focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[var(--depth-color-primary)]";
+                                        const variantClasses = isActive
+                                            ? "border-[var(--depth-color-primary)] bg-[var(--depth-color-primary)]/15 text-[var(--depth-color-primary)] shadow-depth-sm"
+                                            : "border-depth bg-depth-interactive text-depth-primary shadow-depth-inset hover:-translate-y-0.5 hover:shadow-depth-sm";
+
+                                        return (
+                                            <button
+                                                key={tab.key}
+                                                type="button"
+                                                onClick={() =>
+                                                    setActiveQuestionTab(
+                                                        tab.key
+                                                    )
+                                                }
+                                                className={`${baseClasses} ${variantClasses}`}
+                                            >
+                                                {tab.label}
+                                            </button>
+                                        );
+                                    })
+                                )}
+                            </div>
+
+                            {availableQuestionTabs.length === 0 ? (
+                                <div className="mt-4 rounded-depth-md border border-depth bg-depth-interactive/40 p-6 text-sm text-depth-secondary">
+                                    Soal dan jawaban tidak tersedia.
+                                    Pastikan praktikan telah mengerjakan
+                                    modul ini.
+                                </div>
+                            ) : (
+                                <div className="mt-4 max-h-[32rem] overflow-y-auto pr-1">
+                                    {isQuestionsLoading ? (
+                                        <div className="flex items-center justify-center gap-2 py-10 text-depth-primary">
+                                            <span className="inline-block h-5 w-5 animate-spin rounded-full border-2 border-[var(--depth-color-primary)] border-t-transparent" />
+                                            Memuat jawaban...
+                                        </div>
+                                    ) : isQuestionsError ? (
+                                        <div className="rounded-depth-md border border-rose-500/40 bg-rose-500/10 p-4 text-sm text-rose-200">
+                                            <p>
+                                                {questionsError?.response
+                                                    ?.data?.message ??
+                                                    questionsError?.message ??
+                                                    "Terjadi kesalahan saat memuat jawaban."}
+                                            </p>
+                                            <button
+                                                type="button"
+                                                onClick={() =>
+                                                    refetchQuestions()
+                                                }
+                                                className="mt-3 inline-flex items-center justify-center rounded-depth-full border border-rose-400/60 bg-transparent px-4 py-1.5 text-xs font-semibold uppercase tracking-wide text-rose-200 transition hover:border-rose-300 hover:text-rose-100"
+                                            >
+                                                Coba Lagi
+                                            </button>
+                                        </div>
+                                    ) : questions.length === 0 ? (
+                                        <div className="rounded-depth-md border border-depth bg-depth-interactive/40 p-6 text-sm text-depth-secondary">
+                                            {questionNotice ??
+                                                "Belum ada jawaban yang disubmit untuk tipe soal ini."}
+                                        </div>
+                                    ) : (
+                                        <div className="space-y-4 py-1">
+                                            {questions.map(
+                                                (item, index) => {
+                                                    const hasOptions =
+                                                        Array.isArray(
                                                             item.options
-                                                                .length > 0;
-                                                        const answerValue =
-                                                            typeof item.answer ===
-                                                                "string"
-                                                                ? item.answer
-                                                                : "";
-                                                        const trimmedAnswer =
-                                                            answerValue.trim();
-                                                        const hasEssayAnswer =
-                                                            trimmedAnswer !==
-                                                            "" &&
-                                                            trimmedAnswer !==
-                                                            "-";
-                                                        const attachmentUrl =
-                                                            typeof item.attachmentUrl ===
-                                                                "string" &&
-                                                                item.attachmentUrl.trim() !== ""
-                                                                ? item.attachmentUrl
-                                                                : null;
-                                                        const hasAttachment = Boolean(
-                                                            attachmentUrl
-                                                        );
-                                                        const showEmptyState =
-                                                            !hasEssayAnswer &&
-                                                            !hasAttachment;
+                                                        ) &&
+                                                        item.options
+                                                            .length > 0;
+                                                    const answerValue =
+                                                        typeof item.answer ===
+                                                            "string"
+                                                            ? item.answer
+                                                            : "";
+                                                    const trimmedAnswer =
+                                                        answerValue.trim();
+                                                    const hasEssayAnswer =
+                                                        trimmedAnswer !==
+                                                        "" &&
+                                                        trimmedAnswer !==
+                                                        "-";
+                                                    const attachmentUrl =
+                                                        typeof item.attachmentUrl ===
+                                                            "string" &&
+                                                            item.attachmentUrl.trim() !== ""
+                                                            ? item.attachmentUrl
+                                                            : null;
+                                                    const hasAttachment = Boolean(
+                                                        attachmentUrl
+                                                    );
+                                                    const showEmptyState =
+                                                        !hasEssayAnswer &&
+                                                        !hasAttachment;
 
-                                                        return (
-                                                            <article
-                                                                key={`${activeQuestionTab ??
-                                                                    "tab"
-                                                                    }-${item.soalId ??
-                                                                    index
-                                                                    }`}
-                                                                className="hover:rounded-depth-lg hover:border-depth hover:bg-depth-card/80 hover:shadow-depth-md hover:shadow-depth-lg transition-shadow p-4"
-                                                            >
-                                                                <pre className="text-sm font-semibold text-depth-primary whitespace-pre-line break-words">
-                                                                    {index + 1}.{" "}
-                                                                    {item.question ??
-                                                                        "Soal tidak tersedia"}
-                                                                </pre>
+                                                    return (
+                                                        <article
+                                                            key={`${activeQuestionTab ??
+                                                                "tab"
+                                                                }-${item.soalId ??
+                                                                index
+                                                                }`}
+                                                            className="hover:rounded-depth-lg hover:border-depth hover:bg-depth-card/80 hover:shadow-depth-md hover:shadow-depth-lg transition-shadow p-4"
+                                                        >
+                                                            <pre className="text-sm font-semibold text-depth-primary whitespace-pre-line break-words">
+                                                                {index + 1}.{" "}
+                                                                {item.question ??
+                                                                    "Soal tidak tersedia"}
+                                                            </pre>
 
-                                                                {hasOptions ? (
-                                                                    <ul className="mt-4 space-y-3">
-                                                                        {item.options.map(
-                                                                            (
-                                                                                option,
-                                                                                optionIndex
-                                                                            ) => {
-                                                                                const optionKey =
-                                                                                    option?.id ??
-                                                                                    `${item.soalId ??
-                                                                                    index
-                                                                                    }-${optionIndex}`;
-                                                                                const isCorrect =
-                                                                                    Boolean(
-                                                                                        option?.is_correct
-                                                                                    );
-                                                                                const isSelected =
-                                                                                    item.selectedOptionId ===
-                                                                                    option?.id;
-                                                                                const baseOptionClasses =
-                                                                                    "rounded-depth-md border p-3 text-sm shadow-depth-sm transition";
-                                                                                let toneClasses =
-                                                                                    "border-depth bg-depth-interactive/40 text-depth-primary";
+                                                            {hasOptions ? (
+                                                                <ul className="mt-4 space-y-3">
+                                                                    {item.options.map(
+                                                                        (
+                                                                            option,
+                                                                            optionIndex
+                                                                        ) => {
+                                                                            const optionKey =
+                                                                                option?.id ??
+                                                                                `${item.soalId ??
+                                                                                index
+                                                                                }-${optionIndex}`;
+                                                                            const isCorrect =
+                                                                                Boolean(
+                                                                                    option?.is_correct
+                                                                                );
+                                                                            const isSelected =
+                                                                                item.selectedOptionId ===
+                                                                                option?.id;
+                                                                            const baseOptionClasses =
+                                                                                "rounded-depth-md border p-3 text-sm shadow-depth-sm transition";
+                                                                            let toneClasses =
+                                                                                "border-depth bg-depth-interactive/40 text-depth-primary";
 
-                                                                                if (
-                                                                                    isCorrect
-                                                                                ) {
-                                                                                    toneClasses =
-                                                                                        "border-[var(--depth-color-primary)] bg-[var(--depth-color-primary)]/10 text-depth-primary";
-                                                                                } else if (
-                                                                                    isSelected
-                                                                                ) {
-                                                                                    toneClasses =
-                                                                                        "border-amber-400/70 bg-amber-400/15 text-amber-900 dark:text-amber-100";
-                                                                                }
+                                                                            if (
+                                                                                isCorrect
+                                                                            ) {
+                                                                                toneClasses =
+                                                                                    "border-[var(--depth-color-primary)] bg-[var(--depth-color-primary)]/10 text-depth-primary";
+                                                                            } else if (
+                                                                                isSelected
+                                                                            ) {
+                                                                                toneClasses =
+                                                                                    "border-amber-400/70 bg-amber-400/15 text-amber-900 dark:text-amber-100";
+                                                                            }
 
-                                                                                const badges =
-                                                                                    [];
+                                                                            const badges =
+                                                                                [];
 
-                                                                                if (
-                                                                                    isCorrect
-                                                                                ) {
-                                                                                    badges.push(
-                                                                                        {
-                                                                                            key: "correct",
-                                                                                            label: "Benar",
-                                                                                            className:
-                                                                                                "bg-[var(--depth-color-primary)]/20 text-[var(--depth-color-primary)]",
-                                                                                        }
-                                                                                    );
-                                                                                }
-
-                                                                                if (
-                                                                                    isSelected
-                                                                                ) {
-                                                                                    badges.push(
-                                                                                        {
-                                                                                            key: "selected",
-                                                                                            label: "Dipilih",
-                                                                                            className:
-                                                                                                isCorrect
-                                                                                                    ? "bg-[var(--depth-color-primary)]/20 text-[var(--depth-color-primary)]"
-                                                                                                    : "bg-amber-400/25 text-amber-900 dark:text-amber-100",
-                                                                                        }
-                                                                                    );
-                                                                                }
-
-                                                                                return (
-                                                                                    <li
-                                                                                        key={
-                                                                                            optionKey
-                                                                                        }
-                                                                                        className={`${baseOptionClasses} ${toneClasses}`}
-                                                                                    >
-                                                                                        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                                                                                            <span className="font-medium">
-                                                                                                {option?.text ??
-                                                                                                    "Opsi tidak tersedia"}
-                                                                                            </span>
-
-                                                                                            {badges.length >
-                                                                                                0 && (
-                                                                                                    <div className="flex flex-wrap gap-2 text-xs font-semibold uppercase tracking-wide">
-                                                                                                        {badges.map(
-                                                                                                            (
-                                                                                                                badge
-                                                                                                            ) => (
-                                                                                                                <span
-                                                                                                                    key={
-                                                                                                                        badge.key
-                                                                                                                    }
-                                                                                                                    className={`rounded-depth-full px-3 py-1 ${badge.className}`}
-                                                                                                                >
-                                                                                                                    {
-                                                                                                                        badge.label
-                                                                                                                    }
-                                                                                                                </span>
-                                                                                                            )
-                                                                                                        )}
-                                                                                                    </div>
-                                                                                                )}
-                                                                                        </div>
-                                                                                    </li>
+                                                                            if (
+                                                                                isCorrect
+                                                                            ) {
+                                                                                badges.push(
+                                                                                    {
+                                                                                        key: "correct",
+                                                                                        label: "Benar",
+                                                                                        className:
+                                                                                            "bg-[var(--depth-color-primary)]/20 text-[var(--depth-color-primary)]",
+                                                                                    }
                                                                                 );
                                                                             }
-                                                                        )}
-                                                                    </ul>
-                                                                ) : (
-                                                                    <div className="mt-4 max-h-72 overflow-auto rounded-depth-md border border-depth bg-depth-interactive/40 p-4 text-sm text-depth-primary shadow-depth-sm">
-                                                                        {(hasAttachment || hasEssayAnswer) && (
-                                                                            <div className="space-y-4">
-                                                                                {hasAttachment && (
-                                                                                    <div>
-                                                                                        <p className="text-xs font-semibold uppercase tracking-wide text-depth-secondary">
-                                                                                            Lampiran Jawaban
-                                                                                        </p>
-                                                                                        <div className="mt-2 rounded-depth-md border border-dashed border-depth bg-depth-card/60 p-3">
-                                                                                            {isLikelyImageUrl(
-                                                                                                attachmentUrl
-                                                                                            ) ? (
-                                                                                                <img
-                                                                                                    src={
-                                                                                                        attachmentUrl
-                                                                                                    }
-                                                                                                    alt="Lampiran jawaban praktikan"
-                                                                                                    className="h-auto w-full rounded-depth-md object-contain"
-                                                                                                    loading="lazy"
-                                                                                                />
-                                                                                            ) : (
-                                                                                                <div className="flex items-center justify-between gap-3 text-sm">
-                                                                                                    <span className="text-depth-primary">
-                                                                                                        File lampiran tersedia.
-                                                                                                    </span>
-                                                                                                    <a
-                                                                                                        href={
-                                                                                                            attachmentUrl
-                                                                                                        }
-                                                                                                        target="_blank"
-                                                                                                        rel="noopener noreferrer"
-                                                                                                        className="inline-flex items-center gap-2 rounded-depth-full bg-[var(--depth-color-primary)] px-3 py-1.5 text-xs font-semibold text-white shadow-depth-sm transition hover:-translate-y-0.5 hover:shadow-depth-md"
-                                                                                                    >
-                                                                                                        Buka File
-                                                                                                    </a>
+
+                                                                            if (
+                                                                                isSelected
+                                                                            ) {
+                                                                                badges.push(
+                                                                                    {
+                                                                                        key: "selected",
+                                                                                        label: "Dipilih",
+                                                                                        className:
+                                                                                            isCorrect
+                                                                                                ? "bg-[var(--depth-color-primary)]/20 text-[var(--depth-color-primary)]"
+                                                                                                : "bg-amber-400/25 text-amber-900 dark:text-amber-100",
+                                                                                    }
+                                                                                );
+                                                                            }
+
+                                                                            return (
+                                                                                <li
+                                                                                    key={
+                                                                                        optionKey
+                                                                                    }
+                                                                                    className={`${baseOptionClasses} ${toneClasses}`}
+                                                                                >
+                                                                                    <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                                                                                        <span className="font-medium">
+                                                                                            {option?.text ??
+                                                                                                "Opsi tidak tersedia"}
+                                                                                        </span>
+
+                                                                                        {badges.length >
+                                                                                            0 && (
+                                                                                                <div className="flex flex-wrap gap-2 text-xs font-semibold uppercase tracking-wide">
+                                                                                                    {badges.map(
+                                                                                                        (
+                                                                                                            badge
+                                                                                                        ) => (
+                                                                                                            <span
+                                                                                                                key={
+                                                                                                                    badge.key
+                                                                                                                }
+                                                                                                                className={`rounded-depth-full px-3 py-1 ${badge.className}`}
+                                                                                                            >
+                                                                                                                {
+                                                                                                                    badge.label
+                                                                                                                }
+                                                                                                            </span>
+                                                                                                        )
+                                                                                                    )}
                                                                                                 </div>
                                                                                             )}
-                                                                                            <div className="mt-2 text-right">
+                                                                                    </div>
+                                                                                </li>
+                                                                            );
+                                                                        }
+                                                                    )}
+                                                                </ul>
+                                                            ) : (
+                                                                <div className="mt-4 max-h-72 overflow-auto rounded-depth-md border border-depth bg-depth-interactive/40 p-4 text-sm text-depth-primary shadow-depth-sm">
+                                                                    {(hasAttachment || hasEssayAnswer) && (
+                                                                        <div className="space-y-4">
+                                                                            {hasAttachment && (
+                                                                                <div>
+                                                                                    <p className="text-xs font-semibold uppercase tracking-wide text-depth-secondary">
+                                                                                        Lampiran Jawaban
+                                                                                    </p>
+                                                                                    <div className="mt-2 rounded-depth-md border border-dashed border-depth bg-depth-card/60 p-3">
+                                                                                        {isLikelyImageUrl(
+                                                                                            attachmentUrl
+                                                                                        ) ? (
+                                                                                            <img
+                                                                                                src={
+                                                                                                    attachmentUrl
+                                                                                                }
+                                                                                                alt="Lampiran jawaban praktikan"
+                                                                                                className="h-auto w-full rounded-depth-md object-contain"
+                                                                                                loading="lazy"
+                                                                                            />
+                                                                                        ) : (
+                                                                                            <div className="flex items-center justify-between gap-3 text-sm">
+                                                                                                <span className="text-depth-primary">
+                                                                                                    File lampiran tersedia.
+                                                                                                </span>
                                                                                                 <a
                                                                                                     href={
                                                                                                         attachmentUrl
                                                                                                     }
                                                                                                     target="_blank"
                                                                                                     rel="noopener noreferrer"
-                                                                                                    className="text-xs font-semibold text-[var(--depth-color-primary)] underline-offset-2 hover:underline"
+                                                                                                    className="inline-flex items-center gap-2 rounded-depth-full bg-[var(--depth-color-primary)] px-3 py-1.5 text-xs font-semibold text-white shadow-depth-sm transition hover:-translate-y-0.5 hover:shadow-depth-md"
                                                                                                 >
-                                                                                                    Lihat di tab baru
+                                                                                                    Buka File
                                                                                                 </a>
                                                                                             </div>
+                                                                                        )}
+                                                                                        <div className="mt-2 text-right">
+                                                                                            <a
+                                                                                                href={
+                                                                                                    attachmentUrl
+                                                                                                }
+                                                                                                target="_blank"
+                                                                                                rel="noopener noreferrer"
+                                                                                                className="text-xs font-semibold text-[var(--depth-color-primary)] underline-offset-2 hover:underline"
+                                                                                            >
+                                                                                                Lihat di tab baru
+                                                                                            </a>
                                                                                         </div>
                                                                                     </div>
-                                                                                )}
-                                                                                {hasEssayAnswer && (
-                                                                                    <pre className="min-w-full whitespace-pre-wrap break-words font-sans leading-relaxed">
-                                                                                        {
-                                                                                            answerValue
-                                                                                        }
-                                                                                    </pre>
-                                                                                )}
-                                                                            </div>
-                                                                        )}
-                                                                        {showEmptyState && (
-                                                                            <span className="text-depth-secondary italic">
-                                                                                Belum ada jawaban
-                                                                            </span>
-                                                                        )}
-                                                                    </div>
-                                                                )}
-                                                            </article>
-                                                        );
-                                                    }
-                                                )}
-                                            </div>
-                                        )}
-                                    </div>
-                                )}
+                                                                                </div>
+                                                                            )}
+                                                                            {hasEssayAnswer && (
+                                                                                <pre className="min-w-full whitespace-pre-wrap break-words font-sans leading-relaxed">
+                                                                                    {
+                                                                                        answerValue
+                                                                                    }
+                                                                                </pre>
+                                                                            )}
+                                                                        </div>
+                                                                    )}
+                                                                    {showEmptyState && (
+                                                                        <span className="text-depth-secondary italic">
+                                                                            Belum ada jawaban
+                                                                        </span>
+                                                                    )}
+                                                                </div>
+                                                            )}
+                                                        </article>
+                                                    );
+                                                }
+                                            )}
+                                        </div>
+                                    )}
+                                </div>
+                            )}
                         </div>
                     </div>
 

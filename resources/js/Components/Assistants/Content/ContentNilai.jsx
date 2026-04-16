@@ -13,6 +13,34 @@ import { useNilaiComplaintsQuery } from "@/hooks/useNilaiComplaintsQuery";
 const ModalInputNilai = lazy(() => import("../Modals/ModalInputNilai"));
 const ModalNilaiComplaintAsisten = lazy(() => import("../Modals/ModalNilaiComplaintAsisten"));
 
+function ExpandableFeedback({ text }) {
+    const [expanded, setExpanded] = useState(false);
+    const needsClamp = text.length > 120;
+
+    return (
+        <div className="flex flex-1 flex-col gap-1">
+            <span className="text-[10px] font-semibold uppercase tracking-wider text-depth-secondary">
+                Feedback
+            </span>
+            <p
+                className={`text-[11px] leading-relaxed text-depth-secondary transition-all ${expanded ? "" : "line-clamp-3"
+                    }`}
+            >
+                {text}
+            </p>
+            {needsClamp && (
+                <button
+                    type="button"
+                    onClick={() => setExpanded((prev) => !prev)}
+                    className="mt-0.5 self-start text-[10px] font-semibold text-[var(--depth-color-primary)] hover:underline focus:outline-none"
+                >
+                    {expanded ? "Sembunyikan" : "Lihat selengkapnya"}
+                </button>
+            )}
+        </div>
+    );
+}
+
 const SCORE_FIELDS = [
     { key: "tp", label: "TP" },
     { key: "ta", label: "TA" },
@@ -250,22 +278,6 @@ export default function ContentNilai({ asisten }) {
 
     return (
         <div className="space-y-6 text-depth-primary">
-            <div className="rounded-depth-lg border border-depth bg-depth-card p-3 shadow-depth-md">
-                <div className="grid grid-cols-2 gap-2 text-xs font-semibold uppercase tracking-wide text-white md:grid-cols-4">
-                    <div className="rounded-depth-md bg-[var(--depth-color-primary)] px-3 py-2 text-center shadow-depth-sm">
-                        Jadwal
-                    </div>
-                    <div className="rounded-depth-md bg-[var(--depth-color-primary)] px-3 py-2 text-center shadow-depth-sm">
-                        Praktikan
-                    </div>
-                    <div className="rounded-depth-md bg-[var(--depth-color-primary)] px-3 py-2 text-center shadow-depth-sm">
-                        Feedback
-                    </div>
-                    <div className="rounded-depth-md bg-[var(--depth-color-primary)] px-3 py-2 text-center shadow-depth-sm">
-                        Review
-                    </div>
-                </div>
-            </div>
 
             <div className="overflow-y-auto rounded-depth-lg border border-depth bg-depth-card shadow-depth-lg lg:max-h-[48rem]">
                 {isLoading && (
@@ -295,165 +307,130 @@ export default function ContentNilai({ asisten }) {
                 )}
 
                 {!isLoading && !isError && filteredAssignments.length > 0 && (
-                    <div className="divide-y divide-[color:var(--depth-border)] border-t border-[color:var(--depth-border)]">
+                    <div className="grid grid-cols-1 gap-4 p-4 md:grid-cols-2 xl:grid-cols-3">
                         {filteredAssignments.map((assignment) => {
-                            const tanggal = toDisplayDate(
-                                assignment?.datetime?.date ?? assignment?.timestamps?.updated_at,
-                            );
-                            const waktu = toDisplayTime(
-                                assignment?.datetime?.time ?? assignment?.timestamps?.updated_at,
-                            );
+
                             const feedbackText =
                                 (assignment?.pesan && assignment.pesan.trim()) || "Belum ada feedback";
                             const nilai = assignment?.nilai ?? null;
                             const formattedPraktikumRating = normalizeRating(assignment?.rating_praktikum);
                             const formattedAsistenRating = normalizeRating(assignment?.rating_asisten);
                             const isMarked = Boolean(assignment?.nilai);
-                            const statusTone = isMarked
-                                ? "border border-emerald-400/50 bg-emerald-400/15 text-emerald-200"
-                                : "border border-amber-400/50 bg-amber-400/15 text-amber-300";
-                            const statusAria = isMarked ? "marked" : "unmarked";
                             const praktikanName = assignment?.praktikan?.nama ?? "Tidak diketahui";
                             const praktikanClass = assignment?.praktikan?.kelas?.nama ?? "-";
                             const praktikanNim = assignment?.praktikan?.nim ?? "-";
+                            const displayDate = toDisplayDate(assignment?.datetime?.date);
+                            const displayTime = toDisplayTime(assignment?.datetime?.time);
 
                             return (
                                 <article
                                     key={assignment.id}
-                                    className="bg-depth-card px-4 py-3 text-sm text-depth-primary transition hover:bg-depth-interactive even:bg-depth-background hover:even:bg-depth-interactive"
+                                    className="group relative flex flex-col overflow-hidden rounded-depth-lg border border-depth bg-depth-card shadow-depth-md transition hover:shadow-depth-lg"
                                 >
-                                    <div className="flex flex-col gap-4">
-                                        <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-                                            <div className="flex flex-1 flex-col gap-4 md:flex-row md:items-start md:gap-6">
-                                                <div className="flex items-start gap-3">
-                                                    <div className="pt-1">
-                                                        <input
-                                                            type="checkbox"
-                                                            className="h-4 w-4 rounded border-depth bg-depth-card text-[var(--depth-color-primary)] focus:ring-[var(--depth-color-primary)]"
-                                                            checked={selectedAssignmentIds.includes(assignment.id)}
-                                                            onChange={() => handleToggleAssignmentSelection(assignment.id)}
-                                                            aria-label={`Pilih ${assignment?.praktikan?.nama ?? "praktikan"}`}
-                                                        />
-                                                    </div>
-                                                    <div>
-                                                        <p className="text-sm font-semibold text-depth-primary">{tanggal}</p>
-                                                        <p className="text-xs text-depth-secondary">{waktu}</p>
-                                                    </div>
-                                                </div>
-                                                <div className="min-w-[12rem]">
-                                                    <p className="text-base font-semibold text-depth-primary">{praktikanNim}</p>
-                                                    <p className="text-xs text-depth-secondary">
-                                                        {praktikanName} / {praktikanClass}
-                                                    </p>
-                                                </div>
-                                            </div>
-
-                                            {/* Ratings and Feedback column */}
-                                            <div className="flex flex-1 flex-col gap-2">
-                                                <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-depth-secondary">
-                                                    {formattedPraktikumRating === null && formattedAsistenRating === null ? (
-                                                        <span className="italic text-depth-secondary/80">Belum ada rating</span>
-                                                    ) : (
-                                                        <>
-                                                            <span className="font-semibold text-depth-primary">
-                                                                Praktikum:
-                                                                <span className="ml-1 font-normal">{formattedPraktikumRating ?? "-"}</span>
-                                                            </span>
-                                                            <span className="font-semibold text-depth-primary">
-                                                                Asisten:
-                                                                <span className="ml-1 font-normal">{formattedAsistenRating ?? "-"}</span>
-                                                            </span>
-                                                        </>
-                                                    )}
-                                                </div>
-                                                <p
-                                                    className="overflow-hidden whitespace-pre-line break-words text-xs text-depth-secondary"
-                                                    title={feedbackText}
-                                                    aria-label={feedbackText}
-                                                >
-                                                    {feedbackText}
-                                                </p>
-                                            </div>
-
-                                            {/* Action buttons column */}
-                                            <div className="flex items-start gap-2">
-                                                <span
-                                                    aria-label={statusAria}
-                                                    className={`inline-flex items-center gap-1 rounded-depth-full px-2 py-1 text-[11px] font-semibold ${statusTone}`}
-                                                >
-                                                    {isMarked ? (
-                                                        <svg
-                                                            aria-hidden="true"
-                                                            className="h-5 w-5"
-                                                            fill="none"
-                                                            stroke="currentColor"
-                                                            strokeWidth={2}
-                                                            viewBox="0 0 24 24"
-                                                        >
-                                                            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                                                        </svg>
-                                                    ) : (
-                                                        <svg
-                                                            aria-hidden="true"
-                                                            className="h-5 w-5"
-                                                            fill="none"
-                                                            stroke="currentColor"
-                                                            strokeWidth={2}
-                                                            viewBox="0 0 24 24"
-                                                        >
-                                                            <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v4m0 4h.01M12 5.5a6.5 6.5 0 100 13 6.5 6.5 0 000-13z" />
-                                                        </svg>
-                                                    )}
-                                                </span>
-                                                {getFirstComplaintForNilai(assignment?.nilai?.id) && (
-                                                    <button
-                                                        type="button"
-                                                        onClick={() => setComplaintModal(getFirstComplaintForNilai(assignment?.nilai?.id))}
-                                                        className="relative inline-flex h-9 w-9 items-center justify-center rounded-depth-md border border-depth bg-depth-interactive shadow-depth-sm transition hover:-translate-y-0.5 hover:shadow-depth-md"
-                                                        aria-label="Lihat komplain nilai"
-                                                    >
-                                                        <svg
-                                                            className="h-4 w-4 text-depth-primary"
-                                                            fill="currentColor"
-                                                            viewBox="0 0 24 24"
-                                                        >
-                                                            <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 12h-8v-2h8v2zm0-3h-8V9h8v2zm0-3H6V6h12v2z" />
-                                                        </svg>
-                                                        {getPendingComplaintsForNilai(assignment?.nilai?.id) > 0 && (
-                                                            <span className="absolute top-0 right-0 inline-flex items-center justify-center h-5 w-5 rounded-full bg-red-600 text-white text-[10px] font-bold -translate-y-2 translate-x-2">
-                                                                {getPendingComplaintsForNilai(assignment?.nilai?.id)}
-                                                            </span>
-                                                        )}
-                                                    </button>
-                                                )}
+                                    {/* ── Card header: NIM + status badge ── */}
+                                    <div className="flex items-center justify-between border-b border-depth bg-depth-background/60 px-4 py-2.5">
+                                        <div className="flex items-center gap-2">
+                                            <input
+                                                type="checkbox"
+                                                className="h-3.5 w-3.5 rounded border-depth bg-depth-card text-[var(--depth-color-primary)] focus:ring-[var(--depth-color-primary)]"
+                                                checked={selectedAssignmentIds.includes(assignment.id)}
+                                                onChange={() => handleToggleAssignmentSelection(assignment.id)}
+                                                aria-label={`Pilih ${praktikanName}`}
+                                            />
+                                            <span className="text-sm font-bold tracking-wide text-depth-primary">
+                                                {praktikanNim}
+                                            </span>
+                                        </div>
+                                        <div className="flex items-center gap-1.5">
+                                            {getFirstComplaintForNilai(assignment?.nilai?.id) && (
                                                 <button
                                                     type="button"
-                                                    onClick={() => handleOpenModalInput(assignment)}
-                                                    className="inline-flex h-9 w-9 items-center justify-center rounded-depth-md border border-depth bg-depth-interactive shadow-depth-sm transition hover:-translate-y-0.5 hover:shadow-depth-md"
-                                                    aria-label="Tinjau nilai praktikan"
+                                                    onClick={() => setComplaintModal(getFirstComplaintForNilai(assignment?.nilai?.id))}
+                                                    className="relative inline-flex h-7 w-7 items-center justify-center rounded-depth-md border border-depth bg-depth-interactive shadow-depth-sm transition hover:-translate-y-0.5 hover:shadow-depth-md"
+                                                    aria-label="Lihat komplain nilai"
                                                 >
-                                                    <img src={editIcon} alt="Edit" className="edit-icon-filter h-4 w-4" />
+                                                    <svg className="h-3.5 w-3.5 text-depth-primary" fill="currentColor" viewBox="0 0 24 24">
+                                                        <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 12h-8v-2h8v2zm0-3h-8V9h8v2zm0-3H6V6h12v2z" />
+                                                    </svg>
+                                                    {getPendingComplaintsForNilai(assignment?.nilai?.id) > 0 && (
+                                                        <span className="absolute -right-1.5 -top-1.5 inline-flex h-4 w-4 items-center justify-center rounded-full bg-red-600 text-[9px] font-bold text-white">
+                                                            {getPendingComplaintsForNilai(assignment?.nilai?.id)}
+                                                        </span>
+                                                    )}
                                                 </button>
-                                            </div>
+                                            )}
+                                            <span
+                                                className={`inline-flex items-center rounded-depth-full px-2 py-0.5 text-[10px] font-semibold ${isMarked
+                                                    ? "border border-emerald-400/50 bg-emerald-400/15 text-emerald-300"
+                                                    : "border border-amber-400/50 bg-amber-400/15 text-amber-300"
+                                                    }`}
+                                            >
+                                                {isMarked ? "Dinilai" : "Pending"}
+                                            </span>
                                         </div>
+                                    </div>
 
-                                        <div className="rounded-depth-lg p-3">
-                                            <div className="grid grid-cols-2 gap-1 text-[11px] text-depth-secondary sm:grid-cols-4 md:grid-cols-8">
-                                                {SCORE_FIELDS.map((field) => (
-                                                    <div
-                                                        key={`${assignment.id}-${field.key}`}
-                                                        className="flex flex-col items-center justify-around rounded-depth-sm border border-depth bg-depth-interactive/60 px-2 py-0.5 text-center"
-                                                    >
-                                                        <span className="text-[8px] font-semibold uppercase tracking-wide text-depth-secondary">
-                                                            {field.label}
-                                                        </span>
-                                                        <span className="text-sm font-semibold text-depth-primary">
-                                                            {getScoreValue(nilai, field.key)}
-                                                        </span>
-                                                    </div>
-                                                ))}
+                                    {/* ── Card body ── */}
+                                    <div className="flex flex-1 flex-col gap-3 px-4 py-3">
+                                        {/* Avatar + info */}
+                                        <div className="flex items-center gap-3">
+                                            <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full border border-depth bg-depth-interactive">
+                                                <svg className="h-6 w-6 text-depth-secondary" fill="currentColor" viewBox="0 0 24 24">
+                                                    <path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z" />
+                                                </svg>
+                                            </div>
+                                            <div className="min-w-0 flex-1">
+                                                <p className="truncate text-xs font-semibold text-depth-primary">{praktikanName}</p>
+                                                <p className="text-[11px] text-depth-secondary">
+                                                    Praktikum: {formattedPraktikumRating ?? "-"} / Asisten: {formattedAsistenRating ?? "-"}
+                                                </p>
+                                                {/* Shift & date chips */}
+                                                <div className="mt-1 flex flex-wrap items-center gap-1.5">
+                                                    <span className="inline-flex items-center gap-1 rounded-depth-full border border-depth bg-depth-interactive/60 px-2 py-0.5 text-[10px] font-medium text-depth-secondary">
+                                                        <svg className="h-2.5 w-2.5 shrink-0" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                                                            <rect x="3" y="4" width="18" height="18" rx="2" /><path d="M16 2v4M8 2v4M3 10h18" />
+                                                        </svg>
+                                                        {displayDate}
+                                                    </span>
+                                                    <span className="inline-flex items-center gap-1 rounded-depth-full border border-depth bg-depth-interactive/60 px-2 py-0.5 text-[10px] font-medium text-depth-secondary">
+                                                        <svg className="h-2.5 w-2.5 shrink-0" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                                                            <circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 3" />
+                                                        </svg>
+                                                        {praktikanClass} · {displayTime}
+                                                    </span>
+                                                </div>
                                             </div>
                                         </div>
+                                        {/* Score grid – 4 cols × 2 rows */}
+                                        <div className="grid grid-cols-4 gap-1.5">
+                                            {SCORE_FIELDS.map((field) => (
+                                                <div
+                                                    key={`${assignment.id}-${field.key}`}
+                                                    className="flex flex-col items-center rounded-depth-md border border-depth bg-depth-interactive/60 py-1"
+                                                >
+                                                    <span className="text-[9px] font-semibold uppercase tracking-wider text-depth-secondary">
+                                                        {field.label}
+                                                    </span>
+                                                    <span className="text-sm font-bold text-depth-primary">
+                                                        {getScoreValue(nilai, field.key)}
+                                                    </span>
+                                                </div>
+                                            ))}
+                                        </div>
+                                        {/* Feedback */}
+                                        <ExpandableFeedback text={feedbackText} />
+                                    </div>
+                                    {/* ── Card footer: action buttons ── */}
+                                    <div className="flex items-center gap-2 border-t border-depth bg-depth-background/40 px-4 py-2.5">
+                                        <button
+                                            type="button"
+                                            onClick={() => handleOpenModalInput(assignment)}
+                                            className="flex flex-1 items-center justify-center gap-1.5 rounded-depth-md border border-depth bg-depth-interactive px-3 py-2 text-xs font-semibold text-depth-primary shadow-depth-sm transition hover:-translate-y-0.5 hover:border-[var(--depth-color-primary)] hover:text-[var(--depth-color-primary)] hover:shadow-depth-md"
+                                        >
+                                            <img src={editIcon} alt="" className="edit-icon-filter h-3.5 w-3.5" />
+                                            Edit Grade
+                                        </button>
+
                                     </div>
                                 </article>
                             );

@@ -150,13 +150,11 @@ export default function AssistantLayout({
 
                 <div className="flex w-full flex-row gap-8 font-depth justify-start ">
                     {/* Navbar Column - Kept as is */}
-                    <div className="flex-shrink-0 lg:sticky lg:top-10 basis-64">
-                        <AssisstantNav
-                            asisten={asisten}
-                            permission_name={permissionNames}
-                            roleName={roleName}
-                        />
-                    </div>
+                    <AssisstantNav
+                        asisten={asisten}
+                        permission_name={permissionNames}
+                        roleName={roleName}
+                    />
 
                     {/* Main Content Area - UPDATED */}
                     <div className="h-[calc(100vh-80px)] flex-1 flex flex-col overflow-hidden ">
