@@ -339,6 +339,7 @@ class PraktikanController extends Controller
                             'shift' => $kelas->shift,
                         ] : null,
                         'dk' => $praktikan?->dk,
+                        'profile_picture_url' => $praktikan?->profile_picture_url,
                     ],
                     'nilai' => $nilai ? [
                         'id' => $nilai->id,

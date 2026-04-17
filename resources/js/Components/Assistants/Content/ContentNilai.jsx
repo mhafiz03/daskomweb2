@@ -374,11 +374,19 @@ export default function ContentNilai({ asisten }) {
                                     <div className="flex flex-1 flex-col gap-3 px-4 py-3">
                                         {/* Avatar + info */}
                                         <div className="flex items-center gap-3">
-                                            <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full border border-depth bg-depth-interactive">
-                                                <svg className="h-6 w-6 text-depth-secondary" fill="currentColor" viewBox="0 0 24 24">
-                                                    <path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z" />
-                                                </svg>
-                                            </div>
+                                            {assignment?.praktikan?.profile_picture_url ? (
+                                                <img
+                                                    src={assignment.praktikan.profile_picture_url}
+                                                    alt={praktikanName}
+                                                    className="h-11 w-11 flex-shrink-0 rounded-full border border-depth object-cover"
+                                                />
+                                            ) : (
+                                                <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full border border-depth bg-depth-interactive">
+                                                    <svg className="h-6 w-6 text-depth-secondary" fill="currentColor" viewBox="0 0 24 24">
+                                                        <path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z" />
+                                                    </svg>
+                                                </div>
+                                            )}
                                             <div className="min-w-0 flex-1">
                                                 <p className="truncate text-xs font-semibold text-depth-primary">{praktikanName}</p>
                                                 <p className="text-[11px] text-depth-secondary">
