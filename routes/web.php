@@ -23,6 +23,7 @@ use App\Http\Controllers\API\PraktikanController;
 use App\Http\Controllers\API\PraktikumController;
 use App\Http\Controllers\API\PraktikumProgressController;
 use App\Http\Controllers\API\RoleController;
+use App\Http\Controllers\API\SeeLabsProxyController;
 use App\Http\Controllers\API\SoalCommentController;
 use App\Http\Controllers\API\SoalFITBController;
 use App\Http\Controllers\API\SoalJurnalController;
@@ -171,6 +172,11 @@ Route::prefix('api-v1')->group(function () {
 
 // ///////////////////////////////////// Data Routes ///////////////////////////////////////
 Route::prefix('api-v1')->middleware(['audit.assistant', 'auth:asisten,praktikan'])->group(function () {
+    // see.labs proxy (asisten shortcut window)
+    Route::match(['get', 'post'], '/see-proxy', [SeeLabsProxyController::class, 'handle'])
+        ->name('see.proxy')
+        ->middleware('auth:asisten');
+
     // ImageKit authentication endpoint
     Route::get('/imagekit/auth', [ImageKitAuthController::class, 'generateAuth'])->name('imagekit.auth');
 
