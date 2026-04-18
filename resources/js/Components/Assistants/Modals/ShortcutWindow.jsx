@@ -9,10 +9,11 @@ const IFRAME_NAME = "shortcut-frame";
 
 const HARI_OPTIONS = [
     { label: "SENIN", value: "1" },
-    { label: "SELESA", value: "2" },
+    { label: "SELASA", value: "2" },
     { label: "RABU", value: "3" },
     { label: "KAMIS", value: "4" },
     { label: "JUMAT", value: "5" },
+    { label: "SABTU", value: "6" },
 ];
 
 const STORAGE_KEYS = {
