@@ -31,7 +31,7 @@ class PopulateImageKitData extends Command
     {
         parent::__construct();
         $this->imageKitService = $imageKitService;
-    }       
+    }
 
     /**
      * Execute the console command.

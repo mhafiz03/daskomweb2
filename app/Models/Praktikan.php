@@ -167,13 +167,13 @@ class Praktikan extends Authenticatable
     {
         // Fixed total of 10 modules
         $totalModules = 10;
-        
+
         // Count how many modules the praktikan attended (has laporan_praktikan record)
         $attendedModules = $this->laporan_praktikans()->count();
-        
+
         $percentage = round(($attendedModules / $totalModules) * 100);
-        
-        return $percentage . '%';
+
+        return $percentage.'%';
     }
 
     /**
@@ -182,12 +182,11 @@ class Praktikan extends Authenticatable
     public function getAvgScoreAttribute(): string
     {
         $avgScore = $this->nilais()->avg('avg');
-        
+
         if ($avgScore === null) {
             return '0.0';
         }
-        
+
         return number_format($avgScore, 1);
     }
-
 }

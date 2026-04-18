@@ -230,13 +230,13 @@ class PraktikanController extends Controller
             $laporanPraktikan = LaporanPraktikan::firstOrCreate(
                 [
                     'praktikan_id' => $praktikan->id,
-                    'modul_id'     => $request->modul_id,
+                    'modul_id' => $request->modul_id,
                 ],
                 [
-                    'asisten_id'  => $asisten->id,
-                    'pesan'       => 'pulled by '.$asisten->kode,
-                    'created_at'  => now(),
-                    'updated_at'  => now(),
+                    'asisten_id' => $asisten->id,
+                    'pesan' => 'pulled by '.$asisten->kode,
+                    'created_at' => now(),
+                    'updated_at' => now(),
                 ]
             );
 
