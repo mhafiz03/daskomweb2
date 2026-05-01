@@ -1,12 +1,41 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { api } from "@/lib/api";
 import { useModulesQuery } from "@/hooks/useModulesQuery";
+import { useManagePraktikanQuery } from "@/hooks/useManagePraktikanQuery";
 import ContentLihatTP from "../Content/ContentLihatTP";
+
+const formatPraktikanOption = (praktikan) => {
+    if (!praktikan) return "";
+    const nim = praktikan.nim ?? "";
+    const nama = praktikan.nama ?? "";
+    if (!nim && !nama) return "";
+    if (!nama) return nim;
+    if (!nim) return nama;
+    return `${nim} — ${nama}`;
+};
+
+const matchesPraktikanQuery = (praktikan, query) => {
+    if (!praktikan) return false;
+    const normalized = query.trim().toLowerCase();
+    if (normalized === "") return true;
+    return [praktikan.nim, praktikan.nama]
+        .filter(Boolean)
+        .map((v) => v.toLowerCase())
+        .some((v) => v.includes(normalized));
+};
 
 export default function FormLihatTp() {
     const [nim, setNim] = useState("");
+    const [nimSearchTerm, setNimSearchTerm] = useState("");
+    const [isNimDropdownOpen, setIsNimDropdownOpen] = useState(false);
+    const [highlightedNimIndex, setHighlightedNimIndex] = useState(-1);
+
     const [selectedModulId, setSelectedModulId] = useState("");
+    const [modulSearchTerm, setModulSearchTerm] = useState("");
+    const [isModulDropdownOpen, setIsModulDropdownOpen] = useState(false);
+    const [highlightedModulIndex, setHighlightedModulIndex] = useState(-1);
+
     const [error, setError] = useState("");
     const [showResults, setShowResults] = useState(false);
     const [resultData, setResultData] = useState({
@@ -15,8 +44,11 @@ export default function FormLihatTp() {
         modul: null,
     });
 
+    const nimDropdownRef = useRef(null);
+    const modulDropdownRef = useRef(null);
+
     const {
-        data: modules = [],
+        data: modulesData = [],
         isLoading: modulesLoading,
         isError: modulesError,
         error: modulesQueryError,
@@ -26,16 +58,68 @@ export default function FormLihatTp() {
         },
     });
 
+    const { data: praktikanData } = useManagePraktikanQuery({ perPage: 9999 });
+    const praktikanList = praktikanData?.items ?? [];
+
     const getModuleId = (module) => String(module?.idM ?? module?.id ?? module?.modul_id ?? "");
 
     const moduleOptions = useMemo(
         () =>
-            modules.map((module) => ({
+            modulesData.map((module) => ({
                 id: getModuleId(module),
                 label: module?.judul ?? `Modul ${module?.idM ?? module?.id ?? ""}`,
             })),
-        [modules],
+        [modulesData],
     );
+
+    const filteredPraktikans = useMemo(() => {
+        if (!nimSearchTerm) return praktikanList;
+        return praktikanList.filter((p) => matchesPraktikanQuery(p, nimSearchTerm));
+    }, [praktikanList, nimSearchTerm]);
+
+    const filteredModules = useMemo(() => {
+        if (!modulSearchTerm) return moduleOptions;
+        const q = modulSearchTerm.trim().toLowerCase();
+        return moduleOptions.filter((m) => m.label.toLowerCase().includes(q));
+    }, [moduleOptions, modulSearchTerm]);
+
+    // Outside click for NIM dropdown
+    useEffect(() => {
+        const handler = (e) => {
+            if (!nimDropdownRef.current || nimDropdownRef.current.contains(e.target)) return;
+            setIsNimDropdownOpen(false);
+            setHighlightedNimIndex(-1);
+        };
+        document.addEventListener("mousedown", handler);
+        return () => document.removeEventListener("mousedown", handler);
+    }, []);
+
+    // Outside click for Modul dropdown
+    useEffect(() => {
+        const handler = (e) => {
+            if (!modulDropdownRef.current || modulDropdownRef.current.contains(e.target)) return;
+            setIsModulDropdownOpen(false);
+            setHighlightedModulIndex(-1);
+        };
+        document.addEventListener("mousedown", handler);
+        return () => document.removeEventListener("mousedown", handler);
+    }, []);
+
+    const handleNimSelect = (praktikan) => {
+        setNim(praktikan.nim);
+        setNimSearchTerm(formatPraktikanOption(praktikan));
+        setIsNimDropdownOpen(false);
+        setHighlightedNimIndex(-1);
+        setError("");
+    };
+
+    const handleModulSelect = (module) => {
+        setSelectedModulId(module.id);
+        setModulSearchTerm(module.label);
+        setIsModulDropdownOpen(false);
+        setHighlightedModulIndex(-1);
+        setError("");
+    };
 
     const jawabanTpMutation = useMutation({
         mutationFn: async ({ nim: praktikanNim, modulId }) => {
@@ -64,17 +148,6 @@ export default function FormLihatTp() {
         },
     });
 
-    const handleNimChange = (e) => {
-        setNim(e.target.value);
-        setError("");
-    };
-
-    const handleModulChange = (event) => {
-        const value = event.target.value;
-        setSelectedModulId(value);
-        setError("");
-    };
-
     const handleSubmit = async (e) => {
         e.preventDefault();
 
@@ -90,10 +163,11 @@ export default function FormLihatTp() {
     const handleBackToForm = () => {
         setShowResults(false);
         setNim("");
+        setNimSearchTerm("");
         setSelectedModulId("");
+        setModulSearchTerm("");
         setError("");
     };
-
 
     if (showResults) {
         return (
@@ -115,6 +189,12 @@ export default function FormLihatTp() {
         );
     }
 
+    const inputClass =
+        "w-full rounded-depth-md border border-depth bg-depth-card px-4 py-2 text-sm text-depth-primary shadow-depth-sm transition focus:border-[var(--depth-color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)] focus:ring-offset-0";
+
+    const dropdownListClass =
+        "absolute z-20 mt-2 max-h-56 w-full overflow-y-auto rounded-depth-lg border border-depth bg-depth-card shadow-depth-lg";
+
     return (
         <div className="container mx-auto p-4">
             <div className="rounded-depth-lg border border-depth bg-depth-card p-6 shadow-depth-lg">
@@ -122,48 +202,194 @@ export default function FormLihatTp() {
 
                 <form onSubmit={handleSubmit} className="mb-6">
                     <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                        <div>
-                            <label htmlFor="nim" className="mb-1 block text-sm font-medium text-depth-primary">
+
+                        {/* NIM searchable combobox */}
+                        <div ref={nimDropdownRef}>
+                            <label className="mb-1 block text-sm font-medium text-depth-primary">
                                 NIM Praktikan
                             </label>
-                            <input
-                                type="text"
-                                id="nim"
-                                value={nim}
-                                onChange={handleNimChange}
-                                className="w-full rounded-depth-md border border-depth bg-depth-card p-2 text-sm text-depth-primary shadow-depth-sm transition focus:border-[var(--depth-color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)] focus:ring-offset-0"
-                                placeholder="Masukkan NIM"
-                            />
+                            <div className="relative">
+                                <input
+                                    type="search"
+                                    value={nimSearchTerm}
+                                    onChange={(e) => {
+                                        setNimSearchTerm(e.target.value);
+                                        setNim("");
+                                        setIsNimDropdownOpen(true);
+                                        setHighlightedNimIndex(-1);
+                                        setError("");
+                                    }}
+                                    onFocus={() => {
+                                        setIsNimDropdownOpen(true);
+                                        if (filteredPraktikans.length > 0 && highlightedNimIndex === -1) {
+                                            setHighlightedNimIndex(0);
+                                        }
+                                    }}
+                                    onKeyDown={(e) => {
+                                        if (e.key === "Enter") {
+                                            e.preventDefault();
+                                            if (highlightedNimIndex >= 0 && highlightedNimIndex < filteredPraktikans.length) {
+                                                handleNimSelect(filteredPraktikans[highlightedNimIndex]);
+                                            } else if (filteredPraktikans.length > 0) {
+                                                handleNimSelect(filteredPraktikans[0]);
+                                            }
+                                        } else if (e.key === "ArrowDown") {
+                                            e.preventDefault();
+                                            if (!isNimDropdownOpen) { setIsNimDropdownOpen(true); setHighlightedNimIndex(0); return; }
+                                            if (filteredPraktikans.length === 0) return;
+                                            setHighlightedNimIndex((prev) => {
+                                                const next = prev + 1;
+                                                return next >= filteredPraktikans.length ? 0 : next;
+                                            });
+                                        } else if (e.key === "ArrowUp") {
+                                            e.preventDefault();
+                                            if (!isNimDropdownOpen) { setIsNimDropdownOpen(true); setHighlightedNimIndex(Math.max(filteredPraktikans.length - 1, 0)); return; }
+                                            if (filteredPraktikans.length === 0) return;
+                                            setHighlightedNimIndex((prev) => {
+                                                const next = prev - 1;
+                                                return next < 0 ? filteredPraktikans.length - 1 : next;
+                                            });
+                                        } else if (e.key === "Escape") {
+                                            setIsNimDropdownOpen(false);
+                                            setHighlightedNimIndex(-1);
+                                        }
+                                    }}
+                                    placeholder="Cari berdasarkan NIM atau nama"
+                                    className={inputClass}
+                                />
+                                {isNimDropdownOpen && (
+                                    <div className={dropdownListClass}>
+                                        {filteredPraktikans.length === 0 ? (
+                                            <div className="px-4 py-3 text-sm text-depth-secondary">Praktikan tidak ditemukan.</div>
+                                        ) : (
+                                            <ul className="divide-y divide-[color:var(--depth-border)]">
+                                                {filteredPraktikans.map((p, index) => {
+                                                    const isActive = index === highlightedNimIndex;
+                                                    const isSelected = p.nim === nim;
+                                                    return (
+                                                        <li key={`nim-option-${p.nim}`}>
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => handleNimSelect(p)}
+                                                                className={`flex w-full items-center justify-between px-4 py-3 text-left text-sm transition hover:bg-depth-interactive ${
+                                                                    isSelected
+                                                                        ? "bg-depth-interactive/80 font-semibold text-depth-primary"
+                                                                        : isActive
+                                                                            ? "bg-depth-interactive/60 text-depth-primary"
+                                                                            : "text-depth-primary"
+                                                                }`}
+                                                            >
+                                                                <span>{formatPraktikanOption(p)}</span>
+                                                                {isSelected && (
+                                                                    <svg className="h-4 w-4 text-[var(--depth-color-primary)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+                                                                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                                                                    </svg>
+                                                                )}
+                                                            </button>
+                                                        </li>
+                                                    );
+                                                })}
+                                            </ul>
+                                        )}
+                                    </div>
+                                )}
+                            </div>
                         </div>
 
-                        <div>
-                            <label htmlFor="modul" className="mb-1 block text-sm font-medium text-depth-primary">
+                        {/* Modul searchable combobox */}
+                        <div ref={modulDropdownRef}>
+                            <label className="mb-1 block text-sm font-medium text-depth-primary">
                                 Modul
                             </label>
-                            <select
-                                id="modul"
-                                value={selectedModulId}
-                                onChange={handleModulChange}
-                                className="w-full rounded-depth-md border border-depth bg-depth-card p-2 text-sm text-depth-primary shadow-depth-sm transition focus:border-[var(--depth-color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--depth-color-primary)] focus:ring-offset-0"
-                                disabled={modulesLoading || moduleOptions.length === 0}
-                            >
-                                <option value="">
-                                    {modulesLoading
-                                        ? "Memuat modul..."
-                                        : moduleOptions.length === 0
-                                            ? "Tidak ada modul tersedia"
-                                            : "Pilih modul"}
-                                </option>
-                                {!modulesError &&
-                                    moduleOptions.map((module) => (
-                                        <option key={module.id} value={module.id}>
-                                            {module.label}
-                                        </option>
-                                    ))}
-                                {modulesError && (
-                                    <option disabled>{modulesQueryError?.message ?? "Gagal memuat modul"}</option>
+                            <div className="relative">
+                                <input
+                                    type="search"
+                                    value={modulSearchTerm}
+                                    onChange={(e) => {
+                                        setModulSearchTerm(e.target.value);
+                                        setSelectedModulId("");
+                                        setIsModulDropdownOpen(true);
+                                        setHighlightedModulIndex(-1);
+                                        setError("");
+                                    }}
+                                    onFocus={() => {
+                                        setIsModulDropdownOpen(true);
+                                        if (filteredModules.length > 0 && highlightedModulIndex === -1) {
+                                            setHighlightedModulIndex(0);
+                                        }
+                                    }}
+                                    onKeyDown={(e) => {
+                                        if (e.key === "Enter") {
+                                            e.preventDefault();
+                                            if (highlightedModulIndex >= 0 && highlightedModulIndex < filteredModules.length) {
+                                                handleModulSelect(filteredModules[highlightedModulIndex]);
+                                            } else if (filteredModules.length > 0) {
+                                                handleModulSelect(filteredModules[0]);
+                                            }
+                                        } else if (e.key === "ArrowDown") {
+                                            e.preventDefault();
+                                            if (!isModulDropdownOpen) { setIsModulDropdownOpen(true); setHighlightedModulIndex(0); return; }
+                                            if (filteredModules.length === 0) return;
+                                            setHighlightedModulIndex((prev) => {
+                                                const next = prev + 1;
+                                                return next >= filteredModules.length ? 0 : next;
+                                            });
+                                        } else if (e.key === "ArrowUp") {
+                                            e.preventDefault();
+                                            if (!isModulDropdownOpen) { setIsModulDropdownOpen(true); setHighlightedModulIndex(Math.max(filteredModules.length - 1, 0)); return; }
+                                            if (filteredModules.length === 0) return;
+                                            setHighlightedModulIndex((prev) => {
+                                                const next = prev - 1;
+                                                return next < 0 ? filteredModules.length - 1 : next;
+                                            });
+                                        } else if (e.key === "Escape") {
+                                            setIsModulDropdownOpen(false);
+                                            setHighlightedModulIndex(-1);
+                                        }
+                                    }}
+                                    placeholder={modulesLoading ? "Memuat modul..." : "Cari modul"}
+                                    disabled={modulesLoading}
+                                    className={inputClass}
+                                />
+                                {isModulDropdownOpen && !modulesLoading && (
+                                    <div className={dropdownListClass}>
+                                        {filteredModules.length === 0 ? (
+                                            <div className="px-4 py-3 text-sm text-depth-secondary">
+                                                {modulesError ? (modulesQueryError?.message ?? "Gagal memuat modul") : "Modul tidak ditemukan."}
+                                            </div>
+                                        ) : (
+                                            <ul className="divide-y divide-[color:var(--depth-border)]">
+                                                {filteredModules.map((module, index) => {
+                                                    const isActive = index === highlightedModulIndex;
+                                                    const isSelected = module.id === selectedModulId;
+                                                    return (
+                                                        <li key={`modul-option-${module.id}`}>
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => handleModulSelect(module)}
+                                                                className={`flex w-full items-center justify-between px-4 py-3 text-left text-sm transition hover:bg-depth-interactive ${
+                                                                    isSelected
+                                                                        ? "bg-depth-interactive/80 font-semibold text-depth-primary"
+                                                                        : isActive
+                                                                            ? "bg-depth-interactive/60 text-depth-primary"
+                                                                            : "text-depth-primary"
+                                                                }`}
+                                                            >
+                                                                <span>{module.label}</span>
+                                                                {isSelected && (
+                                                                    <svg className="h-4 w-4 text-[var(--depth-color-primary)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+                                                                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                                                                    </svg>
+                                                                )}
+                                                            </button>
+                                                        </li>
+                                                    );
+                                                })}
+                                            </ul>
+                                        )}
+                                    </div>
                                 )}
-                            </select>
+                            </div>
                         </div>
                     </div>
 

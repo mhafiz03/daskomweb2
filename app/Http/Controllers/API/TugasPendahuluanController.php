@@ -46,6 +46,7 @@ class TugasPendahuluanController extends Controller
                 $data = $item->toArray();
                 $data['active_kelas_ids'] = $item->activeKelas->pluck('id')->values()->all();
                 unset($data['active_kelas']);
+
                 return $data;
             });
 
@@ -142,4 +143,3 @@ class TugasPendahuluanController extends Controller
         }
     }
 }
-

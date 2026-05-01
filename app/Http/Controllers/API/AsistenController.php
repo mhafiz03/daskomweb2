@@ -65,8 +65,6 @@ class AsistenController extends Controller
         }
     }
 
-
-
     /**
      * Store a newly created resource in storage.
      */
@@ -167,7 +165,7 @@ class AsistenController extends Controller
 
             return back()->with('success', 'Profile picture updated successfully.');
         } catch (\Exception $e) {
-            return back()->with('error', 'Something went wrong: ' . $e->getMessage());
+            return back()->with('error', 'Something went wrong: '.$e->getMessage());
         }
     }
 
@@ -188,7 +186,7 @@ class AsistenController extends Controller
 
             return back()->with('success', 'Profile picture deleted successfully.');
         } catch (\Exception $e) {
-            return back()->with('error', 'Failed to delete profile picture: ' . $e->getMessage());
+            return back()->with('error', 'Failed to delete profile picture: '.$e->getMessage());
         }
     }
 
@@ -254,7 +252,7 @@ class AsistenController extends Controller
             }
 
             return redirect()->back()->withErrors([
-                'error' => 'gagal mengubah password: ' . $e->getMessage(),
+                'error' => 'gagal mengubah password: '.$e->getMessage(),
             ]);
         }
     }

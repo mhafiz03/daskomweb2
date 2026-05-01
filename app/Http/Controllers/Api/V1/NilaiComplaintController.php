@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
-use App\Models\NilaiComplaint;
 use App\Models\Nilai;
+use App\Models\NilaiComplaint;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -14,10 +14,10 @@ class NilaiComplaintController extends Controller
     {
         $praktikan = Auth::guard('praktikan')->user();
 
-        if (!$praktikan) {
+        if (! $praktikan) {
             return response()->json([
                 'success' => false,
-                'message' => 'Unauthorized'
+                'message' => 'Unauthorized',
             ], 401);
         }
 
@@ -31,7 +31,7 @@ class NilaiComplaintController extends Controller
         if ($nilai->praktikan_id !== $praktikan->id) {
             return response()->json([
                 'success' => false,
-                'message' => 'Anda tidak memiliki akses ke nilai ini'
+                'message' => 'Anda tidak memiliki akses ke nilai ini',
             ], 403);
         }
 
@@ -44,7 +44,7 @@ class NilaiComplaintController extends Controller
         if ($existingComplaint) {
             return response()->json([
                 'success' => false,
-                'message' => 'Anda sudah memiliki complaint pending untuk nilai ini'
+                'message' => 'Anda sudah memiliki complaint pending untuk nilai ini',
             ], 422);
         }
 
@@ -58,7 +58,7 @@ class NilaiComplaintController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Komplain nilai berhasil dikirim',
-            'data' => $complaint
+            'data' => $complaint,
         ], 201);
     }
 
@@ -66,10 +66,10 @@ class NilaiComplaintController extends Controller
     {
         $praktikan = Auth::guard('praktikan')->user();
 
-        if (!$praktikan) {
+        if (! $praktikan) {
             return response()->json([
                 'success' => false,
-                'message' => 'Unauthorized'
+                'message' => 'Unauthorized',
             ], 401);
         }
 
@@ -80,7 +80,7 @@ class NilaiComplaintController extends Controller
 
         return response()->json([
             'success' => true,
-            'data' => $complaints
+            'data' => $complaints,
         ]);
     }
 
@@ -88,10 +88,10 @@ class NilaiComplaintController extends Controller
     {
         $asisten = Auth::guard('asisten')->user();
 
-        if (!$asisten) {
+        if (! $asisten) {
             return response()->json([
                 'success' => false,
-                'message' => 'Unauthorized'
+                'message' => 'Unauthorized',
             ], 401);
         }
 
@@ -104,7 +104,7 @@ class NilaiComplaintController extends Controller
 
         return response()->json([
             'success' => true,
-            'data' => $complaints
+            'data' => $complaints,
         ]);
     }
 
@@ -112,10 +112,10 @@ class NilaiComplaintController extends Controller
     {
         $asisten = Auth::guard('asisten')->user();
 
-        if (!$asisten) {
+        if (! $asisten) {
             return response()->json([
                 'success' => false,
-                'message' => 'Unauthorized'
+                'message' => 'Unauthorized',
             ], 401);
         }
 
@@ -123,7 +123,7 @@ class NilaiComplaintController extends Controller
         if ($complaint->nilai->asisten_id !== $asisten->id) {
             return response()->json([
                 'success' => false,
-                'message' => 'Anda tidak memiliki akses ke complaint ini'
+                'message' => 'Anda tidak memiliki akses ke complaint ini',
             ], 403);
         }
 
@@ -140,8 +140,7 @@ class NilaiComplaintController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Status complaint berhasil diperbarui',
-            'data' => $complaint->load(['nilai.modul', 'praktikan'])
+            'data' => $complaint->load(['nilai.modul', 'praktikan']),
         ]);
     }
 }
-

@@ -1,18 +1,19 @@
 import { useEffect, useRef, useState } from "react";
 import WindowModal from "@/Components/Common/WindowModal";
 
-const LOGIN_URL = "https://see.labs.telkomuniversity.ac.id/praktikum/index.php/home/loginprak";
-const INPUT_URL =
-    "https://see.labs.telkomuniversity.ac.id/praktikum/index.php/pageasisten/inputnilaipraktikum";
-const LOGOUT_URL = "https://see.labs.telkomuniversity.ac.id/praktikum/index.php/pageasisten/logout";
+const BASE_PROXY = "/api-v1/see-proxy?url=";
+const LOGIN_URL = BASE_PROXY + "/praktikum/index.php/home/loginprak";
+const INPUT_URL = BASE_PROXY + "/praktikum/index.php/pageasisten/inputnilaipraktikum";
+const LOGOUT_URL = BASE_PROXY + "/praktikum/index.php/pageasisten/logout";
 const IFRAME_NAME = "shortcut-frame";
 
 const HARI_OPTIONS = [
     { label: "SENIN", value: "1" },
-    { label: "SELESA", value: "2" },
+    { label: "SELASA", value: "2" },
     { label: "RABU", value: "3" },
     { label: "KAMIS", value: "4" },
     { label: "JUMAT", value: "5" },
+    { label: "SABTU", value: "6" },
 ];
 
 const STORAGE_KEYS = {
