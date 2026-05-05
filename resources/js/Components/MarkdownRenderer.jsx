@@ -73,9 +73,11 @@ export default function MarkdownRenderer({ content, className = '' }) {
                     p: ({ children }) => <div className="mb-2 whitespace-pre-wrap">{children}</div>,
                     ul: ({ children }) => <ul className="list-disc list-inside mb-2">{children}</ul>,
                     ol: ({ children }) => <ol className="list-decimal list-inside mb-2">{children}</ol>,
-                    table: ({ children }) => <div className="overflow-x-auto my-4"><table className="min-w-full divide-y divide-depth border border-depth">{children}</table></div>,
-                    th: ({ children }) => <th className="px-4 py-2 bg-depth-interactive text-left font-bold">{children}</th>,
-                    td: ({ children }) => <td className="px-4 py-2 border-t border-depth">{children}</td>,
+                    table: ({ children }) => <div className="overflow-x-auto my-3"><table className="min-w-full border-collapse border border-depth text-sm">{children}</table></div>,
+                    thead: ({ children }) => <thead className="bg-depth-interactive">{children}</thead>,
+                    tbody: ({ children }) => <tbody className="divide-y divide-depth">{children}</tbody>,
+                    th: ({ children }) => <th className="px-2.5 py-1 text-left text-xs font-semibold uppercase tracking-wider text-depth-secondary border border-depth whitespace-nowrap">{children}</th>,
+                    td: ({ children }) => <td className="px-2.5 py-1 text-sm text-depth-primary border-x border-depth">{children}</td>,
                 }}
             >
                 {processedContent}
