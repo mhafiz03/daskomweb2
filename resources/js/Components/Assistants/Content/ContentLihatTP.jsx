@@ -1,69 +1,120 @@
-import { router } from "@inertiajs/react";
 import MarkdownRenderer from "../../MarkdownRenderer";
 
 export default function ContentLihatTP({ jawabanData, praktikan, modul }) {
-    // Check if we have data to display
     const hasData = jawabanData && jawabanData.length > 0;
 
     return (
-        <div className="container mx-auto p-4">
-            <div className="bg-white dark:bg-gray-800 shadow-md rounded-lg p-6">
-                {/* Header Section */}
-                <div className="flex justify-between items-center mb-6">
-                    <h1 className="text-2xl font-bold text-deepForestGreen dark:text-green-400">Jawaban TP</h1>
-                    <button
-                        onClick={() => router.get('/lihat-tp')}
-                        className="px-4 py-2 bg-gray-200 dark:bg-gray-700 rounded hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200"
-                    >
-                        Kembali
-                    </button>
+        <div className="space-y-5">
+            {/* ── Info card ── */}
+            {praktikan && modul && (
+                <div className="rounded-depth-lg border border-depth bg-depth-card shadow-depth-md">
+                    <div className="border-b border-depth px-5 py-3">
+                        <h2 className="text-xs font-semibold uppercase tracking-widest text-depth-secondary">
+                            Informasi Praktikan
+                        </h2>
+                    </div>
+                    <div className="grid grid-cols-1 gap-x-8 gap-y-3 px-5 py-4 sm:grid-cols-3">
+                        <div className="flex flex-col gap-0.5">
+                            <span className="text-[10px] font-semibold uppercase tracking-wider text-depth-secondary">
+                                Nama
+                            </span>
+                            <span className="text-sm font-medium text-depth-primary">
+                                {praktikan.nama}
+                            </span>
+                        </div>
+                        <div className="flex flex-col gap-0.5">
+                            <span className="text-[10px] font-semibold uppercase tracking-wider text-depth-secondary">
+                                NIM
+                            </span>
+                            <span className="text-sm font-mono font-medium text-depth-primary">
+                                {praktikan.nim}
+                            </span>
+                        </div>
+                        <div className="flex flex-col gap-0.5">
+                            <span className="text-[10px] font-semibold uppercase tracking-wider text-depth-secondary">
+                                Modul
+                            </span>
+                            <span className="text-sm font-medium text-depth-primary">
+                                {modul.judul}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* ── Q&A list ── */}
+            <div className="rounded-depth-lg border border-depth bg-depth-card shadow-depth-md">
+                <div className="border-b border-depth px-5 py-3">
+                    <h2 className="text-xs font-semibold uppercase tracking-widest text-depth-secondary">
+                        Jawaban Tugas Pendahuluan
+                        {hasData && (
+                            <span className="ml-2 inline-flex items-center rounded-depth-full border border-depth bg-depth-interactive px-2 py-0.5 text-[10px] font-semibold normal-case tracking-normal text-depth-primary">
+                                {jawabanData.length} soal
+                            </span>
+                        )}
+                    </h2>
                 </div>
 
-                {/* Practical Info Section */}
-                {praktikan && modul && (
-                    <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded mb-6 space-y-2">
-                        <p className="font-medium text-gray-900 dark:text-gray-100">
-                            Nama Praktikan: <span className="font-normal">{praktikan.nama}</span>
-                        </p>
-                        <p className="font-medium text-gray-900 dark:text-gray-100">
-                            NIM: <span className="font-normal">{praktikan.nim}</span>
-                        </p>
-                        <p className="font-medium text-gray-900 dark:text-gray-100">
-                            Modul: <span className="font-normal">{modul.judul}</span>
-                        </p>
-                    </div>
-                )}
-
-                {/* Questions & Answers Section */}
-                <div className="space-y-6 max-h-[600px] overflow-y-auto">
+                <div className="divide-y divide-[color:var(--depth-border)]">
                     {hasData ? (
                         jawabanData.map((item, index) => (
-                            <div
-                                key={item.soal_id}
-                                className="p-4 rounded-lg bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 shadow-sm"
-                            >
-                                <div className="flex font-semibold text-lg mb-3 text-gray-900 dark:text-gray-100 gap-2">
-                                    <span>{index + 1}.</span>
-                                    <div className="flex-1 min-w-0">
+                            <div key={item.soal_id} className="px-5 py-5">
+                                {/* Question */}
+                                <div className="mb-3 flex gap-3">
+                                    <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-depth-md bg-[var(--depth-color-primary)] text-xs font-bold text-white shadow-depth-sm">
+                                        {index + 1}
+                                    </span>
+                                    <div className="min-w-0 flex-1 text-sm font-semibold leading-relaxed text-depth-primary">
                                         <MarkdownRenderer content={item.soal_text} />
                                     </div>
                                 </div>
-                                <div className="mt-2 p-3 bg-blue-50 dark:bg-blue-900/30 rounded-md border border-blue-200 dark:border-blue-700 shadow-inner">
-                                    <div className="text-gray-800 dark:text-gray-200 overflow-x-auto min-w-0">
+
+                                {/* Answer */}
+                                <div className="ml-9 rounded-depth-md border border-depth bg-depth-interactive px-4 py-3" style={{ borderLeftWidth: "3px", borderLeftColor: "var(--depth-color-primary)" }}>
+                                    <div className="mb-1.5 flex items-center gap-1.5">
+                                        <svg
+                                            className="h-3.5 w-3.5 shrink-0 text-[var(--depth-color-primary)]"
+                                            viewBox="0 0 24 24"
+                                            fill="none"
+                                            stroke="currentColor"
+                                            strokeWidth={2}
+                                        >
+                                            <path
+                                                strokeLinecap="round"
+                                                strokeLinejoin="round"
+                                                d="M8 10h8M8 14h5"
+                                            />
+                                            <rect x="3" y="4" width="18" height="16" rx="2" />
+                                        </svg>
+                                        <span className="text-[10px] font-semibold uppercase tracking-wider text-[var(--depth-color-primary)]">
+                                            Jawaban
+                                        </span>
+                                    </div>
+                                    <div className="min-w-0 overflow-x-auto text-sm leading-relaxed text-depth-primary">
                                         {item.jawaban ? (
                                             <MarkdownRenderer content={item.jawaban} />
                                         ) : (
-                                            "Tidak ada jawaban"
+                                            <span className="italic text-depth-secondary">
+                                                Tidak ada jawaban
+                                            </span>
                                         )}
                                     </div>
                                 </div>
                             </div>
                         ))
                     ) : (
-                        <div className="text-center py-8">
-                            <p className="text-gray-600 dark:text-gray-400">
-                                Belum ada jawaban yang tersubmit untuk modul ini
-                            </p>
+                        <div className="flex flex-col items-center justify-center gap-2 py-14 text-center text-depth-secondary">
+                            <svg
+                                className="h-10 w-10 opacity-40"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth={1.5}
+                            >
+                                <circle cx="12" cy="12" r="9" />
+                                <path strokeLinecap="round" d="M9 9h.01M15 9h.01M9.5 14.5s.8 1.5 2.5 1.5 2.5-1.5 2.5-1.5" />
+                            </svg>
+                            <p className="text-sm">Belum ada jawaban yang tersubmit untuk modul ini.</p>
                         </div>
                     )}
                 </div>

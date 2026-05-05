@@ -174,20 +174,23 @@ export default function FormLihatTp() {
 
     if (showResults) {
         return (
-            <div>
+            <div className="space-y-4">
+                <div>
+                    <button
+                        onClick={handleBackToForm}
+                        className="inline-flex items-center gap-1.5 rounded-depth-md border border-depth bg-depth-interactive px-4 py-2 text-sm font-semibold text-depth-primary shadow-depth-sm transition hover:-translate-y-0.5 hover:border-[var(--depth-color-primary)] hover:text-[var(--depth-color-primary)] hover:shadow-depth-md"
+                    >
+                        <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+                        </svg>
+                        Kembali ke Pencarian
+                    </button>
+                </div>
                 <ContentLihatTP
                     jawabanData={resultData.jawabanData}
                     praktikan={resultData.praktikan}
                     modul={resultData.modul}
                 />
-                <div className="container mx-auto p-4 text-center">
-                    <button
-                        onClick={handleBackToForm}
-                        className="rounded-depth-md border border-depth bg-depth-interactive px-5 py-2 text-sm font-semibold text-depth-primary shadow-depth-sm transition hover:-translate-y-0.5 hover:shadow-depth-md"
-                    >
-                        Kembali ke Pencarian
-                    </button>
-                </div>
             </div>
         );
     }
