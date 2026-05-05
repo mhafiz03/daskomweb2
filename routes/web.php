@@ -221,7 +221,7 @@ Route::prefix('api-v1')->middleware(['audit.assistant', 'auth:asisten,praktikan'
         ->middleware(['auth:praktikan', 'can:praktikum-lms']);
     Route::get('/praktikan', [PraktikanController::class, 'index'])
         ->name('praktikan.index')
-        ->middleware(['auth:asisten', 'permission:praktikan-regist|manage-role']);
+        ->middleware(['auth:asisten', 'permission:praktikan-regist|manage-role|check-tugas-pendahuluan|nilai-praktikan']);
     Route::post('/praktikan', [PraktikanController::class, 'store'])
         ->name('praktikan.store')
         ->middleware(['auth:asisten', 'permission:praktikan-regist|manage-role']);
@@ -416,7 +416,7 @@ Route::prefix('api-v1')->middleware(['audit.assistant', 'auth:asisten,praktikan'
 
     // Jawaban TP asisten
     // Route::get('/jawaban-tp/{nim}/{modulId}', [JawabanTPController::class, 'show'])->name('jawaban-tp.show')->middleware(['auth:asisten', 'can:nilai-praktikan']);
-    Route::get('/jawaban-tp/{nim}/{modulId}', [JawabanTPController::class, 'getJawabanTP'])->name('jawaban-tp.show')->middleware(['auth:asisten', 'can:nilai-praktikan']);
+    Route::get('/jawaban-tp/{nim}/{modulId}', [JawabanTPController::class, 'getJawabanTP'])->name('jawaban-tp.show')->middleware(['auth:asisten', 'permission:nilai-praktikan|check-tugas-pendahuluan']);
     // For Inertia.js page rendering
     // set praktikan
     // Route::post('/set-praktikan', [PraktikanController::class, 'setPraktikan'])->name('set.praktikan')->middleware(['auth:asisten', 'can:set-praktikan']);

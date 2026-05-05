@@ -26,7 +26,7 @@ class PraktikanController extends Controller
     public function index(Request $request): JsonResponse
     {
         $perPage = (int) $request->input('per_page', 15);
-        $perPage = max(5, min($perPage, 50));
+        $perPage = max(5, min($perPage, 1000));
         $search = trim((string) $request->input('search', ''));
         $kelasId = $request->input('kelas_id');
         $dk = $request->input('dk');

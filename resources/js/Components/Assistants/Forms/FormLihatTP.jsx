@@ -151,13 +151,16 @@ export default function FormLihatTp() {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        if (!nim || !selectedModulId) {
+        // If no dropdown selection, fall back to the raw typed NIM string
+        const nimToUse = nim || nimSearchTerm.trim();
+
+        if (!nimToUse || !selectedModulId) {
             setError("NIM dan Modul harus diisi");
             return;
         }
 
         setError("");
-        jawabanTpMutation.mutate({ nim, modulId: selectedModulId });
+        jawabanTpMutation.mutate({ nim: nimToUse, modulId: selectedModulId });
     };
 
     const handleBackToForm = () => {
